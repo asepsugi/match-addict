@@ -11,6 +11,8 @@ Hasil:
 - design/spec/components.md — tiap komponen: nama widget, frame pemakainya, aturan CSS apa adanya.
 - design/spec/rects.json — posisi tiap elemen berkelas komponen di tiap frame layar (pt, relatif ke layar),
   diukur Chrome setelah font termuat. Dipakai golden per komponen (`expectRegionMatchesHifi`).
+- test/hifi/components/share_poster_data.dart — isi setiap poster Bagikan (nomor, nama, nilai, satuan,
+  selisih) untuk golden SharePoster.
 
 Ditulis ulang setiap dijalankan; jangan edit hasilnya dengan tangan, edit hifi.html lalu jalankan lagi.
 Butuh Google Chrome dan internet (font Archivo dimuat dari Google Fonts).
@@ -222,12 +224,51 @@ def write_specs(flows, rules):
     open(os.path.join(DESIGN, 'spec', 'components.md'), 'w', encoding='utf-8').write('\n'.join(comp))
 
 
+def write_poster_data(flows):
+    """Baris setiap poster di alur Bagikan → `posterRows[(frame, urutan poster)]` untuk golden SharePoster.
+
+    11c (gagal share) tidak ikut: posternya sama dengan 11a.
+    """
+    row = re.compile(r'<div class="prow[^"]*"[^>]*><b class="r n"[^>]*>(\d+)</b>(.*?)<b class="pt n"[^>]*>([^<]+)'
+                     r'<small[^>]*>(?:([^<·]+) )?· ([^<]+)</small></b></div>')
+    q = lambda t: "'" + H.unescape(t).replace("'", "\\'") + "'"
+    out = ['// Dihasilkan tool/hifi_extract.py dari design/hifi.html (bagian Bagikan) untuk golden SharePoster;',
+           '// data = isi poster di frame. Jangan diedit dengan tangan.',
+           '// ignore_for_file: lines_longer_than_80_chars', '',
+           "import 'package:match_addict/features/share/widgets/share_poster.dart';", '',
+           '/// (frame, urutan poster di frame) → baris poster.',
+           'const posterRows = <(String, int), List<SharePosterRow>>{']
+    flow = next(f for f in flows if f['id'] == 'bagikan')
+    for f in flow['frames']:
+        if f['id'] == '11c':
+            continue
+        for i, poster in enumerate(re.split(r'<div class="poster" ', f['root'])[1:]):
+            rows = row.findall(poster)
+            if not rows:
+                continue
+            out.append(f"  ('{f['id']}', {i}): [")
+            for pos, mid, value, unit, diff in rows:
+                names = re.findall(r'<span>([^<]*)</span>', mid) if 'nm2' in mid else \
+                    re.search(r'<span class="nm">([^<]*)</span>', mid).group(1).split(' + ')
+                args = [f'position: {pos}', 'names: [' + ', '.join(q(n) for n in names) + ']', f'value: {q(value)}']
+                if unit:
+                    args.append(f'detail: {q(unit)}')
+                args.append(f'diff: {q(diff)}')
+                out.append(f"    SharePosterRow({', '.join(args)}),")
+            out.append('  ],')
+    out.append('};')
+    path = os.path.join(ROOT, 'test', 'hifi', 'components', 'share_poster_data.dart')
+    open(path, 'w', encoding='utf-8').write('\n'.join(out) + '\n')
+    print('  poster →', os.path.relpath(path, ROOT))
+
+
 def main():
     s = open(HIFI, encoding='utf-8').read()
     flows = frames(s)
     write_specs(flows, css_rules())
     print(sum(len(f['frames']) for f in flows), 'frame,', len(flows), 'alur → design/spec/')
     write_rects(s, flows)
+    write_poster_data(flows)
     if '--no-png' not in sys.argv:
         render_pngs(s, flows)
 

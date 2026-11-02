@@ -80,8 +80,8 @@ class LiveRelay {
   /// `npm run dev`.
   static const url = String.fromEnvironment('LIVE_RELAY', defaultValue: 'https://mabar-live.mabar-live.workers.dev');
 
-  /// Web Mabar di GitHub Pages; penonton membuka `#/live/KODE` di sini.
-  static const viewerBase = 'https://asepsugi.github.io/mabar/';
+  /// Web Match Addict di GitHub Pages; penonton membuka `#/live/KODE` di sini.
+  static const viewerBase = 'https://asepsugi.github.io/match-addict/';
 
   static const _timeout = Duration(seconds: 15);
   static final _code = RegExp(r'^/live/([23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6})$', caseSensitive: false);

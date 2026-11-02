@@ -70,7 +70,7 @@ class _LiveMessage extends StatelessWidget {
           style: MabarType.sheetTitle.copyWith(color: MabarColors.ink, height: 1.15),
         ),
         const SizedBox(height: 14),
-        const MabarButton(label: 'Buka Mabar', variant: MabarButtonVariant.secondary, small: true, onPressed: openHome),
+        const MabarButton(label: 'Buka Match Addict', variant: MabarButtonVariant.secondary, small: true, onPressed: openHome),
       ],
     ),
   );

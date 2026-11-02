@@ -1,6 +1,12 @@
-# Mabar — konteks proyek
+# Match Addict (dulu Mabar) — konteks proyek
 
 App Flutter untuk host turnamen mabar tennis/padel (klub, 4–30 pemain, 1 device host, offline).
+
+**Nama app = Match Addict** sejak 3.0.0 (keputusan host 2026-11-02): wordmark "Match Addict" (bukan huruf kecil), label
+ikon, judul web, repo `asepsugi/match-addict`, web `asepsugi.github.io/match-addict/`, bundle id `id.matchaddict.app`,
+paket Dart `match_addict`. Yang sengaja **tetap** "mabar": nama kelas/berkas internal (`MabarColors`, `MabarButton`,
+`mabar_ball.dart`, `window.mabarInstall`, …), box Hive `tournament`, worker relay `mabar-live` (URL relay tidak berubah),
+dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnamen ("Mabar Jumat PB Garuda").
 
 **Sumber kebenaran, baca sebelum mengubah UI/logika:**
 - `PRD.md` — produk, algoritma, aturan skor & ranking, **versi 2.1 sejalan dengan hi-fi v2** (diselaraskan 2026-10-22).
@@ -132,7 +138,8 @@ dinaikkan di commit yang membawa perubahan ke `main` (tiap push = deploy web), k
 naik tiap rilis. Sebut kategorinya di pesan commit/PR (`[minor]`). Branch `redesain-v2-spec` = 2.0.0 (MAJOR: redesain +
 format skor + data app lama tidak dimuat); 2.2.0 (MINOR) = Kelola court; 2.3.0 (MINOR) = nama turnamen;
 2.4.0 (MINOR) = batas 30 pemain; 2.5.0 (MINOR) = live score; 2.6.0 (MINOR) = nama lengkap di baris match, Akhiri di
-Beranda, back PWA; 2.7.0 (MINOR) = pemain telat Mixed menyusul (kredit dihapus); 2.8.0 (MINOR) = Best of/Americano berhenti lebih awal.
+Beranda, back PWA; 2.7.0 (MINOR) = pemain telat Mixed menyusul (kredit dihapus); 2.8.0 (MINOR) = Best of/Americano berhenti lebih awal;
+3.0.0 (MAJOR) = nama Match Addict + pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda).
 
 ## Arsitektur
 
@@ -181,8 +188,8 @@ Mesin domain yang sudah ada + ter-test (semua `flutter test` lulus, termasuk gol
   keputusan host. **R1 tidak bisa dibatalkan** (`roundCount > 1`), karena layar jadwal tanpa round tidak punya isi.
   Setelah dibatalkan layar pindah ke round sebelumnya; pemain yang ditambah setelah round itu dibuat paling sedikit
   main, jadi langsung main di round penggantinya.
-- `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang dimenangkan lintas match: 6-5, 4-6, 3-6 → 13). Default app = Total Point, sesuai keputusan host bahwa total point dihitung lebih dulu; metode "Kombinasi" sudah dihapus karena isinya identik dengan Win %. Tie-break: metode → total point → head-to-head → selisih game → nama (PRD bilang undian; dipakai nama supaya stabil). WO (PRD 4.4, `ScoreFormat.woWinnerScore`): menang/kalah dihitung; pemenang dapat N game di Race to, di Best of/Americano rata-rata skornya sendiri dari match yang dia mainkan (bulat ,5 ke atas) tapi minimal ⌊N÷2⌋+1; yang kalah 0. Nilai itu masuk `woPoints` → `totalPoint`, **tidak** ke `gameDiff`. Format lama tetap: WO tanpa game. `cancelled` & `pending` diabaikan total. Tes dengan data frame 09a–09f/10b: `test/services/ranking_v2_test.dart`.
-- `ranking/ranking_calculator.dart` → `standingEntries()` — mengubah klasemen per pemain jadi baris tampilan. Mode Fixed: pasangan tidak pernah berganti sehingga statistik kedua anggotanya identik, jadi dua baris kembar digabung jadi satu baris "Andi + Budi" yang mengambil posisi anggota terbaiknya. Mode Mixed: satu baris per pemain, urutan `rank()` tidak diubah. Pemain sisa (jumlah ganjil) tetap tampil sendiri. `StandingEntry.position`: statistik identik (poin, selisih, W–L–D) → nomor sama (1, 1, 3); baris yang belum main dipindah ke belakang dengan `position == null` (grup "Belum main"). Peringkat, Detail, Bagikan, dan caption memakai nomor ini — jangan menomori dengan indeks.
+- `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang dimenangkan lintas match: 6-5, 4-6, 3-6 → 13). Default app = Total Point, sesuai keputusan host bahwa total point dihitung lebih dulu; metode "Kombinasi" sudah dihapus karena isinya identik dengan Win %. Urutan = `RankingCalculator.compare`: nilai metode → selisih (`gameDiff`), lalu nama hanya untuk mengurutkan yang nomornya sama. Keputusan host 2026-11-02: hanya angka yang tampil di Klasemen/poster yang menentukan nomor, jadi head-to-head (di Mixed bisa berputar A > B > C > A) dan Total Point sebagai pemisah Win % dihapus. WO (PRD 4.4, `ScoreFormat.woWinnerScore`): menang/kalah dihitung; pemenang dapat N game di Race to, di Best of/Americano rata-rata skornya sendiri dari match yang dia mainkan (bulat ,5 ke atas) tapi minimal ⌊N÷2⌋+1; yang kalah 0. Nilai itu masuk `woPoints` → `totalPoint`, **tidak** ke `gameDiff`. Format lama tetap: WO tanpa game. `cancelled` & `pending` diabaikan total. Tes dengan data frame 09a–09f/10b: `test/services/ranking_v2_test.dart`.
+- `ranking/ranking_calculator.dart` → `standingEntries()` — mengubah klasemen per pemain jadi baris tampilan. Mode Fixed: pasangan tidak pernah berganti sehingga statistik kedua anggotanya identik, jadi dua baris kembar digabung jadi satu baris "Andi + Budi" yang mengambil posisi anggota terbaiknya. Mode Mixed: satu baris per pemain, urutan `rank()` tidak diubah. Pemain sisa (jumlah ganjil) tetap tampil sendiri. `StandingEntry.position`: `compare` = 0 (nilai metode dan selisih sama) → nomor sama, nomor berikutnya melanjutkan (1, 2, 2, 3 — bukan 1, 2, 2, 4), jadi `standingEntries` butuh `method` yang sama dengan `rank()`; baris yang belum main dipindah ke belakang dengan `position == null` (grup "Belum main"). Peringkat, Detail, Bagikan, dan caption memakai nomor ini — jangan menomori dengan indeks.
 - `ActiveTournament.isFinal(now)` — status Final/Sementara: diakhiri, Fixed semua match terisi, Mixed waktu booking habis + round terakhir lengkap (bukan tiap round lengkap). `playedRoundCount` = jumlah round yang punya match selesai/WO ("5 round · 10 match").
 - **Format skor** (`TournamentConfig.format` = `ScoreFormat(method, target)`; tes `test/services/score_format_test.dart`):
   Race to N (2–9, default 6 — default kedua olahraga; murni: skor akhir N lawan 0..N−1, tanpa 7–5/7–6), Best of N (1–15, default 5), Americano N (2–99, default 21).
@@ -227,8 +234,9 @@ Bagikan (`features/share/share_result_screen.dart`) mengirim **gambar**, bukan c
 dengan `Share.shareXFiles` lewat share sheet sistem, teks hasil (`ResultTextBuilder`) jadi caption. Gagal share →
 caption disalin + toast "Hasil disalin" (selalu 19 pt di atas action bar: `showMabarToast(bottom:)` diisi tinggi
 action bar dua tombol). Isi poster dari `sharePosterData()` (`share_content.dart`): Ringkas = 5
-teratas + "+n pemain/pasangan lainnya", Lengkap = semua yang bernomor; Fixed menulis nilai + satuan saja, Mixed
-"42 poin · 100%" / "100% · +12". Lengkap: Mixed > 10 baris di pratinjau/Feed jadi dua kolom, pasangan dan Story selalu
+teratas + "+n pemain/pasangan lainnya", Lengkap = semua yang bernomor. Tiap baris = nilai metode + selisih
+(`SharePosterRow.detail` satuan, `.diff` selisih): "42 poin · +12" / "100% · +12", dua kolom dan Story tanpa satuan
+"42 · +12". Data golden poster (`test/hifi/components/share_poster_data.dart`) ditulis `tool/hifi_extract.py`. Lengkap: Mixed > 10 baris di pratinjau/Feed jadi dua kolom, pasangan dan Story selalu
 satu kolom; lebih padat dari frame terpadat yang disetujui (10 baris satu kolom, 15 per kolom, 20 baris nama di Story) semua huruf
 baris dikecilkan sebanding (`SharePoster._density`, frame 11k/11l). Teks kepala/kaki poster dibungkus `_CssLines`
 (tinggi = n baris × ukuran × line-height, ikut skala teks) supaya ruang daftar sama dengan CSS. Golden Feed/Story 11l
@@ -241,7 +249,7 @@ Cara melihat hasil poster tanpa build web: test sekali pakai yang me-render `Sha
 ## Live score (2.5.0)
 
 Keputusan host 2026-10-24 (frame 06c/06d/06i, 12a–12o; PRD §5.11; aturan rinci `design/spec/logic.md` §11). Host
-membagikan link `asepsugi.github.io/mabar/#/live/KODE`; pemain lain melihat Jadwal, Klasemen, Detail di browser, baca
+membagikan link `asepsugi.github.io/match-addict/#/live/KODE`; pemain lain melihat Jadwal, Klasemen, Detail di browser, baca
 saja, Fixed dan Mixed. **Tanpa database**: `relay/src/index.js` (Cloudflare Worker + satu Durable Object per kode, paket
 gratis) hanya memegang salinan JSON `TournamentCodec` terakhir, terhapus 3 hari setelah kiriman terakhir. Deploy relay
 dari `relay/`: `npm install`, `npx wrangler login` (akun Cloudflare host), `npm run deploy`. URL produksi
@@ -264,7 +272,7 @@ deploy). Relay tidak ikut `flutter test`/CI.
   karena ia berubah tiap pengecekan. Cek tiap 10 detik (1 menit setelah Final), berhenti saat halaman tidak terlihat
   (`AppLifecycleListener`), dua gagal → "Offline", 404 → "Live tidak ditemukan".
 - `features/live/live_score.dart` — item menu, dialog mulai, `LiveScoreSheet`, `LiveTag`; `live_screen.dart` — rute
-  `/live/:code`; `open_home*.dart` — "Buka Mabar" memuat ulang web tanpa fragment (mode penonton dipasang sekali di
+  `/live/:code`; `open_home*.dart` — "Buka Match Addict" memuat ulang web tanpa fragment (mode penonton dipasang sekali di
   `main()`).
 - Mixed: mengetuk tab round terakhir menyimpan `null`, jadi penonton yang mengikuti round terakhir ikut pindah saat round
   baru muncul. ⋯ Fixed setelah diakhiri tetap aktif (menunya berisi Live score).
@@ -330,7 +338,7 @@ Sumber aslinya JPEG berlatar putih; konversinya: potong bingkai tipis 1-2px di t
 
 ## Target platform
 
-`android/`, `ios/`, dan `web/` semuanya ada. Bundle id / applicationId: **`id.mabar.app`** (label `Mabar`),
+`android/`, `ios/`, dan `web/` semuanya ada. Bundle id / applicationId: **`id.matchaddict.app`** (label `Match Addict`; dulu `id.mabar.app`),
 minSdk 24, iOS minimum 15. Beranda tanpa header: banner lapangan naik sampai di bawah status bar (gambarnya ikut
 `MediaQuery.padding.top`) dengan ikon status bar putih lewat `AnnotatedRegion` (`MabarTheme.statusBarLight`); default
 gelap dipasang di `builder` `MaterialApp` supaya gaya putih tidak terbawa ke layar lain. Beranda tidak menampilkan versi
@@ -343,7 +351,7 @@ Kode Dart-nya bebas platform (nol `kIsWeb`/`dart:html`/`Platform.*`). Titik sent
 
 - Share sheet di `features/share/share_result_screen.dart` — `XFile.fromData` in-memory, jadi tidak ada
   permission/Info.plist yang perlu ditambah. Konsekuensinya share **wajib diuji di HP fisik**, bukan simulator.
-- Kartu **"Pasang Mabar di HP"** di Beranda (PWA saja). `features/home/app_install.dart` memilih implementasi
+- Kartu **"Pasang Match Addict di HP"** di Beranda (PWA saja). `features/home/app_install.dart` memilih implementasi
   lewat conditional export: `app_install_web.dart` (`dart:js_interop`) atau stub (native/test → selalu `none`,
   kartu tidak muncul). Logikanya di `window.mabarInstall` (`web/index.html`): `beforeinstallprompt` harus
   ditangkap di sana karena sering datang sebelum Flutter selesai dimuat. Chrome/Edge/Samsung Internet →
@@ -353,7 +361,7 @@ Kode Dart-nya bebas platform (nol `kIsWeb`/`dart:html`/`Platform.*`). Titik sent
   lagi mengirim event-nya. Di tab Safari iOS status terpasang **tidak bisa** diketahui, jadi kartunya tetap
   muncul di sana. Closure yang dioper ke `.toJS` harus mengembalikan tipe JS/void — `() => x.value = y`
   gagal compile di web (tidak ketahuan di `flutter test`, jadi cek dengan `tool/build_web.sh`).
-- "Buka Mabar" di halaman live yang tidak ditemukan (`features/live/open_home.dart`, conditional export yang sama):
+- "Buka Match Addict" di halaman live yang tidak ditemukan (`features/live/open_home.dart`, conditional export yang sama):
   web memuat ulang URL tanpa `#/live/…`; stub native kosong karena halaman live hanya ada di web.
 - Back browser = back Android di PWA (`core/router/browser_back.dart`, conditional export yang sama). `appRouterConfig`
   (`app_router.dart`) membungkus go_router supaya rute **tidak pernah dilaporkan** ke browser; `web/index.html` menjaga
@@ -385,8 +393,9 @@ dart run flutter_launcher_icons             # sebar ke android/ + ios/ + web/ico
 
 ## Deploy web
 
-Repo public `github.com/asepsugi/mabar`; tiap push ke `main` → `.github/workflows/deploy-web.yml` (flutter test →
-`tool/build_web.sh --base-href /mabar/` → GitHub Pages) → **https://asepsugi.github.io/mabar/**. Sub-path itu
+Repo public `github.com/asepsugi/match-addict` (dulu `mabar`); tiap push ke `main` → `.github/workflows/deploy-web.yml`
+(flutter test → `tool/build_web.sh --base-href /match-addict/` → GitHub Pages) → **https://asepsugi.github.io/match-addict/**.
+`base-href` harus sama dengan nama repo: push dengan nama repo lain membuat semua aset 404. Sub-path itu
 alasan `sw.js` didaftarkan relatif dan `start_url: "."` — jangan diganti jadi path absolut `/...`. Pages memberi
 `max-age=600` yang tidak bisa diatur, jadi update baru terlihat paling lambat ~10 menit + reload kedua (lihat SW di bawah).
 Versi Flutter di workflow dipatok (3.47.4); naikkan bareng kalau toolchain lokal naik.

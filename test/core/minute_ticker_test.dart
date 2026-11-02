@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/minute_ticker.dart';
+import 'package:match_addict/core/minute_ticker.dart';
 
 /// Tik layar Jadwal/Input Skor jatuh di pergantian menit sejak turnamen dimulai, bukan 60 detik sejak layar dibuka
 /// (logic.md §10): kotak jam, daftar Prioritas, dan Buat R… memakai menit yang sama.

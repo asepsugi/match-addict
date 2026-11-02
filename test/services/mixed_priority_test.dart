@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/schedule/endless_round_generator.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/schedule/endless_round_generator.dart';
 
 /// Jadwal Mixed desain v2 (design/spec/logic.md §5–§7): undian pemain seri dikunci per round, jeda pemain telat,
 /// daftar Istirahat sama persis dengan hasil "Buat R…", estimasi Lanjutkan, dan WO/skor yang menimpa.

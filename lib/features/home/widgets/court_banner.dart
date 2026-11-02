@@ -108,7 +108,7 @@ class _CourtBannerState extends State<CourtBanner> with SingleTickerProviderStat
             fit: StackFit.expand,
             children: [
               court,
-              Positioned(left: 16, top: top + 11, child: const _Wordmark()),
+              Positioned(left: 16, right: 16, top: top + 11, child: const _Wordmark()),
               if (widget.live case final live?)
                 _LiveBlock(live: live, sport: to, top: top)
               else ...[
@@ -133,7 +133,8 @@ class _CourtBannerState extends State<CourtBanner> with SingleTickerProviderStat
   );
 }
 
-/// `.wordmark` — bola brand + "mabar" lebar.
+/// `.wordmark` — bola brand + "Match Addict" lebar. Di layar sempit atau teks diperbesar wordmark mengecil,
+/// tidak terpotong: namanya dua kata panjang, tidak seperti "mabar" dulu.
 class _Wordmark extends StatelessWidget {
   const _Wordmark();
 
@@ -143,7 +144,13 @@ class _Wordmark extends StatelessWidget {
     children: [
       const MabarBall(size: 30),
       const SizedBox(width: 9),
-      Text('mabar', style: MabarType.wordmark.copyWith(color: Colors.white)),
+      Flexible(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text('Match Addict', style: MabarType.wordmark.copyWith(color: Colors.white)),
+        ),
+      ),
     ],
   );
 }

@@ -74,9 +74,11 @@ Data test: lihat data set 2 di bawah (Budi rata-rata 14 ≥ 13 → +14; Joko rat
 
 ## 4. Peringkat
 
-- Statistik identik → **nomor sama** (1, 1, 3). Identik = poin, selisih, M, K, S sama. Urutan baris tetap tie-break:
-  metode → Total Point → head-to-head → selisih → nama.
-- Kolom W–L–D di **kedua** metode; kolom terakhir = nilai metode. **D hanya ada kalau format bisa seri**
+- Urutan = nilai metode (Total Point atau Win %) → selisih → nama. Hanya angka yang tampil (keputusan host 2026-11-02):
+  head-to-head dan Total Point sebagai pemisah Win % dihapus. `RankingCalculator.compare`.
+- Nilai metode dan selisih sama → **nomor sama**, nomor berikutnya melanjutkan (1, 1, 2 — bukan 1, 1, 3). W–L–D tidak
+  membedakan nomor.
+- Kolom W–L–D dan +/− (selisih, "+12" / "−4" / "0") di **kedua** metode; kolom terakhir = nilai metode. **D hanya ada kalau format bisa seri**
   (Best of genap, Americano genap); selain itu W–L. Win % dibulatkan tanpa desimal di tabel, 1 desimal di Detail.
 - Label satuan mengikuti format: "Poin" (Americano) / "Game" (Race to, Best of).
 - **Status Mixed**: Final kalau `isFinished || (courtsAvailableForRound(n+1).isEmpty && isRoundComplete(n))`;
@@ -95,9 +97,10 @@ Data test: lihat data set 2 di bawah (Budi rata-rata 14 ≥ 13 → +14; Joko rat
 | R3 M1 | Andi · Dewant | Citra · Indra | 13–11 |
 | R3 M2 | Eko · Gina | Fajar · Hana | 12–12 |
 
-Total Point: 1 Andi 42 (3–0–0) · 1 Dewant 42 · 3 Hana 36 (1–1–1) · 4 Fajar 30 · 5 Gina 27 · 6 Citra 26 · 7 Joko 23 ·
-8 Eko 22 · 9 Budi 20 · 9 Indra 20 · belum main: Gilang.
-Win %: 1 Andi 100 · 1 Dewant 100 · 3 Gina 75 · 4 Hana 50 · 5 Citra 50 · 6 Joko 50 · 7 Eko 25 · 8 Fajar 17 · 9 Budi 0 · 9 Indra 0.
+Total Point (poin, selisih): 1 Andi 42 +12 (3–0–0) · 1 Dewant 42 +12 · 2 Hana 36 0 (1–1–1) · 3 Fajar 30 −12 ·
+4 Gina 27 +6 · 5 Citra 26 +4 · 6 Joko 23 −2 · 7 Eko 22 −4 · 8 Budi 20 −8 · 8 Indra 20 −8 · belum main: Gilang.
+Win %: 1 Andi 100 · 1 Dewant 100 · 2 Gina 75 · 3 Citra 50 +4 · 4 Hana 50 0 · 5 Joko 50 −2 · 6 Eko 25 · 7 Fajar 17 ·
+8 Budi 0 · 8 Indra 0.
 Detail Andi: 42 poin · 100% · 3–0–0 · +12; beda partner 3/10, beda lawan 5/10.
 
 ### Data set 2 — frame 09d/09e/09f (Americano 24, R1–R4, 7 dari 8 match, 1 WO, 1 seri)
@@ -114,9 +117,11 @@ Detail Andi: 42 poin · 100% · 3–0–0 · +12; beda partner 3/10, beda lawan 
 | R4 M2 | Andi · Hana | Budi · Gina | belum dimainkan (09f: "Tidak dimainkan" setelah Akhiri) |
 
 Kredit WO: Budi (16 + 12) ÷ 2 = 14 → +14; Joko (10 + 7) ÷ 2 = 8,5 → di bawah 13 → +13.
-Total Point: 1 Eko 43 · 2 Budi 42 (2–0–1) · 3 Andi 41 · 4 Fajar 34 · 5 Citra 31 · 6 Joko 30 · 7 Dewant 25 · 8 Indra 25 ·
-9 Gina 23 · 10 Hana 21 (Dewant di atas Indra: poin dan selisih sama, tanpa head-to-head → nama).
-Win %: 1 Eko 100 · 2 Budi 83 · 3 Indra 75 · 4 Andi 67 · 5 Fajar 67 · 6 Joko 33 · 7 Dewant 33 · 8 Citra 17 · 9 Gina 17 · 10 Hana 0.
+Total Point (poin, selisih): 1 Eko 43 +14 · 2 Budi 42 +8 (2–0–1) · 3 Andi 41 +10 · 4 Fajar 34 −4 · 5 Citra 31 −10 ·
+6 Joko 30 −14 · 7 Dewant 25 +2 · 7 Indra 25 +2 · 8 Gina 23 −2 · 9 Hana 21 −6 (Dewant dan Indra: poin dan selisih sama
+→ nomor sama, Dewant di atas karena nama).
+Win %: 1 Eko 100 · 2 Budi 83 · 3 Indra 75 · 4 Andi 67 +10 · 5 Fajar 67 −4 · 6 Dewant 33 +2 · 7 Joko 33 −14 ·
+8 Gina 17 −2 · 9 Citra 17 −10 · 10 Hana 0.
 
 ## 5. Generator Mixed: undian seri dikunci per round
 

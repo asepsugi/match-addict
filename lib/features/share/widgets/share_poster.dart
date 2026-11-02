@@ -32,15 +32,17 @@ enum SharePosterTarget {
 }
 
 /// Satu baris poster. [names] satu nama, atau dua nama pasangan Fixed (digabung "A + B", ditumpuk di
-/// Story). [value] = nilai metode ("42", "75%"); [detail] = keterangan kecil sesudahnya ("poin ·
-/// 100%"), hanya di satu kolom selain Story.
+/// Story). [value] = nilai metode ("42", "75%"); sesudahnya keterangan kecil "[detail] · [diff]" ("poin ·
+/// +12"). Satuan [detail] hanya di satu kolom selain Story; selisih [diff] selalu ada ("42 · +12"), karena
+/// dialah yang menjelaskan nomor berbeda untuk nilai yang sama (logic.md §4).
 class SharePosterRow {
   final int position;
   final List<String> names;
   final String value;
   final String? detail;
+  final String diff;
 
-  const SharePosterRow({required this.position, required this.names, required this.value, this.detail});
+  const SharePosterRow({required this.position, required this.names, required this.value, this.detail, required this.diff});
 }
 
 /// Isi poster yang sudah jadi teks.
@@ -182,9 +184,16 @@ class SharePoster extends StatelessWidget {
             children: [
               MabarBall(size: ball),
               SizedBox(width: wordGap),
-              Text(
-                'mabar',
-                style: base.copyWith(fontSize: word, fontWeight: FontWeight.w800, fontVariations: const [FontVariation('wdth', 125)]),
+              // Story sempit + teks diperbesar: wordmark mengecil, tidak meluber.
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Match Addict',
+                    style: base.copyWith(fontSize: word, fontWeight: FontWeight.w800, fontVariations: const [FontVariation('wdth', 125)]),
+                  ),
+                ),
               ),
             ],
           ),
@@ -389,26 +398,25 @@ class SharePoster extends StatelessWidget {
             ),
           )
         : Text(row.names.join(' + '), maxLines: 1, overflow: TextOverflow.ellipsis, style: name);
-    final showDetail = row.detail != null && !_story && !_twoColumns;
+    final unit = row.detail != null && !_story && !_twoColumns;
     final value = Text.rich(
       TextSpan(
         text: row.value,
         children: [
-          if (showDetail)
-            WidgetSpan(
-              alignment: PlaceholderAlignment.baseline,
-              baseline: TextBaseline.alphabetic,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 3),
-                child: Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    row.detail!,
-                    style: base.copyWith(fontSize: 11 * _density, fontWeight: FontWeight.w600, height: lineHeight),
-                  ),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.baseline,
+            baseline: TextBaseline.alphabetic,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 3),
+              child: Opacity(
+                opacity: 0.7,
+                child: Text(
+                  unit ? '${row.detail} · ${row.diff}' : '· ${row.diff}',
+                  style: base.copyWith(fontSize: 11 * _density, fontWeight: FontWeight.w600, height: lineHeight),
                 ),
               ),
             ),
+          ),
         ],
       ),
       style: MabarType.numM.copyWith(fontSize: sizes.value, height: lineHeight, color: theme.ink),

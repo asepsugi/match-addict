@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mabar/core/widgets/match_score_row.dart';
-import 'package:mabar/features/live/live_host_controller.dart';
-import 'package:mabar/features/live/live_screen.dart';
-import 'package:mabar/features/live/live_view_controller.dart';
-import 'package:mabar/features/schedule/schedule_fixed_screen.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/core/widgets/match_score_row.dart';
+import 'package:match_addict/features/live/live_host_controller.dart';
+import 'package:match_addict/features/live/live_screen.dart';
+import 'package:match_addict/features/live/live_view_controller.dart';
+import 'package:match_addict/features/schedule/schedule_fixed_screen.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
 import 'live_fixture.dart';

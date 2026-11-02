@@ -1,4 +1,4 @@
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/models/models.dart';
 
 import 'schedule_fixture.dart';
 

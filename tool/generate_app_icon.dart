@@ -4,9 +4,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/widgets/court_painter.dart';
-import 'package:mabar/core/widgets/mabar_ball.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/core/widgets/court_painter.dart';
+import 'package:match_addict/core/widgets/mabar_ball.dart';
+import 'package:match_addict/models/models.dart';
 
 /// Membuat sumber ikon app (opsi A, frame 01j) dari painter yang sama dengan banner Beranda:
 /// sudut lapangan tennis + bola brand di service box, garis putih penuh.

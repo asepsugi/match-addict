@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/storage/tournament_codec.dart';
-import 'package:mabar/services/storage/tournament_store.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/storage/tournament_codec.dart';
+import 'package:match_addict/services/storage/tournament_store.dart';
 
 /// Turnamen Fixed dengan satu match selesai, satu WO, satu belum dimain —
 /// cukup untuk menyentuh semua cabang serialisasi.

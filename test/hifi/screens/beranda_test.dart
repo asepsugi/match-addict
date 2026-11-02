@@ -2,11 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mabar/features/home/app_install.dart';
-import 'package:mabar/features/home/home_screen.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/storage/tournament_store.dart';
+import 'package:match_addict/features/home/app_install.dart';
+import 'package:match_addict/features/home/home_screen.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/storage/tournament_store.dart';
 
 import '../hifi_golden.dart';
 import 'screen_harness.dart';
@@ -153,7 +153,7 @@ void main() {
       tester,
       '01i',
       screen(install: AppInstallMode.manual),
-      act: (tester) => tester.tap(find.text('Pasang Mabar di HP')),
+      act: (tester) => tester.tap(find.text('Pasang Match Addict di HP')),
     );
   });
 

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/schedule/endless_round_generator.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/schedule/endless_round_generator.dart';
 
 /// Court yang habis duluan atau tinggal beberapa menit (kurang dari satu match) tidak ikut round berikutnya, dan
 /// daftar "Prioritas main di R…" dihitung dengan court yang tersisa, jadi sama dengan hasil Buat (logic.md §6, §10).

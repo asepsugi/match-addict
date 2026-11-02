@@ -42,8 +42,8 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       delay: const Duration(milliseconds: 60),
     );
     final name = switch (target) {
-      SharePosterTarget.story => 'mabar-story-1080x1920.png',
-      _ => 'mabar-feed-1080x1080.png',
+      SharePosterTarget.story => 'match-addict-story-1080x1920.png',
+      _ => 'match-addict-feed-1080x1080.png',
     };
     return XFile.fromData(bytes, name: name, mimeType: 'image/png');
   }

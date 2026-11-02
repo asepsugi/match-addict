@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/pairing/pair_generator.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/pairing/pair_generator.dart';
 
 List<Player> _players(int n) =>
     [for (var i = 0; i < n; i++) Player(id: 'p$i', name: 'Player $i')];

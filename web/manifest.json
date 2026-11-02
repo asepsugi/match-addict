@@ -1,11 +1,11 @@
 {
-    "name": "Mabar",
-    "short_name": "Mabar",
+    "name": "Match Addict",
+    "short_name": "Match Addict",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#EEF2F5",
     "theme_color": "#EEF2F5",
-    "description": "Aplikasi mabar tennis & padel untuk klub/komunitas",
+    "description": "Match Addict — aplikasi mabar tennis & padel untuk klub/komunitas",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

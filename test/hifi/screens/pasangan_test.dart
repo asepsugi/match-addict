@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mabar/core/widgets/mabar_controls.dart';
-import 'package:mabar/features/pair_setup/pair_setup_screen.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/pairing/pair_generator.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
+import 'package:match_addict/features/pair_setup/pair_setup_screen.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/pairing/pair_generator.dart';
 
 import '../hifi_golden.dart';
 import 'screen_harness.dart';

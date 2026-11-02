@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/theme/mabar_icons.dart';
+import 'package:match_addict/core/theme/mabar_icons.dart';
 
 import 'hifi_golden.dart';
 

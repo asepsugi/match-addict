@@ -1,6 +1,6 @@
-# PRD — Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
+# PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
-**Versi dokumen:** 2.7 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26) dan app **2.8.0**
+**Versi dokumen:** 2.8 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02) dan app **3.0.0**
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -186,9 +186,13 @@ app dibuka ulang kembali ke Total Point.
 
 ### 4.3 Tie-Breaker & Nomor Peringkat
 
-1. Metode utama → 2. Total Point → 3. Head-to-head → 4. Selisih game/poin → 5. Nama (pengganti undian, supaya stabil)
+1. Nilai metode (Total Point atau Win %) → 2. Selisih game/poin → nomor sama, baris diurutkan nama
 
-- Statistik identik (poin, selisih, W–L–D) mendapat **nomor sama** (1, 1, 3); urutan baris tetap mengikuti tie-break.
+- Hanya angka yang tampil di Klasemen dan poster yang menentukan nomor, supaya alasannya terbaca: kolom +/− (selisih)
+  memisahkan nilai yang sama. Head-to-head tidak dipakai (di Mixed antar tiga pemain bisa berputar), begitu juga Total
+  Point sebagai pemisah Win %.
+- Nilai metode dan selisih sama → **nomor sama**, dan nomor berikutnya melanjutkan: #1, #2, #2, #3 (bukan 1, 2, 2, 4).
+  W–L–D tidak membedakan nomor.
 - Pemain yang belum main (pemain baru, sisa ganjil Fixed) dikelompokkan di "Belum main" tanpa nomor.
 - Fixed: satu baris per pasangan (dua nama), posisinya mengikuti anggota terbaik.
 
@@ -239,7 +243,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   turnamen berjalan; Mulai turnamen memindahkannya ke slot terakhir tanpa dialog (2026-10-25).
 - Turnamen bernama: nama menggantikan "olahraga · mode · n pemain" di banner dan baris riwayat (satu baris, elipsis)
   dan "olahraga · mode" di dialog mulai baru.
-- Web/PWA: baris "Pasang Mabar di HP" (dialog bawaan browser, atau panduan iPhone/iPad).
+- Web/PWA: baris "Pasang Match Addict di HP" (dialog bawaan browser, atau panduan iPhone/iPad).
 
 ### 5.2 Pemain (02a–02d)
 - Satu kotak teks (tempel dari WhatsApp); parser membuang nomor/bullet, spasi ganda, baris kosong, dan duplikat
@@ -277,8 +281,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - WO lewat sheet (4.4).
 
 ### 5.7 Klasemen (09a–09f)
-- Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · nilai metode;
-  peringkat 1 diberi bola.
+- Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · +/− (selisih)
+  · nilai metode; peringkat 1 diberi bola.
 - Toggle Total Point / Win %, status di subjudul, catatan WO / tidak dimainkan, ketuk baris → Detail. Tombol Bagikan.
 
 ### 5.8 Detail Pemain (10a–10c)
@@ -289,11 +293,13 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Kartu pratinjau + 10 tema (default biru) + Ringkas (5 teratas + "+n lainnya") / Lengkap (semua; Feed > 10 pemain
   Mixed dibagi dua kolom rata, pasangan Fixed dan Story selalu satu kolom; lebih padat dari 10 baris satu kolom atau
   20 baris nama di Story → semua huruf baris dikecilkan sebanding). Nomor "#n"; peringkat 1 lencana emas, digantung ke kiri supaya "#1" sejajar dengan nomor di bawahnya.
+- Tiap baris = nilai metode + selisih, sama dengan Klasemen: "42 poin · +12", "100% · +12"; dua kolom dan Story tanpa
+  satuan ("42 · +12").
 - Dua gambar 1080×1080 dan 1080×1920 dibagikan lewat share sheet sistem dengan caption teks hasil; gagal → caption
   disalin + toast "Hasil disalin".
 - Turnamen bernama: nama menggantikan baris kecil "olahraga · mode · tanggal" di atas judul poster (maks dua baris) dan
   tanggalnya pindah ke ringkasan bawah ("4 round · 8 match · 21 Okt 2026"); caption dibuka "🏆 {nama} · Padel"
-  (tanpa nama "🏆 Mabar Turnamen · Padel").
+  (tanpa nama "🏆 Match Addict · Padel").
 - "Selesai" memindahkan turnamen ke slot terakhir lalu kembali ke Beranda.
 
 ### 5.10 Penyimpanan Data
@@ -309,14 +315,14 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Host memulai live dari menu ⋯ Jadwal (Fixed dan Mixed, juga setelah diakhiri) lewat dialog "Mulai live score?",
   karena nama pemain jadi bisa dilihat siapa saja yang punya link. Mulai butuh internet sekali; gagal → toast, live
   tidak menyala.
-- Sheet Live score: link `asepsugi.github.io/mabar/#/live/KODE` (kode 6 karakter tanpa 0/O/1/I/L), jam kiriman
+- Sheet Live score: link `asepsugi.github.io/match-addict/#/live/KODE` (kode 6 karakter tanpa 0/O/1/I/L), jam kiriman
   terakhir ("Terkirim 19.53" / "Menunggu internet · terakhir terkirim 19.48"), Bagikan link (share sheet; gagal → link
   disalin), Hentikan (dialog → data live dihapus; tanpa internet live tetap menyala dan toast memberi tahu).
 - Setiap perubahan turnamen dikirim utuh ke relay, jadi tidak ada antrean: tanpa internet dicoba lagi tiap 30 detik
   dan setiap ada perubahan, yang terkirim selalu keadaan terbaru. App tetap jalan offline seperti biasa.
 - Live tetap ada setelah "Selesai" (turnamen terakhir) dan berlanjut dengan kode yang sama kalau dilanjutkan dari
   Beranda. "Hapus & mulai baru" menghentikan live turnamen yang dibuang.
-- Penonton membuka link di browser (web Mabar, tanpa pasang): Jadwal, Klasemen (tanpa Bagikan, metode dipilih
+- Penonton membuka link di browser (web Match Addict, tanpa pasang): Jadwal, Klasemen (tanpa Bagikan, metode dipilih
   sendiri), dan Detail, baca saja. Dicek tiap 10 detik selama halaman terlihat, tiap menit setelah Final. Tag "Live" di
   Jadwal, "Offline" setelah dua kali gagal, hilang saat Final. Subjudul memakai nama turnamen kalau ada. Simpanan
   turnamen penonton sendiri tidak tersentuh.
@@ -410,7 +416,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     sebanding (2026-10-23).
 11. Live score tanpa database: relay kecil di Cloudflare (Worker + Durable Object, paket gratis) yang hanya memegang
     salinan turnamen terakhir per kode, terhapus 3 hari setelah perubahan terakhir. Penonton melihat Jadwal, Klasemen,
-    dan Detail; Fixed dan Mixed. Preview link WhatsApp tetap generik "Mabar" (GitHub Pages statis) (2026-10-24).
+    dan Detail; Fixed dan Mixed. Preview link WhatsApp tetap generik (nama app, GitHub Pages statis) (2026-10-24).
 12. Nama pemain di baris match ditulis lengkap, bukan nama depan: dua pemain bernama depan sama membuat siapa yang
     main membingungkan. Tidak muat → elipsis per nama (2026-10-25).
 13. "Akhiri" mengakhiri turnamen juga di Beranda: yang sudah diakhiri tampil sebagai turnamen terakhir, bukan
@@ -420,6 +426,12 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 15. Best of & Americano boleh berhenti lebih awal begitu lawan tidak mungkin mengejar (pemenang ⌊N ÷ 2⌋ + 1); isi
     otomatis `N − x` hanya ke kotak lawan yang kosong, jadi koreksi skor tidak memberi poin gratis ke yang kalah (4.1)
     (2026-10-26).
+16. Nama app **Match Addict** (dulu Mabar): wordmark "Match Addict", label ikon, web pindah ke
+    `asepsugi.github.io/match-addict/`, bundle id `id.matchaddict.app` (2026-11-02).
+17. Peringkat hanya ditentukan angka yang tampil: nilai metode lalu selisih (kolom +/− baru di Klasemen, selisih di
+    setiap baris poster); keduanya sama → nomor sama dan nomor berikutnya melanjutkan (#1, #2, #2, #3). Head-to-head
+    dihapus (4.3). Dipicu poster yang menulis 22 · 22 · 22 dengan nomor #2, #3, #4 tanpa terlihat alasannya
+    (2026-11-02).
 
 ---
 

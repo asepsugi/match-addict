@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
-import 'package:mabar/features/share/share_theme.dart';
-import 'package:mabar/features/share/widgets/share_poster.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
+import 'package:match_addict/features/share/share_theme.dart';
+import 'package:match_addict/features/share/widgets/share_poster.dart';
+import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
 import 'share_poster_data.dart';

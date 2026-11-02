@@ -78,6 +78,7 @@ class LeaderboardScreen extends ConsumerWidget {
                             names: [for (final p in e.players) p.name],
                             played: e.standing.matchesPlayed,
                             record: record(e.standing),
+                            diff: e.standing.diffLabel,
                             value: method == RankingMethod.winPercent
                                 ? '${e.standing.winPercent.round()}'
                                 : '${e.standing.totalPoint}',

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
-import 'package:mabar/features/score_input/widgets/score_board.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/scoring/score_entry.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
+import 'package:match_addict/features/score_input/widgets/score_board.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/scoring/score_entry.dart';
 
 import '../hifi_golden.dart';
 

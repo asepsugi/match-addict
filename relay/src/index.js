@@ -1,4 +1,4 @@
-// Relay live score Mabar (PRD §13, design/spec/logic.md §11). HP host mengirim seluruh turnamen (JSON
+// Relay live score Match Addict (PRD §13, design/spec/logic.md §11). HP host mengirim seluruh turnamen (JSON
 // TournamentCodec) setiap kali berubah; penonton mengambil salinan terakhirnya. Tanpa database: satu Durable
 // Object per kode live yang hanya memegang satu nilai, dan nilai itu terhapus sendiri 3 hari setelah kiriman
 // terakhir. Durable Object dipakai (bukan KV) karena bacaannya langsung konsisten; KV bisa basi sampai 60 detik.
@@ -112,7 +112,7 @@ export class LiveTournament {
   }
 }
 
-/** Isi kiriman: JSON simpanan Mabar (`schema` + `tournament`), maksimal [MAX_BYTES]. */
+/** Isi kiriman: JSON simpanan Match Addict (`schema` + `tournament`), maksimal [MAX_BYTES]. */
 async function readPayload(request) {
   const text = await request.text();
   if (new TextEncoder().encode(text).length > MAX_BYTES) return reply(413);

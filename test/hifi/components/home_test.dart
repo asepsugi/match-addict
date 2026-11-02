@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/theme/mabar_icons.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
-import 'package:mabar/core/widgets/mabar_group.dart';
-import 'package:mabar/features/home/widgets/home_panel.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/core/theme/mabar_icons.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
+import 'package:match_addict/core/widgets/mabar_group.dart';
+import 'package:match_addict/features/home/widgets/home_panel.dart';
+import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
 
@@ -39,7 +39,7 @@ void main() {
             MabarRow(
               padded: true,
               leading: const MabarRowIcon(MabarIcons.deviceMobile),
-              title: 'Pasang Mabar di HP',
+              title: 'Pasang Match Addict di HP',
               subtitle: 'Buka dari layar utama, tanpa browser',
               chevron: true,
               onTap: () {},
@@ -102,7 +102,7 @@ void main() {
               titleWidget: InstallStep(
                 number: 3,
                 text: [const TextSpan(text: 'Ketuk '), InstallStep.bold('Tambah'), const TextSpan(text: ' di kanan atas')],
-                sub: 'Mabar muncul di layar utama seperti app biasa',
+                sub: 'Match Addict muncul di layar utama seperti app biasa',
               ),
             ),
           ],

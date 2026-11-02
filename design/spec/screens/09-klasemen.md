@@ -4,13 +4,14 @@
 
 Tabel rapat dengan angka rata kanan. Status ditulis di subjudul, bukan badge. Metode yang dipilih di sini juga dipakai Detail dan Bagikan.
 
-## 09a · Mixed · Total Point · statistik identik
+## 09a · Mixed · Total Point · nomor sama
 
 ![09a](../../frames/09a.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
-- Statistik identik → nomor sama (1, 1, 3 dan 9, 9). Urutan baris tetap mengikuti tie-break: metode → Total Point → head-to-head → selisih → nama.
+- Poin sama dipisah selisih (kolom +/−). Poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan (1, 1, 2 … 8, 8); yang bernomor sama urut nama. Head-to-head tidak dipakai lagi: alasan urutan harus terbaca dari angka di tabel (keputusan host 2026-11-02).
+- Kolom +/− = selisih poin (atau game): yang dimenangkan dikurangi yang kalah, dijumlah lintas match. Menang/kalah WO tidak mengubah selisih. Ada di kedua metode, sama dengan baris poster (11a).
 - Kolom Main = jumlah match yang sudah dimainkan (selesai + WO, sama dengan W + L + D). Mixed bisa berbeda antar pemain (pemain telat, istirahat), jadi kelihatan kenapa Total Point-nya tertinggal.
 - Kolom W–L–D = win–loss–draw (menang–kalah–seri), singkatan Inggris seperti Win % dan Total Point. Seri tidak lagi ditulis kecil di bawah nama, jadi tinggi semua baris sama. Kolom D hanya ada kalau format skornya bisa seri (Americano total genap, Best of genap); Race to dan format ganjil cukup W–L (09c), supaya tidak ada kolom yang isinya selalu 0.
 - Subjudul: olahraga · mode · status · round · match, sama urutannya dengan Detail ("Peringkat 1 · Padel · Mixed · Americano 24"; Detail menambah format skor).
@@ -25,8 +26,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
-- Kolom Main dan W–L–D tetap di kedua metode (dulu Selisih di Win %): ganti metode hanya mengubah urutan dan kolom terakhir. W–L–D juga yang menjelaskan Win %: seri dihitung setengah menang (1–1–1 → 50%). Selisih tetap ada di Detail.
-- Win % dibulatkan tanpa desimal di tabel (Detail tetap 1 desimal). Win % sama dipisah Total Point (Hana 36 di atas Citra 26 dan Joko 23).
+- Kolom Main, W–L–D, dan +/− tetap di kedua metode: ganti metode hanya mengubah urutan dan kolom terakhir. W–L–D juga yang menjelaskan Win %: seri dihitung setengah menang (1–1–1 → 50%).
+- Win % dibulatkan tanpa desimal di tabel (Detail tetap 1 desimal). Win % sama dipisah selisih, sama dengan Total Point: Citra +4 di atas Hana 0 dan Joko −2. Total Point tidak lagi jadi pemisah karena tidak tampil di tabel Win %.
 - Pilihan metode tidak disimpan; setelah resume kembali ke Total Point.
 
 ## 09c · Fixed · final
@@ -47,7 +48,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
-- Hanya satu bola: Eko (43) di peringkat 1, Budi (42) di peringkat 2. Nomor 1 hanya dobel kalau statistiknya identik (09a).
+- Hanya satu bola: Eko (43) di peringkat 1, Budi (42) di peringkat 2. Nomor 1 hanya dobel kalau poin dan selisihnya sama (09a). Dewant dan Indra sama-sama 25 poin +2 → berbagi nomor 7, Gina lanjut di 8.
 - Contoh dihitung dari 7 match sungguhan R1–R4: satu seri (Budi–Indra vs Citra–Gina 12–12) dan satu WO. Budi dan Joko menang WO, jadi masing-masing dapat poin rata-rata dari match yang mereka mainkan: Budi (16 + 12) ÷ 2 = 14; Joko rata-ratanya 8,5, di bawah skor menang terkecil Americano 24 (13–11), jadi dapat 13. Tanpa aturan ini Budi hanya 28 poin dan turun ke peringkat 5 padahal tidak kalah sekali pun.
 
 ## 09e · Mixed · Win % · urutan berubah
@@ -56,8 +57,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
-- Data yang sama bisa memberi urutan berbeda: Indra naik dari 8 ke 3 (1–0–1 = 75%), Citra turun dari 5 ke 8, Andi dari 3 ke 4.
-- Win % sama dipisah Total Point: Andi dan Fajar sama-sama 67%, Andi di atas karena 41 poin vs 34.
+- Data yang sama bisa memberi urutan berbeda: Indra naik dari 7 ke 3 (1–0–1 = 75%), Citra turun dari 5 ke 9, Andi dari 3 ke 4.
+- Win % sama dipisah selisih: Andi dan Fajar sama-sama 67%, Andi di atas karena +10 vs −4.
 
 ## 09f · Mixed · Final (setelah diakhiri)
 

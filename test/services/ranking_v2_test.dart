@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/ranking/ranking_calculator.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/ranking/ranking_calculator.dart';
 
-/// Peringkat desain v2 (design/spec/logic.md §3–§4): nilai menang WO per format, nomor sama untuk
-/// statistik identik, "Belum main", status Final. Data = frame 09a–09f, 10a, 10b.
+/// Peringkat desain v2 (design/spec/logic.md §3–§4): nilai menang WO per format, nomor sama kalau
+/// semua tie-break seri (nomor rapat 1, 2, 2, 3), "Belum main", status Final. Data = frame 09a–09f, 10a, 10b.
 
 const _americano24 = ScoreFormat(ScoringMethod.americano, 24);
 
@@ -61,46 +61,49 @@ List<StandingEntry> _entries(List<Player> players, List<MatchGame> matches, Rank
         {ScoreFormat format = _americano24, List<Pair>? fixedPairs}) =>
     standingEntries(
       standings: RankingCalculator.rank(players: players, matches: matches, method: method, format: format),
+      method: method,
       fixedPairs: fixedPairs,
     );
 
-/// "1 Andi 42" — nomor, nama, nilai metode.
+/// "1 Andi 42 +12" — nomor, nama, nilai metode, selisih (kolom +/− di Klasemen).
 List<String> _table(List<StandingEntry> entries, RankingMethod method) => [
   for (final e in entries)
-    '${e.position ?? '–'} ${e.label} ${method == RankingMethod.totalGames ? e.standing.totalPoint : e.standing.winPercent.round()}',
+    '${e.position ?? '–'} ${e.label} '
+        '${method == RankingMethod.totalGames ? e.standing.totalPoint : '${e.standing.winPercent.round()} ${e.standing.totalPoint}'} '
+        '${e.standing.gameDiff > 0 ? '+' : ''}${e.standing.gameDiff}',
 ];
 
 void main() {
   group('data set 1 (09a, 09b, 10a)', () {
-    test('Total Point: statistik identik → nomor sama; belum main tanpa nomor di belakang', () {
+    test('Total Point: poin dan selisih sama → nomor sama, berikutnya melanjutkan; belum main di belakang', () {
       expect(_table(_entries(_players1, _set1, RankingMethod.totalGames), RankingMethod.totalGames), [
-        '1 Andi 42',
-        '1 Dewant 42',
-        '3 Hana 36',
-        '4 Fajar 30',
-        '5 Gina 27',
-        '6 Citra 26',
-        '7 Joko 23',
-        '8 Eko 22',
-        '9 Budi 20',
-        '9 Indra 20',
-        '– Gilang 0',
+        '1 Andi 42 +12',
+        '1 Dewant 42 +12',
+        '2 Hana 36 0',
+        '3 Fajar 30 -12',
+        '4 Gina 27 +6',
+        '5 Citra 26 +4',
+        '6 Joko 23 -2',
+        '7 Eko 22 -4',
+        '8 Budi 20 -8',
+        '8 Indra 20 -8',
+        '– Gilang 0 0',
       ]);
     });
 
-    test('Win %: urutan berubah, Win % sama dipisah Total Point', () {
+    test('Win %: urutan berubah, Win % sama dipisah selisih', () {
       expect(_table(_entries(_players1, _set1, RankingMethod.winPercent), RankingMethod.winPercent), [
-        '1 Andi 100',
-        '1 Dewant 100',
-        '3 Gina 75',
-        '4 Hana 50',
-        '5 Citra 50',
-        '6 Joko 50',
-        '7 Eko 25',
-        '8 Fajar 17',
-        '9 Budi 0',
-        '9 Indra 0',
-        '– Gilang 0',
+        '1 Andi 100 42 +12',
+        '1 Dewant 100 42 +12',
+        '2 Gina 75 27 +6',
+        '3 Citra 50 26 +4',
+        '4 Hana 50 36 0',
+        '5 Joko 50 23 -2',
+        '6 Eko 25 22 -4',
+        '7 Fajar 17 30 -12',
+        '8 Budi 0 20 -8',
+        '8 Indra 0 20 -8',
+        '– Gilang 0 0 0',
       ]);
     });
 
@@ -131,33 +134,33 @@ void main() {
       expect((byName['Budi']!.wins, byName['Budi']!.losses, byName['Budi']!.draws), (2, 0, 1));
     });
 
-    test('Total Point 09d: hanya Eko di peringkat 1; Dewant di atas Indra karena nama', () {
+    test('Total Point 09d: hanya Eko di peringkat 1; Dewant dan Indra berbagi 7 (poin dan selisih sama)', () {
       expect(_table(_entries(_players2, _set2(), RankingMethod.totalGames), RankingMethod.totalGames), [
-        '1 Eko 43',
-        '2 Budi 42',
-        '3 Andi 41',
-        '4 Fajar 34',
-        '5 Citra 31',
-        '6 Joko 30',
-        '7 Dewant 25',
-        '8 Indra 25',
-        '9 Gina 23',
-        '10 Hana 21',
+        '1 Eko 43 +14',
+        '2 Budi 42 +8',
+        '3 Andi 41 +10',
+        '4 Fajar 34 -4',
+        '5 Citra 31 -10',
+        '6 Joko 30 -14',
+        '7 Dewant 25 +2',
+        '7 Indra 25 +2',
+        '8 Gina 23 -2',
+        '9 Hana 21 -6',
       ]);
     });
 
-    test('Win % 09e', () {
+    test('Win % 09e: Win % sama dipisah selisih', () {
       expect(_table(_entries(_players2, _set2(), RankingMethod.winPercent), RankingMethod.winPercent), [
-        '1 Eko 100',
-        '2 Budi 83',
-        '3 Indra 75',
-        '4 Andi 67',
-        '5 Fajar 67',
-        '6 Joko 33',
-        '7 Dewant 33',
-        '8 Citra 17',
-        '9 Gina 17',
-        '10 Hana 0',
+        '1 Eko 100 43 +14',
+        '2 Budi 83 42 +8',
+        '3 Indra 75 25 +2',
+        '4 Andi 67 41 +10',
+        '5 Fajar 67 34 -4',
+        '6 Dewant 33 25 +2',
+        '7 Joko 33 30 -14',
+        '8 Gina 17 23 -2',
+        '9 Citra 17 31 -10',
+        '10 Hana 0 21 -6',
       ]);
     });
 

@@ -1,7 +1,7 @@
 {
   "name": "mabar-live",
   "private": true,
-  "description": "Relay live score Mabar (Cloudflare Worker + Durable Object)",
+  "description": "Relay live score Match Addict (Cloudflare Worker + Durable Object)",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",

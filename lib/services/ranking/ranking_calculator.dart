@@ -40,13 +40,8 @@ class PlayerStanding {
 
   int get gameDiff => gamesWon - gamesLost;
 
-  /// Statistik yang tampil sama persis (poin, selisih, W–L–D) → nomor peringkat sama (09a).
-  bool hasSameStatsAs(PlayerStanding other) =>
-      totalPoint == other.totalPoint &&
-      gameDiff == other.gameDiff &&
-      wins == other.wins &&
-      losses == other.losses &&
-      draws == other.draws;
+  /// Selisih seperti tampil di Klasemen, Detail, dan poster: "+12", "−4" (tanda minus, bukan strip), "0".
+  String get diffLabel => gameDiff > 0 ? '+$gameDiff' : (gameDiff < 0 ? '−${-gameDiff}' : '0');
 
   PlayerStanding _add({
     int wins = 0,
@@ -70,68 +65,32 @@ class PlayerStanding {
 
 /// Penghitung ranking sesuai PRD bagian 4.2 & 4.3.
 class RankingCalculator {
-  /// Urutkan pemain menurut [method], dengan tie-breaker berjenjang:
-  /// metode utama → total point → head-to-head → selisih game → nama.
+  /// Urutkan pemain menurut [method] ([compare]); yang nomornya sama diurutkan menurut nama supaya
+  /// barisnya tidak berpindah-pindah tiap layar di-rebuild.
   static List<PlayerStanding> rank({
     required List<Player> players,
     required List<MatchGame> matches,
     required RankingMethod method,
     required ScoreFormat format,
   }) {
-    final standings = _standings(players, matches, format);
-    final sorted = [...standings];
-
-    sorted.sort((a, b) {
-      final byMethod = _compareByMethod(a, b, method);
-      if (byMethod != 0) return byMethod;
-
-      final byPoint = b.totalPoint.compareTo(a.totalPoint);
-      if (byPoint != 0) return byPoint;
-
-      final byHeadToHead = _headToHead(a, b, matches);
-      if (byHeadToHead != 0) return byHeadToHead;
-
-      final byDiff = b.gameDiff.compareTo(a.gameDiff);
-      if (byDiff != 0) return byDiff;
-
-      // Langkah terakhir PRD adalah undian; di sini dipakai urutan nama supaya
-      // peringkat tidak berubah-ubah tiap layar di-rebuild.
-      return a.player.name.compareTo(b.player.name);
-    });
-
+    final sorted = _standings(players, matches, format)
+      ..sort((a, b) {
+        final byRank = compare(a, b, method);
+        return byRank != 0 ? byRank : a.player.name.compareTo(b.player.name);
+      });
     return sorted;
   }
 
-  static int _compareByMethod(PlayerStanding a, PlayerStanding b, RankingMethod method) {
-    switch (method) {
-      case RankingMethod.winPercent:
-        return b.winPercent.compareTo(a.winPercent);
-      case RankingMethod.totalGames:
-        return b.totalPoint.compareTo(a.totalPoint);
-    }
-  }
-
-  /// Selisih kemenangan langsung antara dua pemain saat berhadapan.
-  static int _headToHead(PlayerStanding a, PlayerStanding b, List<MatchGame> matches) {
-    var aWins = 0;
-    var bWins = 0;
-
-    for (final m in matches) {
-      if (!_counts(m)) continue;
-      final winnerId = m.winnerPairId;
-      if (winnerId == null) continue;
-
-      final aSide = _sideOf(m, a.player.id);
-      final bSide = _sideOf(m, b.player.id);
-      if (aSide == null || bSide == null || aSide == bSide) continue;
-
-      if (winnerId == aSide) {
-        aWins++;
-      } else {
-        bWins++;
-      }
-    }
-    return bWins.compareTo(aWins);
+  /// Nilai metode (Total Point atau Win %) → selisih: dua angka yang tampil di setiap baris Klasemen dan
+  /// poster. 0 = nomor peringkat sama. Keputusan host 2026-11-02: alasan urutan harus terbaca dari angka
+  /// yang tampil, jadi head-to-head (dan Total Point sebagai pemisah Win %) tidak dipakai lagi — di Mixed
+  /// head-to-head antar tiga pemain juga bisa berputar (A > B > C > A) sehingga urutannya tidak tentu.
+  static int compare(PlayerStanding a, PlayerStanding b, RankingMethod method) {
+    final byMethod = switch (method) {
+      RankingMethod.totalGames => b.totalPoint.compareTo(a.totalPoint),
+      RankingMethod.winPercent => b.winPercent.compareTo(a.winPercent),
+    };
+    return byMethod != 0 ? byMethod : b.gameDiff.compareTo(a.gameDiff);
   }
 
   static Map<String, PlayerStanding> _byId(List<Player> players) => {
@@ -186,15 +145,6 @@ class RankingCalculator {
 
     return table.values.toList();
   }
-
-  /// Match "Tidak Dimainkan" dan yang belum diisi tidak masuk hitungan apa pun.
-  static bool _counts(MatchGame m) => m.status == MatchStatus.done || m.status == MatchStatus.wo;
-
-  static String? _sideOf(MatchGame m, String playerId) {
-    if (m.pair1.contains(playerId)) return m.pair1.id;
-    if (m.pair2.contains(playerId)) return m.pair2.id;
-    return null;
-  }
 }
 
 /// Rekap per pemain untuk halaman detail.
@@ -245,8 +195,8 @@ class StandingEntry {
   /// Statistik barisnya. Untuk pasangan, ini statistik yang dimiliki bersama.
   final PlayerStanding standing;
 
-  /// Nomor peringkat; sama untuk baris yang statistiknya identik (1, 1, 3). Null = belum main (grup
-  /// "Belum main" di Peringkat, tanpa nomor).
+  /// Nomor peringkat; sama untuk baris yang seri di semua tie-break ([RankingCalculator.compare]), dan
+  /// nomor berikutnya melanjutkan (1, 2, 2, 3). Null = belum main (grup "Belum main" di Klasemen, tanpa nomor).
   final int? position;
 
   const StandingEntry({required this.players, required this.standing, required this.position});
@@ -259,12 +209,17 @@ class StandingEntry {
 
 /// Mengubah klasemen per pemain jadi baris peringkat bernomor.
 ///
+/// [method] harus sama dengan yang dipakai [RankingCalculator.rank] untuk [standings].
 /// [fixedPairs] kosong/null (mode Mixed) → satu baris per pemain. Urutan hasil
 /// [RankingCalculator.rank] tidak pernah diubah di sini: pasangan mengambil
 /// posisi anggota yang peringkatnya lebih tinggi. Baris tanpa match selesai/WO
 /// dipindah ke belakang tanpa nomor — 0 poin belum main bisa terurut di atas
 /// pemain yang kalah 0–21, padahal yang belum main memang tidak diperingkat.
-List<StandingEntry> standingEntries({required List<PlayerStanding> standings, List<Pair>? fixedPairs}) {
+List<StandingEntry> standingEntries({
+  required List<PlayerStanding> standings,
+  required RankingMethod method,
+  List<Pair>? fixedPairs,
+}) {
   final rows = <(List<Player>, PlayerStanding)>[];
   if (fixedPairs == null || fixedPairs.isEmpty) {
     for (final s in standings) {
@@ -296,13 +251,17 @@ List<StandingEntry> standingEntries({required List<PlayerStanding> standings, Li
     }
   }
 
+  // Nomor rapat (1, 2, 2, 3), bukan gaya olimpiade (1, 2, 2, 4) — keputusan host 2026-11-02.
   final entries = <StandingEntry>[];
-  PlayerStanding? previous;
   for (final (players, s) in rows) {
     if (s.matchesPlayed == 0) continue;
-    final position = previous != null && s.hasSameStatsAs(previous) ? entries.last.position : entries.length + 1;
+    final previous = entries.lastOrNull;
+    final position = previous == null
+        ? 1
+        : RankingCalculator.compare(s, previous.standing, method) == 0
+        ? previous.position
+        : previous.position! + 1;
     entries.add(StandingEntry(players: players, standing: s, position: position));
-    previous = s;
   }
   return [
     ...entries,

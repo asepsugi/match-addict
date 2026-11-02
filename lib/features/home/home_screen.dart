@@ -118,7 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             MabarRow(
               padded: true,
               leading: const MabarRowIcon(MabarIcons.deviceMobile),
-              title: 'Pasang Mabar di HP',
+              title: 'Pasang Match Addict di HP',
               subtitle: 'Buka dari layar utama, tanpa browser',
               chevron: true,
               onTap: mode == AppInstallMode.prompt ? promptAppInstall : () => showIosInstallSheet(context),

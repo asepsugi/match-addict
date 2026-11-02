@@ -8,7 +8,7 @@ import '../../core/widgets/mabar_layers.dart';
 import 'widgets/home_panel.dart';
 
 /// Sheet 01i · panduan pasang di iPhone/iPad. Safari tidak punya API pasang yang bisa dipicu dari
-/// halaman, jadi baris "Pasang Mabar di HP" di sana hanya bisa menunjukkan jalannya. Sheet info:
+/// halaman, jadi baris "Pasang Match Addict di HP" di sana hanya bisa menunjukkan jalannya. Sheet info:
 /// satu tombol "Mengerti".
 Future<void> showIosInstallSheet(BuildContext context) => showMabarSheet<void>(
   context,
@@ -55,7 +55,7 @@ class IosInstallSteps extends StatelessWidget {
             titleWidget: InstallStep(
               number: 3,
               text: [const TextSpan(text: 'Ketuk '), InstallStep.bold('Tambah'), const TextSpan(text: ' di kanan atas')],
-              sub: 'Mabar muncul di layar utama seperti app biasa',
+              sub: 'Match Addict muncul di layar utama seperti app biasa',
             ),
           ),
         ],

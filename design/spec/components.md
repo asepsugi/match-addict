@@ -369,7 +369,7 @@ Dipakai di frame: 09a, 09b, 09c, 09d, 09e, 09f, 12j
 
 ```css
 .rank { margin: 0 16px; background: var(--card); border-radius: 12px; overflow: hidden; flex: none; }
-.rrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) 34px 58px 52px; gap: 8px; align-items: center; min-height: 44px; padding: 0 14px; border-top: 1px solid var(--line); font-size: 16px; }
+.rrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) 30px 52px 36px 44px; gap: 6px; align-items: center; min-height: 44px; padding: 0 14px; border-top: 1px solid var(--line); font-size: 16px; }
 .rrow:first-child { border-top: 0; }
 .rrow.head { min-height: 34px; font-size: 12px; font-weight: 700; color: var(--ink-3); }
 .rrow.head span:nth-child(n+3) { text-align: right; }
@@ -377,12 +377,12 @@ Dipakai di frame: 09a, 09b, 09c, 09d, 09e, 09f, 12j
 .rrow .r.lead { width: 28px; height: 28px; border-radius: 50%; background: var(--ball); color: var(--ink); display: grid; place-items: center; font-size: 17px; box-shadow: inset 0 0 0 1px var(--ball-edge); }
 .rrow .nm { font-weight: 600; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rrow .nm small { display: block; font-size: 12.5px; font-weight: 500; color: var(--ink-3); }
-.rrow .mp, .rrow .c3 { text-align: right; font-size: 18px; color: var(--ink-2); }
+.rrow .mp, .rrow .c3, .rrow .df { text-align: right; font-size: 18px; color: var(--ink-2); }
 .rrow .c4 { text-align: right; font-size: 22px; }
 .rrow.sub { min-height: 32px; background: #F5F7F9; font-size: 12px; font-weight: 700; color: var(--ink-3); }
 .rrow.idle { color: var(--ink-3); }
 .rrow.idle .nm { font-weight: 500; }
-.rrow.idle .mp, .rrow.idle .c3, .rrow.idle .c4, .rrow.idle .r { color: #A3AEB8; }
+.rrow.idle .mp, .rrow.idle .c3, .rrow.idle .df, .rrow.idle .c4, .rrow.idle .r { color: #A3AEB8; }
 ```
 
 ## `StatLine`

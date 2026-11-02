@@ -8,10 +8,10 @@ const shareSummaryCount = 5;
 
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-/// Isi poster Bagikan dari turnamen + baris Peringkat ([entries] = `standingEntriesProvider`, jadi nomornya
-/// sama dengan Peringkat). Ringkas = 5 teratas + "+n lainnya"; Lengkap = semua yang bernomor. Fixed
-/// menghitung "pasangan" dan menulis nilai + satuan saja (nama dua anggota sudah panjang); Mixed menambah
-/// metode lain ("42 poin · 100%", "100% · +12"). Turnamen bernama: nama menggantikan baris kecil
+/// Isi poster Bagikan dari turnamen + baris Klasemen ([entries] = `standingEntriesProvider`, jadi nomornya
+/// sama dengan Klasemen). Ringkas = 5 teratas + "+n lainnya"; Lengkap = semua yang bernomor. Fixed
+/// menghitung "pasangan". Tiap baris = nilai metode + selisih, dua angka penentu nomornya ("42 poin · +12",
+/// "100% · +12"). Turnamen bernama: nama menggantikan baris kecil
 /// "olahraga · mode · tanggal" dan tanggalnya pindah ke ringkasan, sama dengan baris akhir caption.
 SharePosterData sharePosterData({
   required ActiveTournament active,
@@ -32,12 +32,14 @@ SharePosterData sharePosterData({
 
   SharePosterRow row(StandingEntry e) {
     final s = e.standing;
-    final win = '${s.winPercent.round()}%';
-    final diff = s.gameDiff > 0 ? '+${s.gameDiff}' : (s.gameDiff < 0 ? '−${-s.gameDiff}' : '0');
-    final names = [for (final p in e.players) p.name];
-    return method == RankingMethod.totalGames
-        ? SharePosterRow(position: e.position!, names: names, value: '${s.totalPoint}', detail: fixed ? unit : '$unit · $win')
-        : SharePosterRow(position: e.position!, names: names, value: win, detail: fixed ? null : '· $diff');
+    final total = method == RankingMethod.totalGames;
+    return SharePosterRow(
+      position: e.position!,
+      names: [for (final p in e.players) p.name],
+      value: total ? '${s.totalPoint}' : '${s.winPercent.round()}%',
+      detail: total ? unit : null,
+      diff: s.diffLabel,
+    );
   }
 
   return SharePosterData(

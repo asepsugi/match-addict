@@ -1,6 +1,6 @@
-# mabar
+# Match Addict
 
-Aplikasi mabar tennis & padel untuk klub/komunitas
+Aplikasi mabar tennis & padel untuk klub/komunitas — https://asepsugi.github.io/match-addict/
 
 ## Getting Started
 

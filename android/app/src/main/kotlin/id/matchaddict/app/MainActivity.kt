@@ -1,4 +1,4 @@
-package id.mabar.app
+package id.matchaddict.app
 
 import io.flutter.embedding.android.FlutterActivity
 

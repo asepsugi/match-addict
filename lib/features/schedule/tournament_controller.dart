@@ -341,6 +341,7 @@ final standingEntriesProvider = Provider<List<StandingEntry>>((ref) {
   if (active == null) return const [];
   return standingEntries(
     standings: ref.watch(standingsProvider),
+    method: ref.watch(rankingMethodProvider),
     fixedPairs: active.config.mode == PartnerMode.fixed ? active.config.fixedPairs : null,
   );
 });

@@ -81,7 +81,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `LiveTag`
 
-- Halaman ini web Mabar yang sama (`asepsugi.github.io/mabar/#/live/K7Q2MX`) dalam mode baca saja: dibuka di browser, tanpa pasang app. Datanya tidak pernah menimpa turnamen di HP penonton sendiri.
+- Halaman ini web Match Addict yang sama (`asepsugi.github.io/match-addict/#/live/K7Q2MX`) dalam mode baca saja: dibuka di browser, tanpa pasang app. Datanya tidak pernah menimpa turnamen di HP penonton sendiri.
 - Beda dengan host: tanpa tombol kembali, ⋯ diganti tag "Live", match kosong tanpa "Isi skor", baris tidak bisa diketuk, tanpa Batalkan, Pemain, dan Buat round. Action bar tinggal Klasemen.
 - Subjudul: nama turnamen menggantikan olahraga kalau ada (seperti Beranda); tanpa nama sama dengan host (12i).
 - Dicek tiap 10 detik selama halaman terbuka; berhenti saat tab di belakang dan langsung dicek lagi saat dibuka. Hitung mundur court jalan sendiri dari jam mulai turnamen.
@@ -140,7 +140,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `LiveScreen`
 
 - Untuk link salah, live yang dihentikan (12e), dan live yang terhapus otomatis (3 hari tanpa perubahan).
 - Data dari versi app host yang tidak bisa dibaca (beda `schemaVersion`): judul "Live tidak bisa dibuka", tombol sama.
-- "Buka Mabar" → Beranda, jadi penonton bisa memakai Mabar sendiri.
+- "Buka Match Addict" → Beranda, jadi penonton bisa memakai Match Addict sendiri.
 
 ## 12o · Live · memuat
 

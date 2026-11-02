@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/ranking/ranking_calculator.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/ranking/ranking_calculator.dart';
 
 List<Player> _players(List<String> names) =>
     [for (final n in names) Player(id: n, name: n)];
@@ -46,7 +46,7 @@ void main() {
     );
 
     test('mode Mixed: satu baris per pemain, urutan tidak berubah', () {
-      final entries = standingEntries(standings: ranked);
+      final entries = standingEntries(standings: ranked, method: RankingMethod.totalGames);
 
       expect(entries, hasLength(ranked.length));
       expect(
@@ -56,7 +56,7 @@ void main() {
     });
 
     test('mode Fixed: dua anggota pasangan jadi satu baris', () {
-      final entries = standingEntries(standings: ranked, fixedPairs: [ab, cd]);
+      final entries = standingEntries(standings: ranked, method: RankingMethod.totalGames, fixedPairs: [ab, cd]);
 
       expect(entries, hasLength(2));
       expect(entries.first.label, 'Andi + Budi');
@@ -67,7 +67,7 @@ void main() {
     });
 
     test('mode Fixed: pasangan mengambil posisi anggota terbaiknya', () {
-      final entries = standingEntries(standings: ranked, fixedPairs: [ab, cd]);
+      final entries = standingEntries(standings: ranked, method: RankingMethod.totalGames, fixedPairs: [ab, cd]);
       final bestName = ranked.first.player.name;
 
       expect(entries.first.hasPlayer(bestName), isTrue);
@@ -88,7 +88,7 @@ void main() {
         format: ScoreFormat.standard,
       );
 
-      final entries = standingEntries(standings: rankedOdd, fixedPairs: [ab, cd]);
+      final entries = standingEntries(standings: rankedOdd, method: RankingMethod.totalGames, fixedPairs: [ab, cd]);
 
       expect(entries, hasLength(3));
       expect(entries.map((e) => e.label), contains('Eka'));
@@ -215,25 +215,52 @@ void main() {
       expect(standings.first.player.id, 'Andi');
     });
 
-    test('breaks a win% tie with head-to-head', () {
-      // Andi & Citra sama-sama 1 menang 1 kalah, tapi Andi menang saat bertemu
-      // Citra dan total gamesnya sama persis.
+    test('poin sama dipisah selisih, bukan head-to-head', () {
+      // Andi · Budi menang head-to-head atas Citra · Dewi, tapi poinnya sama (10) dan selisihnya kalah (0 vs +4).
+      final six = _players(['Andi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fina']);
       final ab2 = _pair('Andi', 'Budi');
       final cd2 = _pair('Citra', 'Dewi');
+      final ef = _pair('Eko', 'Fina');
       final standings = RankingCalculator.rank(
-        players: players,
+        players: six,
         matches: [
           _match(p1: ab2, p2: cd2, sets: const [SetScore(side1: 6, side2: 4)]),
-          _match(p1: cd2, p2: ab2, sets: const [SetScore(side1: 6, side2: 4)], round: 2),
-          _match(p1: ab2, p2: cd2, sets: const [SetScore(side1: 6, side2: 4)], round: 3),
-          _match(p1: cd2, p2: ab2, sets: const [SetScore(side1: 4, side2: 6)], round: 4),
+          _match(p1: cd2, p2: ef, sets: const [SetScore(side1: 6, side2: 0)], round: 2),
+          _match(p1: ab2, p2: ef, sets: const [SetScore(side1: 4, side2: 6)], round: 3),
         ],
-        method: RankingMethod.winPercent,
+        method: RankingMethod.totalGames,
         format: ScoreFormat.standard,
       );
-      final andi = standings.indexWhere((s) => s.player.id == 'Andi');
-      final citra = standings.indexWhere((s) => s.player.id == 'Citra');
-      expect(andi, lessThan(citra));
+      final andi = standings.firstWhere((s) => s.player.id == 'Andi');
+      final citra = standings.firstWhere((s) => s.player.id == 'Citra');
+      expect((andi.totalPoint, andi.gameDiff, citra.totalPoint, citra.gameDiff), (10, 0, 10, 4));
+      expect(standings.indexOf(citra), lessThan(standings.indexOf(andi)));
+    });
+
+    test('poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan (1, 1, 2, 2, 3…)', () {
+      final eight = _players(['Andi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fina', 'Gani', 'Hadi']);
+      final ranked = RankingCalculator.rank(
+        players: eight,
+        matches: [
+          _match(p1: _pair('Andi', 'Budi'), p2: _pair('Citra', 'Dewi'), sets: const [SetScore(side1: 6, side2: 2)]),
+          _match(p1: _pair('Eko', 'Fina'), p2: _pair('Gani', 'Hadi'), sets: const [SetScore(side1: 6, side2: 4)]),
+          _match(p1: _pair('Andi', 'Eko'), p2: _pair('Citra', 'Gani'), sets: const [SetScore(side1: 6, side2: 3)], round: 2),
+          _match(p1: _pair('Budi', 'Fina'), p2: _pair('Dewi', 'Hadi'), sets: const [SetScore(side1: 6, side2: 3)], round: 2),
+        ],
+        method: RankingMethod.totalGames,
+        format: ScoreFormat.standard,
+      );
+      final entries = standingEntries(standings: ranked, method: RankingMethod.totalGames);
+      expect([for (final e in entries) '${e.position} ${e.label} ${e.standing.totalPoint} ${e.standing.gameDiff}'], [
+        '1 Andi 12 7',
+        '1 Budi 12 7',
+        '2 Eko 12 5',
+        '2 Fina 12 5',
+        '3 Gani 7 -5',
+        '3 Hadi 7 -5',
+        '4 Citra 5 -7',
+        '4 Dewi 5 -7',
+      ]);
     });
   });
 }

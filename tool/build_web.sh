@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Build PWA Mabar: `flutter build web` + mengisi daftar precache & versi di sw.js.
+# Build PWA Match Addict: `flutter build web` + mengisi daftar precache & versi di sw.js.
 # Pakai ini, bukan `flutter build web` langsung — tanpa langkah kedua app tidak jalan offline.
 #
 #   tool/build_web.sh                 # deploy di root domain
-#   tool/build_web.sh --base-href /mabar/   # deploy di sub-path (mis. GitHub Pages)
+#   tool/build_web.sh --base-href /match-addict/   # deploy di sub-path (mis. GitHub Pages)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

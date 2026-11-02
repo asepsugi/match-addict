@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/theme/mabar_icons.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
-import 'package:mabar/core/widgets/mabar_controls.dart';
+import 'package:match_addict/core/theme/mabar_icons.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
 
 import '../hifi_golden.dart';
 

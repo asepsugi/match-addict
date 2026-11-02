@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mabar/features/live/live_host_controller.dart';
-import 'package:mabar/features/live/live_view_controller.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/live/live_relay.dart';
-import 'package:mabar/services/storage/tournament_codec.dart';
-import 'package:mabar/services/storage/tournament_store.dart';
+import 'package:match_addict/features/live/live_host_controller.dart';
+import 'package:match_addict/features/live/live_view_controller.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/live/live_relay.dart';
+import 'package:match_addict/services/storage/tournament_codec.dart';
+import 'package:match_addict/services/storage/tournament_store.dart';
 
 import '../hifi/screens/schedule_fixture.dart';
 
@@ -78,12 +78,12 @@ Future<void> settle() async {
 void main() {
   group('LiveRelay', () {
     test('kode live dibaca dari fragment halaman, huruf kecil diterima', () {
-      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/mabar/#/live/k7q2mx')), 'K7Q2MX');
+      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/match-addict/#/live/k7q2mx')), 'K7Q2MX');
       // 0/O dan 1/I/L tidak pernah dibuat relay.
-      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/mabar/#/live/K7Q2M0')), isNull);
-      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/mabar/#/leaderboard')), isNull);
-      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/mabar/')), isNull);
-      expect(LiveRelay.link('K7Q2MX'), 'https://asepsugi.github.io/mabar/#/live/K7Q2MX');
+      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/match-addict/#/live/K7Q2M0')), isNull);
+      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/match-addict/#/leaderboard')), isNull);
+      expect(LiveRelay.codeIn(Uri.parse('https://asepsugi.github.io/match-addict/')), isNull);
+      expect(LiveRelay.link('K7Q2MX'), 'https://asepsugi.github.io/match-addict/#/live/K7Q2MX');
     });
 
     test('buat, kirim, ambil sejak rev, hapus', () async {
@@ -148,7 +148,7 @@ void main() {
       expect(live(), isNull);
       expect(await container.read(liveHostProvider.notifier).start(), isTrue);
       expect(live()!.code, 'K7Q2MX');
-      expect(live()!.link, 'https://asepsugi.github.io/mabar/#/live/K7Q2MX');
+      expect(live()!.link, 'https://asepsugi.github.io/match-addict/#/live/K7Q2MX');
       expect(live()!.sentAt, now);
       expect(fake.latest('K7Q2MX')!.tournament.id, active().tournament.id);
       expect(store.loadLive()!.code, 'K7Q2MX');

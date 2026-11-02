@@ -71,7 +71,7 @@ class LiveScoreSheet extends ConsumerWidget {
           MabarRow(
             padded: true,
             leading: const MabarRowIcon(MabarIcons.link),
-            // `.url` — tanpa skema, pindah baris sesudah "mabar/" (<wbr> di frame) supaya kodenya tidak terpotong.
+            // `.url` — tanpa skema, pindah baris sesudah "match-addict/" (<wbr> di frame) supaya kodenya tidak terpotong.
             titleWidget: Text(
               '${LiveRelay.viewerBase.replaceFirst('https://', '')}\n#/live/${live.code}',
               style: MabarType.body.copyWith(fontSize: 15, fontWeight: FontWeight.w600, height: 1.35),

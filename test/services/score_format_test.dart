@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/app_version.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/scoring/score_entry.dart';
-import 'package:mabar/services/storage/tournament_codec.dart';
+import 'package:match_addict/core/app_version.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/scoring/score_entry.dart';
+import 'package:match_addict/services/storage/tournament_codec.dart';
 
 /// Format skor desain v2 (design/spec/logic.md §1–§2): Race to N, Best of N, Americano N, dan
 /// simpanan app lama yang tidak dimuat. Angka = frame 07a–07o.

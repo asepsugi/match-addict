@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
-import 'package:mabar/core/widgets/court_painter.dart';
-import 'package:mabar/features/home/widgets/court_banner.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
+import 'package:match_addict/core/widgets/court_painter.dart';
+import 'package:match_addict/features/home/widgets/court_banner.dart';
+import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
 

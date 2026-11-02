@@ -1,4 +1,4 @@
-# Build PWA lalu publish ke GitHub Pages (https://asepsugi.github.io/mabar/) tiap push ke main.
+# Build PWA lalu publish ke GitHub Pages (https://asepsugi.github.io/match-addict/) tiap push ke main.
 # Lewat tool/build_web.sh, bukan `flutter build web` langsung — tanpa itu sw.js kosong dan app tidak jalan offline.
 name: Deploy web
 
@@ -29,8 +29,8 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter test
-      # Pages tanpa custom domain menyajikan app di sub-path /mabar/.
-      - run: tool/build_web.sh --base-href /mabar/
+      # Pages tanpa custom domain menyajikan app di sub-path /match-addict/.
+      - run: tool/build_web.sh --base-href /match-addict/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/services/pairing/player_name_parser.dart';
+import 'package:match_addict/services/pairing/player_name_parser.dart';
 
 void main() {
   group('PlayerNameParser', () {

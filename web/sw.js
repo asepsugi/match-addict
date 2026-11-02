@@ -1,8 +1,10 @@
-// Service worker offline Mabar. Dua placeholder di bawah diisi tool/build_web.sh setelah
+// Service worker offline Match Addict. Dua placeholder di bawah diisi tool/build_web.sh setelah
 // `flutter build web`; tanpa skrip itu file ini tidak berguna (daftar precache-nya kosong).
 const VERSION = '__MABAR_VERSION__';
 const PRECACHE = __MABAR_PRECACHE__;
-const CACHE = `mabar-${VERSION}`;
+// Awalan beda dari app lama di /mabar/ (cache satu origin dipakai bersama): bersih-bersih di bawah tidak
+// menghapus cache milik service worker lain.
+const CACHE = `match-addict-${VERSION}`;
 
 // Semua file app di-precache saat install, supaya layar yang belum pernah dibuka (dan gambarnya)
 // tetap jalan offline di lapangan. Pengecualian: canvaskit/ punya beberapa varian ~5MB per browser,
@@ -24,7 +26,7 @@ self.addEventListener('message', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k.startsWith('mabar-') && k !== CACHE).map((k) => caches.delete(k))),
+      Promise.all(keys.filter((k) => k.startsWith('match-addict-') && k !== CACHE).map((k) => caches.delete(k))),
     ),
   );
 });

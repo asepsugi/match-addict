@@ -1,4 +1,4 @@
-# Relay live score Mabar. Deploy: `npm run deploy` (sekali `npx wrangler login` dulu).
+# Relay live score Match Addict (nama worker tetap mabar-live supaya URL relay tidak berubah). Deploy: `npm run deploy` (sekali `npx wrangler login` dulu).
 name = "mabar-live"
 main = "src/index.js"
 compatibility_date = "2026-09-01"

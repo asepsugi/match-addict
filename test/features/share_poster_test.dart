@@ -3,12 +3,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/features/share/share_content.dart';
-import 'package:mabar/features/share/widgets/share_poster.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/ranking/ranking_calculator.dart';
-import 'package:mabar/services/share/result_text_builder.dart';
-import 'package:mabar/features/share/share_theme.dart';
+import 'package:match_addict/features/share/share_content.dart';
+import 'package:match_addict/features/share/widgets/share_poster.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/ranking/ranking_calculator.dart';
+import 'package:match_addict/services/share/result_text_builder.dart';
+import 'package:match_addict/features/share/share_theme.dart';
 
 /// Turnamen dengan [count] pemain, satu round yang seluruh match-nya selesai.
 ActiveTournament _active(int count, {String? name}) {
@@ -56,6 +56,7 @@ List<StandingEntry> _standings(ActiveTournament active) => standingEntries(
         method: RankingMethod.winPercent,
         format: active.config.format,
       ),
+      method: RankingMethod.winPercent,
     );
 
 List<StandingEntry> _fixedStandings(ActiveTournament active, List<Pair> pairs) => standingEntries(
@@ -65,12 +66,13 @@ List<StandingEntry> _fixedStandings(ActiveTournament active, List<Pair> pairs) =
         method: RankingMethod.totalGames,
         format: active.config.format,
       ),
+      method: RankingMethod.totalGames,
       fixedPairs: pairs,
     );
 
 void main() {
   group('sharePosterData', () {
-    test('Ringkas: 5 teratas + "+n pemain lainnya"; nilai Total Point "poin · %"', () {
+    test('Ringkas: 5 teratas + "+n pemain lainnya"; nilai Total Point + satuan + selisih', () {
       final active = _active(8);
       final data = sharePosterData(
         active: active,
@@ -82,7 +84,9 @@ void main() {
       expect(data.rows, hasLength(shareSummaryCount));
       expect(data.more, '+3 pemain lainnya');
       expect(data.complete, isFalse);
-      expect((data.rows.first.value, data.rows.first.detail), ('6', 'game · 100%'));
+      // Total Point: satuan + selisih pemimpin klasemen, bukan Win % (keputusan host 2026-11-02).
+      final top = data.rows.first;
+      expect((top.value, top.detail, top.diff), ('6', 'game', _standings(active).first.standing.diffLabel));
       expect(data.eyebrow, 'Padel · Mixed · 16 Sep 2026');
       expect(data.summary, '1 round · 2 match');
     });
@@ -112,7 +116,7 @@ void main() {
       expect(data.rows, hasLength(8));
       expect(data.more, isNull);
       expect(data.complete, isTrue);
-      expect((data.rows.first.value, data.rows.first.detail), ('100%', '· +3'));
+      expect((data.rows.first.value, data.rows.first.detail, data.rows.first.diff), ('100%', null, '+3'));
     });
 
     test('Fixed menghitung pasangan dan menulis nilai + satuan saja', () {

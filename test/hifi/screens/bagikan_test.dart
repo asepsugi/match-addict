@@ -4,13 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mabar/core/widgets/mabar_controls.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/features/share/share_result_screen.dart';
-import 'package:mabar/features/share/share_theme.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/ranking/ranking_calculator.dart';
-import 'package:mabar/services/schedule/round_robin_generator.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/features/share/share_result_screen.dart';
+import 'package:match_addict/features/share/share_theme.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/ranking/ranking_calculator.dart';
+import 'package:match_addict/services/schedule/round_robin_generator.dart';
 
 import '../components/share_poster_data.dart';
 import '../hifi_golden.dart';
@@ -98,8 +98,8 @@ void main() {
   }
 
   /// Mixed yang sudah diakhiri dengan [rounds] × [courts] match (hanya untuk "x round · y match"); barisnya
-  /// langsung dari data poster frame, karena nomor seri di sana (3, 3 · 11, 11 · 14, 14) butuh statistik
-  /// identik yang tidak tampil di layar ini.
+  /// langsung dari data poster frame (nomor, poin, selisih), karena nomor seri di sana (3, 3 · 10, 10 · 12, 12)
+  /// butuh poin dan selisih yang sama persis.
   (ActiveTournament, List<StandingEntry>) mixedFromPoster(String frame, {required int rounds, required int courts}) {
     final rows = posterRows[(frame, 0)]!;
     final roster = [for (final r in rows) r.names.single];
@@ -125,7 +125,13 @@ void main() {
       for (final (i, r) in rows.indexed)
         StandingEntry(
           players: [active.config.players[i]],
-          standing: PlayerStanding(player: active.config.players[i], wins: 1, gamesWon: int.parse(r.value)),
+          standing: PlayerStanding(
+            player: active.config.players[i],
+            wins: 1,
+            gamesWon: int.parse(r.value),
+            // Selisih poster ("−12") = gamesWon − gamesLost.
+            gamesLost: int.parse(r.value) - int.parse(r.diff.replaceFirst('−', '-')),
+          ),
           position: r.position,
         ),
     ];

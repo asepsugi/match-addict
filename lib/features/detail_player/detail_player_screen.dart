@@ -40,7 +40,6 @@ class DetailPlayerScreen extends ConsumerWidget {
     // Dibanding semua pemain lain, termasuk yang keluar; di Fixed tanpa pasangannya sendiri.
     final others = config.players.length - (fixed ? 2 : 1);
     final unit = '${format.unit[0].toUpperCase()}${format.unit.substring(1)}';
-    final diff = s.gameDiff;
     final woPerWin = _woPointsPerWin(s, profile, playerId);
 
     final stats = <StatLineItem>[
@@ -52,7 +51,7 @@ class DetailPlayerScreen extends ConsumerWidget {
         label: format.canDraw ? 'W–L–D' : 'W–L',
       ),
       (
-        value: !played ? '–' : (diff > 0 ? '+$diff' : (diff < 0 ? '−${-diff}' : '0')),
+        value: played ? s.diffLabel : '–',
         unit: null,
         label: 'Selisih ${format.unit}',
       ),

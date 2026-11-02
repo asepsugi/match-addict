@@ -61,7 +61,7 @@ class MabarApp extends ConsumerWidget {
     // Live score host hidup sepanjang app: skor dari layar mana pun, dan resume dari Beranda, ikut terkirim.
     ref.listen(liveHostProvider, (_, __) {});
     return MaterialApp.router(
-      title: 'Mabar',
+      title: 'Match Addict',
       debugShowCheckedModeBanner: false,
       theme: MabarTheme.light(),
       routerConfig: appRouterConfig,

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
-import 'package:mabar/features/detail_player/widgets/stat_line.dart';
-import 'package:mabar/features/leaderboard/widgets/standing_table.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
+import 'package:match_addict/features/detail_player/widgets/stat_line.dart';
+import 'package:match_addict/features/leaderboard/widgets/standing_table.dart';
 
 import '../hifi_golden.dart';
 
@@ -12,16 +12,16 @@ void main() {
   testWidgets('StandingTable: Mixed, nomor sama, belum main (09a)', (tester) async {
     final at = hifiRect('09a', 'rank');
     const rows = [
-      (1, 'Andi P', '3–0–0', '42'),
-      (1, 'Dewant R', '3–0–0', '42'),
-      (3, 'Hana T', '1–1–1', '36'),
-      (4, 'Fajar K', '0–2–1', '30'),
-      (5, 'Gina R', '1–0–1', '27'),
-      (6, 'Citra L', '1–1–0', '26'),
-      (7, 'Joko S', '1–1–0', '23'),
-      (8, 'Eko M', '0–1–1', '22'),
-      (9, 'Budi S', '0–2–0', '20'),
-      (9, 'Indra W', '0–2–0', '20'),
+      (1, 'Andi P', '3–0–0', '+12', '42'),
+      (1, 'Dewant R', '3–0–0', '+12', '42'),
+      (2, 'Hana T', '1–1–1', '0', '36'),
+      (3, 'Fajar K', '0–2–1', '−12', '30'),
+      (4, 'Gina R', '1–0–1', '+6', '27'),
+      (5, 'Citra L', '1–1–0', '+4', '26'),
+      (6, 'Joko S', '1–1–0', '−2', '23'),
+      (7, 'Eko M', '0–1–1', '−4', '22'),
+      (8, 'Budi S', '0–2–0', '−8', '20'),
+      (8, 'Indra W', '0–2–0', '−8', '20'),
     ];
     await expectRegionMatchesHifi(
       tester,
@@ -32,7 +32,10 @@ void main() {
           subjectLabel: 'Pemain',
           recordLabel: 'W–L–D',
           valueLabel: 'Poin',
-          rows: [for (final (p, n, r, v) in rows) StandingTableRow(position: p, names: [n], played: _played(r), record: r, value: v)],
+          rows: [
+            for (final (p, n, r, d, v) in rows)
+              StandingTableRow(position: p, names: [n], played: _played(r), record: r, diff: d, value: v),
+          ],
           idleNames: const [
             ['Gilang S'],
           ],
@@ -47,11 +50,11 @@ void main() {
   testWidgets('StandingTable: pasangan Fixed dua baris, W–L (09c)', (tester) async {
     final at = hifiRect('09c', 'rank');
     const rows = [
-      (1, ['Andi P', 'Budi S'], '4–0', '24'),
-      (2, ['Gina R', 'Hana T'], '3–1', '23'),
-      (3, ['Eko M', 'Fajar K'], '2–2', '16'),
-      (4, ['Citra L', 'Dewant R'], '1–3', '14'),
-      (5, ['Indra W', 'Joko S'], '0–4', '8'),
+      (1, ['Andi P', 'Budi S'], '4–0', '+11', '24'),
+      (2, ['Gina R', 'Hana T'], '3–1', '+7', '23'),
+      (3, ['Eko M', 'Fajar K'], '2–2', '−2', '16'),
+      (4, ['Citra L', 'Dewant R'], '1–3', '0', '14'),
+      (5, ['Indra W', 'Joko S'], '0–4', '−16', '8'),
     ];
     await expectRegionMatchesHifi(
       tester,
@@ -62,7 +65,9 @@ void main() {
           subjectLabel: 'Pasangan',
           recordLabel: 'W–L',
           valueLabel: 'Game',
-          rows: [for (final (p, n, r, v) in rows) StandingTableRow(position: p, names: n, played: _played(r), record: r, value: v)],
+          rows: [
+            for (final (p, n, r, d, v) in rows) StandingTableRow(position: p, names: n, played: _played(r), record: r, diff: d, value: v),
+          ],
         ),
       ),
       '09c',

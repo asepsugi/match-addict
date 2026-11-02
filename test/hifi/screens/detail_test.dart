@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/core/widgets/mabar_controls.dart';
-import 'package:mabar/features/detail_player/detail_player_screen.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
+import 'package:match_addict/features/detail_player/detail_player_screen.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
 import 'ranking_fixture.dart';

@@ -12,11 +12,11 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Baru: subjudul dan judul kartu mengikuti status sebenarnya ("sementara" / "akhir"). Sekarang badge FINAL di-hardcode.
 - Wordmark + bola menggantikan "MABAR TURNAMEN · PADEL". Piala tetap (ikon, bukan emoji) berwarna bola di tema gelap, tinta tema di tema lembut. Watermark raket mengikuti olahraga (padel diputar 20°).
-- Nilai per baris: Total Point → "42 poin · 100%"; Win % → "100% · +12". Nama lengkap, terpotong elipsis.
+- Nilai per baris = nilai metode + selisih, sama dengan dua kolom terakhir Klasemen: Total Point → "42 poin · +12"; Win % → "100% · +12". Gambar dua kolom dan Story tanpa satuan: "42 · +12". Selisih menjelaskan kenapa poin yang sama bernomor beda (Hana 36 · 0); poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan (#1, #1, #2). Nama lengkap, terpotong elipsis.
 - 10 tema; default biru (dulu hijau). Pilihan tema & format tidak disimpan.
 - "Selesai" memindahkan turnamen ke slot terakhir lalu ke Beranda (stack di-reset), tanpa konfirmasi. Footer "Hasil turnamen tersimpan otomatis" dihapus.
 - Turnamen bernama: nama menggantikan "PADEL · MIXED · 21 OKT 2026" di baris kecil di atas judul (kapital, gaya sama, maks dua baris) dan tanggal pindah ke ringkasan bawah, sama dengan baris akhir caption. Olahraga terbaca dari watermark, Fixed/Mixed dari isi daftar. Tanpa nama: baris kecil tetap "olahraga · mode · tanggal" (11b, 11e).
-- Caption: baris pertama "🏆 {nama} · Padel"; tanpa nama "🏆 Mabar Turnamen · Padel".
+- Caption: baris pertama "🏆 {nama} · Padel"; tanpa nama "🏆 Match Addict · Padel".
 
 ## 11b · Lengkap · Fixed 20 pemain (10 pasangan) · tema peach
 
@@ -47,7 +47,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `SharePoster`
 
 - Baris membagi tinggi yang tersisa sama rata, jadi daftar selalu mengisi poster; baris mengecil kalau banyak (format Lengkap). Ukuran huruf dan margin per gambar ada di preset komponen `SharePoster` (`SharePosterTarget` pratinjau / Feed / Story).
-- File: `mabar-feed-1080x1080.png`, `mabar-story-1080x1920.png`, dibagikan bersamaan lewat `Share.shareXFiles`.
+- File: `match-addict-feed-1080x1080.png`, `match-addict-story-1080x1920.png`, dibagikan bersamaan lewat `Share.shareXFiles`.
 - Render poster di test wajib memuat font Archivo (`loadHifiFonts()`), jangan percaya font Ahem.
 - Nama terpanjang (40 karakter): Feed satu baris, Story dua baris; daftar di bawahnya berbagi tinggi yang tersisa.
 
@@ -59,7 +59,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - 20 baris tidak terbaca dalam satu kolom 1:1, jadi lebih dari 10 pemain dibagi dua kolom rata: ⌈n/2⌉ di kiri, sisanya di kanan, urut ke bawah dulu seperti daftar Pemain (20 → 10–10, 12 → 6–6 di 11h, 13 → 7–6 di 11i, 30 → 15–15 di 11l; ≤ 10 tetap satu kolom). Pasangan Fixed tidak pernah dua kolom (11k). Bukan 10 di kiri lalu sisanya, supaya kolom kanan tidak setengah kosong.
 - Dalam dua kolom tiap baris hanya nama dan nilai metode; "poin · %" dihapus karena tidak muat di setengah lebar.
-- Nomor sama untuk statistik identik tetap berlaku (3, 3 · 11, 11 · 14, 14).
+- Poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan (3, 3 · 10, 10 · 12, 12).
 - Data: Americano 21, 4 court × 8 round = 32 match, tiap pemain main 6–7 kali.
 
 ## 11f · Gambar Lengkap · Mixed 20 pemain · Feed dan Story (skala 1:3) · bernama
@@ -106,7 +106,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `SharePoster`
 
-- Sampai 10 baris satu kolom dengan "poin · %"; 11 ke atas dua kolom rata, kiri dapat kelebihan satu: 11 → 6–5, 13 → 7–6, 15 → 8–7, 17 → 9–8, 19 → 10–9.
+- Sampai 10 baris satu kolom dengan "poin · selisih"; 11 ke atas dua kolom rata, kiri dapat kelebihan satu: 11 → 6–5, 13 → 7–6, 15 → 8–7, 17 → 9–8, 19 → 10–9.
 - Baris kiri dan kanan selalu sejajar; slot terakhir di kanan kosong. Makin sedikit baris, makin tinggi tiap baris (tetap membagi tinggi kartu), jadi 5 pemain terlihat lega dan 19 pemain sama padatnya dengan 20.
 - Nomor diberi "#" pudar di semua kartu dan gambar, supaya "#3" tidak tertukar dengan angka poin di ujung baris.
 - Semua baris peringkat 1 diberi lencana emas `#E3B341` dengan tulisan tinta, dan namanya lebih tebal. Kalau ada dua #1 (statistik identik), keduanya dapat lencana.

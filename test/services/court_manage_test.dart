@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/schedule/endless_round_generator.dart';
-import 'package:mabar/services/storage/tournament_codec.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/schedule/endless_round_generator.dart';
+import 'package:match_addict/services/storage/tournament_codec.dart';
 
 import '../hifi/screens/schedule_fixture.dart';
 

@@ -13,15 +13,26 @@ class StandingTableRow {
   /// Kolom W–L–D, "3–0–0" atau "4–0".
   final String record;
 
+  /// Kolom +/−: selisih poin/game, "+12", "−4", "0". Pemisah nilai metode yang sama (logic.md §4).
+  final String diff;
+
   /// Kolom terakhir: nilai metode ("42", "75").
   final String value;
   final VoidCallback? onTap;
 
-  const StandingTableRow({required this.position, required this.names, required this.played, required this.record, required this.value, this.onTap});
+  const StandingTableRow({
+    required this.position,
+    required this.names,
+    required this.played,
+    required this.record,
+    required this.diff,
+    required this.value,
+    this.onTap,
+  });
 }
 
 /// `.rank` — tabel peringkat rapat dengan angka rata kanan: # · nama · Main · W–L–D (atau W–L kalau format
-/// tidak bisa seri) · nilai metode. Peringkat 1 diberi bola (semua baris bernomor 1). Pemain yang belum
+/// tidak bisa seri) · +/− · nilai metode. Peringkat 1 diberi bola (semua baris bernomor 1). Pemain yang belum
 /// main dikelompokkan di bawah judul "Belum main" tanpa nomor ([idleNames]).
 class StandingTable extends StatelessWidget {
   /// Judul kolom nama: "Pemain" atau "Pasangan".
@@ -50,17 +61,22 @@ class StandingTable extends StatelessWidget {
       _row(
         minHeight: 34,
         afterLine: false,
-        cells: (
+        cells: [
           Text('#', style: _head, textAlign: TextAlign.left),
           Text(subjectLabel, style: _head),
           Text('Main', style: _head, textAlign: TextAlign.right),
           Text(recordLabel, style: _head, textAlign: TextAlign.right),
+          Text('+/−', style: _head, textAlign: TextAlign.right),
           Text(valueLabel, style: _head, textAlign: TextAlign.right),
-        ),
+        ],
       ),
       for (final r in rows) _ranked(r),
       if (idleNames.isNotEmpty) ...[
-        _row(minHeight: 32, color: _subBackground, cells: (const SizedBox(), Text('Belum main', style: _head), const SizedBox(), const SizedBox(), const SizedBox())),
+        _row(
+          minHeight: 32,
+          color: _subBackground,
+          cells: [const SizedBox(), Text('Belum main', style: _head), for (var i = 0; i < 4; i++) const SizedBox()],
+        ),
         for (final names in idleNames) _idle(names),
       ],
     ];
@@ -90,11 +106,14 @@ class StandingTable extends StatelessWidget {
   static const _subBackground = Color(0xFFF5F7F9);
   static const _idleNumber = Color(0xFFA3AEB8);
 
-  /// Kolom grid: 30 | sisa | 34 | 58 | 52, jarak 8, padding samping 14. Tinggi minimal termasuk garis atas
-  /// 1 pt (border-box), jadi baris setelah garis dikurangi 1.
+  /// Lebar kolom grid: # · nama (sisa) · Main · W–L–D · +/− · nilai.
+  static const _widths = <double?>[30, null, 30, 52, 36, 44];
+
+  /// Kolom grid [_widths], jarak 6, padding samping 14. Tinggi minimal termasuk garis atas 1 pt (border-box),
+  /// jadi baris setelah garis dikurangi 1.
   Widget _row({
     required double minHeight,
-    required (Widget, Widget, Widget, Widget, Widget) cells,
+    required List<Widget> cells,
     Color? color,
     VoidCallback? onTap,
     bool afterLine = true,
@@ -107,15 +126,10 @@ class StandingTable extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Row(
             children: [
-              SizedBox(width: 30, child: cells.$1),
-              const SizedBox(width: 8),
-              Expanded(child: cells.$2),
-              const SizedBox(width: 8),
-              SizedBox(width: 34, child: cells.$3),
-              const SizedBox(width: 8),
-              SizedBox(width: 58, child: cells.$4),
-              const SizedBox(width: 8),
-              SizedBox(width: 52, child: cells.$5),
+              for (final (i, cell) in cells.indexed) ...[
+                if (i > 0) const SizedBox(width: 6),
+                if (_widths[i] case final width?) SizedBox(width: width, child: cell) else Expanded(child: cell),
+              ],
             ],
           ),
         ),
@@ -146,7 +160,7 @@ class StandingTable extends StatelessWidget {
       // Pasangan Fixed: dua nama ditumpuk, baris 62 (09c).
       minHeight: r.names.length > 1 ? 62 : MabarSize.rankRow,
       onTap: r.onTap,
-      cells: (
+      cells: [
         number,
         Text(
           r.names.join('\n'),
@@ -154,10 +168,10 @@ class StandingTable extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink),
         ),
-        Text('${r.played}', textAlign: TextAlign.right, style: MabarType.numM.copyWith(fontSize: 18, color: MabarColors.ink2)),
-        Text(r.record, textAlign: TextAlign.right, style: MabarType.numM.copyWith(fontSize: 18, color: MabarColors.ink2)),
+        for (final small in ['${r.played}', r.record, r.diff])
+          Text(small, textAlign: TextAlign.right, style: MabarType.numM.copyWith(fontSize: 18, color: MabarColors.ink2)),
         Text(r.value, textAlign: TextAlign.right, style: MabarType.numM.copyWith(color: MabarColors.ink)),
-      ),
+      ],
     );
   }
 
@@ -165,13 +179,11 @@ class StandingTable extends StatelessWidget {
     final dash = MabarType.body.copyWith(color: _idleNumber);
     return _row(
       minHeight: names.length > 1 ? 62 : MabarSize.rankRow,
-      cells: (
+      cells: [
         Text('–', textAlign: TextAlign.center, style: MabarType.numM.copyWith(fontSize: 20, color: _idleNumber)),
         Text(names.join('\n'), maxLines: names.length, overflow: TextOverflow.ellipsis, style: MabarType.body.copyWith(color: MabarColors.ink3)),
-        Text('–', textAlign: TextAlign.right, style: dash),
-        Text('–', textAlign: TextAlign.right, style: dash),
-        Text('–', textAlign: TextAlign.right, style: dash),
-      ),
+        for (var i = 0; i < 4; i++) Text('–', textAlign: TextAlign.right, style: dash),
+      ],
     );
   }
 }

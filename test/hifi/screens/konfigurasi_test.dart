@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
-import 'package:mabar/core/widgets/mabar_controls.dart';
-import 'package:mabar/core/widgets/mabar_inputs.dart';
-import 'package:mabar/features/konfigurasi/konfigurasi_screen.dart';
-import 'package:mabar/features/konfigurasi/widgets/config_pickers.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
+import 'package:match_addict/core/widgets/mabar_inputs.dart';
+import 'package:match_addict/features/konfigurasi/konfigurasi_screen.dart';
+import 'package:match_addict/features/konfigurasi/widgets/config_pickers.dart';
+import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
 import 'screen_harness.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/ranking/ranking_calculator.dart';
-import 'package:mabar/services/share/result_text_builder.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/ranking/ranking_calculator.dart';
+import 'package:match_addict/services/share/result_text_builder.dart';
 
 const _players = [
   Player(id: 'a', name: 'Andi P'),
@@ -65,6 +65,7 @@ void main() {
         method: RankingMethod.winPercent,
         format: tournament.config.format,
       ),
+      method: RankingMethod.winPercent,
     );
 
     test('ringkas lists every player once, without per-round detail', () {
@@ -75,7 +76,7 @@ void main() {
         now: DateTime(2026, 9, 14, 1),
       );
 
-      expect(text, contains('Mabar Turnamen · Padel'));
+      expect(text, contains('🏆 Match Addict · Padel'));
       // R3 belum dimainkan dan turnamen belum diakhiri.
       expect(text, contains('Klasemen Sementara'));
       for (final p in _players) {
@@ -84,10 +85,10 @@ void main() {
       expect(text, isNot(contains('Hasil per Round')));
       // Total point ikut dibagikan, bukan cuma win%.
       // Race to 6: satuannya game. Pemenang WO dapat 6 game (PRD 4.4): 6 + 6 = 12. Statistik Andi dan
-      // Budi identik, jadi nomornya sama.
+      // Budi identik, jadi nomornya sama; nomor berikutnya melanjutkan (2, bukan 3).
       expect(text, contains('1. Andi P — 12 game'));
       expect(text, contains('1. Budi S — 12 game'));
-      expect(text, contains('3. Citra L — 4 game'));
+      expect(text, contains('2. Citra L — 4 game'));
     });
 
     test('turnamen bernama: baris pertama "🏆 nama · olahraga"', () {
@@ -98,7 +99,7 @@ void main() {
         now: DateTime(2026, 9, 14, 1),
       );
       expect(text.split('\n').first, '🏆 PB Garuda x Matcha Club · Padel');
-      expect(text, isNot(contains('Mabar Turnamen')));
+      expect(text, isNot(contains('Match Addict')));
     });
 
     test('lengkap adds per-round results and skips unplayed matches', () {

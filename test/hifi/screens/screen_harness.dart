@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mabar/core/theme/mabar_theme.dart';
+import 'package:match_addict/core/theme/mabar_theme.dart';
 
 import '../hifi_golden.dart';
 

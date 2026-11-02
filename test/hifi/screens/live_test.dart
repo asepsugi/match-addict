@@ -4,14 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mabar/features/detail_player/detail_player_screen.dart';
-import 'package:mabar/features/leaderboard/leaderboard_screen.dart';
-import 'package:mabar/features/live/live_host_controller.dart';
-import 'package:mabar/features/live/live_screen.dart';
-import 'package:mabar/features/live/live_view_controller.dart';
-import 'package:mabar/features/schedule/schedule_mixed_screen.dart';
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/services/live/live_relay.dart';
+import 'package:match_addict/features/detail_player/detail_player_screen.dart';
+import 'package:match_addict/features/leaderboard/leaderboard_screen.dart';
+import 'package:match_addict/features/live/live_host_controller.dart';
+import 'package:match_addict/features/live/live_screen.dart';
+import 'package:match_addict/features/live/live_view_controller.dart';
+import 'package:match_addict/features/schedule/schedule_mixed_screen.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/services/live/live_relay.dart';
 
 import '../hifi_golden.dart';
 import 'live_fixture.dart';
@@ -167,7 +167,7 @@ void main() {
   testWidgets('Data dari versi app lain: Live tidak bisa dibuka', (tester) async {
     await tester.pumpWidget(watch(const LiveView(LiveViewStatus.unreadable)));
     expect(find.text('Live tidak bisa dibuka'), findsOneWidget);
-    expect(find.text('Buka Mabar'), findsOneWidget);
+    expect(find.text('Buka Match Addict'), findsOneWidget);
   });
 
   testWidgets('Live dihentikan saat penonton di Klasemen: kembali ke halaman live, tidak ditemukan', (tester) async {

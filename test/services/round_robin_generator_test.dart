@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mabar/models/models.dart';
-import 'package:mabar/services/schedule/round_robin_generator.dart';
+import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/schedule/round_robin_generator.dart';
 
 List<Pair> _pairs(int n) => [
       for (var i = 0; i < n; i++)

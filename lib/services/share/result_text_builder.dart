@@ -14,7 +14,7 @@ extension ShareFormatX on ShareFormat {
 
 /// Menyusun teks hasil turnamen untuk dibagikan ke WhatsApp/Telegram/clipboard.
 class ResultTextBuilder {
-  /// [standings] = `standingEntriesProvider`, jadi nomornya sama dengan Peringkat (statistik identik →
+  /// [standings] = `standingEntriesProvider`, jadi nomornya sama dengan Klasemen (seri di semua tie-break →
   /// nomor sama; yang belum main tanpa nomor).
   static String build({
     required ActiveTournament active,
@@ -26,7 +26,7 @@ class ResultTextBuilder {
     final config = tournament.config;
     final unit = config.format.unit;
     final buffer = StringBuffer()
-      ..writeln('🏆 ${config.name ?? 'Mabar Turnamen'} · ${config.sport.label}')
+      ..writeln('🏆 ${config.name ?? 'Match Addict'} · ${config.sport.label}')
       ..writeln(DateFormat('d MMMM yyyy', 'id').format(tournament.createdAt))
       ..writeln();
 

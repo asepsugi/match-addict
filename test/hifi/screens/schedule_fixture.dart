@@ -1,5 +1,5 @@
-import 'package:mabar/features/schedule/tournament_controller.dart';
-import 'package:mabar/models/models.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
 
 /// Turnamen yang sudah berjalan, seperti hasil resume: layar menerima config yang sama persis (identical),
 /// jadi `startIfNeeded` tidak membuat jadwal baru.
