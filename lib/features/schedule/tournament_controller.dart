@@ -306,6 +306,35 @@ class TournamentController extends Notifier<ActiveTournament?> {
     );
   }
 
+  /// Fixed: round tambahan setelah semua match terisi (sheet Tambah round, 06w). [extraMinutes] per court id ditambahkan
+  /// ke booking seperti [resume]; jumlah round mengikuti sisa waktu, dibulatkan ke putaran penuh
+  /// (`RoundRobinGenerator.extend`). [pairs] + [newPlayers] = hasil Atur pasangan (04f–04h): pemain pengganti masuk
+  /// `config.players`, pemain yang tidak dipasangkan tidak ikut round tambahan tapi skornya tetap.
+  void addRounds(Map<String, int> extraMinutes, {List<Pair>? pairs, List<Player> newPlayers = const []}) {
+    final current = state;
+    if (current == null || !current.canAddRounds) return;
+    final now = ref.read(clockProvider)();
+    final extra = RoundRobinGenerator.extraRounds(current, now, extraMinutes: extraMinutes, pairs: pairs);
+    if (extra.schedule.matches.isEmpty) return;
+
+    final courts = [
+      for (final c in current.config.courts)
+        if ((extraMinutes[c.id] ?? 0) > 0) current.extendedBy(c, extraMinutes[c.id]!, now) else c,
+    ];
+    state = current.copyWith(
+      tournament: current.tournament.copyWith(
+        config: current.config.copyWith(
+          courts: courts,
+          players: newPlayers.isEmpty ? null : [...current.config.players, ...newPlayers],
+          fixedPairs: pairs,
+        ),
+        matches: [...current.matches, ...extra.schedule.matches],
+      ),
+      byes: {...current.byePairIdByRound, ...extra.schedule.byePairIdByRound},
+      extraPutaran: current.extraPutaran + extra.putaran,
+    );
+  }
+
   /// Hentikan turnamen: match yang belum dimainkan ditandai "tidak dimainkan"
   /// supaya tidak ikut hitungan ranking.
   void finishNow() {
@@ -342,7 +371,7 @@ final standingEntriesProvider = Provider<List<StandingEntry>>((ref) {
   return standingEntries(
     standings: ref.watch(standingsProvider),
     method: ref.watch(rankingMethodProvider),
-    fixedPairs: active.config.mode == PartnerMode.fixed ? active.config.fixedPairs : null,
+    fixedPairs: active.config.mode == PartnerMode.fixed ? active.standingPairs : null,
   );
 });
 

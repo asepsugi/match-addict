@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/mabar_icons.dart';
-import '../../../core/theme/mabar_theme.dart';
-import '../../../core/time_text.dart';
 import '../../../core/widgets/mabar_controls.dart';
-import '../../../core/widgets/mabar_group.dart';
-import '../../../core/widgets/mabar_inputs.dart';
 import '../../../core/widgets/mabar_layers.dart';
 import '../../../models/models.dart';
-import '../../konfigurasi/widgets/config_pickers.dart';
 import '../tournament_controller.dart';
+import '../widgets/extend_sheet_parts.dart';
 
 /// Sheet 08c "Lanjutkan turnamen" (Mixed) — tambah jam booking per court (sering cuma sebagian court
 /// yang bisa diperpanjang), lalu turnamen aktif lagi tanpa mengulang. [archived] = dari Beranda, turnamen
@@ -37,9 +33,6 @@ class _ResumeTournament extends ConsumerStatefulWidget {
 }
 
 class _ResumeTournamentState extends ConsumerState<_ResumeTournament> {
-  static const _maxExtraHours = 6;
-  static const _parentLine = StrutStyle(fontFamily: MabarType.family, fontSize: 16, height: 1.4, forceStrutHeight: true);
-
   /// Tambahan jam per court id.
   final Map<String, int> _extraHours = {};
 
@@ -58,8 +51,6 @@ class _ResumeTournamentState extends ConsumerState<_ResumeTournament> {
     final ahead = _source.capacityAhead(now, _extraMinutes);
     final n = _source.roundCount;
     final unplayed = _source.matches.where((m) => m.status == MatchStatus.cancelled).length;
-    final courts = _source.config.courts;
-    final caption = MabarType.caption.copyWith(color: MabarColors.ink3);
 
     final facts = [
       if (ahead.rounds == 1) '1 round (R${n + 1})' else '${ahead.rounds} round (R${n + 1}–R${n + ahead.rounds})',
@@ -75,67 +66,17 @@ class _ResumeTournamentState extends ConsumerState<_ResumeTournament> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        MabarSection(
-          header: const MabarGroupLabel('Tambah jam booking'),
-          child: MabarGroup(
-            color: MabarColors.paper,
-            children: [
-              for (final (i, c) in courts.indexed)
-                () {
-                  final remaining = _source.remainingBookingMinutes(c, now);
-                  final extra = _extraHours[c.id] ?? 0;
-                  // Format sama dengan kotak jam di strip court: "Sisa 00:45", "→ 01:00".
-                  final left = remaining > 0 ? 'Sisa ${countdownText(remaining)}' : 'Waktu habis';
-                  return MabarRow(
-                    padded: true,
-                    leading: CourtSwatch(color: MabarColors.courtPalette[c.colorIndex], number: i + 1),
-                    titleWidget: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(c.name, style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink)),
-                        Text(extra == 0 ? left : '$left → ${countdownText(remaining + extra * 60)}', style: MabarType.caption),
-                      ],
-                    ),
-                    trailing: MabarStepper(
-                      value: extra,
-                      min: 0,
-                      max: _maxExtraHours,
-                      unit: 'jam',
-                      onChanged: (h) => setState(() => _extraHours[c.id] = h),
-                    ),
-                  );
-                }(),
-            ],
-          ),
+        CourtHoursGroup(
+          active: _source,
+          now: now,
+          extraHours: _extraHours,
+          onChanged: (id, h) => setState(() => _extraHours[id] = h),
         ),
         const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
-          child: ahead.matches > 0
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text('${ahead.matches}', style: MabarType.numM.copyWith(fontSize: 40, height: 1, color: MabarColors.ink)),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('match lagi', style: MabarType.body.copyWith(fontWeight: FontWeight.w700, color: MabarColors.ink)),
-                          // Teks kecil di dalam blok 16/1,4: tinggi barisnya ikut induk (22,4), seperti CSS.
-                          Text(facts, style: caption, strutStyle: _parentLine),
-                          if (unplayedNote != null) Text(unplayedNote, style: caption, strutStyle: _parentLine),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-              : Text(
-                  unplayedNote ?? 'Tambah jam minimal satu court',
-                  style: MabarType.body.copyWith(fontSize: 15, color: MabarColors.ink3),
-                ),
-        ),
+        if (ahead.matches > 0)
+          SheetEstimate(number: ahead.matches, label: 'match lagi', lines: [facts, ?unplayedNote])
+        else
+          SheetEstimateEmpty(unplayedNote ?? 'Tambah jam minimal satu court'),
         const SizedBox(height: 16),
         MabarButton(
           label: 'Lanjutkan',

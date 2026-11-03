@@ -37,8 +37,10 @@ class DetailPlayerScreen extends ConsumerWidget {
     final s = entry.standing;
     final played = entry.position != null;
     final profile = PlayerProfile.of(playerId: playerId, matches: active.matches);
-    // Dibanding semua pemain lain, termasuk yang keluar; di Fixed tanpa pasangannya sendiri.
-    final others = config.players.length - (fixed ? 2 : 1);
+    // Dibanding semua pemain lain, termasuk yang keluar; lawan di Fixed tanpa partnernya sendiri (lebih dari satu
+    // kalau pasangan diatur ulang sebelum round tambahan, 10d).
+    final others = config.players.length - 1;
+    final opponentsOf = fixed ? others - profile.partnerIds.length : others;
     final unit = '${format.unit[0].toUpperCase()}${format.unit.substring(1)}';
     final woPerWin = _woPointsPerWin(s, profile, playerId);
 
@@ -82,10 +84,10 @@ class DetailPlayerScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 MabarGroup(
                   children: [
-                    // Di Fixed selalu 1, jadi tidak ditampilkan.
-                    if (!fixed)
+                    // Di Fixed biasanya 1, jadi hanya tampil kalau pasangannya pernah diatur ulang (10d).
+                    if (!fixed || profile.partnerIds.length > 1)
                       MabarRow(title: 'Beda partner', trailing: count('${profile.partnerIds.length} / $others')),
-                    MabarRow(title: 'Beda lawan', trailing: count('${profile.opponentIds.length} / $others')),
+                    MabarRow(title: 'Beda lawan', trailing: count('${profile.opponentIds.length} / $opponentsOf')),
                     MabarRow(title: 'Kalah WO', trailing: count('${s.woLosses}')),
                   ],
                 ),
@@ -105,7 +107,13 @@ class DetailPlayerScreen extends ConsumerWidget {
                           children: [
                             for (final (i, m) in profile.playedMatches.reversed.indexed) ...[
                               if (i > 0) const SizedBox(height: 8),
-                              _HistoryRow(active: active, match: m, playerId: playerId, woPoints: woPerWin),
+                              _HistoryRow(
+                                active: active,
+                                match: m,
+                                playerId: playerId,
+                                woPoints: woPerWin,
+                                pairRow: entry.players.length > 1,
+                              ),
                             ],
                           ],
                         ),
@@ -137,16 +145,24 @@ class _HistoryRow extends StatelessWidget {
   final String playerId;
   final int woPoints;
 
-  const _HistoryRow({required this.active, required this.match, required this.playerId, required this.woPoints});
+  /// Baris Klasemen ini pasangan Fixed (dua nama), bukan satu pemain.
+  final bool pairRow;
+
+  const _HistoryRow({
+    required this.active,
+    required this.match,
+    required this.playerId,
+    required this.woPoints,
+    required this.pairRow,
+  });
 
   @override
   Widget build(BuildContext context) {
     final ownIsPair1 = match.pair1.contains(playerId);
     final own = ownIsPair1 ? match.pair1 : match.pair2;
     final other = ownIsPair1 ? match.pair2 : match.pair1;
-    final ownIds = active.config.mode == PartnerMode.fixed
-        ? own.playerIds
-        : [playerId, ...own.playerIds.where((id) => id != playerId)];
+    // Baris pasangan Fixed: urutan pasangan; per pemain (Mixed, atau Fixed yang pasangannya berubah): nama sendiri dulu.
+    final ownIds = pairRow ? own.playerIds : [playerId, ...own.playerIds.where((id) => id != playerId)];
     final ownNames = ownIds.map(active.playerName).toList();
     final otherNames = other.playerIds.map(active.playerName).toList();
 

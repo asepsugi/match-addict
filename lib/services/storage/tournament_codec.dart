@@ -22,6 +22,7 @@ class TournamentCodec {
     'bye': {for (final e in active.byePairIdByRound.entries) '${e.key}': e.value},
     'resting': {for (final e in active.restingPlayerIdsByRound.entries) '${e.key}': e.value},
     'withdrawn': active.withdrawnPlayerIds.toList(),
+    'extraPutaran': active.extraPutaran,
   });
 
   /// Mengembalikan null kalau payload kosong, rusak, dari skema lain, atau tanpa versi app.
@@ -44,6 +45,8 @@ class TournamentCodec {
         // pemain telat sampai 2.6) sengaja diabaikan: pemain yang tertinggal
         // sekarang menyusul lewat urutan prioritas, bukan disejajarkan.
         withdrawnPlayerIds: {for (final id in (json['withdrawn'] as List?) ?? const []) id as String},
+        // Baru di 3.1.0 (round tambahan Fixed); simpanan lama belum punya putaran tambahan.
+        extraPutaran: (json['extraPutaran'] as int?) ?? 0,
       );
     } catch (_) {
       // Payload rusak (mis. app di-kill di tengah tulis) tidak boleh membuat

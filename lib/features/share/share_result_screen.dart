@@ -96,7 +96,6 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       isFinal: isFinal,
     );
     final config = active.config;
-    final fixed = config.mode == PartnerMode.fixed;
     final count = entries.where((e) => e.position != null).length;
 
     return Scaffold(
@@ -132,7 +131,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
                 const SizedBox(height: 14),
                 MabarSection(
                   note: MabarGroupNote(
-                    '${_format == ShareFormat.ringkas ? '$shareSummaryCount teratas' : 'Semua $count ${fixed ? 'pasangan' : 'pemain'}'}'
+                    '${_format == ShareFormat.ringkas ? '$shareSummaryCount teratas' : ['Semua $count', ?shareRowNoun(active, entries)].join(' ')}'
                     ' · gambar Feed 1:1 & Story 9:16',
                   ),
                   child: MabarSegmented<ShareFormat>(

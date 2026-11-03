@@ -1,6 +1,6 @@
 # PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
-**Versi dokumen:** 2.8 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02) dan app **3.0.0**
+**Versi dokumen:** 2.9 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03) dan app **3.1.0**
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -67,7 +67,10 @@ Aplikasi untuk host turnamen mabar yang:
   satu pemain tanpa pasangan (tampil di "Belum main").
 - Round dibuka berurutan: round berikutnya terkunci sampai semua skor round sebelumnya terisi.
 - Fairness Fixed = fairness antar pasangan, bukan individu.
-- Fixed **tidak bisa dilanjutkan** setelah diakhiri.
+- **Round tambahan** (3.3a): setelah semua match terisi, host bisa menambah round supaya semua pasangan main lagi
+  dengan jumlah yang sama, dari sisa booking + jam tambahan per court. Sebelumnya pasangan bisa diatur ulang dan pemain
+  pengganti dimasukkan (pemain yang pulang tidak ikut, poinnya tertinggal).
+- Fixed **tidak bisa dilanjutkan** setelah diakhiri; yang pulang di tengah round-robin tetap WO.
 
 #### B. Mixed Partner (Pasangan Berganti, "endless")
 
@@ -100,6 +103,24 @@ function generateRoundRobin(pairs):
 
 **Invariant:** satu putaran circle dipotong menjadi round sebesar jumlah court; dua putaran tidak pernah digabung
 (kalau digabung, satu pasangan bisa main di dua court bersamaan).
+
+### 3.3a Round Tambahan (Fixed)
+
+Keputusan host 2026-11-03, dari turnamen live TBNE36 (16 pemain, 2 court 4 jam, 15 menit → 14 round, sisa 30 menit).
+Aturan rinci + data test: `logic.md` §12.
+
+- Muncul setelah semua match terisi dan turnamen belum diakhiri ("Tambah round", 06v).
+- Satuannya **putaran**: tiap pasangan main sekali lagi; pasangan ganjil +2 (satu pasangan selalu istirahat per putaran
+  round-robin, jadi +1 untuk semua tidak mungkin).
+- Jumlah putaran = paling sedikit yang mengisi sisa booking + jam tambahan per court (0–6 jam, seperti Lanjutkan Mixed),
+  dibulatkan ke atas supaya jumlah main sama. Boleh lewat booking; sheet menulis "lewat booking 00:15". Host yang
+  memutuskan kapan berhenti lewat Akhiri (match yang belum main jadi Tidak dimainkan).
+- Lawan: urutan round-robin diulang dari awal (R15 = lawan R1); pasangan ganjil memakai siklus Walecki. Tidak ada yang
+  bertemu lawan yang sama tiga kali sebelum semua bertemu dua kali. Court yang booking-nya habis lebih dulu berhenti
+  dipakai.
+- **Atur pasangan** (04f–04h) sebelum round tambahan: "Ubah" memisahkan pasangan, pemain pengganti diketik, dua pemain
+  diketuk jadi pasangan baru (mengisi tempat pasangan yang dipisah). Pemain yang tidak dipasangkan tidak ikut; skornya
+  tetap dan poinnya tertinggal — konsekuensi yang diterima host.
 
 ### 3.4 Algoritma Mixed — Fair Generation
 
@@ -194,7 +215,9 @@ app dibuka ulang kembali ke Total Point.
 - Nilai metode dan selisih sama → **nomor sama**, dan nomor berikutnya melanjutkan: #1, #2, #2, #3 (bukan 1, 2, 2, 4).
   W–L–D tidak membedakan nomor.
 - Pemain yang belum main (pemain baru, sisa ganjil Fixed) dikelompokkan di "Belum main" tanpa nomor.
-- Fixed: satu baris per pasangan (dua nama), posisinya mengikuti anggota terbaik.
+- Fixed: satu baris per pasangan (dua nama), posisinya mengikuti anggota terbaik. Setelah pasangan diatur ulang
+  (3.3a), pasangan yang tidak pernah berubah tetap satu baris; pemain yang pasangannya berubah, yang tidak ikut lagi,
+  dan pemain pengganti tampil sendiri-sendiri (09g).
 
 ### 4.4 Walkover (WO)
 
@@ -223,7 +246,7 @@ skor di match WO mengubahnya jadi match selesai.
 
 ### 4.6 Status Sementara / Final
 
-- **Fixed:** Final setelah diakhiri atau semua match terisi.
+- **Fixed:** Final setelah diakhiri atau semua match terisi; kembali Sementara setelah round tambahan dibuat.
 - **Mixed:** Final setelah diakhiri, atau waktu booking semua court habis (jam sungguhan) **dan** round terakhir lengkap. Kembali
   Sementara kalau dilanjutkan.
 - Final: subjudul "… · Final · 5 round · 10 match"; poster menulis "Klasemen akhir". Sementara: "… · R3 · 6 dari 8 match".
@@ -257,10 +280,12 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Mode Fixed/Mixed, format skor (4.1), durasi match (stepper ±5), jumlah court 1–10, per court nama/warna (10 warna
   preset)/booking. Estimasi di tombol. Fixed → Pasangan; Mixed → langsung Jadwal + R1.
 
-### 5.4 Pasangan — Fixed (04a–04e)
+### 5.4 Pasangan — Fixed (04a–04h)
 - Acak / Manual (pilih, lepas pilihan, Urungkan), pemain ganjil + "Ubah pemain", dialog kunci pasangan.
+- Atur pasangan sebelum round tambahan (04f–04h): Ubah per pasangan, pemain pengganti, "Simpan pasangan · n tidak
+  main", hasilnya di baris Pasangan sheet Tambah round.
 
-### 5.5 Jadwal Fixed (06a–06e) & Mixed (06f–06o, 06u)
+### 5.5 Jadwal Fixed (06a–06e, 06v–06z) & Mixed (06f–06o, 06u)
 - Tab round yang bisa digeser (tepi dipudarkan), label kanan "x/y match" atau "Waktu habis"; ganti round hanya lewat tab.
 - Baris match bergaya scorebug dengan strip court berwarna (42 pt; di round yang sedang berjalan + kotak jam sisa
   booking court itu); ketuk → Input Skor (juga untuk mengubah).
@@ -273,6 +298,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   (dialog).
   Fixed yang sudah diakhiri tidak punya item menu lagi: ikon ⋯ tampil pudar dan tidak bisa diketuk.
 - Mixed: Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen.
+- Fixed setelah semua match terisi: ikon Klasemen + "Tambah round" → sheet jam booking per court, baris Pasangan,
+  "n match lagi tiap pasangan" dan "Buat R15–R16" (3.3a).
 
 ### 5.6 Input Skor & Walkover (07a–07o)
 - Papan skor gelap: nama lengkap satu pemain per baris, satu angka besar per tim, keypad sendiri, pesan validasi,
@@ -280,14 +307,15 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Subjudul menulis sisa booking court itu untuk match di round yang sedang berjalan ("· sisa 02:00").
 - WO lewat sheet (4.4).
 
-### 5.7 Klasemen (09a–09f)
+### 5.7 Klasemen (09a–09g)
 - Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · +/− (selisih)
   · nilai metode; peringkat 1 diberi bola.
 - Toggle Total Point / Win %, status di subjudul, catatan WO / tidak dimainkan, ketuk baris → Detail. Tombol Bagikan.
 
-### 5.8 Detail Pemain (10a–10c)
+### 5.8 Detail Pemain (10a–10d)
 - Satu baris statistik (label mengikuti format skor: Poin/Game), beda partner/lawan, kalah WO, riwayat match terbaru
-  di atas (Mixed menampilkan partner; menang WO menulis "+N").
+  di atas (Mixed menampilkan partner; menang WO menulis "+N"). Fixed menampilkan "Beda partner" hanya kalau
+  pasangannya pernah diatur ulang (10d).
 
 ### 5.9 Bagikan (11a–11l)
 - Kartu pratinjau + 10 tema (default biru) + Ringkas (5 teratas + "+n lainnya") / Lengkap (semua; Feed > 10 pemain
@@ -338,13 +366,13 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 | Beranda (+ dialog mulai baru, sheet pasang di iPhone, ikon app) | 01a–01j |
 | Pemain | 02a–02d |
 | Konfigurasi (+ sheet warna court) | 03a–03e |
-| Pasangan (Fixed) | 04a–04e |
-| Jadwal Fixed | 06a–06e |
+| Pasangan (Fixed) + Atur pasangan sebelum round tambahan | 04a–04h |
+| Jadwal Fixed + sheet Tambah round | 06a–06e, 06v–06z |
 | Jadwal Mixed (+ sheet Cara kerja Mixed) | 06f–06t |
 | Sheet Kelola pemain, Lanjutkan turnamen, Kelola court + detail court | 08a–08k |
 | Input Skor + sheet Walkover | 07a–07o |
-| Klasemen | 09a–09f |
-| Detail Pemain | 10a–10c |
+| Klasemen | 09a–09g |
+| Detail Pemain | 10a–10d |
 | Bagikan | 11a–11l |
 | Live score: menu, dialog, sheet di HP host; halaman penonton (Jadwal, Klasemen, Detail) | 12a–12o |
 
@@ -401,7 +429,8 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 
 1. Fixed: pasangan dikunci sekali di awal (dialog konfirmasi).
 2. Mixed: ulang lawan dihindari lewat penalti (soft), bukan larangan.
-3. Double round-robin Fixed: tidak.
+3. Double round-robin Fixed: tidak dibuat di awal. Setelah round-robin selesai, round tambahan per putaran dari sisa
+   booking (3.3a, 2026-11-03).
 4. Share: gambar Feed & Story + caption teks.
 5. Timer per match: tidak.
 6. Metode "Kombinasi" dihapus (isinya identik dengan Win %).
@@ -432,6 +461,10 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     setiap baris poster); keduanya sama → nomor sama dan nomor berikutnya melanjutkan (#1, #2, #2, #3). Head-to-head
     dihapus (4.3). Dipicu poster yang menulis 22 · 22 · 22 dengan nomor #2, #3, #4 tanpa terlihat alasannya
     (2026-11-02).
+18. Round tambahan Fixed (3.3a): per putaran supaya semua pasangan main sama banyak, dari sisa booking + jam tambahan,
+    dibulatkan ke atas dan boleh lewat booking; host yang mengakhiri. Lawan mengulang round-robin dari awal. Sebelumnya
+    pasangan bisa diatur ulang dan pemain pengganti dimasukkan; Klasemen campuran (pasangan tetap satu baris, sisanya
+    per pemain). Dipicu turnamen live TBNE36 yang selesai 14 round dengan sisa booking 30 menit (2026-11-03).
 
 ---
 

@@ -2,7 +2,7 @@
 
 > Dihasilkan `tool/hifi_extract.py` dari `design/hifi.html`. Jangan diedit langsung.
 
-Hanya untuk mode Fixed. Satu daftar pasangan bernomor dengan dua kolom nama rata, bahasa visual yang sama dengan daftar di layar Pemain. Di Manual, pemain yang belum berpasangan ada di bawahnya sebagai chip dua kolom dan pindah ke daftar begitu dipasangkan. Pasangan diacak begitu layar dibuka; peringatan "tidak bisa diubah" ada di dialog saat menekan Buat jadwal.
+Hanya untuk mode Fixed. Satu daftar pasangan bernomor dengan dua kolom nama rata, bahasa visual yang sama dengan daftar di layar Pemain. Di Manual, pemain yang belum berpasangan ada di bawahnya sebagai chip dua kolom dan pindah ke daftar begitu dipasangkan. Pasangan diacak begitu layar dibuka; peringatan "tidak bisa diubah" ada di dialog saat menekan Buat jadwal. Setelah round-robin selesai, pasangan bisa diatur ulang sebelum round tambahan (04f–04h).
 
 ## 04a · Acak
 
@@ -51,3 +51,34 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 - Kondisi terpadat Manual: 30 pemain, setengah jalan (7 pasangan + 16 chip). Daftarnya lebih panjang dari layar, jadi halaman di-scroll seperti layar Pemain; app bar dan action bar tetap. Baris pasangan 40 pt (sama dengan daftar di layar Pemain, tidak bisa diketuk) dan chip 44 pt.
 - Nama panjang dipotong elipsis di kolomnya, sama seperti daftar di layar Pemain.
+
+## 04f · Atur pasangan · sebelum round tambahan
+
+![04f](../../frames/04f.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `PairList`, `MabarChip`
+
+- Dibuka dari baris Pasangan di sheet Tambah round (06w). Mulai dari pasangan yang sekarang; tanpa Acak, karena biasanya hanya satu-dua pasangan yang berubah. Contoh: Budi S pulang setelah R14, Rizky H datang menggantikannya.
+- "Ubah" (`.rowact`, baris 52 pt) memisahkan pasangan itu: kedua pemain pindah ke "belum berpasangan". Label dipilih host (2026-11-03, dulu "Pisah"). Ketuk dua chip → pasangan baru, mengisi tempat pasangan yang dipisah (di sini nomor 1), jadi urutan pasangan lain dan lawannya di round tambahan tetap: round-robin diulang dari awal, R15 = lawan R1 dengan Andi P + Rizky H di tempat Andi P + Budi S.
+- Pemain pengganti: kolom nama + Tambah, sama dengan Kelola pemain (08a): nama dibersihkan, tidak boleh sama dengan pemain mana pun di turnamen ini, maks 30 pemain. Pemain baru masuk "belum berpasangan".
+- "Urungkan" membatalkan langkah terakhir (ubah, pasangkan, tambah pemain); mati kalau belum ada perubahan.
+- Pemain yang masih belum berpasangan saat disimpan tidak ikut round tambahan; skor dan klasemennya tetap (Total Point tertinggal, keputusan host 2026-11-03). Jumlahnya ditulis di tombol. Pemain itu muncul lagi di "belum berpasangan" saat Atur pasangan berikutnya.
+
+## 04g · Atur pasangan · siap disimpan
+
+![04g](../../frames/04g.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `PairList`, `MabarChip`
+
+- Andi P + Rizky H mengisi nomor 1. Budi S tidak dipasangkan → tidak ikut round tambahan. Catatan "Ketuk dua pemain…" hilang selama tinggal satu chip.
+- Simpan → kembali ke sheet Tambah round (04h); belum ada yang berubah di turnamen sampai "Buat R…" diketuk. Kembali (←) membuang perubahan.
+- Tombol mati dengan alasan "· minimal 2 pasangan" kalau pasangannya kurang dari dua.
+
+## 04h · Sheet tambah round · pasangan diatur
+
+![04h](../../frames/04h.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarStepper`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`, `CourtColorPicker`
+
+- Baris Pasangan menulis hasil Atur pasangan: jumlah pasangan · pasangan baru · pemain yang tidak main. Estimasi ikut daftar baru (jumlah pasangan ganjil → +2 per putaran, 06y).
+- "Buat R15–R16": pemain pengganti masuk daftar pemain turnamen, pasangan baru dipakai mulai R15. Pasangan yang tidak berubah tetap satu baris di Klasemen; yang berubah tampil per pemain (09g).

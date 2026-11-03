@@ -10,6 +10,7 @@ import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../live/live_score.dart';
 import '../live/live_view_controller.dart';
+import 'fixed/add_rounds_sheet.dart';
 import 'schedule_widgets.dart';
 import 'tournament_controller.dart';
 import 'widgets/resting_list.dart';
@@ -19,7 +20,8 @@ import 'widgets/schedule_match_row.dart';
 enum _MenuAction { live, finish }
 
 /// Screen 05 · Jadwal Fixed — round-robin penuh sudah dibuat. Semua round bisa dibuka lewat tab, tapi
-/// round di depan round berjalan terkunci sampai semua skor round itu terisi. Di halaman penonton (12i) baca saja.
+/// round di depan round berjalan terkunci sampai semua skor round itu terisi. Setelah semua terisi, Tambah round
+/// (06v) membuat round per putaran. Di halaman penonton (12i) baca saja.
 class ScheduleFixedScreen extends ConsumerStatefulWidget {
   final TournamentConfig config;
   const ScheduleFixedScreen({super.key, required this.config});
@@ -83,6 +85,11 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
         if (mounted) context.push('/leaderboard');
       case null:
     }
+  }
+
+  /// Tambah round (06v → 06w): round baru ada di depan, jadi tab kembali mengikuti round berjalan (R15).
+  Future<void> _addRounds(ActiveTournament active) async {
+    if (await showAddRoundsSheet(context, active) && mounted) setState(() => _selectedRound = null);
   }
 
   @override
@@ -181,7 +188,24 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
             ),
           ),
           MabarActionBar(
-            children: [Expanded(child: LeaderboardButton(isFinal: active.isFinal(now)))],
+            // Semua match terisi dan belum diakhiri (06v): Klasemen jadi ikon, seperti Mixed saat waktu habis.
+            children: !watching && active.canAddRounds
+                ? [
+                    MabarIconButton(
+                      icon: MabarIcons.ranking,
+                      semanticLabel: 'Klasemen',
+                      solid: true,
+                      onPressed: () => context.push('/leaderboard'),
+                    ),
+                    Expanded(
+                      child: MabarButton(
+                        label: 'Tambah round',
+                        icon: MabarIcons.plus,
+                        onPressed: () => _addRounds(active),
+                      ),
+                    ),
+                  ]
+                : [Expanded(child: LeaderboardButton(isFinal: active.isFinal(now)))],
           ),
         ],
       ),

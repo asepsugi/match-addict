@@ -290,3 +290,32 @@ terlihat dan langsung dicek saat terlihat lagi. Dua kegagalan berturut-turut →
 tidak ditemukan", berhenti mengecek. `TournamentCodec.decode` null (skema lain) → "Live tidak bisa dibuka". Tab Mixed
 yang sedang di round terakhir ikut pindah saat round baru muncul (mengetuk tab terakhir = ikut round terakhir). Jam
 hitung mundur memakai jam HP penonton terhadap `createdAt` host. Tes: `test/services/live_score_test.dart`.
+
+## 12. Round tambahan Fixed
+
+Keputusan host 2026-11-03 (frame 06v–06z, 04f–04h, 09g, 10d; PRD 3.3a), dari turnamen live TBNE36: Padel, 16 pemain
+= 8 pasangan, 2 court 4 jam, 15 menit → round-robin 28 match = 14 round = 3 j 30 m, sisa 30 menit.
+
+- **Kapan:** `ActiveTournament.canAddRounds` = Fixed, belum diakhiri, semua match terisi. Fixed yang diakhiri tetap
+  tidak bisa dilanjutkan.
+- **Putaran:** genap → satu circle round (tiap pasangan +1, n/2 match); ganjil → satu siklus Hamilton (Walecki: pasangan
+  terakhir di pusat, jalur zig-zag i, i+1, i−1, …, i+m dibagi dua putaran yang masing-masing mengistirahatkan satu
+  pasangan, ditutup satu match di antara keduanya) → tiap pasangan +2, n match. Putaran ke-k (k = `extraPutaran`,
+  disimpan, kunci simpanan opsional) memakai circle round k mod (n − 1) atau siklus k mod m: putaran tambahan
+  berturut-turut = round-robin kedua tanpa lawan ketiga kali. Tiap putaran mulai di round baru; byes hanya untuk
+  dua bagian berpasangan ganjil (match penutupnya tanpa baris Istirahat).
+- **Jumlah putaran** (`RoundRobinGenerator.extraRounds` → `extend`): k_c = ⌊(sisa court + tambahan) ÷ durasi⌋ (sama
+  dengan `capacityAhead`); putaran ditambah satu per satu sampai jumlah round ≥ k terbesar. Round ke-r memakai court
+  dengan k_c ≥ r; setelah semua habis, court dengan k terbesar (lewat booking, "lewat booking (round − k terbesar) ×
+  durasi"). k terbesar 0 → tidak ada yang dibuat ("Tambah jam minimal satu court").
+- **Atur pasangan** (`PairDraft`): mulai dari `config.fixedPairs`; pemain tanpa pasangan (yang tidak ikut putaran
+  sebelumnya) langsung di "belum berpasangan". Ubah = slot dikosongkan; pasangan baru mengisi slot kosong pertama;
+  pemain baru unik (tidak peka huruf besar) terhadap `config.players`, maks 30 pemain. Yang dipasangkan saja yang masuk
+  `config.players`; `config.fixedPairs` diganti hanya kalau susunannya berubah (`changedFrom`).
+- **Klasemen:** `ActiveTournament.standingPairs` = pasangan sekarang yang setiap match anggotanya memakai id pasangan
+  itu; sisanya per pemain (`standingEntries`). `pairById` juga mencari pasangan lama di match (baris Istirahat round
+  lama). Detail: "Beda partner" di Fixed hanya kalau partner > 1; lawan dibanding pemain − 1 − partner.
+- Data test: `test/services/fixed_extra_rounds_test.dart` (8 pasangan sisa 2/3 round → R15–R16 / R15–R18; Court 1
+  +1 jam → R17–R20 di Court 1; 5 pasangan sisa 1 round → R6–R8 = 2 + 2 + 1 match; round-robin kedua untuk 2–15
+  pasangan), `fixed_add_rounds_test.dart` (controller, Budi pulang/Rizky masuk, simpanan). Fixture frame:
+  `test/hifi/screens/fixed_extra_fixture.dart`.

@@ -413,6 +413,8 @@ table.map { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .pairlist b { text-align: right; font-size: 17px; color: var(--ink-3); }
 .pairlist i { font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pairlist .none { color: var(--faint); }
+/* .pairlist.edit — Atur pasangan (04f): baris setinggi .row dengan aksi Ubah di ujung */
+.pairlist.edit .pr { height: 52px; grid-template-columns: 20px minmax(0, 1fr) minmax(0, 1fr) auto; }
 /* .ghead — label grup + satu aksi teks di ujungnya. Tinggi baris = tinggi label; area sentuh 44 meluber ke atas-bawah. */
 .ghead { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 18px; margin-bottom: -8px; padding-left: 4px; flex: none; }
 .ghead .glabel, .ghead .gnote { padding: 0; margin: 0; }
@@ -1061,7 +1063,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
 <section class="flow" id="pasangan">
   <div class="flow-head">
     <h2>Pasangan (Fixed)</h2>
-    <p>Hanya untuk mode Fixed. Satu daftar pasangan bernomor dengan dua kolom nama rata, bahasa visual yang sama dengan daftar di layar Pemain. Di Manual, pemain yang belum berpasangan ada di bawahnya sebagai chip dua kolom dan pindah ke daftar begitu dipasangkan. Pasangan diacak begitu layar dibuka; peringatan "tidak bisa diubah" ada di dialog saat menekan Buat jadwal.</p>
+    <p>Hanya untuk mode Fixed. Satu daftar pasangan bernomor dengan dua kolom nama rata, bahasa visual yang sama dengan daftar di layar Pemain. Di Manual, pemain yang belum berpasangan ada di bawahnya sebagai chip dua kolom dan pindah ke daftar begitu dipasangkan. Pasangan diacak begitu layar dibuka; peringatan "tidak bisa diubah" ada di dialog saat menekan Buat jadwal. Setelah round-robin selesai, pasangan bisa diatur ulang sebelum round tambahan (04f–04h).</p>
   </div>
   <div class="screens">
 
@@ -1162,13 +1164,88 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       </ul>
     </div>
 
+    <div class="scr">
+      <div class="cap"><b>04f</b><span>Atur pasangan · sebelum round tambahan</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Atur pasangan</h1><p>Padel · mulai R15</p></div></div>
+        <div class="body">
+          <div class="ghead"><span class="glabel">7 pasangan</span><span class="txtbtn"><svg class="ic ic-s"><use href="#i-undo"/></svg>Urungkan</span></div>
+          <div class="pairlist edit"><div class="pr"><b class="n">1</b><i>Citra L</i><i>Dewant R</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">2</b><i>Eko M</i><i>Fajar K</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">3</b><i>Gina R</i><i>Hana T</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">4</b><i>Indra W</i><i>Joko S</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">5</b><i>Kiki A</i><i>Lina M</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">6</b><i>Maya P</i><i>Nanda R</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">7</b><i>Oki S</i><i>Putri A</i><span class="rowact">Ubah</span></div></div>
+          <div style="display:flex;gap:8px;flex:none"><span class="field" style="flex:1;height:48px;padding-block:0;display:flex;align-items:center"><span class="ph">Nama pemain baru</span></span><span class="btn btn-primary" style="flex:none;height:48px;min-height:48px">Tambah</span></div>
+          <span class="glabel">3 belum berpasangan</span>
+          <div class="chips cols"><span class="chip sel">Andi P</span><span class="chip">Budi S</span><span class="chip">Rizky H</span></div>
+          <span class="gnote">Ketuk satu lagi untuk dipasangkan dengan Andi P</span>
+        </div>
+        <div class="actionbar"><span class="btn btn-primary">Simpan pasangan <span class="meta">· 3 tidak main</span></span></div>
+      </div>
+      <ul>
+        <li>Dibuka dari baris Pasangan di sheet Tambah round (06w). Mulai dari pasangan yang sekarang; tanpa Acak, karena biasanya hanya satu-dua pasangan yang berubah. Contoh: Budi S pulang setelah R14, Rizky H datang menggantikannya.</li>
+        <li>"Ubah" (<code>.rowact</code>, baris 52 pt) memisahkan pasangan itu: kedua pemain pindah ke "belum berpasangan". Label dipilih host (2026-11-03, dulu "Pisah"). Ketuk dua chip → pasangan baru, mengisi tempat pasangan yang dipisah (di sini nomor 1), jadi urutan pasangan lain dan lawannya di round tambahan tetap: round-robin diulang dari awal, R15 = lawan R1 dengan Andi P + Rizky H di tempat Andi P + Budi S.</li>
+        <li>Pemain pengganti: kolom nama + Tambah, sama dengan Kelola pemain (08a): nama dibersihkan, tidak boleh sama dengan pemain mana pun di turnamen ini, maks 30 pemain. Pemain baru masuk "belum berpasangan".</li>
+        <li>"Urungkan" membatalkan langkah terakhir (ubah, pasangkan, tambah pemain); mati kalau belum ada perubahan.</li>
+        <li>Pemain yang masih belum berpasangan saat disimpan tidak ikut round tambahan; skor dan klasemennya tetap (Total Point tertinggal, keputusan host 2026-11-03). Jumlahnya ditulis di tombol. Pemain itu muncul lagi di "belum berpasangan" saat Atur pasangan berikutnya.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>04g</b><span>Atur pasangan · siap disimpan</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Atur pasangan</h1><p>Padel · mulai R15</p></div></div>
+        <div class="body">
+          <div class="ghead"><span class="glabel">8 pasangan</span><span class="txtbtn"><svg class="ic ic-s"><use href="#i-undo"/></svg>Urungkan</span></div>
+          <div class="pairlist edit"><div class="pr"><b class="n">1</b><i>Andi P</i><i>Rizky H</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">2</b><i>Citra L</i><i>Dewant R</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">3</b><i>Eko M</i><i>Fajar K</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">4</b><i>Gina R</i><i>Hana T</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">5</b><i>Indra W</i><i>Joko S</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">6</b><i>Kiki A</i><i>Lina M</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">7</b><i>Maya P</i><i>Nanda R</i><span class="rowact">Ubah</span></div><div class="pr"><b class="n">8</b><i>Oki S</i><i>Putri A</i><span class="rowact">Ubah</span></div></div>
+          <div style="display:flex;gap:8px;flex:none"><span class="field" style="flex:1;height:48px;padding-block:0;display:flex;align-items:center"><span class="ph">Nama pemain baru</span></span><span class="btn btn-primary" style="flex:none;height:48px;min-height:48px">Tambah</span></div>
+          <span class="glabel">1 belum berpasangan</span>
+          <div class="chips cols"><span class="chip">Budi S</span></div>
+        </div>
+        <div class="actionbar"><span class="btn btn-primary">Simpan pasangan <span class="meta">· 1 tidak main</span></span></div>
+      </div>
+      <ul>
+        <li>Andi P + Rizky H mengisi nomor 1. Budi S tidak dipasangkan → tidak ikut round tambahan. Catatan "Ketuk dua pemain…" hilang selama tinggal satu chip.</li>
+        <li>Simpan → kembali ke sheet Tambah round (04h); belum ada yang berubah di turnamen sampai "Buat R…" diketuk. Kembali (←) membuang perubahan.</li>
+        <li>Tombol mati dengan alasan "· minimal 2 pasangan" kalau pasangannya kurang dari dua.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>04h</b><span>Sheet tambah round · pasangan diatur</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Round 14</h1><p>Padel · Americano 21</p></div><span class="icbtn"><svg class="ic"><use href="#i-more"/></svg></span></div>
+        <div class="tabs"><div class="strip end fade-l"><b>R1</b><b>R2</b><b>R3</b><b>R4</b><b>R5</b><b>R6</b><b>R7</b><b>R8</b><b>R9</b><b>R10</b><b>R11</b><b>R12</b><b>R13</b><b class="on">R14</b></div><span class="meta">2/2 match</span></div>
+        <div class="body" style="padding-top:12px">
+          <div class="list">
+            <div class="bug wide"><div class="court n timed" style="--c:#2F8F5B"><span>1</span><span class="cd">00:30</span></div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Gina R · Hana T</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">Maya P · Nanda R</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+            <div class="bug wide"><div class="court n timed" style="--c:#C4532D"><span>2</span><span class="cd">00:30</span></div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Indra W · Joko S</span><span class="sets"><b class="s n l">9</b></span></div><div class="team win"><i class="w"></i><span class="nm">Kiki A · Lina M</span><span class="sets"><b class="s n">12</b></span></div></div><span></span></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="icbtn solid"><svg class="ic"><use href="#i-podium"/></svg></span><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-plus"/></svg>Tambah round</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <span class="grab"></span>
+          <div class="shead"><div><h2>Tambah round</h2><p>Skor &amp; klasemen R1–R14 tetap</p></div></div>
+          <span class="glabel">Tambah jam booking</span>
+          <div class="group">
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#2F8F5B;font-size:15px">1</span><div class="grow"><b style="font-weight:600">Court 1</b><span class="sub">Sisa 00:30</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#C4532D;font-size:15px">2</span><div class="grow"><b style="font-weight:600">Court 2</b><span class="sub">Sisa 00:30</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+          </div>
+          <div class="group"><div class="row pad"><span style="width:30px;display:grid;place-items:center;color:var(--ink-2);flex:none"><svg class="ic"><use href="#i-people"/></svg></span><div class="grow"><b style="font-weight:600">Pasangan</b><span class="sub">8 pasangan · 1 baru · 1 tidak main</span></div><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div>
+          <div style="display:flex;align-items:baseline;gap:10px;padding:2px 4px"><b class="n" style="font-size:40px;line-height:1">1</b><div><b style="display:block;font-size:16px">match lagi tiap pasangan</b><span class="small muted">2 round (R15–R16) · 2 court</span></div></div>
+          <span class="btn btn-primary" style="flex:none"><svg class="ic ic-s"><use href="#i-plus"/></svg>Buat R15–R16</span>
+        </div>
+      </div>
+      <ul>
+        <li>Baris Pasangan menulis hasil Atur pasangan: jumlah pasangan · pasangan baru · pemain yang tidak main. Estimasi ikut daftar baru (jumlah pasangan ganjil → +2 per putaran, 06y).</li>
+        <li>"Buat R15–R16": pemain pengganti masuk daftar pemain turnamen, pasangan baru dipakai mulai R15. Pasangan yang tidak berubah tetap satu baris di Klasemen; yang berubah tampil per pemain (09g).</li>
+      </ul>
+    </div>
+
   </div>
 </section>
 
 <section class="flow" id="jadwal-fixed">
   <div class="flow-head">
     <h2>Jadwal Fixed</h2>
-    <p>Round-robin penuh dibuat sekaligus. Contoh: Tennis, 10 pemain (5 pasangan), 2 court, jadi tiap round satu pasangan istirahat. Tombol akhiri yang dulu berupa lingkaran merah tanpa label pindah ke menu ⋯.</p>
+    <p>Round-robin penuh dibuat sekaligus. Contoh: Tennis, 10 pemain (5 pasangan), 2 court, jadi tiap round satu pasangan istirahat. Tombol akhiri yang dulu berupa lingkaran merah tanpa label pindah ke menu ⋯. Setelah semua match terisi, round tambahan dibuat per putaran dari sisa booking (06v–06z).</p>
   </div>
   <div class="screens">
 
@@ -1232,8 +1309,8 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-podium"/></svg>Lihat klasemen</span></div>
       </div>
       <ul>
-        <li>Setelah "Akhiri": match kosong jadi "Tidak dimainkan" (tidak bisa diketuk), tidak ada lagi titik live, dan tombol Klasemen jadi tombol utama. Sama untuk turnamen yang semua match-nya selesai.</li>
-        <li>Fixed tidak bisa dilanjutkan, jadi tidak ada "Lanjutkan turnamen".</li><li>Ikon ⋯ tetap aktif: "Akhiri turnamen" hilang, "Live score" tetap ada (12f). Dulu pudar dan mati karena menunya kosong (2026-10-22); sejak live score menunya tidak pernah kosong (2026-10-24).</li>
+        <li>Setelah "Akhiri": match kosong jadi "Tidak dimainkan" (tidak bisa diketuk), tidak ada lagi titik live, dan tombol Klasemen jadi tombol utama. Semua match terisi tanpa diakhiri: 06v (Tambah round).</li>
+        <li>Fixed yang sudah diakhiri tidak bisa dilanjutkan, jadi tidak ada "Lanjutkan turnamen" atau "Tambah round".</li><li>Ikon ⋯ tetap aktif: "Akhiri turnamen" hilang, "Live score" tetap ada (12f). Dulu pudar dan mati karena menunya kosong (2026-10-22); sejak live score menunya tidak pernah kosong (2026-10-24).</li>
       </ul>
     </div>
 
@@ -1274,6 +1351,161 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       </div>
       <ul>
         <li>Dipakai Fixed dan Mixed. "Akhiri" mengubah semua match kosong jadi tidak dimainkan, menandai turnamen selesai, lalu membuka Klasemen.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>06v</b><span>Semua match terisi · tambah round</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Round 14</h1><p>Padel · Americano 21</p></div><span class="icbtn"><svg class="ic"><use href="#i-more"/></svg></span></div>
+        <div class="tabs"><div class="strip end fade-l"><b>R1</b><b>R2</b><b>R3</b><b>R4</b><b>R5</b><b>R6</b><b>R7</b><b>R8</b><b>R9</b><b>R10</b><b>R11</b><b>R12</b><b>R13</b><b class="on">R14</b></div><span class="meta">2/2 match</span></div>
+        <div class="body" style="padding-top:12px">
+          <div class="list">
+            <div class="bug wide"><div class="court n timed" style="--c:#2F8F5B"><span>1</span><span class="cd">00:30</span></div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Gina R · Hana T</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">Maya P · Nanda R</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+            <div class="bug wide"><div class="court n timed" style="--c:#C4532D"><span>2</span><span class="cd">00:30</span></div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Indra W · Joko S</span><span class="sets"><b class="s n l">9</b></span></div><div class="team win"><i class="w"></i><span class="nm">Kiki A · Lina M</span><span class="sets"><b class="s n">12</b></span></div></div><span></span></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="icbtn solid"><svg class="ic"><use href="#i-podium"/></svg></span><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-plus"/></svg>Tambah round</span></div>
+      </div>
+      <ul>
+        <li>Contoh: Padel, Americano 21, 16 pemain (8 pasangan), 2 court 4 jam, 15 mnt per match. Round-robin 28 match = 14 round = 3 j 30 m, jadi setelah R14 masih ada sisa 00:30 (turnamen live TBNE36, 2026-11-03).</li>
+        <li>Muncul saat semua match Fixed sudah terisi dan turnamen belum diakhiri: Klasemen pindah jadi ikon di kiri (seperti Mixed 06l), tombol utama "Tambah round" → sheet 06w. Tetap muncul kalau booking sudah habis (06z); jamnya ditambah di sheet.</li>
+        <li>Klasemen tetap "Final · 14 round · 28 match" sampai round tambahan dibuat, lalu kembali Sementara ("R15 · 28 dari 32 match").</li>
+        <li>Setelah "Akhiri" tetap 06c: Fixed yang sudah diakhiri tidak bisa dilanjutkan.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>06w</b><span>Sheet · tambah round</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Round 14</h1><p>Padel · Americano 21</p></div><span class="icbtn"><svg class="ic"><use href="#i-more"/></svg></span></div>
+        <div class="tabs"><div class="strip end fade-l"><b>R1</b><b>R2</b><b>R3</b><b>R4</b><b>R5</b><b>R6</b><b>R7</b><b>R8</b><b>R9</b><b>R10</b><b>R11</b><b>R12</b><b>R13</b><b class="on">R14</b></div><span class="meta">2/2 match</span></div>
+        <div class="body" style="padding-top:12px">
+          <div class="list">
+            <div class="bug wide"><div class="court n timed" style="--c:#2F8F5B"><span>1</span><span class="cd">00:30</span></div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Gina R · Hana T</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">Maya P · Nanda R</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+            <div class="bug wide"><div class="court n timed" style="--c:#C4532D"><span>2</span><span class="cd">00:30</span></div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Indra W · Joko S</span><span class="sets"><b class="s n l">9</b></span></div><div class="team win"><i class="w"></i><span class="nm">Kiki A · Lina M</span><span class="sets"><b class="s n">12</b></span></div></div><span></span></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="icbtn solid"><svg class="ic"><use href="#i-podium"/></svg></span><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-plus"/></svg>Tambah round</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <span class="grab"></span>
+          <div class="shead"><div><h2>Tambah round</h2><p>Skor &amp; klasemen R1–R14 tetap</p></div></div>
+          <span class="glabel">Tambah jam booking</span>
+          <div class="group">
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#2F8F5B;font-size:15px">1</span><div class="grow"><b style="font-weight:600">Court 1</b><span class="sub">Sisa 00:30</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#C4532D;font-size:15px">2</span><div class="grow"><b style="font-weight:600">Court 2</b><span class="sub">Sisa 00:30</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+          </div>
+          <div class="group"><div class="row pad"><span style="width:30px;display:grid;place-items:center;color:var(--ink-2);flex:none"><svg class="ic"><use href="#i-people"/></svg></span><div class="grow"><b style="font-weight:600">Pasangan</b><span class="sub">8 pasangan · sama dengan sebelumnya</span></div><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div>
+          <div style="display:flex;align-items:baseline;gap:10px;padding:2px 4px"><b class="n" style="font-size:40px;line-height:1">1</b><div><b style="display:block;font-size:16px">match lagi tiap pasangan</b><span class="small muted">2 round (R15–R16) · 2 court</span></div></div>
+          <span class="btn btn-primary" style="flex:none"><svg class="ic ic-s"><use href="#i-plus"/></svg>Buat R15–R16</span>
+        </div>
+      </div>
+      <ul>
+        <li>Satu putaran = tiap pasangan main sekali lagi (8 pasangan → 4 match). Jumlah putaran = paling sedikit yang mengisi sisa booking, dibulatkan ke atas supaya tiap pasangan dapat jumlah match yang sama. Round yang lewat booking tetap dibuat; host menghentikannya kapan saja lewat "Akhiri" (06e), match yang belum main jadi "Tidak dimainkan".</li>
+        <li>Hitungan (<code>RoundRobinGenerator.extraRounds</code>):<br>① round yang muat tiap court k = ⌊(sisa + tambahan) ÷ durasi⌋, sama dengan 08c<br>② putaran ditambah satu per satu sampai jumlah round ≥ k terbesar<br>③ round ke-r memakai court dengan k ≥ r; setelah semua habis, court dengan k terbesar<br>④ angka besar = match tambahan tiap pasangan.</li>
+        <li>Contoh frame ini: sisa 00:30, durasi 15 → k = 2 di kedua court → 1 putaran = 2 round (R15–R16), pas. Kalau sisa 00:45 → k = 3 → 2 putaran = 4 round (R15–R18), keterangan "4 round (R15–R18) · 2 court · lewat booking 00:15".</li>
+        <li>Lawan: urutan round-robin diulang dari awal, jadi R15–R16 = lawan dan court R1–R2 (Andi P · Budi S vs Oki S · Putri A, …). Tidak ada yang bertemu lawan yang sama untuk ketiga kalinya sebelum semua bertemu dua kali.</li>
+        <li>"Buat R15–R16": jam tambahan masuk ke booking court (dihitung seperti 08c), sheet tertutup, Jadwal pindah ke R15 dengan titik live (tampilan 06a). Setelah round tambahan terisi semua, 06v muncul lagi.</li>
+        <li>Baris Pasangan → Atur pasangan (04f): sebelum round tambahan, host bisa memisahkan pasangan dan memasukkan pemain pengganti; hasilnya kembali ke sheet ini (04h). "sama dengan sebelumnya" = belum diubah. Pasangan hanya bisa diatur di sini; kalau ada yang pulang di tengah round-robin, tetap WO.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>06x</b><span>Tambah round · jam ditambah di satu court</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Round 14</h1><p>Padel · Americano 21</p></div><span class="icbtn"><svg class="ic"><use href="#i-more"/></svg></span></div>
+        <div class="tabs"><div class="strip end fade-l"><b>R1</b><b>R2</b><b>R3</b><b>R4</b><b>R5</b><b>R6</b><b>R7</b><b>R8</b><b>R9</b><b>R10</b><b>R11</b><b>R12</b><b>R13</b><b class="on">R14</b></div><span class="meta">2/2 match</span></div>
+        <div class="body" style="padding-top:12px">
+          <div class="list">
+            <div class="bug wide"><div class="court n timed" style="--c:#2F8F5B"><span>1</span><span class="cd">00:30</span></div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Gina R · Hana T</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">Maya P · Nanda R</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+            <div class="bug wide"><div class="court n timed" style="--c:#C4532D"><span>2</span><span class="cd">00:30</span></div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Indra W · Joko S</span><span class="sets"><b class="s n l">9</b></span></div><div class="team win"><i class="w"></i><span class="nm">Kiki A · Lina M</span><span class="sets"><b class="s n">12</b></span></div></div><span></span></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="icbtn solid"><svg class="ic"><use href="#i-podium"/></svg></span><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-plus"/></svg>Tambah round</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <span class="grab"></span>
+          <div class="shead"><div><h2>Tambah round</h2><p>Skor &amp; klasemen R1–R14 tetap</p></div></div>
+          <span class="glabel">Tambah jam booking</span>
+          <div class="group">
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#2F8F5B;font-size:15px">1</span><div class="grow"><b style="font-weight:600">Court 1</b><span class="sub">Sisa 00:30 → 01:30</span></div><div class="stepper"><i><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">1<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#C4532D;font-size:15px">2</span><div class="grow"><b style="font-weight:600">Court 2</b><span class="sub">Sisa 00:30</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+          </div>
+          <div class="group"><div class="row pad"><span style="width:30px;display:grid;place-items:center;color:var(--ink-2);flex:none"><svg class="ic"><use href="#i-people"/></svg></span><div class="grow"><b style="font-weight:600">Pasangan</b><span class="sub">8 pasangan · sama dengan sebelumnya</span></div><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div>
+          <div style="display:flex;align-items:baseline;gap:10px;padding:2px 4px"><b class="n" style="font-size:40px;line-height:1">2</b><div><b style="display:block;font-size:16px">match lagi tiap pasangan</b><span class="small muted">6 round (R15–R20) · 2 court, berkurang mulai R17</span></div></div>
+          <span class="btn btn-primary" style="flex:none"><svg class="ic ic-s"><use href="#i-plus"/></svg>Buat R15–R20</span>
+        </div>
+      </div>
+      <ul>
+        <li>Jam ditambah per court, 0–6 jam, sama dengan 08c (sering cuma sebagian court yang bisa diperpanjang).</li>
+        <li>Court 1 +1 jam: k = 6, Court 2 k = 2 → 2 putaran = 8 match: R15–R16 di 2 court, R17–R20 di Court 1 saja, pas dengan booking. "berkurang mulai R…" sama dengan 08c.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>06y</b><span>Tambah round · pasangan ganjil, lewat booking</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Round 5</h1><p>Tennis · Race to 6</p></div><span class="icbtn"><svg class="ic"><use href="#i-more"/></svg></span></div>
+        <div class="tabs"><b>R1</b><b>R2</b><b>R3</b><b>R4</b><b class="on">R5</b><span class="meta">2/2 match</span></div>
+        <div class="body" style="padding-top:12px">
+          <div class="list">
+            <div class="bug wide"><div class="court n timed" style="--c:#2F8F5B"><span>1</span><span class="cd">00:20</span></div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n">6</b></span></div><div class="team"><i class="w"></i><span class="nm">Indra W · Joko S</span><span class="sets"><b class="s n l">5</b></span></div></div><span></span></div>
+            <div class="bug wide"><div class="court n timed" style="--c:#C4532D"><span>2</span><span class="cd">00:20</span></div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Citra L · Dewant R</span><span class="sets"><b class="s n l">4</b></span></div><div class="team win"><i class="w"></i><span class="nm">Gina R · Hana T</span><span class="sets"><b class="s n">6</b></span></div></div><span></span></div>
+          </div>
+          <div class="rest"><div class="ghead"><span class="glabel">Istirahat</span></div><div class="names"><span>Eko M · Fajar K</span></div></div>
+        </div>
+        <div class="actionbar"><span class="icbtn solid"><svg class="ic"><use href="#i-podium"/></svg></span><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-plus"/></svg>Tambah round</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <span class="grab"></span>
+          <div class="shead"><div><h2>Tambah round</h2><p>Skor &amp; klasemen R1–R5 tetap</p></div></div>
+          <span class="glabel">Tambah jam booking</span>
+          <div class="group">
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#2F8F5B;font-size:15px">1</span><div class="grow"><b style="font-weight:600">Court 1</b><span class="sub">Sisa 00:20</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#C4532D;font-size:15px">2</span><div class="grow"><b style="font-weight:600">Court 2</b><span class="sub">Sisa 00:20</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+          </div>
+          <div class="group"><div class="row pad"><span style="width:30px;display:grid;place-items:center;color:var(--ink-2);flex:none"><svg class="ic"><use href="#i-people"/></svg></span><div class="grow"><b style="font-weight:600">Pasangan</b><span class="sub">5 pasangan · sama dengan sebelumnya</span></div><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div>
+          <div style="display:flex;align-items:baseline;gap:10px;padding:2px 4px"><b class="n" style="font-size:40px;line-height:1">2</b><div><b style="display:block;font-size:16px">match lagi tiap pasangan</b><span class="small muted">3 round (R6–R8) · 2 court · lewat booking 00:40</span></div></div>
+          <span class="btn btn-primary" style="flex:none"><svg class="ic ic-s"><use href="#i-plus"/></svg>Buat R6–R8</span>
+        </div>
+      </div>
+      <ul>
+        <li>Turnamen 06a–06e (10 pemain, 5 pasangan, 2 court 2 jam, 20 mnt), R5 selesai 20.40 → sisa 00:20 → k = 1.</li>
+        <li>Pasangan ganjil: satu pasangan selalu istirahat di tiap putaran round-robin, jadi +1 untuk semua tidak mungkin; satu putaran tambahan = tiap pasangan +2 (5 pasangan → 5 match, 3 round: 2 + 2 + 1). Baris Istirahat di R6 dan R7 satu pasangan seperti biasa; R8 (satu match) tanpa baris Istirahat.</li>
+        <li>Lewat booking = (round − k terbesar) × durasi = (3 − 1) × 20 → "lewat booking 00:40" (format jam:menit seperti kotak jam). Hanya muncul kalau round tambahan melewati booking.</li>
+        <li>Lawan pasangan ganjil memakai siklus Walecki: tiap putaran tiap pasangan bertemu dua lawan berbeda, dan putaran berikutnya tidak mengulang lawan sampai semua bertemu dua kali.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>06z</b><span>Tambah round · waktu habis</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Round 14</h1><p>Padel · Americano 21</p></div><span class="icbtn"><svg class="ic"><use href="#i-more"/></svg></span></div>
+        <div class="tabs"><div class="strip end fade-l"><b>R1</b><b>R2</b><b>R3</b><b>R4</b><b>R5</b><b>R6</b><b>R7</b><b>R8</b><b>R9</b><b>R10</b><b>R11</b><b>R12</b><b>R13</b><b class="on">R14</b></div><span class="meta">2/2 match</span></div>
+        <div class="body" style="padding-top:12px">
+          <div class="list">
+            <div class="bug wide"><div class="court n timed" style="--c:#2F8F5B"><span>1</span><span class="cd">00:00</span></div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Gina R · Hana T</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">Maya P · Nanda R</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+            <div class="bug wide"><div class="court n timed" style="--c:#C4532D"><span>2</span><span class="cd">00:00</span></div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Indra W · Joko S</span><span class="sets"><b class="s n l">9</b></span></div><div class="team win"><i class="w"></i><span class="nm">Kiki A · Lina M</span><span class="sets"><b class="s n">12</b></span></div></div><span></span></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="icbtn solid"><svg class="ic"><use href="#i-podium"/></svg></span><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-plus"/></svg>Tambah round</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <span class="grab"></span>
+          <div class="shead"><div><h2>Tambah round</h2><p>Skor &amp; klasemen R1–R14 tetap</p></div></div>
+          <span class="glabel">Tambah jam booking</span>
+          <div class="group">
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#2F8F5B;font-size:15px">1</span><div class="grow"><b style="font-weight:600">Court 1</b><span class="sub">Waktu habis</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+            <div class="row pad"><span class="swatch n" style="width:30px;background:#C4532D;font-size:15px">2</span><div class="grow"><b style="font-weight:600">Court 2</b><span class="sub">Waktu habis</span></div><div class="stepper"><i class="off"><svg class="ic ic-s"><use href="#i-minus"/></svg></i><b class="n">0<small>jam</small></b><i><svg class="ic ic-s"><use href="#i-plus"/></svg></i></div></div>
+          </div>
+          <div class="group"><div class="row pad"><span style="width:30px;display:grid;place-items:center;color:var(--ink-2);flex:none"><svg class="ic"><use href="#i-people"/></svg></span><div class="grow"><b style="font-weight:600">Pasangan</b><span class="sub">8 pasangan · sama dengan sebelumnya</span></div><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div>
+          <p class="muted" style="padding:2px 4px;font-size:15px">Tambah jam minimal satu court</p>
+          <span class="btn btn-off" style="flex:none"><svg class="ic ic-s"><use href="#i-plus"/></svg>Buat round</span>
+        </div>
+      </div>
+      <ul>
+        <li>Booking semua court habis (atau sisanya kurang dari satu match): tombol mati sampai jam ditambah minimal satu court, sama dengan 08d.</li>
       </ul>
     </div>
 
@@ -2286,6 +2518,36 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       </ul>
     </div>
 
+    <div class="scr">
+      <div class="cap"><b>09g</b><span>Fixed · pasangan diatur ulang</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Fixed · Final · 16 round · 32 match</p></div></div>
+        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Win %</b></div></div>
+        <div class="body flush" style="padding-top:12px;gap:10px">
+          <div class="rank">
+            <div class="rrow head"><span>#</span><span>Pasangan</span><span>Main</span><span>W–L</span><span>+/−</span><span>Poin</span></div>
+            <div class="rrow" style="min-height:62px"><b class="r lead n">1</b><span class="nm">Indra W<br>Joko S</span><span class="mp n">8</span><span class="c3 n">5–3</span><span class="df n">+22</span><b class="c4 n">95</b></div>
+            <div class="rrow"><b class="r n">2</b><span class="nm">Andi P</span><span class="mp n">8</span><span class="c3 n">6–2</span><span class="df n">+14</span><b class="c4 n">91</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">3</b><span class="nm">Eko M<br>Fajar K</span><span class="mp n">8</span><span class="c3 n">5–3</span><span class="df n">+10</span><b class="c4 n">89</b></div>
+            <div class="rrow"><b class="r n">4</b><span class="nm">Budi S</span><span class="mp n">7</span><span class="c3 n">6–1</span><span class="df n">+23</span><b class="c4 n">85</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">5</b><span class="nm">Gina R<br>Hana T</span><span class="mp n">8</span><span class="c3 n">4–4</span><span class="df n">−2</span><b class="c4 n">83</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">5</b><span class="nm">Kiki A<br>Lina M</span><span class="mp n">8</span><span class="c3 n">4–4</span><span class="df n">−2</span><b class="c4 n">83</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">6</b><span class="nm">Maya P<br>Nanda R</span><span class="mp n">8</span><span class="c3 n">4–4</span><span class="df n">−6</span><b class="c4 n">81</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">7</b><span class="nm">Citra L<br>Dewant R</span><span class="mp n">8</span><span class="c3 n">3–5</span><span class="df n">−12</span><b class="c4 n">78</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">8</b><span class="nm">Oki S<br>Putri A</span><span class="mp n">8</span><span class="c3 n">1–7</span><span class="df n">−24</span><b class="c4 n">72</b></div>
+            <div class="rrow"><b class="r n">9</b><span class="nm">Rizky H</span><span class="mp n">1</span><span class="c3 n">0–1</span><span class="df n">−9</span><b class="c4 n">6</b></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
+      </div>
+      <ul>
+        <li>Data 04f–04h: R1–R14 round-robin, lalu R15–R16 dengan Andi P + Rizky H; Budi S pulang setelah R14.</li>
+        <li>Pasangan yang selalu main bersama tetap satu baris (dua nama ditumpuk). Pemain yang pasangannya berubah, pemain yang tidak ikut lagi, dan pemain pengganti tampil sendiri dengan angkanya masing-masing (keputusan host 2026-11-03). Semua baris memakai nilai per pemain yang sama, jadi urutannya tetap sebanding.</li>
+        <li>Budi S main 7 (tertinggal satu match) dan Rizky H baru 1: Total Point mereka tertinggal, Win % lebih adil. Itu konsekuensi yang sudah diterima host.</li>
+        <li>Sama di Detail (10d), poster Bagikan (pasangan tetap satu baris; kalau barisnya campuran "+n lainnya" di Ringkas dan "Semua n" di catatan Lengkap, tanpa kata pasangan/pemain), caption, dan halaman live.</li>
+      </ul>
+    </div>
+
   </div>
 </section>
 
@@ -2365,6 +2627,37 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       </div>
       <ul>
         <li>Kotak info abu-abu diganti satu kalimat. Pemain tidak ditemukan / tidak ada turnamen: teks tengah "Belum ada turnamen berjalan".</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>10d</b><span>Fixed · pasangan berubah</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Andi P</h1><p>Peringkat 2 · Padel · Fixed · Americano 21</p></div></div>
+        <div class="body">
+          <div class="statline"><div><b class="n">91</b><span>Poin</span></div><div><b class="n">75<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">6–2</b><span>W–L</span></div><div><b class="n">+14</b><span>Selisih poin</span></div></div>
+          <div class="group">
+            <div class="row"><span class="grow">Beda partner</span><b class="n" style="font-size:20px">2 / 16</b></div>
+            <div class="row"><span class="grow">Beda lawan</span><b class="n" style="font-size:20px">14 / 14</b></div>
+            <div class="row"><span class="grow">Kalah WO</span><b class="n" style="font-size:20px">0</b></div>
+          </div>
+          <span class="glabel">Riwayat match</span>
+          <div class="list">
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R15</div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Andi P · Rizky H</span><span class="sets"><b class="s n l">6</b></span></div><div class="team win"><i class="w"></i><span class="nm">vs Oki S · Putri A</span><span class="sets"><b class="s n">15</b></span></div></div><span></span></div>
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R13</div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">vs Citra L · Dewant R</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R11</div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n">12</b></span></div><div class="team"><i class="w"></i><span class="nm">vs Eko M · Fajar K</span><span class="sets"><b class="s n l">9</b></span></div></div><span></span></div>
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R9</div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n">11</b></span></div><div class="team"><i class="w"></i><span class="nm">vs Gina R · Hana T</span><span class="sets"><b class="s n l">10</b></span></div></div><span></span></div>
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R7</div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n">12</b></span></div><div class="team"><i class="w"></i><span class="nm">vs Indra W · Joko S</span><span class="sets"><b class="s n l">9</b></span></div></div><span></span></div>
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R5</div><div class="teams"><div class="team"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n l">9</b></span></div><div class="team win"><i class="w"></i><span class="nm">vs Kiki A · Lina M</span><span class="sets"><b class="s n">12</b></span></div></div><span></span></div>
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R3</div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n">15</b></span></div><div class="team"><i class="w"></i><span class="nm">vs Maya P · Nanda R</span><span class="sets"><b class="s n l">6</b></span></div></div><span></span></div>
+            <div class="bug" style="min-height:0"><div class="court n" style="--c:var(--ink);font-size:14px">R1</div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Budi S</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">vs Oki S · Putri A</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+          </div>
+        </div>
+      </div>
+      <ul>
+        <li>Baris Klasemen per pemain di Fixed (09g) membuka Detail pemain itu saja, bukan pasangan: judul satu nama.</li>
+        <li>"Beda partner" yang disembunyikan di Fixed (10b) muncul kalau partnernya lebih dari satu: 2 / 16 (pemain lain di turnamen, termasuk Rizky H). Beda lawan dibanding pemain lain selain partnernya sendiri: 17 − 1 − 2 = 14.</li>
+        <li>Riwayat: baris atas tim sendiri dengan nama sendiri dulu, seperti Mixed (10a), jadi partner yang berbeda terbaca (R15 Andi P · Rizky H, R13 Andi P · Budi S).</li>
       </ul>
     </div>
 
@@ -2937,6 +3230,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         <li>Ikon app: opsi A di 01j — sudut lapangan tampak atas dari painter Beranda, garis putih 100%, bola di service box.</li><li>Simpanan turnamen membawa versi app yang menulisnya (<code>appVersion</code>, semver); data tanpa versi atau dari skema lama diabaikan, bukan dipaksa dibaca (2026-10-22).</li><li>Gambar Feed/Story (11d, 11f, 11g) memakai line-height 1,4 seperti kartu pratinjau, jadi kaki Feed Ringkas tetap di dalam padding (2026-10-22).</li><li>Keypad: kotak yang sudah penuh atau baru dipilih menerima ketikan berikutnya sebagai pengganti isinya, jadi yang mati hanya angka di atas batas (07a–07g digambar ulang dengan tombol mati); saat ubah skor (07i) semua angka mati sampai kotak diketuk (2026-10-22).</li><li>Tinggi tombol mengikuti niat desain: Lanjutkan di banner 46 pt (01e, 01f), Tambah di Kelola pemain 48 pt sejajar kolom nama (08a, 08b) (2026-10-22).</li><li>Transisi 01g: keyframe 200 ms digambar persis dari aturan (posisi garis 0,37, kaca belum tampak); nama lama hilang di 30% pertama (2026-10-22).</li><li>Data contoh Jadwal Fixed dibetulkan: 06c (R5) jadi Andi · Budi 6–5 Indra · Joko, Citra · Dewant vs Gina · Hana tidak dimainkan, Eko · Fajar istirahat — Indra · Joko sudah istirahat di R2, dan di round-robin 5 pasangan tiap pasangan istirahat tepat sekali. 06d dan 06e dilengkapi match court 2 dan baris Istirahat seperti 06a karena keadaannya sama (2026-10-22).</li><li>Frame lapisan (menu, dialog, sheet) menggambar layar di belakangnya persis sesuai keadaan layar itu: 06i dan 06j sama dengan 06h (match court 2, Istirahat, Batalkan R4), 06k menampilkan R1 yang baru dibuat dengan Istirahat dan action bar. Jadwal Fixed yang sudah diakhiri: ⋯ pudar dan tidak bisa diketuk karena menunya kosong (06c) (2026-10-22).</li><li>Aturan frame lapisan juga untuk 08a–08d: latar 08a = keadaan 06f, 08c/08d = 06l, 08b = Tennis R2 (Andi · Citra vs Budi · Dewant belum diisi, Batalkan R2 karena R2 belum ada skor). Daftar 08a digambar lengkap 11 baris (10 aktif + Kiki A keluar, urut daftar pemain awal); sheet setinggi 92% dan daftarnya digulir di dalam (2026-10-22).</li><li>Contoh Tennis Fixed 10 pemain di Jadwal (06a–06e) dan di Klasemen/Detail (09c, 10b) adalah dua turnamen contoh yang berbeda; jadwal round-robin-nya tidak perlu sama (2026-10-22).</li><li>11c menggambar layar Bagikan lengkap (seperti 11a) pada momen sesudah share gagal: tombol "Bagikan hasil" aktif lagi dan toast "Hasil disalin"; "Menyiapkan gambar…" tetap perilaku saat render, tidak digambar terpisah. Toast selalu 19 pt di atas action bar (2026-10-22).</li><li>"Prioritas main di R…" di judul Istirahat ditulis tinta (ink), bukan biru court: biru dipakai untuk tautan/aksi seperti "Batalkan Rn", jadi teks info berwarna biru terkesan bisa diketuk (2026-10-22).</li><li>Rekor menang–kalah–seri ditulis W–L–D (W–L kalau format tidak bisa seri) di Klasemen dan Detail, satu bahasa dengan Win % dan Total Point; sebelumnya M–K–S (2026-10-22).</li><li>Race to N murni: match selesai begitu satu tim mencapai N, skor akhir N lawan 0..N−1. Tidak ada 7–5 / 7–6 maupun "(tie-break)" — itu skor set standar, format lain. Keypad dibatasi N (Race to 6: 7–9 mati); 6–6 ditolak "Hanya satu tim yang bisa mencapai 6"; 07c jadi contoh 6–5 (2026-10-22).</li><li>Dialog 01h ditulis dua baris: "Turnamen yang berjalan akan dihapus:" lalu turnamennya ("Padel · Mixed, Round 4") di baris sendiri (2026-10-22).</li><li>Data contoh 01e/01h dibetulkan jadi "Round 4 · 6 dari 8 match" (R4 baru dibuat): "Round 3 · 6 dari 8" mustahil di Mixed 8 pemain karena round berikutnya baru dibuat setelah round terakhir lengkap (2026-10-22).</li>
         <li>WO: Race to → pemenang N game; Best of &amp; Americano → rata-rata sendiri, minimal skor menang terkecil (⌊total ÷ 2⌋ + 1); kalah 0; selisih tidak berubah (mengganti "games WO tidak dihitung" di PRD 4.4; perlu test baru di <code>ranking_calculator</code>).</li>
         <li>Komponen lapisan: <code>showMabarConfirm</code> untuk semua dialog konfirmasi, <code>showMabarSheet</code> dengan lima jenis footer.</li>
+        <li>Round tambahan Fixed (3.1.0, 2026-11-03, dari turnamen live TBNE36): setelah semua match terisi, "Tambah round" membuat round per putaran (tiap pasangan +1, ganjil +2) dari sisa booking + jam tambahan per court, dibulatkan ke atas dan boleh lewat booking; host yang menekan Akhiri. Lawan mengulang round-robin dari awal (ganjil: siklus Walecki). Sebelumnya pasangan bisa diatur ulang ("Ubah") dan pemain pengganti diketik; yang tidak dipasangkan tidak ikut, poinnya tertinggal. Klasemen: pasangan yang tidak pernah berubah satu baris, sisanya per pemain (06v–06z, 04f–04h, 09g, 10d). Menggantikan "Double round-robin Fixed: tidak".</li>
       </ul>
       <h3>Dihapus</h3>
       <ul class="ruleslist">

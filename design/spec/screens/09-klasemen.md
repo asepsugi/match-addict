@@ -71,3 +71,14 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Match yang belum dimainkan saat Akhiri jadi "Tidak dimainkan" dan tidak dihitung (di sini R4 Andi–Hana vs Budi–Gina); jumlahnya ditulis di catatan bawah bersama WO.
 - Kalau dilanjutkan atau ditambah jam lewat "Lanjutkan turnamen" (08c), status kembali Sementara dan subjudul kembali ke pola "R… · x dari y match". Waktu habis tapi round terakhir belum lengkap: tetap Sementara sampai skornya terisi atau diakhiri.
 - Bagikan dari sini menulis "Klasemen akhir" di poster (11b, 11d).
+
+## 09g · Fixed · pasangan diatur ulang
+
+![09g](../../frames/09g.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
+
+- Data 04f–04h: R1–R14 round-robin, lalu R15–R16 dengan Andi P + Rizky H; Budi S pulang setelah R14.
+- Pasangan yang selalu main bersama tetap satu baris (dua nama ditumpuk). Pemain yang pasangannya berubah, pemain yang tidak ikut lagi, dan pemain pengganti tampil sendiri dengan angkanya masing-masing (keputusan host 2026-11-03). Semua baris memakai nilai per pemain yang sama, jadi urutannya tetap sebanding.
+- Budi S main 7 (tertinggal satu match) dan Rizky H baru 1: Total Point mereka tertinggal, Win % lebih adil. Itu konsekuensi yang sudah diterima host.
+- Sama di Detail (10d), poster Bagikan (pasangan tetap satu baris; kalau barisnya campuran "+n lainnya" di Ringkas dan "Semua n" di catatan Lengkap, tanpa kata pasangan/pemain), caption, dan halaman live.

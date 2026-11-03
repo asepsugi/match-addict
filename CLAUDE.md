@@ -139,7 +139,8 @@ naik tiap rilis. Sebut kategorinya di pesan commit/PR (`[minor]`). Branch `redes
 format skor + data app lama tidak dimuat); 2.2.0 (MINOR) = Kelola court; 2.3.0 (MINOR) = nama turnamen;
 2.4.0 (MINOR) = batas 30 pemain; 2.5.0 (MINOR) = live score; 2.6.0 (MINOR) = nama lengkap di baris match, Akhiri di
 Beranda, back PWA; 2.7.0 (MINOR) = pemain telat Mixed menyusul (kredit dihapus); 2.8.0 (MINOR) = Best of/Americano berhenti lebih awal;
-3.0.0 (MAJOR) = nama Match Addict + pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda).
+3.0.0 (MAJOR) = nama Match Addict + pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda);
+3.1.0 (MINOR) = round tambahan Fixed + atur ulang pasangan.
 
 ## Arsitektur
 
@@ -163,7 +164,7 @@ Konvensi: komentar seperlunya dan dalam bahasa Indonesia, menjelaskan *kenapa*. 
 > tombol lama) diganti hi-fi + komponen v2 — kalau bertentangan, hi-fi yang benar. Beranda v2 tidak menampilkan versi
 > (Cakupan → Dihapus); versi app hanya di `appVersion` + simpanan.
 
-Alur penuh jalan: Home → Peserta → Konfigurasi → Pasangan (Fixed) / langsung (Mixed) → Jadwal 6a/6b → Input Skor + sheet WO → Peringkat → Detail Pemain → Share.
+Alur penuh jalan: Home → Peserta → Konfigurasi → Pasangan (Fixed) / langsung (Mixed) → Jadwal 6a/6b → Input Skor + sheet WO → Peringkat → Detail Pemain → Share. Fixed setelah round-robin: Tambah round (+ Atur pasangan).
 
 Mesin domain yang sudah ada + ter-test (semua `flutter test` lulus, termasuk golden komponen di `test/hifi/`; `flutter analyze` bersih kecuali 2 info lint lama di `models.dart`):
 - `pairing/player_name_parser.dart` — parser textarea nama.
@@ -188,8 +189,22 @@ Mesin domain yang sudah ada + ter-test (semua `flutter test` lulus, termasuk gol
   keputusan host. **R1 tidak bisa dibatalkan** (`roundCount > 1`), karena layar jadwal tanpa round tidak punya isi.
   Setelah dibatalkan layar pindah ke round sebelumnya; pemain yang ditambah setelah round itu dibuat paling sedikit
   main, jadi langsung main di round penggantinya.
+- **Round tambahan Fixed** (keputusan host 2026-11-03, dari live TBNE36; `design/spec/logic.md` §12, PRD 3.3a; tes
+  `test/services/fixed_extra_rounds_test.dart`, `fixed_add_rounds_test.dart`, golden `test/hifi/screens/tambah_round_test.dart`
+  06v–06z/04f–04h, 09g, 10d; fixture `fixed_extra_fixture.dart`). Setelah semua match terisi dan belum diakhiri
+  (`ActiveTournament.canAddRounds`) action bar Jadwal Fixed = ikon Klasemen + "Tambah round" → sheet
+  `features/schedule/fixed/add_rounds_sheet.dart` (jam booking per court + estimasi dari `schedule/widgets/extend_sheet_parts.dart`,
+  dipakai bersama Lanjutkan Mixed). `RoundRobinGenerator.extend`: putaran = tiap pasangan +1 (genap, circle round
+  k mod (n−1)) atau +2 (ganjil, siklus Walecki k mod m); jumlah putaran = paling sedikit yang mengisi round yang muat di
+  court terpanjang, dibulatkan ke atas, boleh lewat booking; court yang habis berhenti dipakai. `extraPutaran` (kunci
+  simpanan opsional) melanjutkan urutan lawan antar tambahan. Atur pasangan (`features/pair_edit/pair_edit_screen.dart`
+  di atas `services/pairing/pair_draft.dart`): "Ubah" (label host) memisahkan pasangan, pasangan baru mengisi slot yang
+  kosong supaya lawan pasangan lain tetap, pemain pengganti diketik; yang tidak dipasangkan tidak ikut (poin tertinggal).
+  Klasemen/Detail/poster memakai `ActiveTournament.standingPairs` (pasangan yang selalu main bersama) — sisanya per
+  pemain, jadi baris campuran (09g); poster campuran menulis "+n lainnya" / "Semua n" (`shareRowNoun`). `pairById` juga
+  mencari pasangan lama di match. Fixed yang diakhiri tetap tidak bisa dilanjutkan.
 - `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang dimenangkan lintas match: 6-5, 4-6, 3-6 → 13). Default app = Total Point, sesuai keputusan host bahwa total point dihitung lebih dulu; metode "Kombinasi" sudah dihapus karena isinya identik dengan Win %. Urutan = `RankingCalculator.compare`: nilai metode → selisih (`gameDiff`), lalu nama hanya untuk mengurutkan yang nomornya sama. Keputusan host 2026-11-02: hanya angka yang tampil di Klasemen/poster yang menentukan nomor, jadi head-to-head (di Mixed bisa berputar A > B > C > A) dan Total Point sebagai pemisah Win % dihapus. WO (PRD 4.4, `ScoreFormat.woWinnerScore`): menang/kalah dihitung; pemenang dapat N game di Race to, di Best of/Americano rata-rata skornya sendiri dari match yang dia mainkan (bulat ,5 ke atas) tapi minimal ⌊N÷2⌋+1; yang kalah 0. Nilai itu masuk `woPoints` → `totalPoint`, **tidak** ke `gameDiff`. Format lama tetap: WO tanpa game. `cancelled` & `pending` diabaikan total. Tes dengan data frame 09a–09f/10b: `test/services/ranking_v2_test.dart`.
-- `ranking/ranking_calculator.dart` → `standingEntries()` — mengubah klasemen per pemain jadi baris tampilan. Mode Fixed: pasangan tidak pernah berganti sehingga statistik kedua anggotanya identik, jadi dua baris kembar digabung jadi satu baris "Andi + Budi" yang mengambil posisi anggota terbaiknya. Mode Mixed: satu baris per pemain, urutan `rank()` tidak diubah. Pemain sisa (jumlah ganjil) tetap tampil sendiri. `StandingEntry.position`: `compare` = 0 (nilai metode dan selisih sama) → nomor sama, nomor berikutnya melanjutkan (1, 2, 2, 3 — bukan 1, 2, 2, 4), jadi `standingEntries` butuh `method` yang sama dengan `rank()`; baris yang belum main dipindah ke belakang dengan `position == null` (grup "Belum main"). Peringkat, Detail, Bagikan, dan caption memakai nomor ini — jangan menomori dengan indeks.
+- `ranking/ranking_calculator.dart` → `standingEntries()` — mengubah klasemen per pemain jadi baris tampilan. Mode Fixed: pasangan yang tidak pernah berganti (`standingPairs`) statistik kedua anggotanya identik, jadi dua baris kembar digabung jadi satu baris "Andi + Budi" yang mengambil posisi anggota terbaiknya. Mode Mixed: satu baris per pemain, urutan `rank()` tidak diubah. Pemain sisa (jumlah ganjil) tetap tampil sendiri. `StandingEntry.position`: `compare` = 0 (nilai metode dan selisih sama) → nomor sama, nomor berikutnya melanjutkan (1, 2, 2, 3 — bukan 1, 2, 2, 4), jadi `standingEntries` butuh `method` yang sama dengan `rank()`; baris yang belum main dipindah ke belakang dengan `position == null` (grup "Belum main"). Peringkat, Detail, Bagikan, dan caption memakai nomor ini — jangan menomori dengan indeks.
 - `ActiveTournament.isFinal(now)` — status Final/Sementara: diakhiri, Fixed semua match terisi, Mixed waktu booking habis + round terakhir lengkap (bukan tiap round lengkap). `playedRoundCount` = jumlah round yang punya match selesai/WO ("5 round · 10 match").
 - **Format skor** (`TournamentConfig.format` = `ScoreFormat(method, target)`; tes `test/services/score_format_test.dart`):
   Race to N (2–9, default 6 — default kedua olahraga; murni: skor akhir N lawan 0..N−1, tanpa 7–5/7–6), Best of N (1–15, default 5), Americano N (2–99, default 21).

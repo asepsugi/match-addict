@@ -420,11 +420,16 @@ class ActiveTournament {
   /// dari `config.players` supaya nama di match lama dan peringkatnya tetap ada.
   final Set<String> withdrawnPlayerIds;
 
+  /// Fixed: putaran tambahan yang sudah dibuat setelah round-robin (`RoundRobinGenerator.extend`), supaya tambahan
+  /// berikutnya melanjutkan urutan lawan — juga setelah pasangan diatur ulang, saat jumlah match per putaran berubah.
+  final int extraPutaran;
+
   const ActiveTournament({
     required this.tournament,
     this.byePairIdByRound = const {},
     this.restingPlayerIdsByRound = const {},
     this.withdrawnPlayerIds = const {},
+    this.extraPutaran = 0,
   });
 
   TournamentConfig get config => tournament.config;
@@ -502,7 +507,21 @@ class ActiveTournament {
 
   MatchGame? matchById(String id) => matches.where((m) => m.id == id).firstOrNull;
 
-  Pair? pairById(String id) => config.fixedPairs?.where((p) => p.id == id).firstOrNull;
+  /// Pasangan Fixed sekarang, atau pasangan lama yang sudah diatur ulang (masih tercatat di match-nya).
+  Pair? pairById(String id) =>
+      config.fixedPairs?.where((p) => p.id == id).firstOrNull ??
+      matches.expand((m) => [m.pair1, m.pair2]).where((p) => p.id == id).firstOrNull;
+
+  /// Fixed: pasangan yang anggotanya selalu main bersama — satu baris di Klasemen, Detail, dan poster. Pasangan yang
+  /// diatur ulang sebelum round tambahan (04f) tidak termasuk; anggotanya, juga pemain yang tidak ikut lagi, tampil
+  /// sendiri-sendiri dengan angkanya masing-masing (09g, keputusan host 2026-11-03).
+  List<Pair> get standingPairs => [
+    for (final pair in config.fixedPairs ?? const <Pair>[])
+      if (matches.every(
+        (m) => [m.pair1, m.pair2].every((side) => side.id == pair.id || !side.playerIds.any(pair.contains)),
+      ))
+        pair,
+  ];
 
   String playerName(String id) => config.players
       .firstWhere(
@@ -631,6 +650,14 @@ class ActiveTournament {
     );
   }
 
+  /// Fixed: round tambahan (06v, `RoundRobinGenerator.extraRounds`) boleh dibuat setelah semua match terisi, selama
+  /// belum diakhiri.
+  bool get canAddRounds =>
+      config.mode == PartnerMode.fixed &&
+      !tournament.isFinished &&
+      matches.isNotEmpty &&
+      matches.every((m) => m.status != MatchStatus.pending);
+
   /// Mode Mixed: turnamen yang sudah diakhiri atau kehabisan waktu booking
   /// bisa dilanjutkan dengan menambah jam court.
   bool canResume(DateTime now) =>
@@ -647,12 +674,15 @@ class ActiveTournament {
 
   ActiveTournament copyWith({
     Tournament? tournament,
+    Map<int, String>? byes,
     Map<int, List<String>>? resting,
     Set<String>? withdrawn,
+    int? extraPutaran,
   }) => ActiveTournament(
     tournament: tournament ?? this.tournament,
-    byePairIdByRound: byePairIdByRound,
+    byePairIdByRound: byes ?? byePairIdByRound,
     restingPlayerIdsByRound: resting ?? restingPlayerIdsByRound,
     withdrawnPlayerIds: withdrawn ?? withdrawnPlayerIds,
+    extraPutaran: extraPutaran ?? this.extraPutaran,
   );
 }

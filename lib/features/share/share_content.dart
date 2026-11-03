@@ -8,6 +8,13 @@ const shareSummaryCount = 5;
 
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
+/// Kata untuk baris klasemen: "pasangan" (Fixed), "pemain" (Mixed), atau null kalau Klasemen Fixed campuran karena
+/// pasangan diatur ulang sebelum round tambahan (09g) — "+5 lainnya", "Semua 10".
+String? shareRowNoun(ActiveTournament active, List<StandingEntry> entries) {
+  if (active.config.mode == PartnerMode.mixed) return 'pemain';
+  return entries.every((e) => e.players.length == 2) ? 'pasangan' : null;
+}
+
 /// Isi poster Bagikan dari turnamen + baris Klasemen ([entries] = `standingEntriesProvider`, jadi nomornya
 /// sama dengan Klasemen). Ringkas = 5 teratas + "+n lainnya"; Lengkap = semua yang bernomor. Fixed
 /// menghitung "pasangan". Tiap baris = nilai metode + selisih, dua angka penentu nomornya ("42 poin · +12",
@@ -21,7 +28,6 @@ SharePosterData sharePosterData({
   required bool isFinal,
 }) {
   final config = active.config;
-  final fixed = config.mode == PartnerMode.fixed;
   final unit = config.format.unit;
   final ranked = [for (final e in entries) if (e.position != null) e];
   final rows = format == ShareFormat.ringkas ? ranked.take(shareSummaryCount).toList() : ranked;
@@ -53,7 +59,7 @@ SharePosterData sharePosterData({
       if (wo > 0) '$wo WO',
       if (config.name != null) date,
     ].join(' · '),
-    more: format == ShareFormat.ringkas && hidden > 0 ? '+$hidden ${fixed ? 'pasangan' : 'pemain'} lainnya' : null,
+    more: format == ShareFormat.ringkas && hidden > 0 ? ['+$hidden', ?shareRowNoun(active, entries), 'lainnya'].join(' ') : null,
     complete: format == ShareFormat.lengkap,
   );
 }

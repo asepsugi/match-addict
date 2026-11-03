@@ -7,6 +7,7 @@ import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
+import 'fixed_extra_fixture.dart';
 import 'ranking_fixture.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
@@ -42,6 +43,10 @@ void main() {
 
   testWidgets('09f Mixed final setelah diakhiri', (tester) async {
     await expectMatchesHifi(tester, screen(set2(finished: true)), '09f');
+  });
+
+  testWidgets('09g Fixed, pasangan diatur ulang: baris campuran', (tester) async {
+    await expectMatchesHifi(tester, screen(extraPlayed()), '09g');
   });
 
   testWidgets('Ketuk baris → Detail pemain itu; metode dipakai bersama', (tester) async {

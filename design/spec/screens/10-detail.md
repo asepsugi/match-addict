@@ -33,3 +33,13 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `StatLine`
 
 - Kotak info abu-abu diganti satu kalimat. Pemain tidak ditemukan / tidak ada turnamen: teks tengah "Belum ada turnamen berjalan".
+
+## 10d · Fixed · pasangan berubah
+
+![10d](../../frames/10d.png)
+
+Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScoreRow`, `StatLine`
+
+- Baris Klasemen per pemain di Fixed (09g) membuka Detail pemain itu saja, bukan pasangan: judul satu nama.
+- "Beda partner" yang disembunyikan di Fixed (10b) muncul kalau partnernya lebih dari satu: 2 / 16 (pemain lain di turnamen, termasuk Rizky H). Beda lawan dibanding pemain lain selain partnernya sendiri: 17 − 1 − 2 = 14.
+- Riwayat: baris atas tim sendiri dengan nama sendiri dulu, seperti Mixed (10a), jadi partner yang berbeda terbaca (R15 Andi P · Rizky H, R13 Andi P · Budi S).

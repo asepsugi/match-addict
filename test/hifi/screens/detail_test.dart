@@ -6,6 +6,7 @@ import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
+import 'fixed_extra_fixture.dart';
 import 'ranking_fixture.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
@@ -28,6 +29,10 @@ void main() {
 
   testWidgets('10c belum ada match', (tester) async {
     await expectMatchesHifi(tester, screen(set1, 'p10'), '10c');
+  });
+
+  testWidgets('10d Fixed, pasangan berubah: Beda partner, nama sendiri dulu', (tester) async {
+    await expectMatchesHifi(tester, screen(extraPlayed(), 'p0'), '10d');
   });
 
   testWidgets('Anggota kedua pasangan membuka Detail yang sama; pemain tak dikenal → teks tengah', (tester) async {
