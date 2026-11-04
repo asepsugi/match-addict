@@ -24,6 +24,7 @@ Komponen: `MabarButton`, `MabarGroup / MabarRow`, `CourtBanner (CourtPainter)`, 
 - Belum pernah ada turnamen: default Tennis. Hanya baris pasang.
 - Baris pasang hanya di web: mode `none` (native, sudah terpasang, browser tanpa dukungan) menyembunyikannya. Bisa muncul belakangan karena event browser datang terlambat, dan hilang setelah dialog pasang ditutup.
 - Nama olahraga dicat besar di dalam service box, seperti tulisan di lapangan sungguhan. Tidak ada tagline atau statistik.
+- Versi app (`appVersion`, "v" + MAJOR.MINOR.PATCH, di frame v3.2.0) di kanan atas banner, sejajar dasar wordmark: 13/500 putih penuh, di run-off biru tua di atas dinding/baseline, jadi sama di tennis dan padel dan tidak pernah bertabrakan dengan info round (01e, 01f). Tampil di semua kondisi Beranda (01a–01f, 01h, 01i), tidak bisa diketuk, tanpa teks lain (keputusan host 20, 2026-11-04; "Skor tersimpan otomatis" tetap dihapus). 01g (gambar transisi) dan 01j (ikon app) tidak memuat wordmark, jadi tanpa versi.
 
 ## 01c · Ada riwayat saja
 

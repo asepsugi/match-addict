@@ -8,8 +8,9 @@ Satu kotak teks untuk ditempel dari grup WhatsApp, dengan aksinya menempel di ba
 
 ![02a](../../frames/02a.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarField`, `NameListField`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `MabarField`, `NameListField`
 
+- Pilihan **Mabar / Sparing** paling atas (keputusan host 19, K4): Mabar = layar ini apa adanya (02a–02d), Sparing = dua blok klub (13a–13g). Default Mabar; pilihan tidak diingat antar turnamen. Isi kotak tiap pilihan disimpan sendiri selama layar terbuka, jadi pindah pilihan tidak menghapus ketikan.
 - Tidak autofocus: jalan utamanya Tempel dari grup WhatsApp, jadi keyboard tidak langsung menutupi layar.
 - Kotak teks 4–6 baris lalu scroll di dalam (dulu 5–8); daftar lengkapnya terbaca di bawah, jadi kotaknya tidak perlu tinggi. Keyboard multiline, huruf awal tiap kata kapital.
 - Aksi menempel di bawah kotak teks sebagai toolbar `.txtbtn` (teks biru + ikon 20), bukan chip.
@@ -20,7 +21,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![02b](../../frames/02b.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `NameListField`, `RosterPreview`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `NameListField`, `RosterPreview`
 
 - Hasil parser tampil sebagai daftar bernomor dua kolom (`.roster`), urut ke bawah dulu. Nomornya memastikan penomoran dari WhatsApp sudah dibuang dan jumlahnya pas; kolom rata membuat 30 nama tetap rapi, tidak seperti chip yang membungkus tidak rata.
 - Teks berisi 9 baris; kotak menampilkan 6 dan sisanya di-scroll (garis scroll di kanan).
@@ -32,7 +33,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![02c](../../frames/02c.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `NameListField`, `RosterPreview`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `NameListField`, `RosterPreview`
 
 - Daftar dan jumlahnya diperbarui tiap ketikan. Kurang dari 4 bukan error (host masih mengetik), jadi catatannya abu-abu, bukan clay.
 - Tombol mati sampai jumlahnya 4–30.
@@ -41,7 +42,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![02d](../../frames/02d.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `NameListField`, `RosterPreview`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `NameListField`, `RosterPreview`
 
 - Mulai ±18 pemain daftarnya lebih panjang dari layar, jadi halaman di-scroll; app bar dan action bar tetap. Frame ini digulir sampai bawah. Daftar tetap menampilkan semua nama supaya host bisa memilih siapa yang dihapus dari kotak teks.
 - Catatan clay "Maksimal 30 pemain" menggantikan "Minimal 4", sama seperti pesan error di Konfigurasi. Daftarnya tidak ikut diwarnai. Tombol mati.

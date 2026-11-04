@@ -583,29 +583,30 @@ Istilah di bagian ini: **klub pertama** = klub yang diisi pertama di layar Pemai
   (K1).
 - Court aktif `C' = min(C, p1, p2)` (satu pasangan tidak bisa main di dua court bersamaan, jadi court lebih dari jumlah
   pasangan klub kecil tidak terpakai). Court yang tidak aktif = court bernomor terakhir.
-- Jumlah round `R = max(⌈M ÷ C'⌉, max(p1, p2))`: tidak ada round dengan lebih dari `C'` match, tidak ada pasangan dua
-  kali dalam satu round. (Selalu bisa dicapai: graf bipartit punya pewarnaan sisi seimbang untuk k ≥ derajat terbesar —
-  teorema de Werra.) Ini berbeda dengan invariant 3.3: di sparing round boleh berisi match dari "putaran" berbeda,
-  karena larangan main dua kali per round dijaga langsung.
-- **Target (belum dikunci, tugas tech lead T1 di 13.12):** setelah setiap round, selisih jumlah main antar pasangan
-  **satu klub** ≤ 1. Contoh 13A dan 8 / 4 memenuhinya; untuk semua ukuran belum dibuktikan.
+- Jumlah round `R = ⌈M ÷ C'⌉`; semua round berisi `C'` match kecuali round terakhir, dan tidak ada pasangan dua kali
+  dalam satu round. (Karena `C' ≤ min(p1, p2)`, `R` tidak pernah kurang dari jumlah match pasangan klub kecil.) Ini
+  berbeda dengan invariant 3.3: di sparing round boleh berisi match dari "putaran" berbeda, karena larangan main dua
+  kali per round dijaga langsung.
+- Setelah setiap round, selisih jumlah main antar pasangan **satu klub** ≤ 1, juga setelah round tambahan (terbukti
+  tech lead 2026-11-04, T1 di 13.12).
 - Istirahat: bisa beberapa pasangan per round, dari kedua klub (turnamen biasa paling banyak satu).
 - Round dibuka berurutan, dialog kunci pasangan, Fixed tidak bisa dilanjutkan setelah diakhiri — sama dengan 3.2 A.
 
 **Contoh 13A** — Padel, Race to 6, 15 menit, 2 court × 2 jam. Pasangan PB Garuda: G1 Andi · Budi, G2 Citra · Dewi,
 G3 Eko · Fajar, G4 Gita · Hadi. Matcha Club: M1 Indra · Joko, M2 Kiki · Lina, M3 Maya · Nanda.
-`M = 4 × 3 = 12`, `C' = 2`, `R = max(6, 4) = 6` (90 menit, sisa booking 30 menit). Garuda 3 match per pasangan, Matcha 4.
+`M = 4 × 3 = 12`, `C' = 2`, `R = ⌈12 ÷ 2⌉ = 6` (90 menit, sisa booking 30 menit). Garuda 3 match per pasangan, Matcha
+4. Jadwal = hasil generator (tech lead 2026-11-04):
 
 | Round | Court 1 | Court 2 | Istirahat |
 |-------|---------|---------|-----------|
 | R1 | G1 vs M1 | G2 vs M2 | G3, G4, M3 |
-| R2 | G3 vs M1 | G4 vs M3 | G1, G2, M2 |
-| R3 | G1 vs M2 | G3 vs M3 | G2, G4, M1 |
-| R4 | G2 vs M1 | G4 vs M2 | G1, G3, M3 |
-| R5 | G1 vs M3 | G4 vs M1 | G2, G3, M2 |
-| R6 | G2 vs M3 | G3 vs M2 | G1, G4, M1 |
+| R2 | G3 vs M3 | G4 vs M1 | G1, G2, M2 |
+| R3 | G1 vs M2 | G2 vs M3 | G3, G4, M1 |
+| R4 | G3 vs M1 | G4 vs M2 | G1, G2, M3 |
+| R5 | G1 vs M3 | G2 vs M1 | G3, G4, M2 |
+| R6 | G3 vs M2 | G4 vs M3 | G1, G2, M1 |
 
-Jumlah main setelah tiap round — Garuda (G1–G4): 1·1·0·0 → 1·1·1·1 → 2·1·2·1 → 2·2·2·2 → 3·2·2·3 → 3·3·3·3; Matcha
+Jumlah main setelah tiap round — Garuda (G1–G4): 1·1·0·0 → 1·1·1·1 → 2·2·1·1 → 2·2·2·2 → 3·3·2·2 → 3·3·3·3; Matcha
 (M1–M3): 1·1·0 → 2·1·1 → 2·2·2 → 3·3·2 → 4·3·3 → 4·4·4.
 
 Ukuran lain (estimasi di Konfigurasi = kolom Match, Round, Court aktif):
@@ -659,8 +660,11 @@ Ukuran lain, 8 round:
 
 - Setiap match selesai = satu hasil untuk klub: menang 1, seri ½ (sama dengan Win %), kalah 0. WO: klub lawan dari
   pasangan WO menang 1. Match Belum / Tidak dimainkan tidak dihitung.
-- Di samping skor match: **Total Point klub** = jumlah game/poin semua pemain klub itu (termasuk nilai WO, 4.4) dan
-  selisih klub (tanpa WO, seperti `gameDiff`). Adil antar klub karena kedua klub ada di setiap match.
+- Di samping skor match: **Total Point klub** = jumlah game/poin sisi klub di setiap match + nilai WO (4.4), dan selisih
+  klub (tanpa WO, seperti `gameDiff`). Satu match dihitung sekali per sisi, bukan per pemain (13C: 56, bukan 112). Adil
+  antar klub karena kedua klub ada di setiap match.
+- **Belum diputuskan (menunggu host):** nilai WO klub di Mixed Best of/Americano, karena dua pemain pemenang WO bisa
+  punya nilai WO berbeda (rata-rata skor masing-masing, 4.4). Race to N tidak terpengaruh (nilai WO = N untuk keduanya).
 - Urutan: match menang → Total Point klub → sama semua = seri. Hanya angka yang tampil yang menentukan (sejalan 4.3).
 - Status Sementara/Final sama dengan 4.6. Skor klub tampil di Klasemen (di atas tabel), poster, caption, Beranda, dan
   halaman Live (penempatan oleh designer; tanpa kalimat penjelas).
@@ -670,11 +674,11 @@ Ukuran lain, 8 round:
 | Round | Court 1 | Court 2 |
 |-------|---------|---------|
 | R1 | G1 6–3 M1 | G2 4–6 M2 |
-| R2 | G3 6–2 M1 | G4 5–6 M3 |
-| R3 | G1 6–4 M2 | G3 6–5 M3 |
-| R4 | G2 6–1 M1 | G4 3–6 M2 |
-| R5 | G1 2–6 M3 | G4 6–4 M1 |
-| R6 | G2 WO (Citra · Dewi absen) → M3 menang | G3 6–0 M2 |
+| R2 | G3 6–5 M3 | G4 6–4 M1 |
+| R3 | G1 6–4 M2 | G2 WO (Citra · Dewi absen) → M3 menang |
+| R4 | G3 6–2 M1 | G4 3–6 M2 |
+| R5 | G1 2–6 M3 | G2 6–1 M1 |
+| R6 | G3 6–0 M2 | G4 5–6 M3 |
 
 - Skor klub: **PB Garuda 7 – 5 Matcha Club** (Matcha: 4 menang + 1 WO). 12 dari 12 match → Final.
 - Total Point klub: Garuda 56, Matcha 49 (43 game + 6 nilai WO Race to 6). Selisih Garuda +13, Matcha −13.
@@ -728,7 +732,7 @@ Ukuran lain, 8 round:
 - **AC-S4** Fixed Manual: mengetuk Andi lalu Indra tidak membentuk pasangan.
 - **AC-S5** Fixed 4 / 3 pasangan, 2 court: 12 match, 6 round; tiap pasangan Garuda tepat 3 match, Matcha tepat 4; tiap
   pasangan Garuda bertemu tiap pasangan Matcha tepat sekali; nol match sesama klub; tidak ada pasangan dua kali dalam
-  satu round; selisih main antar pasangan satu klub ≤ 1 setelah setiap round (target T1, dikunci setelah terbukti).
+  satu round; semua round berisi 2 match; selisih main antar pasangan satu klub ≤ 1 setelah setiap round.
 - **AC-S6** Fixed 4 / 2 pasangan, 3 court: 8 match, 4 round, Court 3 tidak pernah dapat match. 2 / 2 pasangan, 1 court:
   4 match, 4 round. 14 / 1 pasangan, 2 court: 14 match, 14 round, Court 2 kosong.
 - **AC-S7** Semua layar: pasangan klub pertama selalu sisi atas match.
@@ -744,7 +748,7 @@ Ukuran lain, 8 round:
   yang istirahat; R5 berisi 3 match dan semua 6 Matcha main.
 - **AC-S14** Skor klub data 13C: 7 – 5, Total Point 56 – 49, selisih +13 / −13, status Final setelah 12 dari 12 match.
   Sebelum R6 diisi: Sementara, 6 – 4.
-- **AC-S15** WO R6 (Citra · Dewi): Matcha +1 menang, Maya · Nanda +6 Total Point, selisih kedua klub tidak berubah.
+- **AC-S15** WO R3 (Citra · Dewi): Matcha +1 menang, Maya · Nanda +6 Total Point, selisih kedua klub tidak berubah.
 - **AC-S16** Seri Americano 20 (10–10) memberi ½ ke tiap klub: "6½ – 5½".
 - **AC-S17** Klasemen per klub data 13C sama persis dengan 13.6 (Total Point dan Win %); Detail, Bagikan, caption, dan
   Live memakai nomor yang sama.
@@ -785,12 +789,11 @@ Ukuran lain, 8 round:
   Fixed/Mixed tetap dipilih di Konfigurasi; nama turnamen terpisah dari nama klub; court yang tidak aktif = court
   bernomor terakhir.
 
-### 13.12 Tugas tech lead (belum dikunci, bukan keputusan)
+### 13.12 Verifikasi tech lead (selesai 2026-11-04)
 
-- **T1.** "Selisih main antar pasangan satu klub ≤ 1 setelah setiap round" di Fixed sparing (13.3, AC-S5) adalah
-  **target**: buktikan dengan algoritma + test properti untuk semua ukuran 2–14 pasangan per klub dan 1–10 court sebelum
-  aturan ini dikunci. Kalau tidak selalu bisa, laporkan ukuran yang gagal ke PM; jangan melonggarkan sendiri.
-- **T2.** Semua angka contoh 13A (jadwal + jumlah main), 13B (jumlah main setelah R6/R8, Kelola court, pemain telat),
-  dan 13C (skor klub, Total Point, klasemen) masih **hitungan manual** PM. Verifikasi lewat generator dan kalkulator
-  sebelum dipakai sebagai data test atau frame; selisih dilaporkan ke PM, bukan diperbaiki diam-diam di salah satu sisi.
-  Jadwal 13A boleh berbeda urutan dari generator asal semua aturan 13.3 terpenuhi; designer memakai hasil generator.
+- **T1 — selesai.** "Selisih main antar pasangan satu klub ≤ 1 setelah setiap round" di Fixed sparing terbukti lewat
+  algoritma + test properti untuk 2250 ukuran (1–15 pasangan per klub × 1–10 court) dan 8 kali tambah round berantai,
+  jadi sekarang aturan (13.3, AC-S5). `R = ⌈M ÷ C'⌉`, semua round berisi `C'` match kecuali round terakhir.
+- **T2 — selesai.** Angka 13A–13C dicek dengan generator dan kalkulator. Jadwal 13A dan tabel round 13C diganti dengan
+  hasil generator (WO pindah ke R3); skor klub, Total Point, selisih, klasemen 13.6, 13B, tabel ukuran, 8 / 4 di 3
+  court, dan contoh round tambahan tetap sama. Designer dan data test memakai angka di bagian ini.
