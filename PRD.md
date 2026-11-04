@@ -1,6 +1,7 @@
 # PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
-**Versi dokumen:** 2.9 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03) dan app **3.1.0**
+**Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
+ada di hi-fi
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -58,6 +59,9 @@ Aplikasi untuk host turnamen mabar yang:
 ```
 
 ### 3.2 Mode Partner
+
+Sparing (dua klub bertanding, Fixed maupun Mixed; keputusan 19): §13. Aturan di bawah ini tetap berlaku untuk turnamen
+biasa.
 
 #### A. Fixed Partner (Pasangan Tetap)
 
@@ -267,6 +271,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Turnamen bernama: nama menggantikan "olahraga · mode · n pemain" di banner dan baris riwayat (satu baris, elipsis)
   dan "olahraga · mode" di dialog mulai baru.
 - Web/PWA: baris "Pasang Match Addict di HP" (dialog bawaan browser, atau panduan iPhone/iPad).
+- Versi app (`appVersion`) tampil di Beranda (keputusan 20, 2026-11-04; belum ada di hi-fi).
 
 ### 5.2 Pemain (02a–02d)
 - Satu kotak teks (tempel dari WhatsApp); parser membuang nomor/bullet, spasi ganda, baris kosong, dan duplikat
@@ -465,6 +470,16 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     dibulatkan ke atas dan boleh lewat booking; host yang mengakhiri. Lawan mengulang round-robin dari awal. Sebelumnya
     pasangan bisa diatur ulang dan pemain pengganti dimasukkan; Klasemen campuran (pasangan tetap satu baris, sisanya
     per pemain). Dipicu turnamen live TBNE36 yang selesai 14 round dengan sisa booking 30 menit (2026-11-03).
+19. **Sparing** (§13, ide host): dua klub bertanding, Fixed maupun Mixed; partner selalu sesama klub, lawan selalu klub
+    lain. Jumlah pemain klub boleh beda dan klub kecil main lebih sering; Fixed tiap pasangan bertemu tiap pasangan klub
+    lain sekali; klub menang dari jumlah match menang (seri ½), lalu Total Point klub; klasemen per klub; dipilih di
+    layar Pemain; minimal 2 pemain per klub, total 4–30; round tambahan Fixed per satuan KPK pasangan; poster dan
+    caption dibuka skor klub (rincian K1–K8); poster Ringkas = 3 teratas tiap klub (dikonfirmasi host). Turnamen
+    biasa tidak berubah; rilis 3.2.0 MINOR (2026-11-04).
+20. **Versi app tampil lagi di Beranda** (permintaan host): `appVersion` (`MAJOR.MINOR.PATCH`) ditampilkan di Beranda.
+    Membatalkan sebagian keputusan hi-fi v2 yang menghapus footer "Skor tersimpan otomatis · v1.0" (Cakupan →
+    Dihapus); teks "Skor tersimpan otomatis" tetap dihapus. Letak dan gaya oleh designer, ikut rilis 3.2.0
+    (2026-11-04).
 
 ---
 
@@ -478,6 +493,8 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 6. Simpan: 1 turnamen aktif + 1 terakhir, lokal
 7. Pairing berbasis skill: **tidak sekarang**, dicatat untuk pengembangan
 8. Target user: **klub/komunitas**
+9. Sparing antar **2 klub**, Fixed maupun Mixed, pasangan sesama klub tidak jadi lawan; semua usulan PM disetujui
+   (2026-11-04, §13)
 
 ---
 
@@ -503,3 +520,277 @@ Aturan:
 - `schemaVersion` simpanan naik hanya kalau bentuk JSON tidak kompatibel, dan itu selalu MAJOR. Kolom baru yang
   opsional (data lama tetap terbaca) cukup MINOR tanpa menaikkan `schemaVersion`.
 - Pesan commit/PR menyebut kategorinya (mis. `[minor]`), dan perubahan MAJOR mencatat keputusan host di PRD.
+
+---
+
+## 13. Sparing — Dua Klub Bertanding
+
+> **Disetujui host 2026-11-04** (keputusan 19, §10), rencana rilis **3.2.0 (MINOR)**. Bagian lain PRD tidak berubah:
+> turnamen biasa (bukan sparing) tetap persis seperti 3.1.0. Yang masih harus dibuktikan tech lead ada di 13.11.
+
+Ide host (2026-11-04): *"gw ada ide untuk menambahkan fitur sparing. dimana nanti 2 club akan bertanding. untuk mode
+nya tetap bisa fixed maupun mixed partner, yang membedakan adalah pasangan dari club yang sama tidak akan menjadi
+lawan."*
+
+### 13.0 Situasi nyata
+
+- Dua klub janjian main di satu tempat (mis. "PB Garuda" tuan rumah, "Matcha Club" tamu). Host dari salah satu klub
+  memegang **satu HP**, offline, 1–4 court yang di-booking per jam.
+- Jumlah pemain dua klub **jarang sama**: klub tamu biasanya datang lebih sedikit, ada yang telat atau pulang duluan.
+- Yang ditunggu semua orang di akhir: **klub mana yang menang**, baru kemudian siapa pemain/pasangan terbaik di klubnya.
+- Hasil dibagikan ke grup WhatsApp kedua klub.
+
+Istilah di bagian ini: **klub pertama** = klub yang diisi pertama di layar Pemain, **klub kedua** = yang lain.
+`p1`/`p2` = jumlah pasangan (Fixed), `n1`/`n2` = jumlah pemain aktif (Mixed), `C` = jumlah court.
+
+### 13.1 Aturan inti
+
+- **S1.** Setiap pemain milik tepat satu dari dua klub. Pemain tidak bisa pindah klub di tengah turnamen.
+- **S2.** Partner selalu sesama klub.
+- **S3.** Lawan selalu klub lain: setiap match = satu pasangan klub pertama melawan satu pasangan klub kedua. Dua
+  pasangan sesama klub **tidak pernah** bertemu, juga di round tambahan, court tambahan, dan setelah Kelola pemain.
+- **S4.** Di setiap match, klub pertama selalu sisi atas (pair1) di semua layar (Jadwal, Input Skor, WO, Detail,
+  poster), supaya penonton tidak perlu membaca nama untuk tahu sisi klubnya.
+- **S5.** Mode Fixed/Mixed, format skor, durasi, court, WO, status match, Akhiri, dan Live score berlaku seperti turnamen
+  biasa kecuali yang ditulis di bagian ini.
+
+### 13.2 Memilih sparing dan mengisi pemain (K4)
+
+- Layar Pemain mendapat pilihan **Mabar / Sparing** di paling atas (label final dari designer). Mabar = layar sekarang.
+- Sparing: dua blok, masing-masing = nama klub + kotak nama pemain (parser sama dengan 5.2, termasuk buang duplikat di
+  dalam satu klub).
+- Nama klub wajib, maks 20 karakter, dipangkas. Lanjut **mati** kalau: nama klub kosong; dua nama klub sama (tidak peka
+  huruf besar); satu klub < 2 pemain; total > 30; satu nama pemain ada di kedua klub (pesan validasi menyebut namanya,
+  mis. "Andi ada di dua klub" — boleh karena mencegah salah langkah, Prinsip "Tanpa Petunjuk").
+- Batas (K6): tiap klub **minimal 2** pemain (satu pasangan), total **4–30** (batas 30 yang sama, `maxPlayers`). Fixed
+  dan Mixed sama.
+- Konfigurasi tidak berubah: Mode Fixed/Mixed tetap dipilih di sana, nama turnamen tetap opsional dan terpisah dari nama
+  klub. Estimasi mengikuti 13.3/13.4.
+- Contoh: PB Garuda = Andi, Budi, Citra, Dewi, Eko, Fajar, Gita, Hadi (8); Matcha Club = Indra, Joko, Kiki, Lina,
+  Maya, Nanda (6). Total 14 → Lanjut aktif. Matcha hanya "Indra" → Lanjut mati.
+
+### 13.3 Fixed sparing
+
+**Pasangan**
+- Acak: diacak di dalam klub masing-masing. Manual: dua pemain yang diketuk harus sesama klub (mengetuk Andi lalu Indra
+  tidak membentuk pasangan).
+- Pemain ganjil di satu klub → satu sisa di klub itu ("Belum main", seperti 3.2 A). Dua sisa dari klub berbeda
+  **tidak** dipasangkan (S2), jadi paling banyak dua sisa.
+
+**Jadwal**
+- Tiap pasangan klub pertama bertemu tiap pasangan klub kedua **tepat sekali**. Total match `M = p1 × p2`. Pasangan klub
+  pertama main `p2` match, pasangan klub kedua main `p1` match — klub yang pasangannya lebih sedikit main lebih sering
+  (K1).
+- Court aktif `C' = min(C, p1, p2)` (satu pasangan tidak bisa main di dua court bersamaan, jadi court lebih dari jumlah
+  pasangan klub kecil tidak terpakai). Court yang tidak aktif = court bernomor terakhir.
+- Jumlah round `R = max(⌈M ÷ C'⌉, max(p1, p2))`: tidak ada round dengan lebih dari `C'` match, tidak ada pasangan dua
+  kali dalam satu round. (Selalu bisa dicapai: graf bipartit punya pewarnaan sisi seimbang untuk k ≥ derajat terbesar —
+  teorema de Werra.) Ini berbeda dengan invariant 3.3: di sparing round boleh berisi match dari "putaran" berbeda,
+  karena larangan main dua kali per round dijaga langsung.
+- **Target (belum dikunci, tugas tech lead T1 di 13.12):** setelah setiap round, selisih jumlah main antar pasangan
+  **satu klub** ≤ 1. Contoh 13A dan 8 / 4 memenuhinya; untuk semua ukuran belum dibuktikan.
+- Istirahat: bisa beberapa pasangan per round, dari kedua klub (turnamen biasa paling banyak satu).
+- Round dibuka berurutan, dialog kunci pasangan, Fixed tidak bisa dilanjutkan setelah diakhiri — sama dengan 3.2 A.
+
+**Contoh 13A** — Padel, Race to 6, 15 menit, 2 court × 2 jam. Pasangan PB Garuda: G1 Andi · Budi, G2 Citra · Dewi,
+G3 Eko · Fajar, G4 Gita · Hadi. Matcha Club: M1 Indra · Joko, M2 Kiki · Lina, M3 Maya · Nanda.
+`M = 4 × 3 = 12`, `C' = 2`, `R = max(6, 4) = 6` (90 menit, sisa booking 30 menit). Garuda 3 match per pasangan, Matcha 4.
+
+| Round | Court 1 | Court 2 | Istirahat |
+|-------|---------|---------|-----------|
+| R1 | G1 vs M1 | G2 vs M2 | G3, G4, M3 |
+| R2 | G3 vs M1 | G4 vs M3 | G1, G2, M2 |
+| R3 | G1 vs M2 | G3 vs M3 | G2, G4, M1 |
+| R4 | G2 vs M1 | G4 vs M2 | G1, G3, M3 |
+| R5 | G1 vs M3 | G4 vs M1 | G2, G3, M2 |
+| R6 | G2 vs M3 | G3 vs M2 | G1, G4, M1 |
+
+Jumlah main setelah tiap round — Garuda (G1–G4): 1·1·0·0 → 1·1·1·1 → 2·1·2·1 → 2·2·2·2 → 3·2·2·3 → 3·3·3·3; Matcha
+(M1–M3): 1·1·0 → 2·1·1 → 2·2·2 → 3·3·2 → 4·3·3 → 4·4·4.
+
+Ukuran lain (estimasi di Konfigurasi = kolom Match, Round, Court aktif):
+
+| Pemain klub 1 / 2 | Pasangan | Court | Court aktif | Match | Round | Match per pasangan |
+|-------------------|----------|-------|-------------|-------|-------|--------------------|
+| 8 / 6 | 4 / 3 | 2 | 2 | 12 | 6 | 3 / 4 |
+| 9 / 6 | 4 (+1 sisa) / 3 | 2 | 2 | 12 | 6 | 3 / 4 |
+| 6 / 6 | 3 / 3 | 2 | 2 | 9 | 5 | 3 / 3 |
+| 8 / 4 | 4 / 2 | 3 | 2 | 8 | 4 | 2 / 4 |
+| 4 / 4 | 2 / 2 | 1 | 1 | 4 | 4 | 2 / 2 |
+| 16 / 14 | 8 / 7 | 4 | 4 | 56 | 14 | 7 / 8 |
+| 28 / 2 | 14 / 1 | 2 | 1 | 14 | 14 | 1 / 14 (pasangan klub 2 main 14 round beruntun — konsekuensi K1 yang diterima host) |
+
+8 / 4 di 3 court: R1 G1–M1, G2–M2 · R2 G3–M1, G4–M2 · R3 G1–M2, G2–M1 · R4 G3–M2, G4–M1; Court 3 kosong.
+
+### 13.4 Mixed sparing
+
+- Tiap match = 2 pemain klub pertama (berpasangan) vs 2 pemain klub kedua (berpasangan).
+- Court aktif per round = `min(court yang muat satu match, ⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`. Waktu habis (tidak ada court yang
+  muat) → dihitung dari semua court, seperti 3.4. Slot per klub = 2 × court aktif.
+- Siapa yang main = `priorityOrder` (3.4) **per klub**, dengan slot klub itu: jumlah main → paling lama istirahat →
+  undian terkunci per round → id. Jeda pemain telat juga per klub: `k = max(2, slot klub ÷ istirahat klub + 1)`.
+- Susunan pasangan: partner dari sesama klub yang terpilih, lawan dari klub lain; penalti tetap (ulang match persis
+  1000, ulang partner 10, ulang lawan 3, terbaik dari 400 percobaan).
+- **Fairness per klub:** selisih jumlah main antar pemain **satu klub** yang hadir sejak awal ≤ 1 setiap saat. Antar klub
+  boleh berbeda, mengikuti slot ÷ pemain klub (K1).
+- Daftar Istirahat di round terakhir ("Istirahat · Prioritas main di R(n+1)" / "Istirahat lagi di R(n+1)") dipisah per
+  klub dan tetap sama persis dengan hasil Buat R(n+1).
+- Estimasi Konfigurasi: Max Round = booking terpendek ÷ durasi; Court Aktif = rumus di atas; Total Match = round × court
+  aktif; Match/Pemain ditulis per klub.
+
+**Contoh 13B** — pemain 13.2 (Garuda 8, Matcha 6), Padel 15 menit, 2 court × 2 jam → ±8 round, court aktif
+`min(2, 4, 3) = 2`, slot 4 Garuda + 4 Matcha per round, 2 match per round.
+- Tiap round: 4 Garuda istirahat, 2 Matcha istirahat. Garuda bergantian penuh tiap 2 round (k = max(2, 4 ÷ 4 + 1) = 2);
+  Matcha: 4 dari 6 main, semua +2 tiap 3 round (k = max(2, 4 ÷ 2 + 1) = 3).
+- Setelah R6 (12 match): tiap Garuda 3 match, tiap Matcha 4 match.
+- Setelah R8 (16 match, booking habis): tiap Garuda 4; Matcha dua pemain 6, empat pemain 5 (selisih 1).
+
+Ukuran lain, 8 round:
+
+| Pemain klub 1 / 2 | Court | Court aktif | Match | Match per pemain klub 1 / 2 |
+|-------------------|-------|-------------|-------|-----------------------------|
+| 8 / 6 | 2 | 2 | 16 | 4 / 5–6 |
+| 7 / 6 | 2 | 2 | 16 | 4–5 / 5–6 |
+| 8 / 3 | 2 | 1 | 8 | 2 / 5–6 (Court 2 tidak dipakai) |
+| 15 / 15 | 4 | 4 | 32 | 4–5 / 4–5 |
+| 2 / 2 | 1 | 1 | 8 | 8 / 8 (tanpa istirahat) |
+
+### 13.5 Skor klub (K2)
+
+- Setiap match selesai = satu hasil untuk klub: menang 1, seri ½ (sama dengan Win %), kalah 0. WO: klub lawan dari
+  pasangan WO menang 1. Match Belum / Tidak dimainkan tidak dihitung.
+- Di samping skor match: **Total Point klub** = jumlah game/poin semua pemain klub itu (termasuk nilai WO, 4.4) dan
+  selisih klub (tanpa WO, seperti `gameDiff`). Adil antar klub karena kedua klub ada di setiap match.
+- Urutan: match menang → Total Point klub → sama semua = seri. Hanya angka yang tampil yang menentukan (sejalan 4.3).
+- Status Sementara/Final sama dengan 4.6. Skor klub tampil di Klasemen (di atas tabel), poster, caption, Beranda, dan
+  halaman Live (penempatan oleh designer; tanpa kalimat penjelas).
+
+**Contoh 13C** — hasil jadwal 13A (Race to 6):
+
+| Round | Court 1 | Court 2 |
+|-------|---------|---------|
+| R1 | G1 6–3 M1 | G2 4–6 M2 |
+| R2 | G3 6–2 M1 | G4 5–6 M3 |
+| R3 | G1 6–4 M2 | G3 6–5 M3 |
+| R4 | G2 6–1 M1 | G4 3–6 M2 |
+| R5 | G1 2–6 M3 | G4 6–4 M1 |
+| R6 | G2 WO (Citra · Dewi absen) → M3 menang | G3 6–0 M2 |
+
+- Skor klub: **PB Garuda 7 – 5 Matcha Club** (Matcha: 4 menang + 1 WO). 12 dari 12 match → Final.
+- Total Point klub: Garuda 56, Matcha 49 (43 game + 6 nilai WO Race to 6). Selisih Garuda +13, Matcha −13.
+- Seri: Americano 20, satu match 10–10 dan sisanya 6 menang Garuda, 5 menang Matcha → "6½ – 5½".
+- Skor match sama, mis. 6–6 dengan Total Point 50–48 → klub pertama di atas; 6–6 dan Total Point sama → Seri.
+
+### 13.6 Klasemen pemain/pasangan (K3)
+
+- Nilai, tie-breaker, WO, dan nomor sama dengan 4.2–4.4, tapi dikelompokkan **per klub**, masing-masing bernomor mulai
+  #1. Alasannya: jumlah match antar klub berbeda (13.3/13.4), jadi Total Point satu tabel gabungan menguntungkan klub
+  kecil; di dalam satu klub jumlah main sama (selisih ≤ 1).
+- Data 13C, Total Point:
+  - PB Garuda: #1 Eko · Fajar 18 (+11) · #2 Andi · Budi 14 (+1) · #3 Gita · Hadi 14 (−2) · #4 Citra · Dewi 10 (+3).
+  - Matcha Club: #1 Maya · Nanda 23 (+4, 3 menang termasuk 1 WO) · #2 Kiki · Lina 16 (−3) · #3 Indra · Joko 10 (−14).
+  - Kalau digabung, Maya · Nanda (23 dari 4 match) di atas Eko · Fajar (18 dari 3 match, menang semua) — contoh bias.
+- Data 13C, Win %: Garuda #1 Eko · Fajar 100% · #2 Andi · Budi 67% · #3 Citra · Dewi 33% (+3) · #4 Gita · Hadi 33% (−2);
+  Matcha #1 Maya · Nanda 75% · #2 Kiki · Lina 50% · #3 Indra · Joko 0%.
+- Klasemen, Detail, Bagikan, caption, dan Live memakai nomor yang sama (seperti `standingEntriesProvider` sekarang).
+
+### 13.7 Interaksi dengan fitur yang ada
+
+| Fitur | Perilaku di sparing |
+|-------|-------------------------------|
+| Kelola pemain (Mixed) | Tambah pemain wajib memilih klub. Keluarkan mati kalau klub itu tinggal 2 pemain aktif. Kembalikan = ke klubnya sendiri. Contoh: Nanda keluar setelah R3 → Matcha 5 aktif, court aktif tetap 2, 4 dari 5 Matcha main per round. |
+| Pemain telat (Mixed) | Aturan 3.4 per klub. Contoh: Oki masuk Matcha setelah R3 → Matcha 7, slot 4, istirahat 3 → k = 2: Oki main R4 dan R5, istirahat R6 kalau masih di bawah yang paling banyak main. Garuda tidak terpengaruh. |
+| Kelola court (Mixed) | Court baru langsung dipakai di round berjalan kalau **tiap klub** punya ≥ 2 pemain istirahat: 2 teratas prioritas tiap klub. Contoh 13B saat R4 berjalan: tambah Court 3 → match baru 2 Garuda + 2 Matcha yang istirahat; R5 court aktif `min(3, 4, 3) = 3`, semua 6 Matcha main. |
+| Batalkan Rn, Lanjutkan turnamen, Akhiri | Tidak berubah; court aktif dihitung ulang dengan rumus 13.4. |
+| Round tambahan (Fixed, 3.3a) | Satuan = paling sedikit match yang memberi tambahan sama ke semua pasangan satu klub: `L = KPK(p1, p2)` match; klub 1 +L÷p1, klub 2 +L÷p2 per pasangan. Jumlah satuan dibulatkan ke atas dan boleh lewat booking (prinsip keputusan 18). Lawan melanjutkan urutan jadwal awal. Contoh 13A setelah R6, sisa 30 menit = 2 round: satuan 12 match = 6 round (R7–R12), "lewat booking 01:00", Garuda +3, Matcha +4. 8 / 4 pemain (4 / 2 pasangan): satuan 4 match, Garuda +1, Matcha +2. 6 / 6: satuan 3 match, +1. (K5) |
+| Atur pasangan (Fixed) | Pasangan baru harus sesama klub; pemain pengganti diketik ke salah satu klub. Jumlah pasangan klub boleh berubah; satuan round tambahan dihitung dari jumlah baru. |
+| Bagikan (K7) | Poster: skor klub paling atas, lalu daftar per klub (Ringkas: 3 teratas tiap klub; Lengkap: semua). Caption dibuka "🏆 PB Garuda 7–5 Matcha Club · Padel" (nama turnamen, kalau ada, di baris berikutnya). Desain oleh designer. |
+| Live score | Penonton melihat skor klub dan klasemen per klub, angka sama dengan HP host. |
+| Beranda | Turnamen sparing tanpa nama: "PB Garuda vs Matcha Club" menggantikan "olahraga · mode · n pemain". |
+| Detail pemain | Sama, ditambah nama klub; "Beda partner" hanya menghitung sesama klub (memang hanya itu yang mungkin). |
+
+### 13.8 Data & versi
+
+- Kunci simpanan baru yang **opsional**: daftar dua klub (id + nama) di config, dan klub tiap pemain. Simpanan tanpa
+  kunci itu = turnamen biasa, jadi simpanan 3.1.0 tetap terbaca apa adanya. `schemaVersion` tetap 2.
+- Kategori: **MINOR → 3.2.0** (fitur baru, data lama kompatibel, turnamen biasa tidak berubah). Jadi MAJOR hanya kalau
+  host memutuskan sesuatu yang mengubah turnamen biasa.
+- Relay live tidak perlu diubah (menyimpan JSON codec apa adanya).
+
+### 13.9 Kriteria penerimaan
+
+- **AC-S1** Pemain: Sparing, Garuda 8 + Matcha 6 → Lanjut aktif. Matcha 1 pemain → mati. 16 + 14 = 30 → aktif; 16 + 15
+  → mati.
+- **AC-S2** Nama klub kosong, atau "PB Garuda" dan "pb garuda" → Lanjut mati. "Andi" di dua klub → mati + pesan yang
+  menyebut Andi.
+- **AC-S3** Fixed Acak: tiap pasangan berisi dua pemain satu klub. Garuda 9 → 4 pasangan + 1 sisa; Matcha 6 → 3
+  pasangan, tanpa sisa; dua sisa beda klub tidak pernah dipasangkan.
+- **AC-S4** Fixed Manual: mengetuk Andi lalu Indra tidak membentuk pasangan.
+- **AC-S5** Fixed 4 / 3 pasangan, 2 court: 12 match, 6 round; tiap pasangan Garuda tepat 3 match, Matcha tepat 4; tiap
+  pasangan Garuda bertemu tiap pasangan Matcha tepat sekali; nol match sesama klub; tidak ada pasangan dua kali dalam
+  satu round; selisih main antar pasangan satu klub ≤ 1 setelah setiap round (target T1, dikunci setelah terbukti).
+- **AC-S6** Fixed 4 / 2 pasangan, 3 court: 8 match, 4 round, Court 3 tidak pernah dapat match. 2 / 2 pasangan, 1 court:
+  4 match, 4 round. 14 / 1 pasangan, 2 court: 14 match, 14 round, Court 2 kosong.
+- **AC-S7** Semua layar: pasangan klub pertama selalu sisi atas match.
+- **AC-S8** Mixed 8 / 6, 2 court: tiap round 2 match, tiap match 2 Garuda vs 2 Matcha, partner sesama klub. Setelah R6
+  tiap Garuda 3 match, tiap Matcha 4. Setelah R8 tiap Garuda 4, Matcha dua pemain 6 dan empat 5.
+- **AC-S9** Mixed, test properti 30 round untuk 8/6, 7/6, 8/3, 15/15, 2/2: selisih main antar pemain satu klub yang
+  hadir sejak awal ≤ 1 setelah setiap round; nol match sesama klub.
+- **AC-S10** Mixed 8 / 3, 2 court: court aktif 1, Court 2 tidak dapat match; estimasi menulis Court Aktif 1.
+- **AC-S11** Mixed: daftar "Prioritas main di R(n+1)" per klub sama persis dengan hasil Buat R(n+1).
+- **AC-S12** Kelola pemain: menambah pemain tanpa klub tidak bisa; Keluarkan mati untuk pemain di klub yang tinggal 2
+  aktif; pemain yang dikembalikan masuk klubnya sendiri.
+- **AC-S13** Kelola court (contoh 13B, R4 berjalan): Court 3 baru langsung berisi 2 Garuda + 2 Matcha teratas prioritas
+  yang istirahat; R5 berisi 3 match dan semua 6 Matcha main.
+- **AC-S14** Skor klub data 13C: 7 – 5, Total Point 56 – 49, selisih +13 / −13, status Final setelah 12 dari 12 match.
+  Sebelum R6 diisi: Sementara, 6 – 4.
+- **AC-S15** WO R6 (Citra · Dewi): Matcha +1 menang, Maya · Nanda +6 Total Point, selisih kedua klub tidak berubah.
+- **AC-S16** Seri Americano 20 (10–10) memberi ½ ke tiap klub: "6½ – 5½".
+- **AC-S17** Klasemen per klub data 13C sama persis dengan 13.6 (Total Point dan Win %); Detail, Bagikan, caption, dan
+  Live memakai nomor yang sama.
+- **AC-S18** Round tambahan 13A setelah R6: satuan 12 match (R7–R12), sheet "lewat booking 01:00", Garuda +3, Matcha +4;
+  nol match sesama klub. 4 / 2 pasangan: satuan 4 match.
+- **AC-S19** Simpanan 3.1.0 (tanpa klub) dimuat sebagai turnamen biasa tanpa skor klub; semua test dan golden turnamen
+  biasa lulus tanpa diubah.
+- **AC-S20** App di-kill saat R3 sparing → dibuka lagi: klub, anggota, jadwal, dan skor klub sama; Live melanjutkan
+  kode yang sama.
+- **AC-S21** Semua kriteria di atas jalan offline (kecuali Live).
+
+### 13.10 Belum sekarang
+
+- Lebih dari 2 klub (liga/segitiga).
+- Pemain tamu tanpa klub, atau partner lintas klub.
+- Format "partai" (mis. best of 5 partai, klub menang begitu unggul 3), urutan partai yang diatur manual.
+- Tempel satu daftar WhatsApp berisi dua klub (judul klub sebagai pemisah) — sekarang dua kotak terpisah.
+- Warna/logo klub, handicap, pairing berbasis skill (11.7).
+- Menyamakan jumlah main antar klub (secara matematis tidak mungkin kalau jumlah pemain beda, lihat K1).
+
+### 13.11 Keputusan host (2026-11-04, "setuju semua")
+
+- **K1.** Jumlah pemain dua klub boleh beda; klub yang lebih sedikit main lebih sering (Fixed 4 vs 3 pasangan: pasangan
+  Garuda 3 match, pasangan Matcha 4), karena setiap match butuh satu pasangan dari tiap klub. Di Fixed tiap pasangan
+  bertemu tiap pasangan klub lain tepat sekali. Ukuran timpang (28 vs 2: satu pasangan main 14 round beruntun) adalah
+  konsekuensi yang diterima, bukan masalah terbuka.
+- **K2.** Klub menang = jumlah match yang dimenangkan (seri ½, WO = menang untuk klub lawan); kalau sama, Total Point
+  klub; masih sama = Seri.
+- **K3.** Klasemen pemain/pasangan dipisah per klub, masing-masing mulai #1, karena satu tabel gabungan dengan Total
+  Point menguntungkan klub kecil.
+- **K4.** Sparing dipilih di layar Pemain (dua blok: nama klub + kotak nama pemain), bukan di Beranda atau Konfigurasi.
+- **K5.** Round tambahan Fixed sparing per satuan `KPK(p1, p2)` match yang menyamakan tambahan main di dalam klub, walau
+  satuannya bisa besar (12 match = 1,5 jam untuk 4 vs 3 pasangan); dibulatkan ke atas, host mengakhiri lewat Akhiri.
+- **K6.** Minimal 2 pemain per klub, total tetap 4–30.
+- **K7.** Poster dan caption dibuka dengan skor klub.
+- **K8.** Aturan pendukung: dua klub saja; pemain tidak bisa pindah klub; klub pertama selalu sisi atas match; nama klub
+  wajib, maks 20 karakter, dua nama klub tidak boleh sama; nama pemain yang ada di dua klub memblokir Lanjut; Mode
+  Fixed/Mixed tetap dipilih di Konfigurasi; nama turnamen terpisah dari nama klub; court yang tidak aktif = court
+  bernomor terakhir.
+
+### 13.12 Tugas tech lead (belum dikunci, bukan keputusan)
+
+- **T1.** "Selisih main antar pasangan satu klub ≤ 1 setelah setiap round" di Fixed sparing (13.3, AC-S5) adalah
+  **target**: buktikan dengan algoritma + test properti untuk semua ukuran 2–14 pasangan per klub dan 1–10 court sebelum
+  aturan ini dikunci. Kalau tidak selalu bisa, laporkan ukuran yang gagal ke PM; jangan melonggarkan sendiri.
+- **T2.** Semua angka contoh 13A (jadwal + jumlah main), 13B (jumlah main setelah R6/R8, Kelola court, pemain telat),
+  dan 13C (skor klub, Total Point, klasemen) masih **hitungan manual** PM. Verifikasi lewat generator dan kalkulator
+  sebelum dipakai sebagai data test atau frame; selisih dilaporkan ke PM, bukan diperbaiki diam-diam di salah satu sisi.
+  Jadwal 13A boleh berbeda urutan dari generator asal semua aturan 13.3 terpenuhi; designer memakai hasil generator.
