@@ -76,6 +76,9 @@ hi-fi baru, bukan teks versi lama.
   dari file yang sama.
 - Kalau `hifi_extract.py` mengubah banyak frame yang isinya tidak tersentuh sementara `rects.json` tetap sama, itu noise
   rasterisasi font sesaat (pernah terjadi 2026-10-22, ~60 golden gagal): jalankan ulang, jangan commit frame itu.
+- Menunggu `hifi_extract.py` selesai: jangan pakai `until ! pgrep -f "tool/hifi_extract.py"`. Polanya cocok dengan
+  shell loop itu sendiri, jadi loop tidak pernah berhenti (2026-11-04: empat loop tertinggal 40+ menit). Jalankan
+  extractor di foreground dengan timeout panjang, atau di background lalu tunggu notifikasi selesainya.
 - Frame yang dulu tidak konsisten dengan aturannya sudah dibetulkan di hi-fi atas keputusan host (2026-10-22), jadi
   golden layar tidak perlu pengecualian: keypad 07a–07g/07i menggambar tombol mati sesuai aturan, Lanjutkan di banner
   46 pt dan Tambah di 08a/08b 48 pt (dulu kalah oleh `min-height: 52px` `.btn`), keyframe 200 ms 01g digambar dari

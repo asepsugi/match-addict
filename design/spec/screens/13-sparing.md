@@ -85,8 +85,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Subjudul: olahraga · klub pertama + jumlah pemainnya · klub kedua + jumlahnya.
 - Estimasi Fixed sparing dihitung dari jadwal, bukan dari jam booking: 4 × 3 pasangan = 12 match, court aktif min(2, 4, 3) = 2, round = ⌈12 ÷ 2⌉ = 6 (contoh 13A). Karena jadwalnya pasti, tombol tanpa "±" (Fixed biasa 03a tetap "±6 round · 12 match" dari booking).
 - Court aktif lebih sedikit dari jumlah court → tombol ditambah "· n court", sama dengan 13j. Contoh 8 / 4 pemain di 3 court: "Lanjut · 4 round · 8 match · 2 court" (Court 3 tidak pernah dapat match, AC-S6).
-- Jadwal lebih panjang dari booking terpendek (mis. 16 / 14 pemain di 4 court × 2 jam: 14 round = 3 j 30 m): belum digambar, lihat Cakupan → Sparing tahap 2.
-- Lanjut → Pasangan; diacak di dalam klub masing-masing (tahap 2, Cakupan).
+- Jadwal lebih panjang dari booking terpendek (mis. 16 / 14 pemain di 4 court × 2 jam: 14 round = 3 j 30 m): 14f.
+- Lanjut → Pasangan per klub (14a–14e).
 
 ## 13i · Atur turnamen · Mixed sparing
 
@@ -126,7 +126,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - R6 diisi: Eko · Fajar 6–0 Kiki · Lina, Gita · Hadi 5–6 Maya · Nanda. Skor klub akhir 7 – 5 (Matcha: 4 menang + 1 WO di R3, Citra · Dewi absen), Total Point 56 – 49 (Matcha 43 game + 6 nilai WO Race to 6), selisih +13 / −13 (AC-S14, AC-S15).
 - Klub kedua yang menang tetap di baris bawah; bola pemenang dan angka tebal pindah ke baris itu, sama dengan baris match biasa. Pasangan WO juga tetap di sisi klubnya (R3: Citra · Dewi di atas dengan "WO · Absen").
-- Action bar sama dengan 06v: Klasemen jadi ikon, "Tambah round" → sheet round tambahan per satuan KPK(4, 3) = 12 match (K5; sheet tahap 2). Sisa booking 00:30 = 2 round, jadi sheetnya akan menulis "lewat booking 01:00" (AC-S18).
+- Action bar sama dengan 06v: Klasemen jadi ikon, "Tambah round" → sheet round tambahan per satuan KPK(4, 3) = 12 match (K5; sheet 14n). Sisa booking 00:30 = 2 round, jadi sheetnya akan menulis "lewat booking 01:00" (AC-S18).
 - Skor klub Final di Klasemen (13o) sampai round tambahan dibuat.
 
 ## 13m · Jadwal Mixed sparing · round berjalan
@@ -150,7 +150,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Skor klub di atas tabel dan tetap di tempat saat tabel digulir (seperti tab metode). Klub menang = match menang (seri ½, WO = menang untuk klub lawan); sama → Total Point klub; masih sama → Seri (K2). Skor klub tidak ikut metode: Total Point / Win % hanya mengurutkan tabel.
 - Tabel per klub, masing-masing bernomor mulai #1 (K3): jumlah main antar klub berbeda (Garuda 2–3, Matcha 3–4), jadi satu tabel gabungan menguntungkan klub kecil. Label klub di atas tabelnya; kolom dan aturan nomor sama dengan 09c.
 - Data 13C setelah R5 (10 dari 12 match): 6 – 4, Total Point 45 – 43, selisih +8 / −8 (AC-S14). Main Garuda 3·3·2·2, Matcha 4·3·3: Eko · Fajar 12 dari 2 match di atas Citra · Dewi 10 dari 3. Maya · Nanda 17 termasuk 6 nilai WO R3. "1 match WO" di bawah tabel terakhir.
-- Isinya lebih panjang dari layar: tabel Matcha berlanjut di bawah action bar (bagian bawahnya di 13o). Ketuk baris → Detail (tahap 2: Detail menambah nama klub).
+- Isinya lebih panjang dari layar: tabel Matcha berlanjut di bawah action bar (bagian bawahnya di 13o). Ketuk baris → Detail (14v, 14w).
 
 ## 13o · Klasemen sparing · Fixed · Final · digulir ke bawah
 
