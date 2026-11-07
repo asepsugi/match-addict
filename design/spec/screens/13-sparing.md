@@ -110,7 +110,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![13k](../../frames/13k.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Contoh 13A: Garuda 4 pasangan, Matcha 3, 2 court; 12 match dalam 6 round (susunan generator), R1–R5 sudah terisi (hasil 13C). Tiap pasangan Garuda 3 match, Matcha 4; tiap pasangan bertemu tiap pasangan klub lain tepat sekali, tidak pernah sesama klub.
 - Skor klub (`.clubscore`) paling atas: PB Garuda 6 – 4 Matcha Club, sama dengan Klasemen 13n. Barisnya berurutan sama dengan baris match: klub pertama di atas, jadi tiap baris atas match = pasangan PB Garuda tanpa label tambahan (S4, AC-S7). Bola = klub yang unggul; seri → bola di kedua baris.
@@ -122,7 +122,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![13l](../../frames/13l.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - R6 diisi: Eko · Fajar 6–0 Kiki · Lina, Gita · Hadi 5–6 Maya · Nanda. Skor klub akhir 7 – 5 (Matcha: 4 menang + 1 WO di R3, Citra · Dewi absen), Total Point 56 – 49 (Matcha 43 game + 6 nilai WO Race to 6), selisih +13 / −13 (AC-S14, AC-S15).
 - Klub kedua yang menang tetap di baris bawah; bola pemenang dan angka tebal pindah ke baris itu, sama dengan baris match biasa. Pasangan WO juga tetap di sisi klubnya (R3: Citra · Dewi di atas dengan "WO · Absen").
@@ -133,7 +133,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![13m](../../frames/13m.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Contoh 13B: Garuda 8, Matcha 6, 2 court. Tiap match = 2 pemain klub pertama (baris atas, berpasangan) vs 2 pemain klub kedua. Slot per round: 4 Garuda + 4 Matcha, jadi 4 Garuda dan 2 Matcha istirahat.
 - Susunan generator (2026-11-04; dulu contoh designer): R1 Eko · Gita 6–4 Nanda · Kiki, Citra · Fajar 3–6 Maya · Joko. R2 Budi · Andi 6–2 Lina · Kiki, Dewi · Hadi 6–5 Nanda · Indra. R3 Fajar · Eko 6–4 Joko · Indra, Citra · Gita vs Lina · Maya belum. Skor contoh designer: skor klub 4 – 1, Total Point 27 – 21. Prioritas R4 (generator): Andi, Budi, Dewi, Hadi · Kiki, Nanda.
@@ -145,7 +145,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![13n](../../frames/13n.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Skor klub di atas tabel dan tetap di tempat saat tabel digulir (seperti tab metode). Klub menang = match menang (seri ½, WO = menang untuk klub lawan); sama → Total Point klub; masih sama → Seri (K2). Skor klub tidak ikut metode: Total Point / Win % hanya mengurutkan tabel.
 - Tabel per klub, masing-masing bernomor mulai #1 (K3): jumlah main antar klub berbeda (Garuda 2–3, Matcha 3–4), jadi satu tabel gabungan menguntungkan klub kecil. Label klub di atas tabelnya; kolom dan aturan nomor sama dengan 09c.
@@ -156,7 +156,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![13o](../../frames/13o.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Final: semua 12 match terisi (atau diakhiri), sama dengan 4.6. PB Garuda 7 – 5 Matcha Club, Total Point 56 – 49, selisih +13 / −13 (AC-S14).
 - Digulir sampai bawah; skor klub dan tab metode tetap di atas, tabel PB Garuda bergeser ke bawah app bar.
@@ -167,7 +167,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![13p](../../frames/13p.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Ganti metode hanya mengubah urutan dan kolom terakhir tabel; skor klub dan Total Point klub di atas tidak berubah.
 - Win % data 13C: PB Garuda #1 Eko · Fajar 100 · #2 Andi · Budi 67 · #3 Citra · Dewi 33 (+3) · #4 Gita · Hadi 33 (−2); Matcha Club #1 Maya · Nanda 75 · #2 Kiki · Lina 50 · #3 Indra · Joko 0 (AC-S17).

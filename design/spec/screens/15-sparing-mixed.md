@@ -8,7 +8,7 @@ Alur Mixed sparing di HP host. Contoh 13B: PB Garuda 8 vs Matcha Club 6, Padel, 
 
 ![15a](../../frames/15a.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - R3 lengkap (Fajar · Eko 6–4 Joko · Indra, Citra · Gita 5–6 Lina · Maya): Buat R4 aktif, sama dengan 06g. Skor klub 4 – 2, Total Point 32 – 27.
 - Istirahat R3 per klub = prioritas R4 per klub (generator): PB Garuda Andi, Budi, Dewi, Hadi; Matcha Club Kiki, Nanda. Semua yang istirahat kebagian slot (4 per klub), jadi tanpa daftar kedua. Nama urut daftar pemain.
@@ -17,7 +17,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15b](../../frames/15b.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Hasil Buat R4 (generator) persis daftar prioritas 15a: Budi · Hadi vs Lina · Nanda, Andi · Dewi vs Indra · Kiki (AC-S11). Partner sesama klub, klub pertama baris atas.
 - Batalkan R4 sama dengan 06h (round terakhir tanpa skor, bukan R1). Prioritas R5: Citra, Eko, Fajar, Gita · Joko, Maya.
@@ -26,7 +26,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15c](../../frames/15c.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`, `ClubScore`
 
 - Latar = 15b. Dialog sama dengan 06j; tidak ada akibat khusus sparing (skor klub tidak berubah karena R4 belum ada skor).
 
@@ -34,7 +34,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![15d](../../frames/15d.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Terpadat: PB Garuda 16 + Matcha Club 14 = 30, 2 court: tiap round 4 main per klub, 12 Garuda dan 10 Matcha istirahat. Susunan R3 dan kedua daftar = generator.
 - Yang istirahat lebih banyak dari slot R4 (4 per klub), jadi tiap klub dibagi dua seperti 06o: "Prioritas main di R4" (Gilang, Jaka, Rizky, Tono · Maya, Oki, Rina, Yoga) lalu "Istirahat lagi di R4" yang lebih pudar, dengan kolom klub yang sama. Klub yang semua kebagian slot: kolomnya di daftar kedua "–".
@@ -44,7 +44,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15e](../../frames/15e.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Konfigurasi 13j: PB Garuda 8 vs Matcha Club 3, 2 court. Court aktif min(2, 4, 1) = 1: tiap round satu match di Court 1; Court 2 tidak tampil di Jadwal (sama dengan 14m) dan sisa bookingnya hanya di Kelola court (AC-S10).
 - Slot per klub 2: Garuda 6 istirahat (2 prioritas R3, 4 istirahat lagi), Matcha 1 istirahat (Joko, prioritas). R1 Gita · Fajar 6–3 Kiki · Joko; R2 dari generator.
@@ -54,7 +54,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15f](../../frames/15f.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Booking 2 jam habis setelah R8 (±8 round seperti estimasi 13i): sama dengan 06l, "Waktu habis" clay, kotak jam 00:00, Buat R9 diganti Tambah jam → 15j. R8 lengkap → Klasemen Final (15s).
 - 8 tab tidak muat: baris tab digeser rapat kanan dengan tepi kiri dipudarkan (06n).
@@ -64,7 +64,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15g](../../frames/15g.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `MabarMenu`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `MabarMenu`, `ClubScore`
 
 - Latar = 15b. Isi menu sama dengan 06i: Live score, Kelola court (15o), Cara kerja Mixed (15k), Akhiri turnamen (15h).
 
@@ -72,7 +72,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15h](../../frames/15h.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`, `ClubScore`
 
 - Latar = 15b. Dialog sama dengan 06e.
 
@@ -80,7 +80,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![15i](../../frames/15i.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Diakhiri saat R4 (15h): R4 "Tidak dimainkan", skor klub akhir 4 – 2. Sama dengan 06m: tombol Pemain hilang, strip tanpa kotak jam, Lanjutkan turnamen → sheet (15j); menu ⋯ tinggal Live score dan Cara kerja Mixed.
 - Setelah dilanjutkan, match R4 kembali bisa diisi dan Prioritas main di R5 tetap per klub.
@@ -89,7 +89,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15j](../../frames/15j.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarStepper`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarStepper`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `CourtColorPicker`, `ClubScore`
 
 - Latar = 15f. Sama dengan 08c. Court aktif dihitung ulang dengan rumus sparing (13.4): 1 court × min(1, ⌊8 ÷ 2⌋, ⌊6 ÷ 2⌋) = 1 match per round → 4 round = 4 match.
 - Kalau Matcha Club membatasi (mis. 8 / 3: ⌊3 ÷ 2⌋ = 1), kalimatnya "maks 1 match per round (Matcha Club 3 pemain)"; klub yang membatasi disebut namanya.
@@ -98,7 +98,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15k](../../frames/15k.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
 
 - Muncul sekali saat R1 sparing dibuat, lalu lewat menu ⋯ (06k). Latar = R1 baru (generator): Eko · Gita vs Nanda · Kiki, Citra · Fajar vs Maya · Joko; prioritas R2 Andi, Budi, Dewi, Hadi · Indra, Lina.
 - Aturan Fairness ketiga ditulis per klub ("… satu klub ≤ 1"), karena antar klub memang beda (K1). Kalimat lain tetap.
@@ -108,7 +108,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15l](../../frames/15l.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
 
 - Latar = 13m (R3 berjalan). Tambah wajib memilih klub (AC-S12): dua chip nama klub di bawah kotak nama, tanpa pilihan awal; Tambah mati sampai nama terisi dan satu klub dipilih. Oki → Matcha Club.
 - Daftar per klub dengan label "klub · n aktif" (· n keluar kalau ada); nama dicek terhadap kedua klub ("Andi sudah ada di PB Garuda"). Kalimat penjelas sama dengan 08a.
@@ -119,7 +119,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 
 ![15m](../../frames/15m.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
 
 - Latar = 15e (8 / 3). Kiki keluar → Matcha Club tinggal Indra dan Joko: Keluarkan mati di klub itu, alasannya di bawah daftarnya ("Butuh minimal 2 pemain per klub", seperti 08b). PB Garuda tetap bisa dikeluarkan (minimal total 4 tetap berlaku).
 - Kembalikan = ke klubnya sendiri (Kiki ke Matcha Club, AC-S12). Pemain tidak bisa pindah klub (K8).
@@ -129,7 +129,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 
 ![15n](../../frames/15n.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Oki ditambah ke Matcha Club setelah R3 (15l), lalu Buat R4 (generator): Oki langsung main (Oki · Nanda), karena paling sedikit main di klubnya. Matcha 7 aktif: slot 4, istirahat 3.
 - Generator: Oki main R4 dan R5 (Maya · Oki), istirahat di R6 (jeda k = 2), sesuai 13.7. PB Garuda sama dengan 15b.
@@ -139,7 +139,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15o](../../frames/15o.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarStepper`, `MabarField`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarStepper`, `MabarField`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `CourtColorPicker`, `ClubScore`
 
 - Latar = 15b (R4 berjalan, 19.47). Court baru langsung dipakai kalau tiap klub punya ≥ 2 yang istirahat: 2 teratas prioritas tiap klub (generator: Fajar, Gita · Joko, Maya). "Langsung main di R4" memakai kolom klub yang sama dengan Istirahat (AC-S13).
 - Satu klub kurang dari 2 yang istirahat → "Tambah court · mulai R5" (seperti 08f), court dipakai di round berikutnya.
@@ -148,7 +148,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15p](../../frames/15p.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Setelah Tambah court (15o): Court 3 berisi Gita · Fajar vs Maya · Joko (generator), hitung mundur 02:00 dari saat ditambah. Semua 6 pemain Matcha main di R4, jadi kolomnya "–".
 - R5 court aktif min(3, 4, 3) = 3: 3 match, semua 6 Matcha main; Garuda Citra dan Eko diprioritaskan (AC-S13).
@@ -175,7 +175,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![15s](../../frames/15s.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Setelah 15f (waktu habis, R8 lengkap) → Final (4.6). Tabel pemain per klub, masing-masing mulai #1 (K3), kolom sama dengan 09a. Jumlah main sama di dalam klub (Garuda 4; Matcha 5–6), beda antar klub (K1).
 - Fajar 21 (+7) di atas Budi 21 (+2); Joko 26 (+5) di atas Nanda 26 (−4): selisih memisahkan, sama dengan 09a.
@@ -185,7 +185,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![15t](../../frames/15t.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Data 15r setelah WO disimpan. Skor klub 4 – 2 (Matcha: 1 menang + 1 WO). Total Point klub Matcha 58 = 46 poin main + 12 nilai WO klub (K11).
 - Di tabel pemain tiap pemenang WO dapat nilainya sendiri: Maya 12 + 12 = 24, Lina 7 + 11 = 18 (4.4). Jumlah baris pemain tidak sama dengan Total Point klub, karena satu match = satu nilai untuk klub.

@@ -75,7 +75,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14h](../../frames/14h.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - R3 sedang berjalan (Andi · Budi 6–4 Kiki · Lina sudah, Citra · Dewi vs Maya · Nanda belum); host membuka tab R4. Sama dengan 06b: gembok + baris pudar, tidak bisa diketuk, tanpa hitung mundur.
 - Skor klub selalu menghitung semua match yang sudah terisi, bukan round yang dibuka: 4 – 1 (R1–R2 + satu match R3), Total Point 28 – 22.
@@ -85,7 +85,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14i](../../frames/14i.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Keadaan 13k (R6 berjalan), host membuka tab R3. Round lewat: strip tanpa hitung mundur (06t).
 - WO: Citra · Dewi absen → tetap di baris atas karena klubnya PB Garuda (S4); tag "WO · Absen" di baris mereka, bola pemenang di baris bawah (Maya · Nanda). Matcha Club +1 menang dan Maya · Nanda +6 game, selisih tidak berubah (AC-S15).
@@ -95,7 +95,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14j](../../frames/14j.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `MabarMenu`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `MabarMenu`, `ClubScore`
 
 - Latar = 13k. Isi menu sama dengan Fixed biasa (06d): Live score, lalu Akhiri turnamen. Tidak ada item khusus sparing.
 
@@ -103,7 +103,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14k](../../frames/14k.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`, `ClubScore`
 
 - Latar = 13k. Dialog sama dengan 06e: skor klub saat itu (6 – 4) jadi skor akhir, tanpa kalimat tambahan.
 
@@ -111,7 +111,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![14l](../../frames/14l.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Diakhiri saat R6 (14k): dua match R6 "Tidak dimainkan", tanpa titik live dan hitung mundur, Lihat klasemen jadi tombol utama (06c). Fixed yang diakhiri tidak bisa dilanjutkan.
 - Skor klub final 6 – 4, Total Point 45 – 43: Klasemen menulis "Final · 5 round · 10 match" dengan angka 13n. Bola tetap di klub yang unggul.
@@ -121,7 +121,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14m](../../frames/14m.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
 - Konfigurasi 14g: 8 / 4 pemain, 3 court. Court aktif 2, jadi tiap round dua match di Court 1 dan 2; Court 3 tidak tampil di Jadwal sama sekali (tanpa baris kosong), di round mana pun (AC-S6). Jadwal generator: R1 G1–M1, G2–M2 · R2 G3–M1, G4–M2 · R3 G1–M2, G2–M1 · R4 G3–M2, G4–M1.
 - Matcha Club hanya 2 pasangan dan keduanya main tiap round: kolom istirahatnya "–" (Garuda 2 match per pasangan, Matcha 4, K1).
@@ -131,7 +131,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14n](../../frames/14n.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarStepper`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarStepper`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `CourtColorPicker`, `ClubScore`
 
 - Latar = 13l. Satuan round tambahan = KPK(4, 3) = 12 match, supaya tiap pasangan satu klub dapat tambahan sama (K5): PB Garuda +3 tiap pasangan, Matcha Club +4. Sisa 00:30 = 2 round muat; satu satuan = 6 round (R7–R12), dibulatkan ke atas → "lewat booking 01:00" = (6 − 2) × 15 mnt (AC-S18).
 - Ringkasan = pola 06w diulang per klub, klub pertama di atas: angka besar + "match lagi tiap pasangan PB Garuda" / "… Matcha Club" di satu baseline, karena tambahan per pasangan beda antar klub (K1). Baris rincian round · court · lewat booking ditulis sekali, sejajar label, di bawah klub terakhir. Klub dengan jumlah pasangan sama → satu baris tanpa nama klub, persis 06w.
@@ -155,7 +155,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![14p](../../frames/14p.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Setelah Atur pasangan (14o) dan "Buat R7–R12", sebelum R7 diisi: PB Garuda Citra · Gilang menggantikan Citra · Dewi, Matcha Club Maya · Oki menggantikan Maya · Nanda. Status kembali Sementara, 12 dari 24 match.
 - Klasemen campuran per klub, aturan 09g: pasangan yang selalu main bersama satu baris (dua nama), yang pasangannya berubah atau pulang tampil per pemain dengan angkanya sendiri. Citra dan Dewi sama 10 (+3) → nomor sama #4; Maya dan Nanda 23 (+4) → #1 berdua, dua-duanya berbola.
@@ -167,7 +167,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14s](../../frames/14s.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Jadwal generator yang sama dengan skor lain (contoh designer, Race to 6): R1 6–4, 3–6 · R2 6–2, 4–6 · R3 5–6, 6–3 · R4 6–5, 2–6 · R5 4–6, 6–4 · R6 5–6, 3–6 (skor klub pertama dulu). Matcha Club 7 – 5, Total Point 56 – 60.
 - Klub kedua yang unggul tetap di baris bawah (urutan sisi tidak pernah berubah, S4); bola pindah ke barisnya. Tabel tetap PB Garuda dulu.
@@ -177,7 +177,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14t](../../frames/14t.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Match menang 6 – 6 dan Total Point 58 – 58 → Seri (K2). Bola di kedua baris, sama dengan dua peringkat 1 yang bernomor sama di tabel. Kata "Seri" tidak ditulis di papan; subjudul tetap status turnamen.
 - Match menang sama tapi Total Point beda (mis. 6 – 6, 50 – 48) → klub dengan Total Point lebih besar yang berbola, angkanya tetap 6 – 6.
@@ -188,7 +188,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![14u](../../frames/14u.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Americano 20 (total genap, bisa seri): Gita · Hadi 10–10 Indra · Joko di R2 memberi ½ ke tiap klub → 6½ – 5½ (AC-S16). Kolom W–L–D karena formatnya bisa seri; satuan poin.
 - Setengah ditulis dengan "½" di angka yang sama (bukan 6,5), lebar kolom angka tetap.

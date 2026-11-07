@@ -613,6 +613,25 @@ Dipakai di frame: 01i
 .install-step .chipi { display: inline-flex; vertical-align: -5px; width: 26px; height: 26px; border-radius: 7px; background: var(--paper); place-items: center; color: var(--court); margin: 0 2px; }
 ```
 
+## `ClubScore`
+
+Skor klub Sparing: dua baris (bola · nama · Total Point · selisih · match menang), klub pertama di atas.
+
+Kelas hi-fi: `.clubscore`  
+Dipakai di frame: 13k, 13l, 13m, 13n, 13o, 13p, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14p, 14s, 14t, 14u, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15s, 15t
+
+```css
+.clubscore { background: var(--ink); color: #fff; border-radius: 12px; padding: 2px 16px; flex: none; }
+.clubscore .cs { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto 44px; column-gap: 10px; align-items: center; height: 40px; }
+.clubscore .cs + .cs { border-top: 1px solid rgba(255,255,255,.1); }
+.clubscore .w { width: 10px; height: 10px; border-radius: 50%; }
+.clubscore .cs.lead .w { background: var(--ball); }
+.clubscore .nm { font-size: 17px; font-weight: 700; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.clubscore .tp { font-size: 13px; color: rgba(255,255,255,.66); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.clubscore .sc { font-size: 30px; line-height: 1; text-align: right; }
+.clubscore-wrap { padding: 0 16px 12px; flex: none; }
+```
+
 ## `LiveTag`
 
 Tag "Live" / "Offline" pengganti ⋯ di Jadwal penonton.
