@@ -50,6 +50,20 @@ class ClubResult {
     return ClubLead.draw;
   }
 
+  /// Bola di papan skor klub (`.clubscore .cs.lead .w`): klub yang unggul, seri → keduanya. Belum ada hasil (0 – 0, frame
+  /// 14m) → tidak ada bola. Satu sumber untuk Jadwal, Klasemen, Beranda, dan Live supaya tidak dipetakan di tiap layar.
+  bool leads(ClubTally t) {
+    assert(identical(t, first) || identical(t, second), 'ClubTally bukan milik ClubResult ini');
+    // Tiap match selesai/WO menambah 2 setengah-poin ke salah satu atau kedua klub, jadi jumlah 0 = belum ada hasil.
+    if (first.halfWins + second.halfWins == 0) return false;
+    final l = lead;
+    if (l == ClubLead.draw) return true;
+    return identical(t, first) ? l == ClubLead.first : l == ClubLead.second;
+  }
+
+  /// Teks kecil di samping nama klub (`.clubscore .tp`): "56 game · +13".
+  String detailLabel(ClubTally t) => '${t.totalPoint} $unit · ${t.diffLabel}';
+
   /// Null untuk turnamen biasa.
   static ClubResult? of(ActiveTournament active) {
     final config = active.config;

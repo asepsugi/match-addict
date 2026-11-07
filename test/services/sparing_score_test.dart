@@ -22,6 +22,31 @@ List<String> _table(ActiveTournament a, Club club, RankingMethod method) {
 }
 
 void main() {
+  group('Adaptor papan skor klub (ClubScore widget)', () {
+    test('13C akhir: bola di Garuda, detail "56 game · +13" / "49 game · −13"', () {
+      final s = ClubResult.of(fixedSparing(c13))!;
+      expect((s.leads(s.first), s.leads(s.second)), (true, false));
+      expect((s.detailLabel(s.first), s.detailLabel(s.second)), ('56 game · +13', '49 game · −13'));
+    });
+
+    test('14s: klub kedua unggul → bola di baris bawah', () {
+      final s = ClubResult.of(fixedSparing(s14s))!;
+      expect((s.leads(s.first), s.leads(s.second)), (false, true));
+    });
+
+    test('14t: Seri → bola di kedua baris', () {
+      final s = ClubResult.of(fixedSparing(s14t))!;
+      expect((s.leads(s.first), s.leads(s.second)), (true, true));
+    });
+
+    test('14m: belum ada hasil (0 – 0) → tanpa bola', () {
+      final s = ClubResult.of(fixedSparing(const <(int, int)?>[]))!;
+      expect((s.first.winsLabel, s.second.winsLabel), ('0', '0'));
+      expect((s.leads(s.first), s.leads(s.second)), (false, false));
+      expect(s.detailLabel(s.first), '0 game · 0');
+    });
+  });
+
   group('Skor klub 13C (AC-S14)', () {
     test('akhir: 7 – 5, 56 – 49, +13 / −13, Garuda unggul', () {
       final s = ClubResult.of(fixedSparing(c13))!;
