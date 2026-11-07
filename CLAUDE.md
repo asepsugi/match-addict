@@ -10,9 +10,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 
 **Sumber kebenaran, baca sebelum mengubah UI/logika:**
 - `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22); §13
-  Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13q, 14a–14y, 15a–15y.
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 168 frame layar 390×844 +
-  8 lembar gambar (per 2026-11-07) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±320 KB tanpa
+  Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y.
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 170 frame layar 390×844 +
+  12 lembar gambar (per 2026-11-08) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±320 KB tanpa
   base64 besar, aman dibaca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar lebih ringkas
   baca `design/spec/screens/<alur>.md` + PNG frame-nya.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu

@@ -185,3 +185,68 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Tanpa nama turnamen: baris kecil "olahraga · mode · tanggal" seperti 11c; dengan nama: nama di baris kecil, tanggal pindah ke kaki (11a). Ringkasan kaki menulis WO seperti 11d.
 - Caption (Ringkas; Lengkap menambah "Hasil per Round"): `🏆 PB Garuda 7–5 Matcha Club · Padel` `4 November 2026` `Klasemen Akhir · PB Garuda` `1. Eko + Fajar — 18 game · 100.0% (3-0, +11 game)` `2. Andi + Budi — 14 game · 66.7% (2-1, +1 game)` `3. Gita + Hadi — 14 game · 33.3% (1-2, -2 game)` `4. Citra + Dewi — 10 game · 33.3% (1-2, +3 game)` `Klasemen Akhir · Matcha Club` `1. Maya + Nanda — 23 game · 75.0% (3-1, +4 game)` `2. Kiki + Lina — 16 game · 50.0% (2-2, -3 game)` `3. Indra + Joko — 10 game · 0.0% (0-4, -14 game)` `6 round · 12 match · 1 WO · 4 Nov 2026`
 - Caption: baris pertama skor klub menggantikan "🏆 {nama} · Padel"; turnamen bernama → nama di baris kedua sebelum tanggal ("Mabar Jumat"). Seri: "🏆 PB Garuda 6½–5½ Matcha Club" atau "… 6–6 … · Seri" kalau Total Point juga sama.
+
+## 13r · Gambar Ringkas · Fixed sparing · Feed dan Story (skala 1:3)
+
+![13r](../../frames/13r.png)
+
+Komponen: `SharePoster`
+
+- Isi sama dengan 13q (data 13C Final, tema biru, tanpa nama): skor klub, lalu 3 teratas tiap klub. "+1 pasangan lainnya" ada di ujung label PB Garuda, jadi kaki hanya menulis ringkasan (di 11d "+n lainnya" ada di kaki).
+- Skor klub (`.pscore`) di Feed sama dengan pratinjau: baris 26, nama klub 16/800, Total Point · selisih 11/600, skor 24, kolom skor 30, jarak 8. Story ×0,75: baris 20, nama 12, Total Point 8,5, skor 18, kolom 22, jarak 6. Skor klub termasuk bagian kepala seperti judul, jadi tidak pernah ikut dikecilkan.
+- Label klub (`.pclub`) di Feed sama dengan pratinjau: tinggi 18 (padding bawah 2), nama klub 10,5/700 kapital, "+n" 11,5/500. Story: tinggi 14, nama 8, "+n" 8,5 (sama dengan kaki Story). Nama klub panjang terpotong elipsis, "+n" tidak pernah terpotong.
+- Baris memakai ukuran Lengkap satu kolom target itu, sama seperti 13q memakai ukuran 11b: Feed 12/14/14 (11g) dengan satuan ("18 game · +11"); Story nama pasangan ditumpuk 9,5/11/11 (11g), tanpa satuan. Ringkas tidak pernah dikecilkan (maks 3 per klub).
+- Wordmark, baris kecil, judul, dan kaki per target sama dengan 11d (Ringkas: bola Feed jarak 8, bola Story 15 jarak 6). Jarak sesudah skor klub 2, kaki 8, di semua target.
+
+## 13s · Bagikan sparing · Lengkap · Fixed 4 + 3 pasangan
+
+![13s](../../frames/13s.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
+
+- Keadaan sama dengan 13q; hanya format yang diganti ke Lengkap. Lengkap = semua pasangan tiap klub, label klub tanpa "+n". Keterangan: "Semua 7 pasangan" (jumlah kedua klub).
+- Kepadatan sparing (hanya Lengkap): label klub dihitung satu baris dan ikut dikecilkan (huruf dan tingginya); skor klub tidak dihitung, tapi karena memakan tempat ambangnya lebih kecil dari poster biasa. Ambang = frame sparing terpadat tanpa dikecilkan: satu kolom 8 baris (13q: 6 pasangan + 2 label), dua kolom per klub 10 per kolom (13u), Story 16 baris nama (13t, 13v). Lebih dari itu semua huruf baris dan label × ambang ÷ baris.
+- Di sini 7 pasangan + 2 label = 9 > 8 → ×8/9: nama 12,5 → 11,1, nomor dan nilai 14 → 12,4, satuan 11 → 9,8, kolom nomor 32 → 28,4, label 10,5 → 9,3 dengan tinggi 16. Wordmark, judul, skor klub, dan kaki tetap.
+- Pasangan selalu satu kolom, klub pertama di atas (sama dengan 11b dan 13q).
+
+## 13t · Gambar Lengkap · Fixed sparing 4 + 3 pasangan · Feed dan Story (skala 1:3)
+
+![13t](../../frames/13t.png)
+
+Komponen: `SharePoster`
+
+- Feed: satu kolom, 7 pasangan + 2 label = 9 baris → ×8/9 seperti pratinjau 13s (12 → 10,7; 14 → 12,4).
+- Story: nama pasangan ditumpuk dua baris (11g): 7 × 2 + 2 label = 16 baris nama = ambang Story sparing, jadi ukuran penuh 9,5/11/11. Ambang Story sparing 16, bukan 20 seperti 11g, karena skor klub memakan ±4 baris nama.
+- File dan cara berbagi sama dengan 11d.
+
+## 13u · Bagikan sparing · Lengkap · Mixed 8 + 6 pemain · tema peach
+
+![13u](../../frames/13u.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
+
+- Mixed sparing di pratinjau dan Feed selalu dua kolom per klub: kiri klub pertama, kanan klub kedua, masing-masing diawali label klubnya (seperti kolom Istirahat 13k). Aturan dua kolom Mixed biasa (lebih dari 10 baris, dibagi ⌈n/2⌉) tidak dipakai: satu kolom tidak pernah berisi dua klub. Juga untuk klub kecil, supaya hanya ada satu aturan; satu kolom bertumpuk 14 + 2 label akan memaksa huruf ×8/16.
+- Kedua kolom memakai tinggi baris yang sama (k = jumlah pemain klub terbesar, di sini 8): baris kiri dan kanan sejajar, dua slot terbawah kolom Matcha Club kosong (seperti 11i).
+- Dua kolom: nama + nilai + selisih tanpa satuan ("24 · +9", seperti 11e), ukuran 11e 12/13/13,5. Kepadatan per kolom = baris klub terbesar + 1 label: 8 + 1 = 9 ≤ 10 → ukuran penuh.
+- Data 15s: PB Garuda 10 – 6 Matcha Club, Total Point 83 – 69, selisih +14 / −14; Fajar 21 (+7) di atas Budi 21 (+2), Joko 26 (+5) di atas Nanda 26 (−4). Keterangan: "Semua 14 pemain".
+- Tema lembut: skor klub, label, garis, dan piala memakai tinta tema (#6B3A22), sama dengan 11b.
+
+## 13v · Gambar Lengkap · Mixed sparing 8 + 6 pemain · Feed dan Story (skala 1:3)
+
+![13v](../../frames/13v.png)
+
+Komponen: `SharePoster`
+
+- Feed: dua kolom per klub seperti pratinjau 13u, ukuran 11f (11,5/12,5/13), tanpa satuan.
+- Story selalu satu kolom (11f): klub pertama lalu klub kedua, masing-masing diawali label. 14 + 2 label = 16 baris nama = ambang Story sparing → ukuran penuh 9,5/9,5/10.
+
+## 13w · Gambar Lengkap · Mixed sparing 16 + 14 pemain · Feed, Story (skala 1:3) dan pratinjau
+
+![13w](../../frames/13w.png)
+
+Komponen: `SharePoster`
+
+- Terpadat: PB Garuda 16 + Matcha Club 14 = 30 pemain, lanjutan 15d sampai R8 (2 court, waktu habis), 8 round · 16 match, tiap Garuda main 2, Matcha 2–3. Susunan = generator (`SparingMixed.generateRound`, `Random(1)`, seed 0x5eed, id g01–g16 / m01–m14 urut daftar 04e). Skor contoh designer, R1–R3 cocok dengan 15d (28 – 20, 4 – 1): R1 6–3, 4–6 · R2 6–4, 6–2 · R3 6–5, 3–6 · R4 6–2, 5–6 · R5 6–4, 6–1 · R6 2–6, 6–3 · R7 6–4, 4–6 · R8 6–3, 5–6. Klasemen dari `RankingCalculator` + `standingEntries`: PB Garuda 10 – 6, Total Point 83 – 67, selisih +16 / −16.
+- Feed dan pratinjau: dua kolom per klub, 16 + 1 label = 17 baris per kolom > 10 → ×10/17: pratinjau 12 → 7,1, Feed 11,5 → 6,8 (±7,3 pt saat Feed tampil selebar layar HP), label 10,5 → 6,2. Kolom Matcha Club menyisakan dua slot kosong.
+- Story: 30 + 2 label = 32 baris nama > 16 → ×16/32: 9,5 → 4,75 di kanvas 203 pt (±9 pt saat Story dibuka layar penuh di HP), label 8 → 4.
+- Poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan: Rizky, Sari #2 · Citra, Gita #3 · Tari, Zaki #13.
