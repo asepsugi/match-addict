@@ -4,8 +4,8 @@ Ditulis tangan (bukan hasil `tool/hifi_extract.py`). Setiap butir mengubah `lib/
 **wajib test** sesuai aturan `CLAUDE.md`. Angka di "data test" sama dengan angka di frame hi-fi, jadi test dan golden
 saling menguatkan.
 
-**Status: semua butir sudah diimplementasi di model/service dan ter-test** (langkah 2). Layar tinggal memakainya;
-jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
+**Status: §1–§12 sudah diimplementasi di model/service dan ter-test** (langkah 2); §13 Sparing belum (3.2.0).
+Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor
 
@@ -168,7 +168,7 @@ lama dan yang sudah menyusul tidak kena jeda) dan `test/services/mixed_roster_te
 - Waktu habis (tidak ada court yang muat round n+1): K dihitung dari **semua** court, seperti frame 06l — daftar tetap
   menunjukkan siapa yang main duluan kalau host menambah jam. Implementasi `ActiveTournament.restingAfterLastRound`.
 - Round lewat: `restingPlayerIdsByRound[k]` apa adanya, tanpa tag prioritas.
-- Fixed: hanya pasangan bye (`byePairIdByRound`), maksimal satu.
+- Fixed: hanya pasangan bye (`byePairIdByRound`), maksimal satu. Fixed sparing: beberapa pasangan per round (§13.1).
 
 ## 7. Estimasi Lanjutkan turnamen (sheet 08c)
 
@@ -319,3 +319,240 @@ Keputusan host 2026-11-03 (frame 06v–06z, 04f–04h, 09g, 10d; PRD 3.3a), dari
   +1 jam → R17–R20 di Court 1; 5 pasangan sisa 1 round → R6–R8 = 2 + 2 + 1 match; round-robin kedua untuk 2–15
   pasangan), `fixed_add_rounds_test.dart` (controller, Budi pulang/Rizky masuk, simpanan). Fixture frame:
   `test/hifi/screens/fixed_extra_fixture.dart`.
+
+## 13. Sparing · dua klub (3.2.0)
+
+Keputusan host 19 + K1–K12 (PRD §13, 2026-11-04); frame 13a–13q (inti), 14a–14y (alur Fixed). Alur Mixed masih
+digambar; aturan Mixed di bawah sudah dikunci PRD, jadi logikanya boleh dikerjakan sekarang. **Status: belum
+diimplementasi** — task SP-0…SP-19 di `docs/tasks.md`. Prototipe + test properti yang membuktikan aturan di bagian
+ini: `tool/sparing_proto/` (paket sendiri, dikecualikan analyzer; `cd tool/sparing_proto && flutter test`), dihapus
+oleh SP-2/SP-3 yang selesai terakhir, setelah isinya pindah ke `lib/` + `test/`. Turnamen biasa tidak berubah sedikit
+pun (AC-S19): setiap cabang sparing dimulai dari `config.isSparing`.
+
+Istilah: klub pertama `k1` (blok atas layar Pemain), klub kedua `k2`; `p1`/`p2` pasangan, `n1`/`n2` pemain aktif,
+`C` court, `C'` court aktif.
+
+### 13.1 Model
+
+- `Club {id, name}`; `TournamentConfig.clubs: List<Club>?` — null = turnamen biasa, selain itu tepat dua, urutan =
+  klub pertama, klub kedua (`isSparing`). `Player.clubId: String?` — wajib untuk semua pemain turnamen sparing,
+  termasuk pemain pengganti (Atur pasangan) dan pemain baru (Kelola pemain); pemain tidak pernah pindah klub (S1, K8).
+- Pasangan tidak menyimpan klub; klubnya = klub kedua anggotanya (selalu sama, S2). Pasangan klub = `config.fixedPairs`
+  yang anggotanya klub itu, **urutan daftar = indeks generator** (`G1…`, `M1…`). Atur pasangan mempertahankan slot
+  (PairDraft mengisi slot kosong), jadi indeks pasangan lain tidak bergeser.
+- Setiap match: `pair1` = pasangan klub pertama, `pair2` = klub kedua (S4). Dijamin generator; layar tidak pernah
+  menukar sisi kecuali Detail (K9: tim pemain itu di atas).
+- Istirahat Fixed sparing bisa beberapa pasangan per round: `ActiveTournament.restingPairIdsByRound` (baru, lihat
+  13.10). `byePairIdByRound` tetap untuk Fixed biasa dan kosong di sparing.
+
+### 13.2 Fixed · jadwal awal (algoritma diagonal)
+
+`g = FPB(p1, p2)`, `L = KPK(p1, p2)`, `C' = min(C, p1, p2)` (court yang tidak aktif = court bernomor terakhir).
+
+1. Slot match diberi nomor berurutan dalam **blok K = 0, 1, 2, …**. Slot `s = 0..L−1` di blok K =
+   pasangan klub pertama ke-`(s mod p1)` lawan pasangan klub kedua ke-`((s + K) mod p2)`.
+2. Jadwal awal = blok `0..g−1` (`M = g·L = p1·p2` slot). Blok K memuat tepat kombinasi `(i, j)` dengan
+   `j − i ≡ K (mod g)` (CRT), jadi g blok berturut-turut = setiap kombinasi tepat sekali.
+3. Slot dipotong berurutan jadi round berisi `C'` match di Court 1..C'. Round terakhir boleh kurang. `R = ⌈M ÷ C'⌉`.
+4. `restingPairIdsByRound[r]` = semua pasangan (klub pertama dulu, urut daftar) yang tidak main di round r.
+
+Kenapa benar: urutan klub pertama murni berputar; urutan klub kedua berputar di dalam blok dan semua pasangannya sama
+rata di akhir blok → selisih main satu klub ≤ 1 setelah **setiap slot**, apalagi setiap round. Satu round berisi `C' ≤
+min(p1, p2)` slot berurutan → tidak ada pasangan dua kali. Di batas blok indeks klub kedua hanya naik 1, jadi pasangan
+kembar hanya mungkin di round berukuran tepat `p2` yang melintasi batas blok; round seperti itu selalu mulai di
+kelipatan `p2`, dan `p2` membagi `L`.
+
+**Jebakan (sudah makan korban di prototipe):** geser blok **tanpa** `mod g`. Varian `(s + K mod g)` lolos di jadwal
+awal tapi gagal di round tambahan berantai: 4 / 6 pasangan, 3 court, tambah round ketiga dengan sisa [3, 6, 13] →
+R31 satu pasangan klub kedua main dua kali. Test properti 13.12 menangkapnya; jangan dihapus.
+
+Ini menggantikan invariant circle method (3.3) untuk sparing saja: round boleh berisi slot dari blok berbeda karena
+larangan main dua kali per round dijaga langsung. `RoundRobinGenerator` tidak disentuh.
+
+### 13.3 Fixed · round tambahan (K5)
+
+- Satu **satuan** = satu blok = `L` match; pasangan klub pertama +`L ÷ p1`, klub kedua +`L ÷ p2`.
+- Satuan ke-u (u = `extraPutaran` + i, i = 0, 1, …) = blok `K = g + u`. Jadi kombinasinya sama dengan blok `u mod g`
+  jadwal awal (satuan pertama = lawan blok 0), dan g satuan berturut-turut = semua kombinasi sekali lagi (tidak ada
+  pertemuan ketiga sebelum semua bertemu dua kali). `extraPutaran` disimpan = jumlah satuan yang sudah dibuat
+  (pemakaian ulang kunci 3.1.0, 13.10).
+- `roundsLeft[c]` dan `fit = max(roundsLeft)` sama dengan §12. Round ke-r tambahan memakai
+  `min(|court dengan roundsLeft ≥ r| (kosong → court dengan roundsLeft = fit), p1, p2)` court, court bernomor kecil
+  dulu. Jumlah satuan = `⌊kapasitas round 1..fit−1 ÷ L⌋ + 1` = paling sedikit satuan yang membuat jumlah round ≥ fit
+  (aturan §12 yang sama, dibulatkan ke atas, boleh lewat booking). fit = 0 → tidak ada yang dibuat.
+- Slot semua satuan dalam satu kali "Buat R…" dipotong **menerus** (tidak mulai round baru per satuan). Aman karena
+  jumlah court per round tidak pernah naik di dalam satu kali tambah; kalau suatu saat Fixed bisa menambah court di
+  tengah, tiap blok harus mulai di round baru atau test properti diulang.
+- Atur pasangan yang mengubah `p1`/`p2`: satuan berikutnya dihitung dari jumlah baru (g, L baru), `extraPutaran`
+  tetap dihitung naik. Semua invariant tetap berlaku di dalam tambahan itu (bukti di atas tidak bergantung pada K awal).
+- "lewat booking" = (round tambahan − fit) × durasi, format jam:menit (§12).
+
+### 13.4 Fixed · estimasi Konfigurasi (K10)
+
+Dari jumlah pemain (pasangan = ⌊n ÷ 2⌋ per klub; sisa ganjil ditahan di Pasangan, K12): `R = ⌈p1·p2 ÷ C'⌉`, `M =
+p1·p2`, lewat = `R × durasi − booking terpendek di antara Court 1..C'`.
+- lewat > 0 → "Lanjut · R round · lewat booking hh:mm" (tanpa match dan court).
+- selain itu → "Lanjut · R round · M match", ditambah " · C' court" kalau `C' < C`. Tanpa "±".
+- Catatan "Lebih lama dari booking …" (booking < durasi) tidak berubah dari Fixed biasa.
+
+Data test (Padel 15 mnt, court 2 jam): 8/6 di 2 court → "Lanjut · 6 round · 12 match" (13h); 16/14 di 4 court →
+"Lanjut · 14 round · lewat booking 01:30" (14f); 8/4 di 3 court → "Lanjut · 4 round · 8 match · 2 court" (14g);
+28/2 di 2 court → "Lanjut · 14 round · lewat booking 01:30"; 9/6 di 2 court = 8/6.
+
+### 13.5 Fixed · pasangan
+
+- Acak: `PairGenerator.random` per klub (klub pertama dulu), satu "Acak ulang" untuk keduanya (14a).
+- Manual: dua ketukan membentuk pasangan hanya kalau sesama klub; ketukan ke klub lain memindah pilihan ke pemain itu
+  (14b, AC-S4). Urungkan melepas pasangan terakhir dari klub mana pun.
+- Ganjil di satu klub → satu sisa di klub itu; Buat jadwal mati "· n pemain tanpa pasangan" (n = jumlah sisa kedua
+  klub, 14c, K12, AC-S3). Dua sisa beda klub tidak pernah dipasangkan.
+- Atur pasangan (14o): satu bagian per klub; pasangan hanya dari chip klub itu; pemain baru masuk klub bagian tempat
+  ia diketik, unik (tidak peka huruf besar) terhadap **kedua** klub, total ≤ 30; Simpan mati "· minimal 1 pasangan
+  tiap klub" kalau satu klub tanpa pasangan.
+
+### 13.6 Mixed · per klub
+
+- Court aktif round baru `C' = min(|courtsAvailableAt(now)| (kosong → semua court), ⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`; slot klub =
+  `2·C'`. **Satu fungsi** di `EndlessRoundGenerator` (mis. `activeCourts`) menggantikan `slotsFor` di semua pemakainya
+  untuk sparing: `generateRound`, `_nextRoundSlots`/`restingAfterLastRound`, `courtUse`/`courtMatch`,
+  `ActiveTournament.capacityAhead.matchesPerRound` (= `min(⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`), estimasi Konfigurasi Mixed, sheet
+  Cara kerja Mixed. Turnamen biasa tetap `slotsFor`.
+- Siapa main: `priorityOrder` dipanggil **per klub** dengan pemain aktif klub itu saja, `slots` = slot klub, seed dan
+  `latePlayerIds` sama → jeda pemain telat `k = max(2, slot klub ÷ istirahat klub + 1)` per klub dengan sendirinya.
+  Ambil `2·C'` teratas tiap klub.
+- Susunan: acak terpisah per klub, match i = (klub1[2i], klub1[2i+1]) vs (klub2[2i], klub2[2i+1]); penalti sama
+  (ulang match 1000, partner 10, lawan 3, 400 percobaan). Pasangan sesama klub dan lawan sesama klub mustahil secara
+  konstruksi (S2, S3).
+- `restingAfterLastRound` mengembalikan daftar Prioritas / Istirahat lagi **per klub**, dari panggilan `priorityOrder`
+  yang sama persis dengan Buat R(n+1) (AC-S11).
+- `courtUse` (Kelola court): "langsung main" kalau round berjalan, court belum punya match, muat, dan **tiap klub**
+  punya ≥ 2 yang istirahat; pemainnya = 2 teratas `priorityOrder(n+1)` tiap klub di antara yang istirahat, dengan slot
+  klub dari `C'` round berikutnya (court baru ikut). "Round berikutnya" kalau `C'` dengan court ini > tanpa court ini.
+- Kelola pemain: tambah wajib memilih klub (AC-S12); Keluarkan mati kalau klub itu tinggal 2 aktif; Kembalikan = ke
+  klubnya; total aktif 4–30 tetap.
+- Batalkan Rn, Lanjutkan turnamen, Akhiri, `isFinal`: tidak berubah; `C'` dihitung ulang per round.
+- Estimasi Konfigurasi: Max Round = `maxRounds`; Court Aktif = `C'` dari semua court; Total Match = round × `C'`;
+  Match/Pemain per klub = ±(Total Match × 2 ÷ n klub). Tombol "Mulai Round 1 · ±R round" + " · C' court" kalau `C' < C`
+  (13i, 13j).
+
+### 13.7 Skor klub (K2, K11)
+
+Satu fungsi murni di `lib/services/ranking/` (mis. `ClubScore.of(active)`), dipakai Jadwal, Klasemen, Beranda, poster,
+caption, Live — tidak dihitung ulang di widget.
+- Per match `done`: menang 1, seri ½ (simpan sebagai setengah-poin bulat, `halfWins`), kalah 0; Total Point klub +=
+  game sisi klub; selisih klub += game sendiri − game lawan.
+- Per match `wo`: klub lawan pasangan WO +1 menang; Total Point klub pemenang += **nilai WO klub** = rata-rata nilai WO
+  kedua pemain pemenang, dibulatkan ,5 ke atas: `(v(a) + v(b) + 1) ~/ 2`, `v` = nilai per WO yang sama dengan
+  `RankingCalculator` (`format.woWinnerScore(rata-rata pemain itu)`). Selisih tidak berubah. Fixed dan Race to: v(a) =
+  v(b), jadi sama dengan nilai pasangan. Klasemen pemain tetap nilai masing-masing.
+- `pending`/`cancelled` diabaikan. Satu match dihitung sekali per sisi (13C: 56, bukan 112).
+- Unggul: `halfWins` → Total Point klub → sama = Seri (bola di kedua baris). Selisih hanya tampil, tidak menentukan.
+  Tampilan "6½" (bukan 6,5), satuan Total Point ikut format ("game"/"poin").
+- Status Sementara/Final = `isFinal` biasa.
+
+### 13.8 Klasemen per klub, Detail
+
+- `RankingCalculator.rank` sekali untuk semua pemain, lalu `standingEntries` **per klub** (standing pemain klub itu +
+  `standingPairs` klub itu) → nomor mulai #1 di tiap klub, aturan nomor rapat sama (K3). Satu provider
+  (mis. `clubStandingEntriesProvider` → daftar (klub, baris)) untuk Klasemen, Detail, Bagikan, caption, Live; jangan
+  menomori lintas klub. "Belum main" di dalam tabel klubnya (14p). "1 match WO" di bawah tabel terakhir.
+- Detail (K9): subjudul "Peringkat n · {klub} · olahraga · mode · format"; riwayat tim sendiri di atas; Beda lawan =
+  lawan berbeda ÷ pemain klub lain (Fixed 14v "6 / 6", 14w "8 / 8"); Beda partner Fixed tetap tersembunyi selama
+  pasangan tidak berubah.
+
+### 13.9 Beranda, Bagikan, caption
+
+- Beranda sparing tanpa nama: baris kecil "{klub1} {skor} – {skor} {klub2}" menggantikan "olahraga · mode · n pemain",
+  "0 – 0" sebelum ada hasil (14x). Dialog mulai baru: "{klub1} vs {klub2}, Round n" (14y). Sparing bernama: nama di
+  baris kecil, skor klub di baris sendiri — frame 15w/15y di draf alur Mixed (belum disetujui host).
+- Versi app (keputusan 20): "v{appVersion}" di kanan atas banner di semua kondisi Beranda (01a–01f, 01h, 01i). Golden
+  2% tidak menangkap teks sekecil ini → test wajib `find.text('v$appVersion')`.
+- Poster Ringkas (13q): `.pscore` (dua baris klub, klub pertama atas, Total Point · selisih + match menang, tanpa bola)
+  di bawah judul; lalu per klub label `.pclub` (+ "+n pasangan/pemain lainnya" kalau terpotong) dan 3 teratas klub itu.
+- Caption: baris pertama "🏆 {klub1} {menang}–{menang} {klub2} · {olahraga}" (seri skor + Total Point sama: "… · Seri ·
+  Padel"), nama turnamen di baris kedua kalau ada, lalu blok "Klasemen Akhir · {klub}" per klub (baris sama dengan
+  caption biasa), kaki sama. Lengkap menambah "Hasil per Round" (baris match klub pertama dulu). Teks persis: 13q.
+- Lengkap / Feed / Story sparing **tidak digambar** (Bagikan akan dirombak host). Yang sudah pasti dari aturan
+  poster: Lengkap = semua baris bernomor per klub dengan label `.pclub`; pasangan selalu satu kolom. Yang belum ada
+  nilainya: ukuran `.pscore`/`.pclub` di Feed dan Story, dan apakah label klub dihitung sebagai baris di
+  `_density`/dua kolom Mixed — lihat SP-15.
+
+### 13.10 Data (draf untuk DBA — DBA memfinalkan di SP-0, sebelum SP-1)
+
+Kunci baru semuanya **opsional**; simpanan 3.1.0 (tanpa kunci ini) = turnamen biasa apa adanya; `schemaVersion` tetap
+2; kategori MINOR.
+- `config.clubs`: `[{"id": "club-1", "name": "PB Garuda"}, {"id": "club-2", "name": "Matcha Club"}]`, urutan = klub
+  pertama, kedua. Tidak ditulis untuk turnamen biasa.
+- `config.players[].club`: id klub, hanya di turnamen sparing, di **setiap** pemain (asli, pengganti dari Atur
+  pasangan, baru dari Kelola pemain; pemain keluar tetap membawa klubnya). Payload dengan `clubs` tapi ada pemain tanpa
+  `club`, id klub tak dikenal, atau jumlah klub ≠ 2 = rusak → `decode` null (aturan rusak yang sudah ada).
+- `restingPairs`: `{"6": ["pairId", …]}` per round, hanya Fixed sparing. `bye` tetap ditulis (`{}`) karena decoder
+  3.1.0 mewajibkannya.
+- `extraPutaran`: Fixed sparing = jumlah satuan tambahan yang sudah dibuat (13.3). Tidak ada kunci baru.
+- Mixed sparing: istirahat tetap `resting` (id pemain); klubnya dari `players[].club`.
+- Data live: relay menyimpan JSON codec apa adanya; tidak berubah.
+- Risiko yang DBA putuskan: app 3.1.0 yang masih ter-cache (PWA, aktif di reload ke-2) membaca simpanan sparing sebagai
+  turnamen biasa (kunci baru diabaikan) — Jadwal tetap, tapi Buat R Mixed akan mencampur klub. Tidak bisa dicegah dari
+  3.2.0; cukup dicatat atau diterima.
+
+### 13.11 Data test (= angka PRD dan frame, dicek generator + kalkulator 2026-11-04)
+
+Pasangan 13A: G1 Andi · Budi, G2 Citra · Dewi, G3 Eko · Fajar, G4 Gita · Hadi; M1 Indra · Joko, M2 Kiki · Lina,
+M3 Maya · Nanda. Padel, Race to 6, 15 mnt, 2 court × 2 jam.
+
+| Round | Court 1 | Court 2 | Istirahat | Skor 13C |
+|---|---|---|---|---|
+| R1 | G1–M1 | G2–M2 | G3, G4, M3 | 6–3 · 4–6 |
+| R2 | G3–M3 | G4–M1 | G1, G2, M2 | 6–5 · 6–4 |
+| R3 | G1–M2 | G2–M3 | G3, G4, M1 | 6–4 · WO (G2 absen) |
+| R4 | G3–M1 | G4–M2 | G1, G2, M3 | 6–2 · 3–6 |
+| R5 | G1–M3 | G2–M1 | G3, G4, M2 | 2–6 · 6–1 |
+| R6 | G3–M2 | G4–M3 | G1, G2, M1 | 6–0 · 5–6 |
+
+- Jumlah main per round: Garuda 1·1·0·0 → 1·1·1·1 → 2·2·1·1 → 2·2·2·2 → 3·3·2·2 → 3·3·3·3; Matcha 1·1·0 → 2·1·1 →
+  2·2·2 → 3·3·2 → 4·3·3 → 4·4·4 (AC-S5).
+- Skor klub: setelah R1–R2 + R3 Court 1: 4 – 1, 28 – 22 (14h); setelah R5: 6 – 4, 45 – 43, +8/−8 (13k, 13n, 14l
+  diakhiri "Final · 5 round · 10 match"); akhir: 7 – 5, 56 – 49, +13/−13, Final 12 dari 12 (13l, 13o, AC-S14, S15).
+- Klasemen Total Point akhir (13o): Garuda #1 Eko · Fajar 18 (+11) 3–0 · #2 Andi · Budi 14 (+1) · #3 Gita · Hadi 14
+  (−2) · #4 Citra · Dewi 10 (+3); Matcha #1 Maya · Nanda 23 (+4) 3–1 · #2 Kiki · Lina 16 (−3) · #3 Indra · Joko 10
+  (−14). Win % (13p): Garuda 100 · 67 · Citra · Dewi 33 (+3) · Gita · Hadi 33 (−2); Matcha 75 · 50 · 0. Setelah R5
+  (13n): Garuda Andi · Budi 14 (+1) · Eko · Fajar 12 (+5) · Citra · Dewi 10 (+3) · Gita · Hadi 9 (−1); Matcha Maya ·
+  Nanda 17 (+3) · Kiki · Lina 16 (+3) · Indra · Joko 10 (−14).
+- Round tambahan setelah R6, sisa 30 mnt (fit 2): 1 satuan = 12 match, R7–R12, lewat booking 01:00, Garuda +3,
+  Matcha +4 (14n, AC-S18): R7 G1–M2, G2–M3 · R8 G3–M1, G4–M2 · R9 G1–M3, G2–M1 · R10 G3–M2, G4–M3 · R11 G1–M1, G2–M2 ·
+  R12 G3–M3, G4–M1. 4 / 2 pasangan, 3 court: satuan 4 match; 3 / 3: satuan 3.
+- Skor lain di jadwal yang sama (skor klub pertama dulu, urut R1 C1, R1 C2, …):
+  - 14s: 6–4, 3–6, 6–2, 4–6, 5–6, 6–3, 6–5, 2–6, 4–6, 6–4, 5–6, 3–6 → 5 – 7, 56 – 60, −4/+4; Matcha #1 Kiki · Lina 24
+    (+9) · #2 Indra · Joko 19 (−3) · #3 Maya · Nanda 17 (−2); Garuda Eko · Fajar 17 (+4) · Citra · Dewi 15 (+2) · Andi ·
+    Budi 15 (−1) · Gita · Hadi 9 (−9).
+  - 14t: 6–4, 6–5, 3–6, 6–2, 5–6, 2–6, 6–3, 4–6, 6–4, 3–6, 6–4, 5–6 → 6 – 6, 58 – 58 → Seri.
+  - 14u (Americano 20): 12–8, 9–11, 13–7, 10–10, 11–9, 8–12, 14–6, 7–13, 9–11, 12–8, 11–9, 6–14 → 6½ – 5½, 122 – 118
+    poin, +4/−4; Garuda 38 · 32 · 29 · 23, Matcha 44 · 42 · 32 (AC-S16).
+- Ukuran lain (AC-S6): 8 / 4 pemain di 3 court → R1 G1–M1, G2–M2 · R2 G3–M1, G4–M2 · R3 G1–M2, G2–M1 · R4 G3–M2,
+  G4–M1, Court 3 tanpa match (14m); 2 / 2 pasangan 1 court → 4 match 4 round; 14 / 1 pasangan 2 court → 14 round,
+  Court 2 kosong; 8 / 7 di 4 court → 56 match 14 round; 3 / 3 di 2 court → 9 match 5 round.
+- K11 (AC-S15a): Mixed Americano 21, WO dimenangkan Andi (v 14) + Budi (v 17) → Total Point klub +16; Andi +14, Budi +17.
+- Mixed 13B (8 / 6, 2 court, 15 mnt, 2 jam; AC-S8): tiap round 2 match, 4 + 4 slot; setelah R6 Garuda 3 semua, Matcha
+  4 semua; setelah R8 Garuda 4 semua, Matcha {6, 6, 5, 5, 5, 5}. Kelola court saat R4 berjalan (AC-S13): Court 3
+  langsung berisi 2 Garuda + 2 Matcha (keduanya yang istirahat), R5 = 3 match dan 6 Matcha main. Oki masuk Matcha
+  setelah R3: main R4, R5, istirahat R6 (k = 2). Nanda keluar setelah R3: 4 dari 5 Matcha main per round. Tabel 8
+  round 13.4 PRD (8/6, 7/6, 8/3, 15/15, 2/2) cocok semua. Susunan di 13m dan 15a–15y (alur Mixed, belum disetujui)
+  ditulis designer sebagai "hasil generator". Undian prioritas berseed id turnamen dan susunan pasangan memakai
+  `Random`, jadi fixture golden Mixed butuh **id turnamen + seed `Random` + versi prototipe** yang dipakai designer;
+  tanpa itu daftar prioritas di frame tidak bisa direproduksi (SP-18).
+
+### 13.12 Test properti (wajib ikut ke `test/services/`)
+
+- Fixed jadwal awal — 1–15 pasangan per klub × 1–10 court (2250 ukuran): `M = p1·p2`; `R = ⌈M ÷ C'⌉`; semua round
+  berisi `C'` kecuali terakhir; court = Court 1..C'; tiap kombinasi tepat sekali; nol pasangan dua kali per round;
+  pair1 klub pertama; selisih main satu klub ≤ 1 setelah setiap round; total per pasangan p2 / p1.
+- Fixed round tambahan — ukuran sama × 8 tambahan berantai (sisa per court sama, menurun, acak 0–14): round ≥ fit;
+  satuan minimal; round penuh kecuali terakhir; court sesuai `roundsLeft`; selisih ≤ 1 setelah setiap round (lintas
+  jadwal awal + tambahan); di batas satuan jumlah main satu klub sama persis; tiap kombinasi `1 + ⌊u/g⌋` atau
+  `1 + ⌈u/g⌉` kali.
+- Mixed — 2–28 pemain per klub (total ≤ 30) × court 1/2/3/4/7/10 × 30 round: `C'` match per round, partner sesama
+  klub, pair1 klub pertama, tanpa pemain dua kali per round, selisih main satu klub ≤ 1. Ukuran AC-S9 + pemain telat
+  di R4 dan keluar di R7: selisih ≤ 1 di antara yang hadir sejak awal.
+- Waktu jalan di prototipe: Fixed ±8 detik, Mixed ±86 detik. Mixed penuh terlalu lama untuk tiap `flutter test`:
+  jalankan versi ringkas (ukuran AC-S9 + sampel acak berseed) di suite biasa, sweep penuh di test bertag `slow`
+  (`dart_test.yaml`, `flutter test --tags slow` di CI terpisah atau sebelum rilis).

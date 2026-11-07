@@ -6,7 +6,7 @@ logika, komponen, painter, layar) sudah diimplementasi; semua layar dicek golden
 
 | Berkas | Isi | Cara diperbarui |
 |---|---|---|
-| `../hifi.html` | Hi-fi final: Fondasi, Komponen, 73 frame 390×844 + catatan perilaku, Cakupan. **Sumber kebenaran.** | Edit di repo hanya untuk keputusan host, catat di Cakupan, lalu publish file yang sama ke artifact `H9ZVDUfYvEBXsoBqih4iov` |
+| `../hifi.html` | Hi-fi final: Fondasi, Komponen, frame 390×844 + lembar gambar (126 + 8 per 2026-11-04) dengan catatan perilaku, Cakupan. **Sumber kebenaran.** | Edit di repo hanya untuk keputusan host, catat di Cakupan, lalu publish file yang sama ke artifact `H9ZVDUfYvEBXsoBqih4iov` |
 | `../frames/<id>.png` | Render tiap frame pada 2x (layar app 780×1688 px, tanpa sudut/bayangan HP) | `python3 tool/hifi_extract.py` |
 | `screens/*.md` | Per alur: catatan perilaku tiap frame + komponen yang dipakai | idem (jangan diedit tangan) |
 | `components.md` | Per komponen: nama widget, frame pemakai, aturan CSS asli | idem |
@@ -35,6 +35,23 @@ Kalau hi-fi berubah: jalankan `python3 tool/hifi_extract.py` (butuh Google Chrom
 5. **Layar** — satu alur per tugas, urut `screens/01-…` sampai `11-…`.
    Selesai: 01 Beranda, 02 Pemain, 03 Konfigurasi, 04 Pasangan, 05 Jadwal Fixed, 06 Jadwal Mixed, 07 Pemain, court & lanjutkan, 08 Input Skor, 09 Peringkat, 10 Detail, 11 Bagikan (2026-10-22, `test/hifi/screens/`) — langkah 5 selesai.
 
+6. **Sparing 3.2.0** — PRD §13, `logic.md` §13, frame 13a–13q + 14a–14y. Task, dependensi, dan model:
+   `docs/tasks.md`. Urutan:
+   1. Fondasi: data (SP-0 DBA) → model + codec (SP-1); generator Fixed (SP-2) dan komponen `ClubScore` (SP-6)
+      paralel sejak awal; versi app di Beranda (SP-7) tidak bergantung apa pun.
+   2. Logika: skor klub + klasemen per klub (SP-4), Mixed per klub (SP-3), controller + pasangan Fixed + fixture
+      golden bersama (SP-5). Data test = `logic.md` §13.11; test properti §13.12 wajib ikut.
+   3. Layar Fixed (paralel, satu folder fitur per task): Pemain (SP-8), Atur turnamen (SP-9), Pasangan (SP-10), Jadwal
+      (SP-11), Input Skor/WO (SP-12), Klasemen (SP-13), Detail (SP-14), Bagikan Ringkas + caption (SP-15), Tambah
+      round / Atur pasangan (SP-16), Beranda sparing (SP-17).
+   4. Layar Mixed sparing (SP-18) menunggu hi-fi alur Mixed.
+   5. Rilis (SP-19): versi 3.2.0, docs, `flutter test` + golden semua frame, build web.
+
+   Verifikasi: logika lewat test di `test/services/` dengan data §13.11; tiap layar lewat golden per frame di
+   `test/hifi/screens/sparing_*_test.dart` + `find.text` untuk teks kecil yang tidak tertangkap toleransi 2% (versi
+   app, angka skor klub, hitung mundur). Semua golden turnamen biasa harus tetap lolos tanpa diubah (AC-S19), kecuali
+   frame yang memang diubah hi-fi 3.2.0 (01a–01i versi app, 02a–02c pilihan Mabar / Sparing).
+
 Langkah 1–4 paling berisiko (logika + terjemahan CSS→Flutter) dan sebaiknya dikerjakan model yang lebih kuat.
 Langkah 5 bisa dikerjakan model yang lebih murah karena tinggal merakit komponen jadi dan dicek golden.
 
@@ -45,9 +62,10 @@ Langkah 5 bisa dikerjakan model yang lebih murah karena tinggal merakit komponen
    di `components.md` atau `style="…"` frame itu di `hifi.html` — jangan menebak.
 3. Buat golden per frame di `test/hifi/screens/<alur>_test.dart` dengan data yang sama persis dengan frame
    (nama, skor, round, jam). Riverpod: override `tournamentProvider` dengan `ActiveTournament` buatan; teks yang
-   bergantung jam (mis. "40m dari 2 jam") harus dari jam yang bisa disuntik. Belum ada: buat satu `clockProvider`
-   (`Provider<DateTime Function()>`, default `DateTime.now`) dan pakai di semua tempat yang membaca jam sekarang
-   (header Jadwal memakai `DateTime.now()` langsung di `schedule_widgets.dart`, controller saat membuat turnamen).
+   bergantung jam (mis. "40m dari 2 jam") harus dari jam yang bisa disuntik: override `clockProvider`
+   (`features/schedule/tournament_controller.dart`, `Provider<DateTime Function()>`, default `DateTime.now`). Semua
+   yang membaca jam sekarang — hitung mundur Jadwal/Input Skor, `createdAt` turnamen baru, turunan waktu di
+   `ActiveTournament` — sudah lewat provider itu; jangan menambah `DateTime.now()` langsung.
 
    ```dart
    testWidgets('06f round berjalan', (tester) async {

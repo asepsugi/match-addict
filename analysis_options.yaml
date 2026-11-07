@@ -15,6 +15,8 @@ analyzer:
     - web/**
     - android/**
     - ios/**
+    # Prototipe Sparing (paket sendiri, butuh `flutter pub get` di foldernya); dihapus di task SP-2/SP-3 (docs/tasks.md).
+    - tool/sparing_proto/**
 
 linter:
   # The lint rules applied to this project can be customized in the

@@ -9,10 +9,10 @@ paket Dart `match_addict`. Yang sengaja **tetap** "mabar": nama kelas/berkas int
 dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnamen ("Mabar Jumat PB Garuda").
 
 **Sumber kebenaran, baca sebelum mengubah UI/logika:**
-- `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22) kecuali §13
-  Sparing (disetujui host 2026-11-04, keputusan 19, belum ada di hi-fi).
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 126 frame layar 390×844 +
-  8 lembar gambar (per 2026-11-04) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±320 KB tanpa
+- `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22); §13
+  Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13q, 14a–14y, 15a–15y.
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 168 frame layar 390×844 +
+  8 lembar gambar (per 2026-11-07) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±320 KB tanpa
   base64 besar, aman dibaca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar lebih ringkas
   baca `design/spec/screens/<alur>.md` + PNG frame-nya.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu
@@ -92,7 +92,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Live score (relay tanpa database) — `docs/live.md`.
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - **Berikutnya: Sparing** (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, rencana 3.2.0
-  (MINOR). Tahap desain; algoritma Fixed/Mixed sparing sudah diverifikasi tech-lead (§13.12). Ikut rilis yang sama: versi app tampil lagi di
+  (MINOR). Implementasi di branch `sparing` (rilis sekali setelah Mixed selesai; `main` tetap 3.1.0 untuk hotfix);
+  task SP-0…SP-19 di `docs/tasks.md`, prototipe teruji di `tool/sparing_proto/` (dikecualikan analyzer). Ikut rilis yang sama: versi app tampil lagi di
   Beranda (keputusan 20).
 
 ## Area docs
@@ -104,6 +105,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/data.md` | mengubah simpanan/codec, `schemaVersion`, resume, Lanjutkan turnamen, slot aktif | dba |
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur yang sedang berjalan (sekarang Sparing SP-n) | tech-lead |
 
 ## Pitfalls (lintas area)
 

@@ -1,0 +1,16 @@
+# Prototipe Sparing (PRD §13, design/spec/logic.md §13): generator Fixed sparing + round Mixed per klub + test
+# properti/contoh. Bukan kode app: dikecualikan dari `flutter analyze` (analysis_options.yaml) dan tidak ikut
+# `flutter test` di root. Jalankan: `cd tool/sparing_proto && flutter test`. Dihapus oleh task SP-2/SP-3 (docs/tasks.md) yang selesai
+# terakhir, setelah generator dan test-nya dipindah ke lib/ + test/.
+name: sparing_proto
+publish_to: 'none'
+environment:
+  sdk: ^3.9.0
+dependencies:
+  flutter:
+    sdk: flutter
+  match_addict:
+    path: ../..
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

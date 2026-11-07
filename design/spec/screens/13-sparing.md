@@ -136,10 +136,10 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
 
 - Contoh 13B: Garuda 8, Matcha 6, 2 court. Tiap match = 2 pemain klub pertama (baris atas, berpasangan) vs 2 pemain klub kedua. Slot per round: 4 Garuda + 4 Matcha, jadi 4 Garuda dan 2 Matcha istirahat.
-- R1: Andi · Budi 6–4 Indra · Joko, Citra · Dewi 3–6 Kiki · Lina. R2: Eko · Fajar 6–2 Maya · Indra, Gita · Hadi 6–5 Nanda · Kiki. R3: Andi · Citra 6–4 Joko · Maya, Budi · Dewi vs Lina · Nanda belum. Skor klub 4 – 1, Total Point 27 – 21. Jumlah main sesuai 13B (diverifikasi generator); susunan pasangan R1–R3 dan skornya contoh designer karena 13B tidak menulisnya.
+- Susunan generator (2026-11-04; dulu contoh designer): R1 Eko · Gita 6–4 Nanda · Kiki, Citra · Fajar 3–6 Maya · Joko. R2 Budi · Andi 6–2 Lina · Kiki, Dewi · Hadi 6–5 Nanda · Indra. R3 Fajar · Eko 6–4 Joko · Indra, Citra · Gita vs Lina · Maya belum. Skor contoh designer: skor klub 4 – 1, Total Point 27 – 21. Prioritas R4 (generator): Andi, Budi, Dewi, Hadi · Kiki, Nanda.
 - Istirahat di round terakhir dipisah per klub dengan prioritas masing-masing (`priorityOrder` per klub, slot klub itu): semua yang istirahat kebagian slot R4, jadi hanya daftar "Prioritas main di R4". Kalau yang istirahat di satu klub lebih banyak dari slotnya, klub itu mendapat daftar kedua "Istirahat lagi di R4" dengan dua kolom yang sama (seperti 06o); kolom klub yang semua kebagian berisi "–". Daftar ini sama persis dengan hasil Buat R4 (AC-S11).
 - Fairness per klub: selisih main antar pemain satu klub ≤ 1. Setelah R3 Garuda 2·2·2·2·1·1·1·1 (R3 sedang dimainkan dihitung), Matcha 2 semua; antar klub boleh beda (K1).
-- Pemain (14) → Kelola pemain per klub (tahap 2). Tombol bawah, Batalkan Rn, menu ⋯, Kelola court sama dengan 06f–06t.
+- Pemain (14) → Kelola pemain per klub (15l). Tombol bawah, Batalkan Rn, menu ⋯, Kelola court sama dengan 06f–06t.
 
 ## 13n · Klasemen sparing · Fixed · Sementara
 
