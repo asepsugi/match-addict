@@ -75,6 +75,9 @@ produknya: PRD §13, `design/spec/logic.md` §13. Di sini hanya bentuk simpanann
   `logic.md` §13.3) yang sudah dibuat, `u` di rumus blok `K = g + u`; di Fixed biasa tetap jumlah putaran. Tafsir ikut
   `isSparing`, jadi tidak ambigu. Di sparing nilainya ≥ 0; Mixed sparing selalu 0. Tetap naik walau Atur pasangan mengubah
   jumlah pasangan (`g`, `L` dihitung ulang dari jumlah baru).
+- **Encode menolak sparing yang tidak sah** (review SP-1): `encode` punya `assert` dengan aturan baca yang sama, jadi
+  mutator yang membuat pemain sparing tanpa `clubId` atau match dengan `pair1` dari klub kedua langsung gagal di test,
+  bukan diam-diam menghasilkan simpanan yang terbaca null saat resume (turnamen hilang).
 - **Penanda di `bye`**: payload sparing menulis `"bye": {"sparing": "1"}` (tambahan atas nomor round, yang kosong).
   Ini sengaja: decoder 3.1.0 melakukan `int.parse` pada tiap kunci `bye`, jadi kunci "sparing" membuatnya melempar dan
   `decode` jadi null di app lama (lihat "Risiko app lama"). Decoder 3.2.0 membuang kunci persis `sparing` sebelum
@@ -96,8 +99,10 @@ di salah satu keadaan yang salah berarti payload rusak, karena tidak ada penulis
 | `fixedPairs` / `pair1` / `pair2` di match: anggota tidak ada di `config.players`, atau dua anggota beda klub | null |
 | Match: `pair1` bukan klub pertama atau `pair2` bukan klub kedua (invarian S4) | null |
 | `restingPairs` bukan `{angka: [String]}` | null |
-| `extraPutaran` bukan int, atau negatif | null |
-| `extraPutaran`, `withdrawn`, `resting` | seperti sekarang |
+| `extraPutaran` bukan int (turnamen biasa maupun sparing, sama dengan 3.1.0) | null |
+| `extraPutaran` negatif, hanya kalau ada `config.clubs` (turnamen biasa tetap menerimanya seperti 3.1.0, AC-S19) | null |
+| `extraPutaran`, `withdrawn`, `resting` untuk turnamen biasa | seperti sekarang |
+| `bye` bernomor round di payload sparing | diterima apa adanya: sparing memang tidak menulisnya, tapi itu keadaan data, bukan bentuk yang ditolak |
 
 Alasan memeriksa S2 dan S4 saat baca: layar sparing menurunkan klub pasangan dari klub anggotanya dan menaruh `pair1` di
 atas tanpa penjagaan sendiri; payload yang melanggarnya akan membuat widget melempar, sedangkan kontraknya "membaca data

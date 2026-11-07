@@ -86,6 +86,9 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Acceptance:** AC-S8, AC-S9, AC-S10, AC-S11, AC-S12, AC-S13; contoh Oki/Nanda §13.11; tabel 8 round PRD 13.4.
   Turnamen biasa: `mixed_priority_test`, `mixed_roster_test`, `court_manage_test`, `court_availability_test`,
   `resume_tournament_test` lulus tanpa diubah.
+- **Simpanan (review SP-1):** setiap mutator sparing (`addPlayer` dengan klub, Kembalikan, pasangan per round) wajib
+  menjaga S1/S2/S4; tiap test mutator sparing memeriksa `TournamentCodec.decode(encode(state)) != null`. `addPlayer`
+  (`tournament_controller.dart:126`) sekarang membuat `Player` tanpa `clubId`: itu harus diisi.
 - **Test properti:** §13.12 Mixed. Versi ringkas di suite biasa; sweep penuh (±90 detik) bertag `slow`.
 - **Dependensi:** SP-1. **Paralel:** dengan SP-4, SP-5 (lihat bentrok), SP-8. **Model:** kuat (lintas modul).
 - **Penutup:** kalau SP-2 sudah selesai, hapus `tool/sparing_proto/` + exclude-nya.
@@ -112,6 +115,8 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
   `test/services/sparing_fixed_flow_test.dart`; fixture `test/hifi/screens/sparing_fixture.dart` (13A: R3 berjalan,
   setelah R5, R6 terisi, diakhiri di R6; 8/4 di 3 court; skor 14s/14t/14u; setelah Atur pasangan 14o/14p dengan Gilang
   dan Oki).
+- **Simpanan (review SP-1):** `PairDraft.add` (`pair_draft.dart:98`) membuat `Player` tanpa `clubId`: pemain
+  pengganti sparing wajib berklub. Tiap test mutator sparing memeriksa `decode(encode(state)) != null`.
 - **Acceptance:** AC-S3, AC-S4, AC-S5, AC-S18; Fixed biasa (`fixed_extra_rounds_test`, `fixed_add_rounds_test`) tetap
   lulus; config `identical` tetap mencegah regenerate (Pitfall `startIfNeeded`).
 - **Dependensi:** SP-1, SP-2. **Paralel:** dengan SP-3, SP-4, SP-8. **Model:** kuat (semua layar Fixed bergantung).
