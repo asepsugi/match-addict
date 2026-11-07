@@ -14,6 +14,30 @@ class PairGenerator {
     return fromOrder(shuffled);
   }
 
+  /// Sparing (logic.md §13.5, 14a): acak di dalam tiap klub, klub pertama dulu, dengan satu [random] berurutan supaya
+  /// satu "Acak ulang" mengacak keduanya. [PairingDraft.pairs] = pasangan klub pertama lalu klub kedua: urutan itu jadi
+  /// `config.fixedPairs`, yaitu indeks generator (G1…, M1…). Sisa ganjil tinggal di klubnya sendiri (paling banyak satu
+  /// per klub), jadi dua sisa beda klub tidak pernah dipasangkan (K12, AC-S3).
+  static PairingDraft randomByClub(List<Player> players, List<Club> clubs, {Random? random}) {
+    final rng = random ?? Random();
+    final pairs = <Pair>[];
+    final unpaired = <Player>[];
+    for (final club in clubs) {
+      final draft = PairGenerator.random([
+        for (final p in players)
+          if (p.clubId == club.id) p,
+      ], random: rng);
+      pairs.addAll(draft.pairs);
+      unpaired.addAll(draft.unpaired);
+    }
+    return PairingDraft(pairs: pairs, unpaired: unpaired);
+  }
+
+  /// Manual: [a] lalu [b] jadi pasangan, atau null kalau beda klub (sparing, S2, AC-S4: layar memindah pilihan ke
+  /// [b]). Turnamen biasa (dua-duanya tanpa klub) selalu jadi pasangan.
+  static Pair? manual(Player a, Player b) =>
+      a.clubId == b.clubId ? Pair(id: 'pair-${a.id}-${b.id}', player1Id: a.id, player2Id: b.id) : null;
+
   /// Bentuk pasangan mengikuti urutan [players] apa adanya (dipakai mode manual).
   static PairingDraft fromOrder(List<Player> players) {
     final pairs = <Pair>[];
