@@ -188,6 +188,11 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
   13l, 14h, 14i, 14j, 14k, 14l, 14m; hitung mundur 00:45 dengan `find.text`; penonton Live: skor klub tampil, tanpa ⋯.
 - **Dependensi:** SP-4, SP-5, SP-6. **Paralel:** ya. **Model:** default.
 
+- **Catatan review SP-6:** widget `ClubScore`/`ClubScoreRow` (lib/core/widgets) menerima string jadi. Task ini (layar
+  pertama yang memakainya) menambah adaptor di service `lib/services/ranking/club_score.dart`: `ClubResult.detailLabel(t)`
+  (`"56 game · +13"`) dan `ClubResult.leads(t)` (`first || draw` / `second || draw`) beserta test. Jadwal, Klasemen,
+  Beranda, poster, dan Live memakai adaptor yang sama; jangan merangkai di tiap layar. Data skor klub = `ClubResult`
+  (dulu `ClubScore`, diganti 1d04930 supaya tidak bentrok dengan widget).
 ## SP-12 · Input Skor + WO sparing
 - **Goal:** pastikan papan dan sheet WO mengikuti S4 (klub pertama atas, urutan pilihan WO = papan) dan skor klub
   dihitung ulang setelah simpan.
