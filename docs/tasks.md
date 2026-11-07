@@ -36,6 +36,7 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 ---
 
 ## SP-0 · Finalkan bentuk simpanan sparing (DBA)
+- **Status:** selesai (cbb964f, dc90462).
 - **Goal:** memfinalkan draf `logic.md` §13.10 dan menuliskannya di `docs/data.md`.
 - **Baca:** `logic.md` §13.1 + §13.10, `docs/data.md`, `lib/services/storage/tournament_codec.dart`, PRD §13.8.
 - **Ubah:** `docs/data.md` (bagian Sparing), koreksi §13.10 kalau ada yang diubah.
@@ -44,6 +45,7 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Dependensi:** tidak ada. **Paralel:** ya. **Model:** DBA.
 
 ## SP-1 · Model + codec sparing — kuat
+- **Status:** selesai, di-approve (f2e1392 + 94f1f7f di `sparing`).
 - **Goal:** `Club`, `TournamentConfig.clubs` / `isSparing`, `Player.clubId`, `ActiveTournament.restingPairIdsByRound`,
   helper klub (pemain/pasangan/klub per id, pemain aktif per klub), dan codec sesuai SP-0.
 - **Baca:** `logic.md` §13.1, §13.10; `docs/data.md`; `lib/models/models.dart`; `tournament_codec.dart`.
@@ -94,6 +96,9 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Penutup:** kalau SP-2 sudah selesai, hapus `tool/sparing_proto/` + exclude-nya.
 
 ## SP-4 · Skor klub + klasemen per klub
+- **Status:** selesai, di-approve (51b84a5 + 9b35c1b di `sparing`, 2026-11-08). Sisa untuk QA: helper `mixed()` di
+  `sparing_score_test.dart:293-294` memberi skor tidak sah untuk Americano 21 (7–3) dan menaruh Matcha di `pair1` (langgar
+  S4); hitungannya tetap benar, tapi datanya sebaiknya disamakan dengan frame.
 - **Goal:** fungsi murni skor klub (`logic.md` §13.7: `halfWins`, Total Point klub, selisih, unggul/Seri, nilai WO
   klub K11) dan klasemen per klub (§13.8) + provider di file baru (mis.
   `lib/features/schedule/sparing_providers.dart`: skor klub, baris klasemen per klub, nomor per klub).
@@ -136,6 +141,7 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Dependensi:** tidak ada (widget menerima nilai jadi). **Paralel:** ya. **Model:** default.
 
 ## SP-7 · Versi app di Beranda (keputusan 20)
+- **Status:** selesai, di-approve (22a5f59 + 34f11c8 di `sparing`).
 - **Goal:** "v{appVersion}" di kanan atas banner, semua kondisi Beranda.
 - **Baca:** `screens/01-beranda.md` (catatan 01a), `court_banner.dart`, `home_screen.dart`, `test/hifi/screens/` Beranda.
 - **Ubah:** `features/home/widgets/court_banner.dart` (atau panel, ikut hi-fi), test Beranda.
