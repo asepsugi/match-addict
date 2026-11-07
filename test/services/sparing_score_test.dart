@@ -24,7 +24,7 @@ List<String> _table(ActiveTournament a, Club club, RankingMethod method) {
 void main() {
   group('Skor klub 13C (AC-S14)', () {
     test('akhir: 7 – 5, 56 – 49, +13 / −13, Garuda unggul', () {
-      final s = ClubScore.of(fixedSparing(c13))!;
+      final s = ClubResult.of(fixedSparing(c13))!;
       expect(s.first.club.id, 'club-1');
       expect((s.first.halfWins, s.second.halfWins), (14, 10));
       expect((s.first.winsLabel, s.second.winsLabel), ('7', '5'));
@@ -35,7 +35,7 @@ void main() {
     });
 
     test('setelah R5: 6 – 4, 45 – 43, +8 / −8', () {
-      final s = ClubScore.of(fixedSparing(c13.sublist(0, 10)))!;
+      final s = ClubResult.of(fixedSparing(c13.sublist(0, 10)))!;
       expect((s.first.winsLabel, s.second.winsLabel), ('6', '4'));
       expect((s.first.totalPoint, s.second.totalPoint), (45, 43));
       expect((s.first.diffLabel, s.second.diffLabel), ('+8', '−8'));
@@ -51,7 +51,7 @@ void main() {
           ],
         ),
       );
-      final s = ClubScore.of(withCancelled)!;
+      final s = ClubResult.of(withCancelled)!;
       expect((s.first.halfWins, s.second.halfWins), (2, 2));
       expect((s.first.totalPoint, s.second.totalPoint), (10, 9));
     });
@@ -70,14 +70,14 @@ void main() {
           ),
         ),
       );
-      expect(ClubScore.of(plain), isNull);
+      expect(ClubResult.of(plain), isNull);
       expect(clubStandings(active: plain, standings: const [], method: RankingMethod.totalGames), isEmpty);
     });
   });
 
   group('Unggul dan Seri (AC-S16)', () {
     test('14s: 5 – 7, 56 – 60, −4 / +4, klub kedua unggul', () {
-      final s = ClubScore.of(fixedSparing(s14s))!;
+      final s = ClubResult.of(fixedSparing(s14s))!;
       expect((s.first.winsLabel, s.second.winsLabel), ('5', '7'));
       expect((s.first.totalPoint, s.second.totalPoint), (56, 60));
       expect((s.first.diffLabel, s.second.diffLabel), ('−4', '+4'));
@@ -85,14 +85,14 @@ void main() {
     });
 
     test('14t: 6 – 6 dan 58 – 58 → Seri', () {
-      final s = ClubScore.of(fixedSparing(s14t))!;
+      final s = ClubResult.of(fixedSparing(s14t))!;
       expect((s.first.winsLabel, s.second.winsLabel), ('6', '6'));
       expect((s.first.totalPoint, s.second.totalPoint), (58, 58));
       expect(s.lead, ClubLead.draw);
     });
 
     test('14u Americano 20: 6½ – 5½, 122 – 118 poin, +4 / −4, Garuda unggul', () {
-      final s = ClubScore.of(fixedSparing(s14u, format: const ScoreFormat(ScoringMethod.americano, 20)))!;
+      final s = ClubResult.of(fixedSparing(s14u, format: const ScoreFormat(ScoringMethod.americano, 20)))!;
       expect((s.first.halfWins, s.second.halfWins), (13, 11));
       expect((s.first.winsLabel, s.second.winsLabel), ('6½', '5½'));
       expect((s.first.totalPoint, s.second.totalPoint), (122, 118));
@@ -104,10 +104,10 @@ void main() {
     test('menang sama, Total Point lebih besar unggul; semua sama → Seri', () {
       const a = ClubTally(club: garuda, halfWins: 12, totalPoint: 50, diff: 2);
       const b = ClubTally(club: matcha, halfWins: 12, totalPoint: 48, diff: -2);
-      expect(const ClubScore(first: a, second: b, unit: 'game').lead, ClubLead.first);
-      expect(const ClubScore(first: b, second: a, unit: 'game').lead, ClubLead.second);
+      expect(const ClubResult(first: a, second: b, unit: 'game').lead, ClubLead.first);
+      expect(const ClubResult(first: b, second: a, unit: 'game').lead, ClubLead.second);
       const c = ClubTally(club: matcha, halfWins: 12, totalPoint: 50, diff: 9);
-      expect(const ClubScore(first: a, second: c, unit: 'game').lead, ClubLead.draw);
+      expect(const ClubResult(first: a, second: c, unit: 'game').lead, ClubLead.draw);
     });
 
     test('winsLabel: setengah poin ditulis ½, bukan ,5', () {
@@ -205,7 +205,7 @@ void main() {
 
   group('Skor klub berjalan (AC-S15, 14h)', () {
     test('setelah R1–R2 + R3 Court 1: 4 – 1, 28 – 22, +6 / −6', () {
-      final s = ClubScore.of(fixedSparing(c13.sublist(0, 5)))!;
+      final s = ClubResult.of(fixedSparing(c13.sublist(0, 5)))!;
       expect((s.first.winsLabel, s.second.winsLabel), ('4', '1'));
       expect((s.first.totalPoint, s.second.totalPoint), (28, 22));
       expect((s.first.diffLabel, s.second.diffLabel), ('+6', '−6'));
@@ -214,7 +214,7 @@ void main() {
     test('WO G2 di R3 Court 2: Matcha +1 menang dan +6 poin, selisih tetap', () {
       final before = fixedSparing(c13.sublist(0, 5));
       final after = fixedSparing(c13.sublist(0, 6));
-      final s = ClubScore.of(after)!;
+      final s = ClubResult.of(after)!;
       expect((s.first.winsLabel, s.second.winsLabel), ('4', '2'));
       expect((s.first.totalPoint, s.second.totalPoint), (28, 28));
       expect((s.first.diffLabel, s.second.diffLabel), ('+6', '−6'));
@@ -256,7 +256,7 @@ void main() {
         ],
       ),
     );
-    expect(() => ClubScore.of(bad), throwsA(isA<AssertionError>()));
+    expect(() => ClubResult.of(bad), throwsA(isA<AssertionError>()));
   });
 
   group('Nilai WO klub Mixed (K11, AC-S15a)', () {
@@ -318,7 +318,7 @@ void main() {
       );
       expect((values['andi'], values['budi']), (14, 17));
 
-      final s = ClubScore.of(a)!;
+      final s = ClubResult.of(a)!;
       expect(s.first.totalPoint, 14 + 17 + 16);
       expect(s.first.diff, (14 - 3) + (17 - 3));
       expect((s.first.halfWins, s.second.halfWins), (6, 0));
@@ -337,7 +337,7 @@ void main() {
       expect((lina.totalPoint, maya.totalPoint), (7 + 11, 12 + 12));
 
       // (11 + 12 + 1) ÷ 2 = 12, klub kedua; selisih klub tidak berubah oleh WO.
-      final s = ClubScore.of(a)!;
+      final s = ClubResult.of(a)!;
       expect(s.second.totalPoint, 7 + 12 + 12);
       expect(s.second.diff, (7 - 3) + (12 - 3));
       expect((s.first.halfWins, s.second.halfWins), (0, 6));

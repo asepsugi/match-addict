@@ -32,14 +32,14 @@ class ClubTally {
 
 /// Skor klub turnamen sparing: dua klub, klub pertama = `config.clubs[0]`. Dihitung di sini sekali; Jadwal, Klasemen,
 /// Beranda, poster, caption, dan Live hanya membaca (tidak menghitung ulang di widget).
-class ClubScore {
+class ClubResult {
   final ClubTally first;
   final ClubTally second;
 
   /// Satuan Total Point mengikuti format: "game" / "poin".
   final String unit;
 
-  const ClubScore({required this.first, required this.second, required this.unit});
+  const ClubResult({required this.first, required this.second, required this.unit});
 
   /// Menang → Total Point → sama semua = seri. Selisih hanya tampil, tidak menentukan (K2).
   ClubLead get lead {
@@ -51,7 +51,7 @@ class ClubScore {
   }
 
   /// Null untuk turnamen biasa.
-  static ClubScore? of(ActiveTournament active) {
+  static ClubResult? of(ActiveTournament active) {
     final config = active.config;
     final clubs = config.clubs;
     if (clubs == null || clubs.length != 2) return null;
@@ -103,7 +103,7 @@ class ClubScore {
     }
 
     ClubTally tally(int i) => ClubTally(club: clubs[i], halfWins: half[i], totalPoint: points[i], diff: diff[i]);
-    return ClubScore(first: tally(0), second: tally(1), unit: config.format.unit);
+    return ClubResult(first: tally(0), second: tally(1), unit: config.format.unit);
   }
 }
 

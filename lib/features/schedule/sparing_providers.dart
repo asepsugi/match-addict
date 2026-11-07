@@ -6,9 +6,9 @@ import 'tournament_controller.dart';
 
 /// Skor klub turnamen sparing aktif; null untuk turnamen biasa atau tanpa turnamen. Status Sementara/Final tetap
 /// dari `ActiveTournament.isFinal(now)`.
-final clubScoreProvider = Provider<ClubScore?>((ref) {
+final clubScoreProvider = Provider<ClubResult?>((ref) {
   final active = ref.watch(tournamentProvider);
-  return active == null ? null : ClubScore.of(active);
+  return active == null ? null : ClubResult.of(active);
 });
 
 /// Klasemen per klub menurut [rankingMethodProvider], nomor mulai #1 di tiap klub. Satu-satunya sumber untuk
