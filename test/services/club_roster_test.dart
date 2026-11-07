@@ -75,12 +75,18 @@ void main() {
     expect(c.roster1.duplicates, ['andi']);
   });
 
-  test('total di atas 30: mati, catatan clay "Maksimal 30 pemain"', () {
-    final big = [for (var i = 0; i < 16; i++) 'A$i'].join('\n');
-    final big2 = [for (var i = 0; i < 15; i++) 'B$i'].join('\n');
-    expect(check('A', 'B', big, big2).canContinue, isFalse);
-    expect(check('A', 'B', big, big2).listNotes2, [const ClubNote('Maksimal 30 pemain', error: true)]);
-    expect(check('A', 'B', big.split('\n').take(15).join('\n'), big2).canContinue, isTrue);
+  test('AC-S1 total 16 + 14 = 30 aktif, 16 + 15 = 31 mati dengan catatan clay "Maksimal 30 pemain"', () {
+    String names(String p, int n) => [for (var i = 0; i < n; i++) '$p$i'].join('\n');
+    expect(check('A', 'B', names('A', 16), names('B', 14)).canContinue, isTrue);
+    final over = check('A', 'B', names('A', 16), names('B', 15));
+    expect(over.canContinue, isFalse);
+    expect(over.listNotes2, [const ClubNote('Maksimal 30 pemain', error: true)]);
+  });
+
+  test('duplikat per klub disebut abu-abu setelah catatan jumlah, urutan Minimal, Maksimal, Duplikat', () {
+    final c = check('PB Garuda', 'Matcha Club', '$garuda\nandi', 'Indra\nindra');
+    expect(c.listNotes1, [const ClubNote('Duplikat dibuang: andi')]);
+    expect(c.listNotes2, [const ClubNote('Minimal 2 pemain'), const ClubNote('Duplikat dibuang: indra')]);
   });
 
   test('nama klub maksimal 20 karakter, dipangkas', () {

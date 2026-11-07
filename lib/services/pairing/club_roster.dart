@@ -93,6 +93,10 @@ class ClubRoster {
     ClubNote? fewPlayers(ParseResult r) =>
         r.count > 0 && r.count < minPerClub ? const ClubNote('Minimal $minPerClub pemain') : null;
 
+    // Duplikat di dalam satu klub dibuang diam-diam, hanya disebut (abu-abu), seperti 02b.
+    ClubNote? dropped(ParseResult r) =>
+        r.duplicates.isEmpty ? null : ClubNote('Duplikat dibuang: ${r.duplicates.join(', ')}');
+
     return SparingRosterCheck(
       name1: name1,
       name2: name2,
@@ -101,11 +105,12 @@ class ClubRoster {
       nameNote1: emptyName(name1, r1),
       // Salah isi, bukan sedang mengetik; selalu di klub kedua karena klub pertama diisi duluan.
       nameNote2: sameName ? const ClubNote('Sama dengan klub pertama', error: true) : emptyName(name2, r2),
-      listNotes1: [?fewPlayers(r1)],
+      listNotes1: [?fewPlayers(r1), ?dropped(r1)],
       listNotes2: [
         ?fewPlayers(r2),
         if (total > TournamentConfig.maxPlayers)
           const ClubNote('Maksimal ${TournamentConfig.maxPlayers} pemain', error: true),
+        ?dropped(r2),
         if (both.isNotEmpty) ClubNote(bothClubsMessage(both), error: true),
       ],
       name2Error: sameName,

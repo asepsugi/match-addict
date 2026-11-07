@@ -107,6 +107,8 @@ void main() {
       act: (t) async {
         await fillBoth(t, club2: ['Indra']);
         await settle(t, rewind: [1]);
+        await t.ensureVisible(box(3));
+        await t.pump();
         await t.tap(box(3));
         await t.pump();
         await scrollToBottom(t);
@@ -155,12 +157,15 @@ void main() {
       act: (t) async {
         await fillBoth(t, club2: [...matcha, 'Andi']);
         await settle(t, rewind: [1]);
+        await t.ensureVisible(box(3));
+        await t.pump();
         await t.tap(box(3));
         await t.pump();
         await scrollToBottom(t);
       },
     );
     expect(find.text('Andi ada di dua klub'), findsOneWidget);
+    expect(find.text('Duplikat dibuang: andi'), findsNothing);
     expect(find.text('7 pemain'), findsOneWidget);
     expect(enabled(tester), isFalse);
   });
@@ -237,5 +242,40 @@ void main() {
     expect(players, hasLength(10));
     expect(players.where((p) => p.clubId == clubs[0].id), hasLength(8));
     expect([for (final p in players.where((p) => p.clubId == clubs[1].id)) p.name], ['Indra', 'Joko']);
+  });
+
+  testWidgets('catatan "Duplikat dibuang" tampil per klub di Sparing', (tester) async {
+    await tester.pumpWidget(screen());
+    await fillBoth(tester);
+    await type(tester, 1, '${numbered(garuda)}\n9. andi');
+    expect(find.text('Duplikat dibuang: andi'), findsOneWidget);
+    expect(find.text('8 pemain'), findsOneWidget);
+  });
+
+  testWidgets('13c kembali dari Atur turnamen: isian kedua blok utuh', (tester) async {
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => const SetupPesertaScreen(sport: SportType.padel),
+        ),
+        GoRoute(
+          path: '/konfigurasi',
+          builder: (_, _) => const Scaffold(body: Text('Atur turnamen')),
+        ),
+      ],
+    );
+    await tester.pumpWidget(hifiRouterScreen(router));
+    await tester.pumpAndSettle();
+    await fillBoth(tester);
+    await tester.ensureVisible(find.text('Lanjut'));
+    await tester.tap(find.text('Lanjut'));
+    await tester.pumpAndSettle();
+    expect(find.text('Atur turnamen'), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+    String text(int i) => tester.widget<TextField>(box(i)).controller!.text;
+    expect([text(0), text(2), text(3)], ['PB Garuda', 'Matcha Club', matcha.join('\n')]);
+    expect(text(1), numbered(garuda));
   });
 }
