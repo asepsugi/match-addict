@@ -175,9 +175,22 @@ extension WoReasonX on WoReason {
 class Player {
   final String id;
   final String name;
-  const Player({required this.id, required this.name});
 
-  Player copyWith({String? name}) => Player(id: id, name: name ?? this.name);
+  /// Sparing: id [Club] pemain ini, wajib untuk setiap pemain turnamen sparing (asli, pengganti, baru, yang keluar);
+  /// null di turnamen biasa. Pemain tidak pernah pindah klub (K8), jadi [copyWith] selalu membawanya.
+  final String? clubId;
+
+  const Player({required this.id, required this.name, this.clubId});
+
+  Player copyWith({String? name}) => Player(id: id, name: name ?? this.name, clubId: clubId);
+}
+
+/// Sparing: satu dari dua klub (PRD §13). Tidak berubah selama turnamen.
+@immutable
+class Club {
+  final String id;
+  final String name;
+  const Club({required this.id, required this.name});
 }
 
 @immutable
@@ -333,6 +346,10 @@ class TournamentConfig {
   /// memakai olahraga · mode seperti biasa. Hanya diisi di awal, tidak bisa diubah.
   final String? name;
 
+  /// Sparing: tepat dua klub, urutan = klub pertama (blok atas layar Pemain, selalu `pair1`), klub kedua. Null =
+  /// turnamen biasa; setiap cabang sparing dimulai dari [isSparing].
+  final List<Club>? clubs;
+
   const TournamentConfig({
     required this.sport,
     required this.mode,
@@ -342,7 +359,10 @@ class TournamentConfig {
     this.fixedPairs,
     this.format = ScoreFormat.standard,
     this.name,
+    this.clubs,
   });
+
+  bool get isSparing => clubs != null;
 
   /// Batas nama turnamen: muat dua baris di poster Story.
   static const maxNameLength = 40;
@@ -370,6 +390,34 @@ class TournamentConfig {
 
   int get courtCount => courts.length;
 
+  // Helper klub di bawah sengaja total (id tak dikenal → null / daftar kosong, tidak melempar): decoder hanya menjamin
+  // bentuk simpanan, bukan keadaan (docs/data.md → Sparing), dan di turnamen biasa semuanya null / kosong.
+
+  Player? playerById(String id) => players.where((p) => p.id == id).firstOrNull;
+
+  Club? clubById(String? id) => id == null ? null : clubs?.where((c) => c.id == id).firstOrNull;
+
+  Club? clubOfPlayer(String playerId) => clubById(playerById(playerId)?.clubId);
+
+  /// Klub pasangan = klub kedua anggotanya (S2); null kalau salah satu anggota tidak dikenal atau klubnya berbeda.
+  Club? clubOfPair(Pair pair) {
+    final club = clubOfPlayer(pair.player1Id);
+    return club != null && club.id == clubOfPlayer(pair.player2Id)?.id ? club : null;
+  }
+
+  /// Semua pemain klub ini, termasuk yang sudah keluar, urut `players`.
+  List<Player> playersOfClub(String clubId) => [
+    for (final p in players)
+      if (p.clubId == clubId) p,
+  ];
+
+  /// Pasangan Fixed klub ini; urutan daftar = indeks generator (G1…, M1…), jadi tidak diurutkan ulang.
+  List<Pair> pairsOfClub(String clubId) => [
+    for (final pair in fixedPairs ?? const <Pair>[])
+      if (clubOfPair(pair)?.id == clubId) pair,
+  ];
+
+  // `clubs` ikut tanpa parameter: klub tidak berubah selama turnamen (Pitfall copyWith di CLAUDE.md).
   TournamentConfig copyWith({List<Player>? players, List<Court>? courts, List<Pair>? fixedPairs}) => TournamentConfig(
     sport: sport,
     mode: mode,
@@ -379,6 +427,7 @@ class TournamentConfig {
     fixedPairs: fixedPairs ?? this.fixedPairs,
     format: format,
     name: name,
+    clubs: clubs,
   );
 }
 
@@ -424,12 +473,17 @@ class ActiveTournament {
   /// berikutnya melanjutkan urutan lawan — juga setelah pasangan diatur ulang, saat jumlah match per putaran berubah.
   final int extraPutaran;
 
+  /// Fixed sparing: semua pasangan yang tidak main per round (klub pertama dulu, urut daftar pasangan) — bisa lebih
+  /// dari satu, jadi tidak muat di [byePairIdByRound] yang tetap milik Fixed biasa (kosong di sparing).
+  final Map<int, List<String>> restingPairIdsByRound;
+
   const ActiveTournament({
     required this.tournament,
     this.byePairIdByRound = const {},
     this.restingPlayerIdsByRound = const {},
     this.withdrawnPlayerIds = const {},
     this.extraPutaran = 0,
+    this.restingPairIdsByRound = const {},
   });
 
   TournamentConfig get config => tournament.config;
@@ -440,6 +494,18 @@ class ActiveTournament {
     for (final p in config.players)
       if (!withdrawnPlayerIds.contains(p.id)) p,
   ];
+
+  /// Sparing: pemain aktif klub ini (kosong untuk klub tak dikenal / turnamen biasa).
+  List<Player> activePlayersOfClub(String clubId) => [
+    for (final p in activePlayers)
+      if (p.clubId == clubId) p,
+  ];
+
+  /// Sparing: klub pasangan ber-id [pairId], juga pasangan lama yang sudah diatur ulang ([pairById]).
+  Club? clubOfPairId(String pairId) {
+    final pair = pairById(pairId);
+    return pair == null ? null : config.clubOfPair(pair);
+  }
 
   int get roundCount => matches.isEmpty ? 0 : matches.last.roundNumber;
 
@@ -678,11 +744,13 @@ class ActiveTournament {
     Map<int, List<String>>? resting,
     Set<String>? withdrawn,
     int? extraPutaran,
+    Map<int, List<String>>? restingPairs,
   }) => ActiveTournament(
     tournament: tournament ?? this.tournament,
     byePairIdByRound: byes ?? byePairIdByRound,
     restingPlayerIdsByRound: resting ?? restingPlayerIdsByRound,
     withdrawnPlayerIds: withdrawn ?? withdrawnPlayerIds,
     extraPutaran: extraPutaran ?? this.extraPutaran,
+    restingPairIdsByRound: restingPairs ?? restingPairIdsByRound,
   );
 }

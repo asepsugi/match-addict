@@ -13,17 +13,34 @@ class TournamentCodec {
   /// per set) sengaja tidak dimuat — keputusan host 2026-10-22.
   static const schemaVersion = 2;
 
-  static String encode(ActiveTournament active) => jsonEncode({
-    'schema': schemaVersion,
-    // Versi app yang menulis data ini, untuk mengenali simpanan saat format berubah lagi.
-    'appVersion': appVersion,
-    'tournament': _tournament(active.tournament),
-    // Kunci JSON wajib String, jadi nomor round di-stringify.
-    'bye': {for (final e in active.byePairIdByRound.entries) '${e.key}': e.value},
-    'resting': {for (final e in active.restingPlayerIdsByRound.entries) '${e.key}': e.value},
-    'withdrawn': active.withdrawnPlayerIds.toList(),
-    'extraPutaran': active.extraPutaran,
-  });
+  /// Penanda sparing di `bye` (docs/data.md → Sparing). Sengaja kunci yang bukan angka: decoder 3.1.0 meng-`int.parse`
+  /// tiap kunci `bye`, jadi app lama yang masih ter-cache menolak payload sparing (null) alih-alih membacanya sebagai
+  /// turnamen biasa dan menimpa simpanannya tanpa klub. Jangan dihapus.
+  static const _sparingKey = 'sparing';
+
+  /// Revisi bentuk sparing; revisi tak kompatibel berikutnya menaikkannya supaya pembaca lama menolak.
+  static const _sparingRevision = '1';
+
+  static String encode(ActiveTournament active) {
+    // Kunci sparing hanya untuk turnamen sparing: encode turnamen biasa harus byte-sama dengan 3.1.0 (AC-S19).
+    final sparing = active.config.isSparing;
+    return jsonEncode({
+      'schema': schemaVersion,
+      // Versi app yang menulis data ini, untuk mengenali simpanan saat format berubah lagi.
+      'appVersion': appVersion,
+      'tournament': _tournament(active.tournament),
+      // Kunci JSON wajib String, jadi nomor round di-stringify.
+      'bye': {
+        if (sparing) _sparingKey: _sparingRevision,
+        for (final e in active.byePairIdByRound.entries) '${e.key}': e.value,
+      },
+      'resting': {for (final e in active.restingPlayerIdsByRound.entries) '${e.key}': e.value},
+      if (sparing && active.restingPairIdsByRound.isNotEmpty)
+        'restingPairs': {for (final e in active.restingPairIdsByRound.entries) '${e.key}': e.value},
+      'withdrawn': active.withdrawnPlayerIds.toList(),
+      'extraPutaran': active.extraPutaran,
+    });
+  }
 
   /// Mengembalikan null kalau payload kosong, rusak, dari skema lain, atau tanpa versi app.
   static ActiveTournament? decode(String? raw) {
@@ -31,11 +48,23 @@ class TournamentCodec {
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       if (json['schema'] != schemaVersion || json['appVersion'] is! String) return null;
+      final tournament = _readTournament(json['tournament'] as Map<String, dynamic>);
+      final config = tournament.config;
+      // Penanda dibuang sebelum nomor round dibaca; kunci non-angka lain tetap membuat payload rusak.
+      final bye = Map<String, dynamic>.of(json['bye'] as Map<String, dynamic>);
+      final hasMarker = bye.containsKey(_sparingKey);
+      final marker = bye.remove(_sparingKey);
+      final restingPairs = json['restingPairs'] as Map<String, dynamic>?;
+      final extraPutaran = (json['extraPutaran'] as int?) ?? 0;
+      if (config.isSparing) {
+        if (marker != _sparingRevision || extraPutaran < 0 || !_isValidSparing(tournament)) return null;
+      } else if (hasMarker || restingPairs != null || config.players.any((p) => p.clubId != null)) {
+        // Kunci sparing tanpa `clubs` tidak bisa ditulis oleh penulis mana pun: payload rusak.
+        return null;
+      }
       return ActiveTournament(
-        tournament: _readTournament(json['tournament'] as Map<String, dynamic>),
-        byePairIdByRound: {
-          for (final e in (json['bye'] as Map<String, dynamic>).entries) int.parse(e.key): e.value as String,
-        },
+        tournament: tournament,
+        byePairIdByRound: {for (final e in bye.entries) int.parse(e.key): e.value as String},
         restingPlayerIdsByRound: {
           for (final e in (json['resting'] as Map<String, dynamic>).entries)
             int.parse(e.key): [for (final id in e.value as List) id as String],
@@ -46,13 +75,36 @@ class TournamentCodec {
         // sekarang menyusul lewat urutan prioritas, bukan disejajarkan.
         withdrawnPlayerIds: {for (final id in (json['withdrawn'] as List?) ?? const []) id as String},
         // Baru di 3.1.0 (round tambahan Fixed); simpanan lama belum punya putaran tambahan.
-        extraPutaran: (json['extraPutaran'] as int?) ?? 0,
+        extraPutaran: extraPutaran,
+        // Baru di 3.2.0, hanya Fixed sparing (beberapa pasangan istirahat per round).
+        restingPairIdsByRound: {
+          for (final e in (restingPairs ?? const <String, dynamic>{}).entries)
+            int.parse(e.key): [for (final id in e.value as List) id as String],
+        },
       );
     } catch (_) {
       // Payload rusak (mis. app di-kill di tengah tulis) tidak boleh membuat
       // app gagal dibuka — turnamennya saja yang hilang.
       return null;
     }
+  }
+
+  /// Bentuk sparing yang wajib dijaga saat baca (docs/data.md → Aturan baca): layar sparing menurunkan klub pasangan
+  /// dari anggotanya dan menaruh `pair1` di atas tanpa penjagaan sendiri, jadi payload yang melanggar S2/S4 harus
+  /// ditolak di sini, bukan membuat widget melempar. Keadaan (id `restingPairs` tak dikenal, jumlah pemain/pasangan per
+  /// klub) sengaja tidak diperiksa.
+  static bool _isValidSparing(Tournament t) {
+    final config = t.config;
+    final clubs = config.clubs!;
+    if (clubs.length != 2) return false;
+    final first = clubs[0], second = clubs[1];
+    if (first.id.isEmpty || second.id.isEmpty || first.id == second.id) return false;
+    if (first.name.isEmpty || second.name.isEmpty) return false;
+    if (config.players.any((p) => config.clubById(p.clubId) == null)) return false;
+    if ((config.fixedPairs ?? const <Pair>[]).any((pair) => config.clubOfPair(pair) == null)) return false;
+    return t.matches.every(
+      (m) => config.clubOfPair(m.pair1)?.id == first.id && config.clubOfPair(m.pair2)?.id == second.id,
+    );
   }
 
   // --- encode -------------------------------------------------------------
@@ -73,6 +125,11 @@ class TournamentCodec {
     'target': c.format.target,
     // Opsional: turnamen tanpa nama (dan simpanan sebelum 2.3) tidak punya kunci ini.
     if (c.name != null) 'name': c.name,
+    // Sparing (3.2.0): turnamen biasa tidak punya kunci ini.
+    if (c.clubs != null)
+      'clubs': [
+        for (final club in c.clubs!) {'id': club.id, 'name': club.name},
+      ],
     'courts': [
       for (final court in c.courts)
         {
@@ -85,7 +142,7 @@ class TournamentCodec {
         },
     ],
     'players': [
-      for (final p in c.players) {'id': p.id, 'name': p.name},
+      for (final p in c.players) {'id': p.id, 'name': p.name, if (c.isSparing && p.clubId != null) 'club': p.clubId},
     ],
     'fixedPairs': c.fixedPairs == null ? null : [for (final pair in c.fixedPairs!) _pair(pair)],
   };
@@ -123,6 +180,12 @@ class TournamentCodec {
     matchDurationMinutes: j['matchDurationMinutes'] as int,
     format: _readFormat(j),
     name: j['name'] as String?,
+    clubs: j['clubs'] == null
+        ? null
+        : [
+            for (final c in j['clubs'] as List)
+              Club(id: (c as Map<String, dynamic>)['id'] as String, name: c['name'] as String),
+          ],
     courts: [
       for (final c in j['courts'] as List)
         Court(
@@ -133,7 +196,10 @@ class TournamentCodec {
           startMinute: c['startMinute'] as int? ?? 0,
         ),
     ],
-    players: [for (final p in j['players'] as List) Player(id: p['id'] as String, name: p['name'] as String)],
+    players: [
+      for (final p in j['players'] as List)
+        Player(id: p['id'] as String, name: p['name'] as String, clubId: p['club'] as String?),
+    ],
     fixedPairs: j['fixedPairs'] == null
         ? null
         : [for (final p in j['fixedPairs'] as List) _readPair(p as Map<String, dynamic>)],
