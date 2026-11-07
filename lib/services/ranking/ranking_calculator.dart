@@ -93,6 +93,24 @@ class RankingCalculator {
     return byMethod != 0 ? byMethod : b.gameDiff.compareTo(a.gameDiff);
   }
 
+  /// Nilai satu kali menang WO per pemain, dari match yang benar-benar dimainkan (PRD 4.4). Sama dengan nilai yang
+  /// dikreditkan [rank] ke tiap pemenang WO; skor klub sparing memakainya lagi (K11) supaya aturannya tidak
+  /// ditulis dua kali.
+  static Map<String, int> woWinnerValues({
+    required List<Player> players,
+    required List<MatchGame> matches,
+    required ScoreFormat format,
+  }) {
+    final played = _standings(players, [
+      for (final m in matches)
+        if (m.status == MatchStatus.done) m,
+    ], format);
+    return {
+      for (final s in played)
+        s.player.id: format.woWinnerScore(s.matchesPlayed == 0 ? null : s.gamesWon / s.matchesPlayed),
+    };
+  }
+
   static Map<String, PlayerStanding> _byId(List<Player> players) => {
     for (final p in players) p.id: PlayerStanding(player: p),
   };
