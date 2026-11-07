@@ -26,8 +26,8 @@ class ClubTally {
     return whole == 0 ? '½' : '$whole½';
   }
 
-  /// "+13", "−13" (tanda minus), "0" — sama dengan `PlayerStanding.diffLabel`.
-  String get diffLabel => diff > 0 ? '+$diff' : (diff < 0 ? '−${-diff}' : '0');
+  /// "+13", "−13", "0" — format yang sama dengan `PlayerStanding.diffLabel`.
+  String get diffLabel => signedDiffLabel(diff);
 }
 
 /// Skor klub turnamen sparing: dua klub, klub pertama = `config.clubs[0]`. Dihitung di sini sekali; Jadwal, Klasemen,
@@ -76,7 +76,9 @@ class ClubScore {
       if (m.status != MatchStatus.done && m.status != MatchStatus.wo) continue;
       final i1 = sideIndex(m.pair1);
       final i2 = sideIndex(m.pair2);
-      // Sparing selalu klub lawan klub; match yang klubnya tidak jelas dilewati daripada merusak skor.
+      // Sparing selalu klub lawan klub (PRD §13). Match yang klubnya tidak jelas berarti ada bug di generator/pasangan:
+      // debug dan test harus gagal supaya skor tidak salah diam-diam; rilis tidak boleh crash, jadi dilewati.
+      assert(i1 != null && i2 != null && i1 != i2, 'Match ${m.id} bukan klub lawan klub');
       if (i1 == null || i2 == null || i1 == i2) continue;
 
       final winnerId = m.winnerPairId;

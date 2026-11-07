@@ -1,11 +1,15 @@
 import '../../models/models.dart';
 
+/// "+12", "−4" (tanda minus, bukan strip), "0": satu format selisih untuk pemain dan klub sparing.
+String signedDiffLabel(int diff) => diff > 0 ? '+$diff' : (diff < 0 ? '−${-diff}' : '0');
+
 /// Rekap satu pemain untuk leaderboard.
 class PlayerStanding {
   final Player player;
   final int wins;
   final int losses;
   final int draws;
+
   /// Game/poin dari match yang benar-benar dimainkan.
   final int gamesWon;
   final int gamesLost;
@@ -41,7 +45,7 @@ class PlayerStanding {
   int get gameDiff => gamesWon - gamesLost;
 
   /// Selisih seperti tampil di Klasemen, Detail, dan poster: "+12", "−4" (tanda minus, bukan strip), "0".
-  String get diffLabel => gameDiff > 0 ? '+$gameDiff' : (gameDiff < 0 ? '−${-gameDiff}' : '0');
+  String get diffLabel => signedDiffLabel(gameDiff);
 
   PlayerStanding _add({
     int wins = 0,
@@ -105,11 +109,12 @@ class RankingCalculator {
       for (final m in matches)
         if (m.status == MatchStatus.done) m,
     ], format);
-    return {
-      for (final s in played)
-        s.player.id: format.woWinnerScore(s.matchesPlayed == 0 ? null : s.gamesWon / s.matchesPlayed),
-    };
+    return {for (final s in played) s.player.id: _woValue(format, s.gamesWon, s.matchesPlayed)};
   }
+
+  /// Nilai menang WO dari rata-rata skor yang dimainkan sendiri ([count] 0 = belum pernah main).
+  static int _woValue(ScoreFormat format, int games, int count) =>
+      format.woWinnerScore(count == 0 ? null : games / count);
 
   static Map<String, PlayerStanding> _byId(List<Player> players) => {
     for (final p in players) p.id: PlayerStanding(player: p),
@@ -155,7 +160,7 @@ class RankingCalculator {
             wins: won ? 1 : 0,
             losses: won ? 0 : 1,
             woLosses: won ? 0 : 1,
-            woPoints: won ? format.woWinnerScore(own.count == 0 ? null : own.games / own.count) : 0,
+            woPoints: won ? _woValue(format, own.games, own.count) : 0,
           );
         }
       }
