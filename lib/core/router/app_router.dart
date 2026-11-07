@@ -28,8 +28,8 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/konfigurasi',
       builder: (_, state) {
-        final (sport, players) = state.extra as (SportType, List<Player>);
-        return KonfigurasiScreen(sport: sport, players: players);
+        final (sport, players, clubs) = state.extra as (SportType, List<Player>, List<Club>?);
+        return KonfigurasiScreen(sport: sport, players: players, clubs: clubs);
       },
     ),
     GoRoute(

@@ -17,7 +17,11 @@ class KonfigurasiScreen extends StatefulWidget {
   final SportType sport;
   final List<Player> players;
 
-  const KonfigurasiScreen({super.key, required this.sport, required this.players});
+  /// Sparing: dua klub dari layar Pemain (pemainnya sudah membawa `clubId`); null = turnamen biasa. Layar ini belum
+  /// memakainya, SP-9 yang meneruskannya ke config.
+  final List<Club>? clubs;
+
+  const KonfigurasiScreen({super.key, required this.sport, required this.players, this.clubs});
 
   @override
   State<KonfigurasiScreen> createState() => _KonfigurasiScreenState();
