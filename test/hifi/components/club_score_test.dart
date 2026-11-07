@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/core/theme/mabar_theme.dart';
 import 'package:match_addict/core/widgets/club_score.dart';
@@ -9,12 +11,8 @@ import '../hifi_golden.dart';
 void main() {
   final theme = MabarTheme.light();
 
-  ClubScoreRow row(
-    String name,
-    String detail,
-    String score, {
-    bool lead = false,
-  }) => ClubScoreRow(name: name, detail: detail, score: score, lead: lead);
+  ClubScoreRow row(String name, String detail, String score, {bool lead = false}) =>
+      ClubScoreRow(name: name, detail: detail, score: score, lead: lead);
 
   for (final (frame, label, first, second) in [
     (
@@ -41,12 +39,7 @@ void main() {
       row('PB Garuda', '122 poin · +4', '6½', lead: true),
       row('Matcha Club', '118 poin · −4', '5½'),
     ),
-    (
-      '14m',
-      '0 – 0 tanpa bola',
-      row('PB Garuda', '0 game · 0', '0'),
-      row('Matcha Club', '0 game · 0', '0'),
-    ),
+    ('14m', '0 – 0 tanpa bola', row('PB Garuda', '0 game · 0', '0'), row('Matcha Club', '0 game · 0', '0')),
   ]) {
     testWidgets('ClubScore $label ($frame)', (tester) async {
       final at = hifiRect(frame, 'clubscore');
@@ -62,17 +55,17 @@ void main() {
         at,
         label: 'clubscore',
       );
+      expect(tester.getSize(find.byType(ClubScore)), const Size(358, 84));
+      // Bola per frame: 13k 1, 14s 1, 14t 2, 14u 1, 14m 0.
+      expect(
+        find.byKey(ClubScore.ballKey),
+        findsNWidgets(const {'13k': 1, '14s': 1, '14t': 2, '14u': 1, '14m': 0}[frame]!),
+      );
       expect(find.text(first.name), findsOneWidget);
       expect(find.text(second.name), findsOneWidget);
       final sameDetail = first.detail == second.detail;
-      expect(
-        find.text(first.detail),
-        sameDetail ? findsNWidgets(2) : findsOneWidget,
-      );
-      expect(
-        find.text(second.detail),
-        sameDetail ? findsNWidgets(2) : findsOneWidget,
-      );
+      expect(find.text(first.detail), sameDetail ? findsNWidgets(2) : findsOneWidget);
+      expect(find.text(second.detail), sameDetail ? findsNWidgets(2) : findsOneWidget);
       // Detail/skor yang sama di kedua baris (Seri, 0 – 0) muncul dua kali.
       final same = first.score == second.score;
       expect(find.text(first.score), same ? findsNWidgets(2) : findsOneWidget);

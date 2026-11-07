@@ -5,12 +5,7 @@ import '../theme/mabar_theme.dart';
 /// Satu baris klub di [ClubScore]. Semua teks sudah jadi: widget tidak menghitung skor, selisih, maupun
 /// siapa yang unggul (itu tugas service skor klub).
 class ClubScoreRow {
-  const ClubScoreRow({
-    required this.name,
-    required this.detail,
-    required this.score,
-    required this.lead,
-  });
+  const ClubScoreRow({required this.name, required this.detail, required this.score, required this.lead});
 
   final String name;
 
@@ -32,24 +27,22 @@ class ClubScore extends StatelessWidget {
   final ClubScoreRow first;
   final ClubScoreRow second;
 
+  /// `.w`: dipakai test untuk menghitung bola.
+  static const ballKey = ValueKey('club-score-ball');
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 2,
-        horizontal: MabarSpacing.x4,
-      ),
-      decoration: BoxDecoration(
-        color: MabarColors.ink,
-        borderRadius: BorderRadius.circular(MabarRadius.group),
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: MabarSpacing.x4),
+      decoration: BoxDecoration(color: MabarColors.ink, borderRadius: BorderRadius.circular(MabarRadius.group)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _Line(row: first),
-          // `.cs + .cs`: garis putih 10% di antara dua baris.
+          _Line(row: first, height: 40),
+          // `.cs + .cs`: garis putih 10% di antara dua baris. Di CSS `border-top: 1px` ada di dalam
+          // `height: 40px` (border-box), jadi isi baris kedua 39 supaya total tetap 2 + 40 + 40 + 2 = 84.
           Container(height: 1, color: const Color(0x1AFFFFFF)),
-          _Line(row: second),
+          _Line(row: second, height: 39),
         ],
       ),
     );
@@ -58,15 +51,16 @@ class ClubScore extends StatelessWidget {
 
 /// `.cs`: grid bola 10 · nama · detail · skor 44, tinggi 40.
 class _Line extends StatelessWidget {
-  const _Line({required this.row});
+  const _Line({required this.row, required this.height});
 
   final ClubScoreRow row;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     const gap = SizedBox(width: 10);
     return SizedBox(
-      height: 40,
+      height: height,
       child: Row(
         children: [
           // `.w`: bola hanya di klub yang unggul, ruangnya tetap supaya nama sejajar.
@@ -75,10 +69,8 @@ class _Line extends StatelessWidget {
             height: 10,
             child: row.lead
                 ? const DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: MabarColors.ball,
-                      shape: BoxShape.circle,
-                    ),
+                    key: ClubScore.ballKey,
+                    decoration: BoxDecoration(color: MabarColors.ball, shape: BoxShape.circle),
                   )
                 : null,
           ),
@@ -89,7 +81,7 @@ class _Line extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: MabarType.body.copyWith(
-                fontSize: 17,
+                fontSize: 17, // .nm 17px
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
@@ -101,7 +93,7 @@ class _Line extends StatelessWidget {
             maxLines: 1,
             // Putih 66%: 7,9:1 di atas tinta.
             style: MabarType.caption.copyWith(
-              color: const Color(0xA8FFFFFF),
+              color: const Color(0xA8FFFFFF), // .tp rgba(255,255,255,.66)
               fontFeatures: MabarType.tabular,
             ),
           ),
@@ -115,7 +107,7 @@ class _Line extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: MabarType.family,
                 leadingDistribution: TextLeadingDistribution.even,
-                fontSize: 30,
+                fontSize: 30, // .sc 30px
                 fontWeight: FontWeight.w800,
                 fontVariations: MabarType.numVariations,
                 fontFeatures: MabarType.tabular,
