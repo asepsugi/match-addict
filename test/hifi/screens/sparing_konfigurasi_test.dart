@@ -73,9 +73,24 @@ void main() {
     expect(find.text('· 4 round · 8 match · 2 court'), findsOneWidget);
   });
 
-  testWidgets('K10 28 / 2 di 2 court → lewat booking 01:30', (tester) async {
+  testWidgets('AC-S7a K10 28 / 2 di 2 court → lewat booking 01:30', (tester) async {
     await tester.pumpWidget(screen(28, 2));
     expect(find.text('· 14 round · lewat booking 01:30'), findsOneWidget);
+  });
+
+  testWidgets('AC-S7a K10 lewat booking dan court aktif < dipesan: tanpa "· n court"', (tester) async {
+    await tester.pumpWidget(screen(20, 2));
+    await tapStep(tester, 2, 'Tambah', times: 2);
+    expect(find.textContaining('lewat booking'), findsOneWidget);
+    expect(find.textContaining('court aktif'), findsNothing);
+    expect(find.textContaining(RegExp(r'· \d+ court')), findsNothing);
+  });
+
+  testWidgets('Mixed sparing: tombol mati sampai SP-18', (tester) async {
+    await tester.pumpWidget(screen(8, 6));
+    await tester.tap(find.text('Mixed'));
+    await tester.pump();
+    expect(tester.widget<MabarButton>(find.byType(MabarButton)).onPressed, isNull);
   });
 
   testWidgets('AC-S7a Lanjut membawa klub + pemain berklub ke Pasangan', (tester) async {

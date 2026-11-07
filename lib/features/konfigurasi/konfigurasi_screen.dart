@@ -100,14 +100,19 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
 
   bool get _fixedSparing => widget.clubs != null && _mode == PartnerMode.fixed;
 
+  /// Sementara: generator Mixed sparing (SP-3) dan layar Mixed (SP-18) belum ada, jadi pasangan acak lintas klub bisa
+  /// terbentuk dan simpanan ditolak. Dicabut di SP-18 bersama 13i/13j.
+  bool get _mixedSparingBlocked => widget.clubs != null && _mode == PartnerMode.mixed;
+
+  int _clubCount(Club c) => widget.players.where((p) => p.clubId == c.id).length;
+
   /// Teks tombol Fixed sparing (K10, jadwalnya pasti jadi tanpa "±"): angka dari generator, di sini hanya dirangkai.
   /// Lewat booking → hanya round + kelebihannya; court aktif < court dipesan → tambah "· n court".
   String? _sparingMeta() {
     final clubs = widget.clubs!;
-    int count(Club c) => widget.players.where((p) => p.clubId == c.id).length;
     final e = SparingFixedGenerator.estimate(
-      players1: count(clubs[0]),
-      players2: count(clubs[1]),
+      players1: _clubCount(clubs[0]),
+      players2: _clubCount(clubs[1]),
       bookingMinutes: [for (final c in _courts) c.hours * 60],
       matchDurationMinutes: _duration,
     );
@@ -159,7 +164,7 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
             title: 'Atur turnamen',
             subtitle: widget.clubs == null
                 ? '${widget.sport.label} · ${widget.players.length} pemain'
-                : '${widget.sport.label} · ${[for (final c in widget.clubs!) '${c.name} ${widget.players.where((p) => p.clubId == c.id).length}'].join(' · ')}',
+                : '${widget.sport.label} · ${[for (final c in widget.clubs!) '${c.name} ${_clubCount(c)}'].join(' · ')}',
             onBack: () => context.pop(),
             scrolled: _scrolled,
           ),
@@ -289,7 +294,7 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
                       : tooLong
                       ? null
                       : (mixed ? '· ±$rounds round' : '· ±$rounds round · ${rounds * _courts.length} match'),
-                  onPressed: tooLong || (_fixedSparing && sparingMeta == null) ? null : _next,
+                  onPressed: tooLong || _mixedSparingBlocked || (_fixedSparing && sparingMeta == null) ? null : _next,
                 ),
               ),
             ],
