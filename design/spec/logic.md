@@ -477,23 +477,30 @@ caption, Live — tidak dihitung ulang di widget.
   nilainya: ukuran `.pscore`/`.pclub` di Feed dan Story, dan apakah label klub dihitung sebagai baris di
   `_density`/dua kolom Mixed — lihat SP-15.
 
-### 13.10 Data (draf untuk DBA — DBA memfinalkan di SP-0, sebelum SP-1)
+### 13.10 Data (final, DBA SP-0 — bentuk lengkap, aturan baca, dan risiko di `docs/data.md` → Sparing)
 
-Kunci baru semuanya **opsional**; simpanan 3.1.0 (tanpa kunci ini) = turnamen biasa apa adanya; `schemaVersion` tetap
-2; kategori MINOR.
-- `config.clubs`: `[{"id": "club-1", "name": "PB Garuda"}, {"id": "club-2", "name": "Matcha Club"}]`, urutan = klub
-  pertama, kedua. Tidak ditulis untuk turnamen biasa.
-- `config.players[].club`: id klub, hanya di turnamen sparing, di **setiap** pemain (asli, pengganti dari Atur
-  pasangan, baru dari Kelola pemain; pemain keluar tetap membawa klubnya). Payload dengan `clubs` tapi ada pemain tanpa
-  `club`, id klub tak dikenal, atau jumlah klub ≠ 2 = rusak → `decode` null (aturan rusak yang sudah ada).
-- `restingPairs`: `{"6": ["pairId", …]}` per round, hanya Fixed sparing. `bye` tetap ditulis (`{}`) karena decoder
-  3.1.0 mewajibkannya.
-- `extraPutaran`: Fixed sparing = jumlah satuan tambahan yang sudah dibuat (13.3). Tidak ada kunci baru.
+Semua kunci baru **opsional** dan hanya ditulis untuk turnamen sparing; simpanan 3.1.0 = turnamen biasa apa adanya
+(AC-S19); encode turnamen biasa tidak berubah satu byte; `schemaVersion` tetap 2; kategori MINOR.
+- `config.clubs`: `[{"id": "club-1", "name": "PB Garuda"}, {"id": "club-2", "name": "Matcha Club"}]`, tepat dua, urutan
+  = klub pertama, kedua; id berbeda, nama tak kosong. `isSparing` = `clubs != null`.
+- `config.players[].club`: id klub, di **setiap** pemain turnamen sparing (asli, pengganti dari Atur pasangan, baru dari
+  Kelola pemain, yang sudah keluar). Tidak pernah berubah (K8).
+- `restingPairs`: `{"6": ["pairId", …]}` per round, hanya Fixed sparing, ditulis kalau tidak kosong. `bye` tidak berisi
+  nomor round di sparing.
+- `bye.sparing = "1"`: penanda revisi bentuk sparing, **sengaja** kunci yang tidak bisa di-`int.parse` supaya decoder
+  3.1.0 gagal (→ null) dan tidak salah membaca sparing sebagai turnamen biasa; decoder 3.2.0 membuangnya sebelum
+  membaca nomor round. Wajib ada kalau `clubs` ada, dan sebaliknya.
+- `extraPutaran`: Fixed sparing = jumlah **satuan** yang sudah dibuat (13.3); tafsir ikut `isSparing`. ≥ 0; Mixed
+  sparing 0.
 - Mixed sparing: istirahat tetap `resting` (id pemain); klubnya dari `players[].club`.
-- Data live: relay menyimpan JSON codec apa adanya; tidak berubah.
-- Risiko yang DBA putuskan: app 3.1.0 yang masih ter-cache (PWA, aktif di reload ke-2) membaca simpanan sparing sebagai
-  turnamen biasa (kunci baru diabaikan) — Jadwal tetap, tapi Buat R Mixed akan mencampur klub. Tidak bisa dicegah dari
-  3.2.0; cukup dicatat atau diterima.
+- Rusak → `decode` null: `clubs` bukan dua klub valid; pemain tanpa `club` / klub tak dikenal; kunci sparing tanpa
+  `clubs` (atau sebaliknya `clubs` tanpa penanda); anggota pasangan beda klub atau tidak ada di `config.players`;
+  `pair1` bukan klub pertama / `pair2` bukan klub kedua (S2, S4); `restingPairs`/`extraPutaran` salah tipe atau negatif.
+  Tidak diperiksa saat baca: id di `restingPairs` yang tidak ketemu, jumlah pemain/pasangan per klub (helper klub di model
+  harus total, tidak melempar).
+- Data live: relay menyimpan JSON codec apa adanya, tidak berubah, tanpa deploy. Penonton web 3.1.0 yang masih
+  ter-cache melihat "Live tidak bisa dibuka" (bukan data campur klub); host 3.1.0 yang tersisa membaca null dan
+  simpanannya tidak ditimpa. Ukuran: 30 pemain, 7/8 pasangan, 56 match per satuan, ±37 KB per satuan, batas relay 256 KB.
 
 ### 13.11 Data test (= angka PRD dan frame, dicek generator + kalkulator 2026-11-04)
 
