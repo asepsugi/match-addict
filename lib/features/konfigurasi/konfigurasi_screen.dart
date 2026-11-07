@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/theme/mabar_theme.dart';
+import '../../core/time_text.dart';
 import '../../core/widgets/mabar_controls.dart';
 import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
+import '../../services/schedule/sparing_fixed_generator.dart';
 import 'widgets/config_pickers.dart';
 
 /// Screen 03 · Konfigurasi — disusun seperti halaman pengaturan: nama turnamen, mode, format skor + durasi, court.
@@ -17,8 +19,8 @@ class KonfigurasiScreen extends StatefulWidget {
   final SportType sport;
   final List<Player> players;
 
-  /// Sparing: dua klub dari layar Pemain (pemainnya sudah membawa `clubId`); null = turnamen biasa. Layar ini belum
-  /// memakainya, SP-9 yang meneruskannya ke config.
+  /// Sparing: dua klub dari layar Pemain (pemainnya sudah membawa `clubId`); null = turnamen biasa. Ikut ke config
+  /// apa adanya.
   final List<Club>? clubs;
 
   const KonfigurasiScreen({super.key, required this.sport, required this.players, this.clubs});
@@ -93,7 +95,27 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
     players: widget.players,
     format: _format,
     name: _name.text.trim().isEmpty ? null : _name.text.trim(),
+    clubs: widget.clubs,
   );
+
+  bool get _fixedSparing => widget.clubs != null && _mode == PartnerMode.fixed;
+
+  /// Teks tombol Fixed sparing (K10, jadwalnya pasti jadi tanpa "±"): angka dari generator, di sini hanya dirangkai.
+  /// Lewat booking → hanya round + kelebihannya; court aktif < court dipesan → tambah "· n court".
+  String? _sparingMeta() {
+    final clubs = widget.clubs!;
+    int count(Club c) => widget.players.where((p) => p.clubId == c.id).length;
+    final e = SparingFixedGenerator.estimate(
+      players1: count(clubs[0]),
+      players2: count(clubs[1]),
+      bookingMinutes: [for (final c in _courts) c.hours * 60],
+      matchDurationMinutes: _duration,
+    );
+    if (e.rounds == 0) return null;
+    if (e.overMinutes > 0) return '· ${e.rounds} round · lewat booking ${countdownText(e.overMinutes)}';
+    final court = e.activeCourts < _courts.length ? ' · ${e.activeCourts} court' : '';
+    return '· ${e.rounds} round · ${e.matches} match$court';
+  }
 
   void _next() {
     final config = _config;
@@ -114,7 +136,9 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
     final rounds = _config.maxRounds;
     // Court penyebab "tidak muat" = booking terpendek; yang lebih pendek dari durasi ikut ditandai.
     final shortest = _courts.indexed.reduce((a, b) => b.$2.hours < a.$2.hours ? b : a);
-    final tooLong = rounds == 0;
+    // Fixed sparing tetap bisa lanjut walau lewat booking (K10): jadwalnya dibuat utuh, host mengakhirinya sendiri.
+    final tooLong = rounds == 0 && !_fixedSparing;
+    final sparingMeta = _fixedSparing ? _sparingMeta() : null;
     final method = _format.method;
     final mixed = _mode == PartnerMode.mixed;
     final scoreNote = tooLong
@@ -133,7 +157,9 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
         children: [
           MabarAppBar(
             title: 'Atur turnamen',
-            subtitle: '${widget.sport.label} · ${widget.players.length} pemain',
+            subtitle: widget.clubs == null
+                ? '${widget.sport.label} · ${widget.players.length} pemain'
+                : '${widget.sport.label} · ${[for (final c in widget.clubs!) '${c.name} ${widget.players.where((p) => p.clubId == c.id).length}'].join(' · ')}',
             onBack: () => context.pop(),
             scrolled: _scrolled,
           ),
@@ -258,8 +284,12 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
               Expanded(
                 child: MabarButton(
                   label: mixed ? 'Mulai Round 1' : 'Lanjut',
-                  meta: tooLong ? null : (mixed ? '· ±$rounds round' : '· ±$rounds round · ${rounds * _courts.length} match'),
-                  onPressed: tooLong ? null : _next,
+                  meta: _fixedSparing
+                      ? sparingMeta
+                      : tooLong
+                      ? null
+                      : (mixed ? '· ±$rounds round' : '· ±$rounds round · ${rounds * _courts.length} match'),
+                  onPressed: tooLong || (_fixedSparing && sparingMeta == null) ? null : _next,
                 ),
               ),
             ],
