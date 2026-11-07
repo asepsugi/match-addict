@@ -269,6 +269,9 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
   klub: ganti ke `active.canWithdraw(p.id)` dan pilihan klub (15l/15m).
 - **Catatan review SP-9:** Atur turnamen sementara mematikan "Mulai Round 1" untuk Mixed sparing (config membawa klub,
   tapi layar Mixed belum ada). Cabut penjagaan itu di task ini bersama tombol 13i/13j (estimasi Mixed sparing dari SP-3).
+- **Catatan review SP-14:** Detail Mixed sparing (Beda partner = klub sendiri − 1, Beda lawan = klub lain) sudah lewat
+  `coverageTotals` tapi belum diuji: tambah test di 15u/15v. Kunci juga subjudul pemain sparing yang belum main
+  ("Belum main · {klub} · …") dengan `find.text`.
 - **Dependensi:** hi-fi Mixed, SP-3, SP-6, SP-11. **Model:** default (kecuali ada logika baru dari hi-fi).
 
 ## SP-19 · Rilis 3.2.0
