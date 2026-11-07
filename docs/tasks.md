@@ -56,9 +56,13 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Dependensi:** SP-0. **Paralel:** dengan SP-2, SP-6, SP-7. **Model:** kuat (semua task membangun di atasnya).
 
 ## SP-2 · Generator Fixed sparing — kuat
-- **Goal:** `lib/services/schedule/sparing_fixed_generator.dart`: `generate`, `extend`, `extraRounds(active, now,
-  extraMinutes, pairs)` (padanan `RoundRobinGenerator.extraRounds`, `perPair` per klub), `activeCourts`,
+- **Status:** selesai, di-approve (2680bbd + 918f881 di `sparing`, 2026-11-08).
+- **Goal:** `lib/services/schedule/sparing_fixed_generator.dart`: `generate`, `extend`, `extraRounds`, `activeCourts`,
   `unitMatches`, dan estimasi Konfigurasi K10 (round, match, court aktif, menit lewat booking).
+- **API jadi (dipakai SP-5/SP-9/SP-16):** `extraRounds(active, now, {required club1, required club2, extraMinutes})`
+  dengan daftar pasangan per klub yang **urutannya = indeks generator** (urutan `config.fixedPairs`), hasil
+  `{schedule, units, perPair: (club1, club2), fitRounds, roundsLeft, overMinutes}`. `estimate` mengembalikan angka
+  `(rounds, matches, activeCourts, overMinutes)`; teks "Lanjut · …" dirangkai layar. `unitMatches(p1, 0) == 0`.
 - **Baca:** `logic.md` §13.2–13.4; prototipe `tool/sparing_proto/lib/sparing_fixed.dart` + `test/fixed_property_test.dart`,
   `test/examples_test.dart`, `test/frames_test.dart`; `round_robin_generator.dart` (`extend`, `_Packer`).
 - **Ubah:** file generator baru; `test/services/sparing_fixed_test.dart` (port test properti + contoh). Input generator
@@ -202,9 +206,9 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Ubah:** `features/share/**`, `services/share/result_text_builder.dart` (+ test).
 - **Acceptance:** AC-S17 (nomor sama), K7; golden 13q; test caption = teks 13q persis; caption Seri "… 6–6 … · Seri ·
   Padel" dan "6½–5½".
-- **Belum bisa dikunci:** ukuran `.pscore`/`.pclub` di gambar Feed dan Story, dan aturan kepadatan Lengkap dengan
-  label klub — tidak ada frame (Bagikan akan dirombak host). Kerjakan setelah main session memutuskan (lihat laporan
-  tech lead); jangan mengarang ukurannya.
+- **Feed/Story/Lengkap:** host setuju (2026-11-07) designer menambah frame poster sparing Feed, Story, dan Lengkap,
+  persis gaya poster yang ada (bukan rombak Bagikan). Sedang digambar; ukuran `.pscore`/`.pclub` dan aturan kepadatan
+  dengan label klub ada di catatan frame itu. Jangan mengarang ukuran sebelum frame-nya di-commit.
 - **Dependensi:** SP-4, SP-5. **Paralel:** ya. **Model:** default.
 
 ## SP-16 · Tambah round + Atur pasangan sparing
@@ -214,18 +218,25 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
   `extend_sheet_parts.dart`, `pair_edit_screen.dart`.
 - **Ubah:** `features/schedule/fixed/**`, `features/pair_edit/**`.
 - **Acceptance:** AC-S18; golden 14n, 14o; jam ditambah 1 jam di kedua court → tetap 1 satuan tanpa "lewat booking".
+- **Catatan review SP-2:** "lewat booking" pakai `extraRounds(...).overMinutes`, jangan dihitung di sheet.
+  `add_rounds_sheet.dart:92` menghitung "n court" dari `roundsLeft.where(k >= 1)` tanpa C': untuk sparing pakai
+  `SparingFixedGenerator.activeCourts` (4 / 2 pasangan di 3 court = 2 court). Hitungan `roundsLeft` di generator sparing
+  menyalin `round_robin_generator.dart:65-77, 102-105`; kalau task ini menyentuhnya, satukan ke satu helper (mis. di
+  `ActiveTournament` dekat `capacityAhead`).
 - **Dependensi:** SP-5, SP-11. **Paralel:** setelah SP-11. **Model:** default.
 
 ## SP-17 · Beranda sparing
 - **Goal:** baris "PB Garuda 6 – 4 Matcha Club" (tanpa nama turnamen), dialog mulai baru 14y.
 - **Baca:** `14-sparing-fixed.md` 14x–14y, `home_screen.dart`, `logic.md` §13.9.
 - **Ubah:** `features/home/**`.
-- **Acceptance:** golden 14x, 14y; "0 – 0" sebelum ada hasil. Sparing **bernama** = 15w/15y di draf alur Mixed: kerjakan
-  setelah draf itu disetujui (bisa ikut SP-18).
+- **Acceptance:** golden 14x, 14y; "0 – 0" sebelum ada hasil. Sparing **bernama** 15w/15y dan turnamen terakhir Mixed
+  sparing 15x (hi-fi Mixed disetujui host 2026-11-07) boleh ikut task ini atau SP-18.
 - **Dependensi:** SP-4, SP-7. **Paralel:** ya. **Model:** default.
 
 ## SP-18 · Layar Mixed sparing — menunggu hi-fi Mixed
-- Placeholder. Draf hi-fi: `design/spec/screens/15-sparing-mixed.md` (15a–15y, belum disetujui). Cakupan perkiraan:
+- Hi-fi Mixed **disetujui host 2026-11-07** (`design/spec/screens/15-sparing-mixed.md`, 15a–15y); tech-lead memecahnya
+  jadi task setelah SP-3. Undian di frame dipanggil langsung dengan `seed: 0x5eed` (bukan FNV-1a id turnamen) dan
+  seed `Random` per frame tertulis di pembuka section Mixed. Cakupan perkiraan:
   Jadwal Mixed sparing (13m + 15*), Istirahat per klub dengan Prioritas /
   Istirahat lagi, Kelola pemain per klub, Kelola court, sheet Cara kerja Mixed sparing, Klasemen/Detail per pemain,
   Bagikan Mixed, Live. Dipecah jadi task setelah hi-fi alur Mixed disetujui host. Logikanya sudah di SP-3.
@@ -242,4 +253,7 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Acceptance:** `flutter analyze` tanpa peringatan baru, `flutter test` lulus (termasuk golden semua frame 01–14),
   test `slow` lulus, `tool/build_web.sh` sukses dan semua URL precache 200 (tech-infra kalau ada masalah build), AC-S21
   dicek offline. Merge `sparing` → `main` hanya atas perintah main session.
+- **Catatan review SP-7:** hapus frasa "sementara 3.1.0" di komentar `beranda_test.dart` saat `appVersion` naik.
+  Versi dan wordmark tidak punya ruang cadangan: aman di 390 pt, belum dicek di skala teks besar (opsional: test text
+  scale 1,5 dengan `loadHifiFonts`).
 - **Dependensi:** semua. **Model:** default.
