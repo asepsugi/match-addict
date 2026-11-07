@@ -264,6 +264,9 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
   prototipe yang dipakai designer, dan generator produksi harus memberi hasil yang sama dengan prototipe
   `tool/sparing_proto` untuk input itu (atau fixture menulis match secara eksplisit dan hanya daftar prioritas yang
   dicek dari generator).
+- **Catatan review SP-3:** layar Mixed sparing wajib memakai `restingByClubAfterLastRound` (bukan gabungan
+  `restingAfterLastRound`). `manage_players_sheet.dart:56` masih memakai `activeCount > 4` dan memanggil `addPlayer` tanpa
+  klub: ganti ke `active.canWithdraw(p.id)` dan pilihan klub (15l/15m).
 - **Dependensi:** hi-fi Mixed, SP-3, SP-6, SP-11. **Model:** default (kecuali ada logika baru dari hi-fi).
 
 ## SP-19 · Rilis 3.2.0
