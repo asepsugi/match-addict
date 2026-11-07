@@ -84,14 +84,25 @@ class TournamentController extends Notifier<ActiveTournament?> {
     if (current == null || !current.canGenerateNextRound(now)) return;
 
     final roundNumber = current.roundCount + 1;
-    final round = EndlessRoundGenerator.generateRound(
-      players: current.activePlayers,
-      courts: current.courtsAvailableAt(now),
-      history: current.matches,
-      roundNumber: roundNumber,
-      seed: current.drawSeed,
-      latePlayerIds: current.latePlayerIds,
-    );
+    final (club1, club2) = current.activePlayersByClub;
+    final round = current.config.isSparing
+        ? EndlessRoundGenerator.generateSparingRound(
+            club1: club1,
+            club2: club2,
+            courts: current.courtsAvailableAt(now),
+            history: current.matches,
+            roundNumber: roundNumber,
+            seed: current.drawSeed,
+            latePlayerIds: current.latePlayerIds,
+          )
+        : EndlessRoundGenerator.generateRound(
+            players: current.activePlayers,
+            courts: current.courtsAvailableAt(now),
+            history: current.matches,
+            roundNumber: roundNumber,
+            seed: current.drawSeed,
+            latePlayerIds: current.latePlayerIds,
+          );
     if (round == null) return;
 
     state = current.copyWith(
@@ -120,9 +131,16 @@ class TournamentController extends Notifier<ActiveTournament?> {
 
   /// Mode Mixed: tambah pemain di tengah turnamen, ikut mulai round berikutnya.
   /// Mengembalikan pesan error untuk ditampilkan, atau null kalau berhasil.
-  String? addPlayer(String rawName) {
+  /// Sparing: [clubId] wajib salah satu klub turnamen (AC-S12) — pemain tanpa klub membuat simpanan ditolak saat
+  /// dibaca; nama dicek terhadap kedua klub. Di turnamen biasa [clubId] diabaikan.
+  String? addPlayer(String rawName, {String? clubId}) {
     final current = state;
     if (current == null || current.config.mode != PartnerMode.mixed) return null;
+    final sparing = current.config.isSparing;
+    // Layar mematikan Tambah sampai klub dipilih; return tetap ada sebagai pengaman di rilis.
+    final validClub = !sparing || current.config.clubById(clubId) != null;
+    assert(validClub, 'Pemain baru turnamen sparing wajib salah satu klub turnamen (AC-S12, S1).');
+    if (!validClub) return 'Pilih klub';
 
     final name = PlayerNameParser.parse(rawName).names.firstOrNull;
     if (name == null) return 'Nama tidak boleh kosong';
@@ -130,14 +148,16 @@ class TournamentController extends Notifier<ActiveTournament?> {
     if (taken.isNotEmpty) {
       // Nama yang tertulis di daftar, bukan ketikan host ("andi p" → "Andi P sudah ada").
       final existing = taken.first;
+      // Sparing menyebut klubnya ("Andi sudah ada di PB Garuda", 15l); turnamen biasa tanpa klub.
+      final where = current.config.clubOfPlayer(existing.id)?.name ?? 'daftar';
       return current.withdrawnPlayerIds.contains(existing.id)
           ? '${existing.name} sudah ada — pakai "Kembalikan" di bawah'
-          : '${existing.name} sudah ada di daftar';
+          : '${existing.name} sudah ada di $where';
     }
     const limit = TournamentConfig.maxPlayers;
     if (current.activePlayers.length >= limit) return 'Maksimal $limit pemain aktif';
 
-    final player = Player(id: const Uuid().v4(), name: name);
+    final player = Player(id: const Uuid().v4(), name: name, clubId: sparing ? clubId : null);
     state = current.copyWith(
       tournament: current.tournament.copyWith(
         config: current.config.copyWith(players: [...current.config.players, player]),
@@ -148,19 +168,25 @@ class TournamentController extends Notifier<ActiveTournament?> {
 
   /// Mode Mixed: pemain keluar (cedera, pulang duluan). Berlaku mulai round
   /// berikutnya — match yang sudah terjadwal tetap ada, host bisa menandainya WO.
-  /// Mengembalikan false kalau sisa pemain aktif tidak cukup untuk satu match.
+  /// Mengembalikan false kalau sisa pemain aktif tidak cukup untuk satu match (sparing: klubnya tinggal 2 aktif,
+  /// [ActiveTournament.canWithdraw]).
   bool withdrawPlayer(String playerId) {
     final current = state;
-    if (current == null || current.activePlayers.length <= TournamentConfig.minPlayers) return false;
+    if (current == null || !current.canWithdraw(playerId)) return false;
     state = current.copyWith(withdrawn: {...current.withdrawnPlayerIds, playerId});
     return true;
   }
 
   /// Kebalikan [withdrawPlayer]; kalau tertinggal, dia menyusul seperti pemain baru
-  /// (`EndlessRoundGenerator.priorityOrder`).
+  /// (`EndlessRoundGenerator.priorityOrder`). Sparing: kembali ke klubnya sendiri, karena `clubId` tidak pernah
+  /// berubah (K8) — tidak ada yang perlu diubah di sini.
   String? reinstatePlayer(String playerId) {
     final current = state;
     if (current == null || !current.withdrawnPlayerIds.contains(playerId)) return null;
+    // Sparing: dia kembali ke klubnya sendiri; tanpa klub yang dikenal simpanannya akan ditolak saat dibaca.
+    final validClub = !current.config.isSparing || current.config.clubOfPlayer(playerId) != null;
+    assert(validClub, 'Pemain sparing yang dikembalikan wajib punya klub turnamen (K8, S1).');
+    if (!validClub) return null;
     const limit = TournamentConfig.maxPlayers;
     if (current.activePlayers.length >= limit) return 'Maksimal $limit pemain aktif';
     state = current.copyWith(withdrawn: {...current.withdrawnPlayerIds}..remove(playerId));

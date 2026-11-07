@@ -501,6 +501,31 @@ class ActiveTournament {
       if (p.clubId == clubId) p,
   ];
 
+  /// Mixed sparing: pemain aktif klub pertama dan klub kedua, urut daftar pemain. Kosong di turnamen biasa.
+  (List<Player>, List<Player>) get activePlayersByClub {
+    final clubs = config.clubs;
+    if (clubs == null) return (const [], const []);
+    return (activePlayersOfClub(clubs[0].id), activePlayersOfClub(clubs[1].id));
+  }
+
+  /// Sparing (logic.md §13.6): court aktif `C' = min(court, ⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`, karena tiap match butuh dua pemain
+  /// dari tiap klub. [courts] null = batas dari pemain saja (`capacityAhead.matchesPerRound`). Satu-satunya rumus C'
+  /// Mixed sparing — generator, daftar istirahat, Kelola court, Lanjutkan, estimasi — supaya semuanya tidak pernah
+  /// berbeda; letaknya di model karena [capacityAhead] juga memakainya. Turnamen biasa tetap `slotsFor`.
+  static int sparingActiveCourts({int? courts, required int club1, required int club2}) {
+    final byPlayers = min(club1 ~/ 2, club2 ~/ 2);
+    return courts == null ? byPlayers : min(courts, byPlayers);
+  }
+
+  /// Kelola pemain: Keluarkan mati kalau total aktif tinggal [TournamentConfig.minPlayers], dan di sparing juga kalau
+  /// klub pemain itu tinggal 2 aktif — kurang dari itu klubnya tidak bisa mengisi satu sisi match (AC-S12).
+  bool canWithdraw(String playerId) {
+    if (activePlayers.length <= TournamentConfig.minPlayers) return false;
+    if (!config.isSparing) return true;
+    final clubId = config.playerById(playerId)?.clubId;
+    return clubId != null && activePlayersOfClub(clubId).length > 2;
+  }
+
   /// Sparing: klub pasangan ber-id [pairId], juga pasangan lama yang sudah diatur ulang ([pairById]).
   Club? clubOfPairId(String pairId) {
     final pair = pairById(pairId);
@@ -682,7 +707,7 @@ class ActiveTournament {
   /// [courts] = court yang main di round pertama sesudah [roundCount]. [fewerCourtsFrom] = round ke-r
   /// (1 = round pertama tambahan) saat salah satu court itu habis di tengah, null kalau tidak ada; court
   /// yang sejak awal tidak dapat tambahan tidak dihitung "berkurang". [matchesPerRound] = batas dari
-  /// jumlah pemain aktif (⌊pemain ÷ 4⌋).
+  /// jumlah pemain aktif (⌊pemain ÷ 4⌋; sparing `min(⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`, jadi tiap round = C' sparing).
   ({int rounds, int matches, int courts, int? fewerCourtsFrom, int matchesPerRound}) capacityAhead(
     DateTime now, [
     Map<String, int> extraMinutes = const {},
@@ -691,7 +716,10 @@ class ActiveTournament {
       for (final c in config.courts)
         (remainingBookingMinutes(c, now) + (extraMinutes[c.id] ?? 0)) ~/ config.matchDurationMinutes,
     ];
-    final matchesPerRound = activePlayers.length ~/ 4;
+    final (club1, club2) = activePlayersByClub;
+    final matchesPerRound = config.isSparing
+        ? sparingActiveCourts(club1: club1.length, club2: club2.length)
+        : activePlayers.length ~/ 4;
     final firstCourts = perCourt.where((n) => n >= 1).length;
     var rounds = 0, matches = 0;
     int? fewerFrom;

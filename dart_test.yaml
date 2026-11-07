@@ -1,0 +1,5 @@
+# Test bertag `slow` (sweep penuh test properti, lebih dari satu menit) dilewati di `flutter test` biasa.
+# Jalankan sebelum rilis: `flutter test --tags slow --run-skipped`.
+tags:
+  slow:
+    skip: "Bertag slow: flutter test --tags slow --run-skipped"
