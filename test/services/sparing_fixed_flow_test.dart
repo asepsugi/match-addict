@@ -303,7 +303,9 @@ void main() {
       final maya = draft.unpairedOf(matcha.id).first;
       final o = draft.unpairedOf(matcha.id).last;
       // AC-S4 di Atur pasangan: beda klub tidak bisa dipasangkan.
-      expect(() => draft.pair(citra, o, id: 'x'), throwsArgumentError);
+      expect(draft.canPair(citra, o), isFalse);
+      expect(draft.canPair(citra, g), isTrue);
+      expect(() => draft.pair(citra, o, id: 'x'), throwsA(isA<AssertionError>()));
 
       // Matcha dulu: slot kosong yang diisi tetap slot klubnya (M3), bukan slot kosong pertama (G2).
       draft = draft.pair(maya, o, id: mayaOki.id);
@@ -357,7 +359,7 @@ void main() {
       _expectRoundTrip(a);
     });
 
-    test('Simpan mati "minimal 1 pasangan tiap klub"; pasangan/pemain tanpa klub tidak mengubah turnamen', () {
+    test('Simpan mati "minimal 1 pasangan tiap klub"; pasangan/pemain tanpa klub = assert, turnamen tidak berubah', () {
       final pairs = read().config.fixedPairs!;
       var draft = PairDraft.of(read().config);
       for (final p in pairs.skip(4)) {
@@ -367,27 +369,51 @@ void main() {
 
       final before = TournamentCodec.encode(read());
       // Pemain baru tanpa klub (S1).
-      controller.addRounds(
-        const {},
-        pairs: [
-          ...pairs,
-          const Pair(id: 'x', player1Id: 'p-x', player2Id: 'p-y'),
-        ],
-        newPlayers: const [
-          Player(id: 'p-x', name: 'X'),
-          Player(id: 'p-y', name: 'Y'),
-        ],
+      expect(
+        () => controller.addRounds(
+          const {},
+          pairs: [
+            ...pairs,
+            const Pair(id: 'x', player1Id: 'p-x', player2Id: 'p-y'),
+          ],
+          newPlayers: const [
+            Player(id: 'p-x', name: 'X'),
+            Player(id: 'p-y', name: 'Y'),
+          ],
+        ),
+        throwsA(isA<AssertionError>()),
       );
       // Pasangan beda klub (S2).
-      controller.addRounds(
-        const {},
-        pairs: [
-          ...pairs,
-          const Pair(id: 'x', player1Id: 'p-dewi', player2Id: 'p-nanda'),
-        ],
+      expect(
+        () => controller.addRounds(
+          const {},
+          pairs: [
+            ...pairs,
+            const Pair(id: 'x', player1Id: 'p-dewi', player2Id: 'p-nanda'),
+          ],
+        ),
+        throwsA(isA<AssertionError>()),
       );
-      // Satu klub tanpa pasangan: tidak ada match yang bisa dibuat.
-      controller.addRounds(const {}, pairs: draft.pairs);
+      // Anggota yang tidak dikenal.
+      expect(
+        () => controller.addRounds(
+          const {},
+          pairs: [
+            ...pairs,
+            const Pair(id: 'x', player1Id: 'p-andi', player2Id: '?'),
+          ],
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+      // Satu klub tanpa pasangan.
+      expect(() => controller.addRounds(const {}, pairs: draft.pairs), throwsA(isA<AssertionError>()));
+      expect(TournamentCodec.encode(read()), before);
+    });
+
+    test('waktu habis tanpa tambahan jam (fit 0): tidak ada yang dibuat, tanpa assert', () {
+      now = sparingAt(8);
+      final before = TournamentCodec.encode(read());
+      controller.addRounds(const {});
       expect(TournamentCodec.encode(read()), before);
     });
   });

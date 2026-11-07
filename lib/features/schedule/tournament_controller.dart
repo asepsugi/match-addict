@@ -46,9 +46,19 @@ class TournamentController extends Notifier<ActiveTournament?> {
     }
     _startedFrom = config;
 
-    if (config.isSparing && config.mode == PartnerMode.fixed) return _startSparingFixed(config);
-
-    final schedule = config.mode == PartnerMode.fixed
+    // Fixed sparing (logic.md §13.2): generator diagonal per klub, daftar per klub urut `config.fixedPairs` karena urutan
+    // itu indeks generator (G1…, M1…). Istirahatnya bisa beberapa pasangan per round → `restingPairIdsByRound`.
+    final clubs = config.clubs;
+    final sparing = clubs != null && config.mode == PartnerMode.fixed
+        ? SparingFixedGenerator.generate(
+            club1: config.pairsOfClub(clubs[0].id),
+            club2: config.pairsOfClub(clubs[1].id),
+            courts: config.courts,
+          )
+        : null;
+    final schedule = sparing != null
+        ? null
+        : config.mode == PartnerMode.fixed
         ? RoundRobinGenerator.generate(pairs: config.fixedPairs ?? const [], courts: config.courts)
         : const FixedSchedule(matches: [], byePairIdByRound: {});
 
@@ -57,34 +67,14 @@ class TournamentController extends Notifier<ActiveTournament?> {
         id: const Uuid().v4(),
         createdAt: ref.read(clockProvider)(),
         config: config,
-        matches: schedule.matches,
+        matches: sparing?.matches ?? schedule!.matches,
       ),
-      byePairIdByRound: schedule.byePairIdByRound,
+      byePairIdByRound: schedule?.byePairIdByRound ?? const {},
+      restingPairIdsByRound: sparing?.restingPairIdsByRound ?? const {},
     );
 
     // Mode Mixed tidak punya jadwal di awal — round 1 langsung digenerate.
     if (config.mode == PartnerMode.mixed) generateNextRound();
-  }
-
-  /// Fixed sparing (logic.md §13.2): jadwal awal dari generator diagonal; daftar per klub urut `config.fixedPairs`
-  /// karena urutan itu indeks generator (G1…, M1…). Istirahat bisa beberapa pasangan per round, jadi masuk
-  /// `restingPairIdsByRound`, bukan `byePairIdByRound`.
-  void _startSparingFixed(TournamentConfig config) {
-    final clubs = config.clubs!;
-    final schedule = SparingFixedGenerator.generate(
-      club1: config.pairsOfClub(clubs[0].id),
-      club2: config.pairsOfClub(clubs[1].id),
-      courts: config.courts,
-    );
-    state = ActiveTournament(
-      tournament: Tournament(
-        id: const Uuid().v4(),
-        createdAt: ref.read(clockProvider)(),
-        config: config,
-        matches: schedule.matches,
-      ),
-      restingPairIdsByRound: schedule.restingPairIdsByRound,
-    );
   }
 
   /// Mode Mixed: buat round berikutnya dari history yang sudah ada.
@@ -337,10 +327,34 @@ class TournamentController extends Notifier<ActiveTournament?> {
   void addRounds(Map<String, int> extraMinutes, {List<Pair>? pairs, List<Player> newPlayers = const []}) {
     final current = state;
     if (current == null || !current.canAddRounds) return;
-    if (current.config.isSparing) return _addSparingRounds(current, extraMinutes, pairs: pairs, newPlayers: newPlayers);
     final now = ref.read(clockProvider)();
-    final extra = RoundRobinGenerator.extraRounds(current, now, extraMinutes: extraMinutes, pairs: pairs);
-    if (extra.schedule.matches.isEmpty) return;
+    // Pemain baru masuk config dulu: klub pasangan sparing dibaca dari anggotanya.
+    final config = current.config.copyWith(
+      players: newPlayers.isEmpty ? null : [...current.config.players, ...newPlayers],
+      fixedPairs: pairs,
+    );
+
+    final List<MatchGame> added;
+    var byes = const <int, String>{};
+    var resting = const <int, List<String>>{};
+    final int putaran;
+    if (config.isSparing) {
+      final clubs = _sparingPairs(current.config, config, newPlayers);
+      if (clubs == null) return;
+      final extra = SparingFixedGenerator.extraRounds(
+        current,
+        now,
+        club1: clubs.club1,
+        club2: clubs.club2,
+        extraMinutes: extraMinutes,
+      );
+      (added, resting, putaran) = (extra.schedule.matches, extra.schedule.restingPairIdsByRound, extra.units);
+    } else {
+      final extra = RoundRobinGenerator.extraRounds(current, now, extraMinutes: extraMinutes, pairs: pairs);
+      (added, byes, putaran) = (extra.schedule.matches, extra.schedule.byePairIdByRound, extra.putaran);
+    }
+    // Fit 0 (tidak ada court yang muat satu round): keadaan sah, tidak ada yang dibuat.
+    if (added.isEmpty) return;
 
     final courts = [
       for (final c in current.config.courts)
@@ -348,59 +362,36 @@ class TournamentController extends Notifier<ActiveTournament?> {
     ];
     state = current.copyWith(
       tournament: current.tournament.copyWith(
-        config: current.config.copyWith(
-          courts: courts,
-          players: newPlayers.isEmpty ? null : [...current.config.players, ...newPlayers],
-          fixedPairs: pairs,
-        ),
-        matches: [...current.matches, ...extra.schedule.matches],
+        config: config.copyWith(courts: courts),
+        matches: [...current.matches, ...added],
       ),
-      byes: {...current.byePairIdByRound, ...extra.schedule.byePairIdByRound},
-      extraPutaran: current.extraPutaran + extra.putaran,
+      byes: {...current.byePairIdByRound, ...byes},
+      restingPairs: {...current.restingPairIdsByRound, ...resting},
+      extraPutaran: current.extraPutaran + putaran,
     );
   }
 
-  /// Fixed sparing (logic.md §13.3, K5): satuan blok KPK(p1, p2) match, `extraPutaran` = jumlah satuan. Atur pasangan
-  /// per klub (14o): [newPlayers] wajib berklub dan tiap pasangan sesama klub (S1, S2); kalau tidak, tidak ada yang
-  /// berubah, karena simpanan yang melanggarnya terbaca null saat resume (turnamen hilang, docs/data.md → Sparing).
-  void _addSparingRounds(
-    ActiveTournament current,
-    Map<String, int> extraMinutes, {
-    List<Pair>? pairs,
-    required List<Player> newPlayers,
-  }) {
-    final clubs = current.config.clubs!;
-    if (newPlayers.any((p) => current.config.clubById(p.clubId) == null)) return;
-    // Pemain baru harus sudah di config supaya klub pasangannya terbaca; urutan per klub tetap urutan [pairs].
-    final next = current.config.copyWith(
-      players: newPlayers.isEmpty ? null : [...current.config.players, ...newPlayers],
-      fixedPairs: pairs,
-    );
+  /// Fixed sparing (logic.md §13.3, K5): pasangan per klub untuk round tambahan, urut [next] `fixedPairs`; satuannya
+  /// blok KPK(p1, p2) match dan `extraPutaran` = jumlah satuan. Atur pasangan per klub (14o) yang melanggar S1/S2 atau
+  /// mengosongkan satu klub = bug pemanggil: assert di debug supaya tidak tampak sebagai "Buat R… tidak terjadi
+  /// apa-apa", null di rilis karena simpanan yang melanggarnya terbaca null saat resume (docs/data.md → Sparing).
+  ({List<Pair> club1, List<Pair> club2})? _sparingPairs(
+    TournamentConfig current,
+    TournamentConfig next,
+    List<Player> newPlayers,
+  ) {
+    final clubs = next.clubs!;
+    final unclubbed = newPlayers.any((p) => current.clubById(p.clubId) == null);
+    assert(!unclubbed, 'Pemain baru sparing wajib berklub (S1)');
+    if (unclubbed) return null;
     final club1 = next.pairsOfClub(clubs[0].id), club2 = next.pairsOfClub(clubs[1].id);
-    if (club1.length + club2.length != (next.fixedPairs ?? const []).length) return;
-
-    final now = ref.read(clockProvider)();
-    final extra = SparingFixedGenerator.extraRounds(
-      current,
-      now,
-      club1: club1,
-      club2: club2,
-      extraMinutes: extraMinutes,
-    );
-    if (extra.schedule.matches.isEmpty) return;
-
-    final courts = [
-      for (final c in next.courts)
-        if ((extraMinutes[c.id] ?? 0) > 0) current.extendedBy(c, extraMinutes[c.id]!, now) else c,
-    ];
-    state = current.copyWith(
-      tournament: current.tournament.copyWith(
-        config: next.copyWith(courts: courts),
-        matches: [...current.matches, ...extra.schedule.matches],
-      ),
-      restingPairs: {...current.restingPairIdsByRound, ...extra.schedule.restingPairIdsByRound},
-      extraPutaran: current.extraPutaran + extra.units,
-    );
+    final mixed = club1.length + club2.length != (next.fixedPairs ?? const []).length;
+    assert(!mixed, 'Pasangan sparing harus dua anggota yang dikenal dari satu klub (S2)');
+    if (mixed) return null;
+    final empty = club1.isEmpty || club2.isEmpty;
+    assert(!empty, 'Tiap klub minimal 1 pasangan');
+    if (empty) return null;
+    return (club1: club1, club2: club2);
   }
 
   /// Hentikan turnamen: match yang belum dimainkan ditandai "tidak dimainkan"

@@ -36,7 +36,10 @@ class PairGenerator {
   /// Manual: [a] lalu [b] jadi pasangan, atau null kalau beda klub (sparing, S2, AC-S4: layar memindah pilihan ke
   /// [b]). Turnamen biasa (dua-duanya tanpa klub) selalu jadi pasangan.
   static Pair? manual(Player a, Player b) =>
-      a.clubId == b.clubId ? Pair(id: 'pair-${a.id}-${b.id}', player1Id: a.id, player2Id: b.id) : null;
+      sameClub(a, b) ? Pair(id: 'pair-${a.id}-${b.id}', player1Id: a.id, player2Id: b.id) : null;
+
+  /// Aturan S2 (pasangan sesama klub), satu-satunya tempat ditulis; dipakai juga `PairDraft.canPair`.
+  static bool sameClub(Player a, Player b) => a.clubId == b.clubId;
 
   /// Bentuk pasangan mengikuti urutan [players] apa adanya (dipakai mode manual).
   static PairingDraft fromOrder(List<Player> players) {

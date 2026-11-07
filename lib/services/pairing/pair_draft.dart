@@ -1,4 +1,5 @@
 import '../../models/models.dart';
+import 'pair_generator.dart';
 import 'player_name_parser.dart';
 
 /// Atur pasangan sebelum round tambahan Fixed (04f–04h, keputusan host 2026-11-03). Mulai dari pasangan sekarang;
@@ -108,11 +109,15 @@ class PairDraft {
     _slotClubs,
   );
 
-  /// [a] dan [b] (dua-duanya belum berpasangan) jadi pasangan baru dengan [id]. Sparing: hanya sesama klub (S2; layar
-  /// mencegahnya, 14b), dan slot yang diisi = slot kosong pertama klub itu; tanpa slot kosong, pasangan masuk paling
-  /// belakang (= pasangan terakhir klubnya).
+  /// Sparing: [a] dan [b] boleh dipasangkan hanya kalau sesama klub (S2). Kalau tidak, layar memindah pilihan ke [b]
+  /// (14b, 14o). Selalu true di turnamen biasa.
+  bool canPair(Player a, Player b) => !isSparing || PairGenerator.sameClub(a, b);
+
+  /// [a] dan [b] (dua-duanya belum berpasangan) jadi pasangan baru dengan [id]; pemanggil memeriksa [canPair] dulu.
+  /// Sparing: slot yang diisi = slot kosong pertama klub itu; tanpa slot kosong, pasangan masuk paling belakang
+  /// (= pasangan terakhir klubnya).
   PairDraft pair(Player a, Player b, {required String id}) {
-    if (isSparing && a.clubId != b.clubId) throw ArgumentError('Pasangan sparing harus sesama klub');
+    assert(canPair(a, b), 'Pasangan sparing harus sesama klub (S2)');
     final pair = Pair(id: id, player1Id: a.id, player2Id: b.id);
     final free = isSparing
         ? [for (final (i, p) in slots.indexed) p == null && _slotClubs[i] == a.clubId].indexOf(true)
