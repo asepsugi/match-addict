@@ -169,6 +169,9 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Acceptance:** AC-S3, AC-S4; golden 14a–14e (acak berskrip lewat `PairSetupScreen.random` supaya = G1–G4/M1–M3).
 - **Dependensi:** SP-5. **Paralel:** ya. **Model:** default.
 
+- **Catatan review SP-5:** pakai `PairGenerator.randomByClub(…, random: widget.random)` (urutan per klub = 14a) dan
+  `PairGenerator.manual` / `PairDraft.canPair`, jangan menyusun `Pair(id: …)` sendiri seperti `pair_setup_screen.dart:64`.
+  Mengetuk chip klub lain memindah pilihan (cek `canPair` dulu), tidak membentuk pasangan.
 ## SP-11 · Jadwal Fixed sparing
 - **Goal:** `ClubScore` di atas daftar (ikut tergulir), Istirahat dua kolom per klub (`.rest .names.clubs`, "–"
   kalau kosong), court tidak aktif tidak tampil, sisanya sama dengan Jadwal Fixed; mode penonton Live ikut.
