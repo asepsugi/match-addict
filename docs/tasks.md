@@ -267,6 +267,8 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Catatan review SP-3:** layar Mixed sparing wajib memakai `restingByClubAfterLastRound` (bukan gabungan
   `restingAfterLastRound`). `manage_players_sheet.dart:56` masih memakai `activeCount > 4` dan memanggil `addPlayer` tanpa
   klub: ganti ke `active.canWithdraw(p.id)` dan pilihan klub (15l/15m).
+- **Catatan review SP-9:** Atur turnamen sementara mematikan "Mulai Round 1" untuk Mixed sparing (config membawa klub,
+  tapi layar Mixed belum ada). Cabut penjagaan itu di task ini bersama tombol 13i/13j (estimasi Mixed sparing dari SP-3).
 - **Dependensi:** hi-fi Mixed, SP-3, SP-6, SP-11. **Model:** default (kecuali ada logika baru dari hi-fi).
 
 ## SP-19 · Rilis 3.2.0
