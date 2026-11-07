@@ -9,6 +9,11 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+# Lebar baris yang paling dekat dengan kode yang ada (dart format default 80 merombak banyak file).
+# Kode lama belum seluruhnya diformat: format hanya file/hunk yang Anda tulis.
+formatter:
+  page_width: 120
+
 analyzer:
   exclude:
     - build/**

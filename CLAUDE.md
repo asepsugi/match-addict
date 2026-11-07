@@ -29,6 +29,8 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 - Logika domain hanya di `lib/services/**` (wajib test), tidak diduplikasi di widget.
 - **Jangan** menambah pemanggilan `saveActive` manual di mutator baru, dan **jangan** memanggil kirim live manual: semua
   mutasi berakhir di `state =`, auto-save dan live ikut dari situ.
+- Format: `dart format` memakai lebar 120 dari `analysis_options.yaml`. Kode lama belum seluruhnya terformat, jadi format
+  hanya file baru atau hunk sendiri, jangan seluruh repo/file lama (bikin diff liar dan bentrok antar branch).
 - Konvensi: komentar seperlunya dan dalam bahasa Indonesia, menjelaskan *kenapa*. Nama komponen merujuk kelas CSS
   mockup (mis. `// .info` / `.share-card`) supaya mudah dicocokkan; untuk kode desain v2 pakai kelas di
   `design/hifi.html` (mis. `// .bug`, `.rest`) dan nama widget di `design/spec/components.md`.
