@@ -504,6 +504,25 @@ void main() {
       },
     );
 
+    test(
+      'Kelola court: Matcha tinggal 1 yang istirahat saat round berjalan → court belum terpakai, round tetap 2 match',
+      () {
+        controller.startIfNeeded(_config(_garudaPlayers, _matchaPlayers));
+        scoreRound();
+        expect(controller.withdrawPlayer('m06'), isTrue);
+        controller.generateNextRound();
+        final before = read();
+        expect(before.matchesOfRound(2).length, 2);
+        final draft = before.newCourt(id: 'baru', name: '', colorIndex: 2, bookingMinutes: 120, now: now);
+        // Garuda 4 istirahat, Matcha 5 aktif − 4 main = 1; C' dengan Court 3 tetap min(3, 4, 2) = 2.
+        expect(EndlessRoundGenerator.courtUse(before.withCourt(draft), 'baru', now).use, CourtUse.unused);
+        controller.addCourt(name: '', colorIndex: 2, bookingMinutes: 120);
+        expect(read().config.courts.length, 3);
+        expect(read().matchesOfRound(2).length, 2);
+        _expectSaves(read());
+      },
+    );
+
     test('Kelola court: round lengkap → mulai round berikutnya; 8/3 → belum terpakai (C\' dibatasi Matcha)', () {
       controller.startIfNeeded(_config(_garudaPlayers, _matchaPlayers));
       scoreRound();

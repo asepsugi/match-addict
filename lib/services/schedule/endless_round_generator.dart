@@ -200,22 +200,22 @@ class EndlessRoundGenerator {
 
   /// Slot R(n+1) pada [now]: 4 × court yang masih muat satu match. Kalau tidak ada (waktu habis, 06l), dari semua
   /// court — round berikutnya baru ada setelah Lanjutkan turnamen.
-  static int _nextRoundSlots(ActiveTournament active, DateTime now) {
+  static int _nextRoundSlots(ActiveTournament active, DateTime now) =>
+      slotsFor(players: active.activePlayers.length, courts: _nextRoundCourts(active, now));
+
+  /// Jumlah court R(n+1) pada [now]: yang muat satu match, atau semua court kalau tidak ada (waktu habis, 06l).
+  static int _nextRoundCourts(ActiveTournament active, DateTime now) {
     final courts = active.courtsAvailableAt(now);
-    return slotsFor(
-      players: active.activePlayers.length,
-      courts: courts.isEmpty ? active.config.courts.length : courts.length,
-    );
+    return courts.isEmpty ? active.config.courts.length : courts.length;
   }
 
-  /// Sparing: slot **per klub** R(n+1) pada [now] = 2 × C' dari court yang muat satu match (kosong → semua court, sama
-  /// dengan [_nextRoundSlots]). Sama persis dengan yang dipakai [generateSparingRound] saat Buat pada [now].
+  /// Sparing: slot **per klub** R(n+1) pada [now] = 2 × C' dari [_nextRoundCourts]. Sama persis dengan yang dipakai
+  /// [generateSparingRound] saat Buat pada [now].
   static int _nextRoundClubSlots(ActiveTournament active, DateTime now) {
-    final courts = active.courtsAvailableAt(now);
     final (club1, club2) = active.activePlayersByClub;
     return 2 *
         ActiveTournament.sparingActiveCourts(
-          courts: courts.isEmpty ? active.config.courts.length : courts.length,
+          courts: _nextRoundCourts(active, now),
           club1: club1.length,
           club2: club2.length,
         );
@@ -398,6 +398,12 @@ class EndlessRoundGenerator {
   static MatchGame courtMatch(ActiveTournament active, String courtId, List<Player> players, {Random? random}) {
     assert(players.length == 4);
     final n = active.roundCount;
+    assert(
+      !active.config.isSparing ||
+          (players.take(2).every((p) => p.clubId == active.config.clubs![0].id) &&
+              players.skip(2).every((p) => p.clubId == active.config.clubs![1].id)),
+      'Sparing: 2 pemain klub pertama lalu 2 klub kedua (S2, S4).',
+    );
     final rng = random ?? Random();
     final (pair1, pair2) = active.config.isSparing
         ? _bestSparingArrangement(players.sublist(0, 2), players.sublist(2), _History(active.matches), rng).single

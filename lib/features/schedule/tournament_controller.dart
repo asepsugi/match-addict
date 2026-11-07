@@ -84,11 +84,10 @@ class TournamentController extends Notifier<ActiveTournament?> {
     if (current == null || !current.canGenerateNextRound(now)) return;
 
     final roundNumber = current.roundCount + 1;
-    final (club1, club2) = current.activePlayersByClub;
     final round = current.config.isSparing
         ? EndlessRoundGenerator.generateSparingRound(
-            club1: club1,
-            club2: club2,
+            club1: current.activePlayersByClub.$1,
+            club2: current.activePlayersByClub.$2,
             courts: current.courtsAvailableAt(now),
             history: current.matches,
             roundNumber: roundNumber,
