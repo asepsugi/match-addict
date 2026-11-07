@@ -10,7 +10,9 @@ import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../live/live_score.dart';
 import '../live/live_view_controller.dart';
+import 'club_score_view.dart';
 import 'fixed/add_rounds_sheet.dart';
+import 'sparing_providers.dart';
 import 'schedule_widgets.dart';
 import 'tournament_controller.dart';
 import 'widgets/resting_list.dart';
@@ -92,6 +94,21 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     if (await showAddRoundsSheet(context, active) && mounted) setState(() => _selectedRound = null);
   }
 
+  /// Pasangan yang istirahat di [round], per klub menurut urutan `config.clubs` (klub pertama di kiri).
+  List<RestingClub> _restingByClub(ActiveTournament active, int round) {
+    final ids = active.restingPairIdsByRound[round] ?? const <String>[];
+    return [
+      for (final club in active.config.clubs!)
+        RestingClub(
+          club: club.name,
+          names: [
+            for (final id in ids)
+              if (active.clubOfPairId(id)?.id == club.id) pairNames(active, active.pairById(id)!).join(' · '),
+          ],
+        ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final active = ref.watch(tournamentProvider);
@@ -108,6 +125,9 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     final played = matches.where((m) => m.status == MatchStatus.done || m.status == MatchStatus.wo).length;
     final byePairId = active.byePairIdByRound[selected];
     final byePair = byePairId == null ? null : active.pairById(byePairId);
+    // Sparing: papan skor klub di atas daftar (ikut tergulir) dan Istirahat dua kolom per klub (13k).
+    final clubScore = ref.watch(clubScoreProvider);
+    final restingClubs = clubScore == null ? null : _restingByClub(active, selected);
 
     void openScore(MatchGame m) => context.push('/score-input', extra: m.id);
     final readOnly = watching || locked;
@@ -149,6 +169,7 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               children: [
+                if (clubScore != null) ...[clubScoreOf(clubScore), const SizedBox(height: 16)],
                 if (locked) ...[
                   Row(
                     children: [
@@ -180,7 +201,12 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
                     ],
                   ),
                 ),
-                if (byePair != null) ...[
+                if (restingClubs != null) ...[
+                  if (restingClubs.any((c) => c.names.isNotEmpty)) ...[
+                    const SizedBox(height: 16),
+                    faded(0.6, RestingList.clubs(clubs: restingClubs)),
+                  ],
+                ] else if (byePair != null) ...[
                   const SizedBox(height: 16),
                   faded(0.6, RestingList(names: [pairNames(active, byePair).join(' · ')])),
                 ],
