@@ -8,6 +8,7 @@ import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/match_score_row.dart';
 import '../../models/models.dart';
 import '../../services/ranking/ranking_calculator.dart';
+import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
 import 'widgets/stat_line.dart';
 
@@ -21,7 +22,12 @@ class DetailPlayerScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(tournamentProvider);
     // Satu baris Fixed memuat dua pemain; namanya diambil dari baris itu, bukan dari `standing.player`.
-    final entry = ref.watch(standingEntriesProvider).where((e) => e.hasPlayer(playerId)).firstOrNull;
+    // Sparing: baris dan nomor per klub dari provider klub, bukan nomor lintas klub.
+    final clubPos = ref.watch(playerClubPositionProvider(playerId));
+    final clubEntry = clubPos == null
+        ? null
+        : ref.watch(clubStandingEntriesProvider).expand((g) => g.entries).where((e) => e.hasPlayer(playerId)).firstOrNull;
+    final entry = clubEntry ?? ref.watch(standingEntriesProvider).where((e) => e.hasPlayer(playerId)).firstOrNull;
     if (active == null || entry == null) {
       return Scaffold(
         backgroundColor: MabarColors.paper,
@@ -37,10 +43,7 @@ class DetailPlayerScreen extends ConsumerWidget {
     final s = entry.standing;
     final played = entry.position != null;
     final profile = PlayerProfile.of(playerId: playerId, matches: active.matches);
-    // Dibanding semua pemain lain, termasuk yang keluar; lawan di Fixed tanpa partnernya sendiri (lebih dari satu
-    // kalau pasangan diatur ulang sebelum round tambahan, 10d).
-    final others = config.players.length - 1;
-    final opponentsOf = fixed ? others - profile.partnerIds.length : others;
+    final totals = coverageTotals(config, playerId, partnerCount: profile.partnerIds.length);
     final unit = '${format.unit[0].toUpperCase()}${format.unit.substring(1)}';
     final woPerWin = _woPointsPerWin(s, profile, playerId);
 
@@ -70,6 +73,7 @@ class DetailPlayerScreen extends ConsumerWidget {
             title: entry.players.map((p) => p.name).join(' · '),
             subtitle: [
               played ? 'Peringkat ${entry.position}' : 'Belum main',
+              if (clubPos != null) clubPos.club.name,
               config.sport.label,
               config.mode.label,
               format.label,
@@ -86,8 +90,8 @@ class DetailPlayerScreen extends ConsumerWidget {
                   children: [
                     // Di Fixed biasanya 1, jadi hanya tampil kalau pasangannya pernah diatur ulang (10d).
                     if (!fixed || profile.partnerIds.length > 1)
-                      MabarRow(title: 'Beda partner', trailing: count('${profile.partnerIds.length} / $others')),
-                    MabarRow(title: 'Beda lawan', trailing: count('${profile.opponentIds.length} / $opponentsOf')),
+                      MabarRow(title: 'Beda partner', trailing: count('${profile.partnerIds.length} / ${totals.partners}')),
+                    MabarRow(title: 'Beda lawan', trailing: count('${profile.opponentIds.length} / ${totals.opponents}')),
                     MabarRow(title: 'Kalah WO', trailing: count('${s.woLosses}')),
                   ],
                 ),

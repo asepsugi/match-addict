@@ -205,6 +205,20 @@ class PlayerProfile {
   }
 }
 
+/// Pembagi "Beda partner" / "Beda lawan" di Detail: berapa pemain yang mungkin jadi partner / lawan.
+/// Dibanding semua pemain lain, termasuk yang keluar. Fixed: lawan tanpa partnernya sendiri ([partnerCount] bisa lebih
+/// dari satu kalau pasangan diatur ulang, 10d). Sparing: partner hanya dari klub sendiri, lawan hanya dari klub lain
+/// (logic.md 13.8), jadi Fixed sparing 8 vs 6 → 6 untuk klub pertama, 8 untuk klub kedua.
+({int partners, int opponents}) coverageTotals(TournamentConfig config, String playerId, {required int partnerCount}) {
+  final club = config.clubOfPlayer(playerId);
+  if (club != null) {
+    final ownClub = config.playersOfClub(club.id).length;
+    return (partners: ownClub - 1, opponents: config.players.length - ownClub);
+  }
+  final others = config.players.length - 1;
+  return (partners: others, opponents: config.mode == PartnerMode.fixed ? others - partnerCount : others);
+}
+
 /// Satu baris peringkat: satu pemain (mode Mixed) atau satu pasangan tetap
 /// (mode Fixed).
 ///
