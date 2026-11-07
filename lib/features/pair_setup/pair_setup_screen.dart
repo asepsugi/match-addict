@@ -105,18 +105,24 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
     context.push('/schedule', extra: widget.config.copyWith(fixedPairs: _pairs));
   }
 
-  /// Sparing: bagian satu klub (14a–14c, 14e). [first] membawa Acak ulang/Urungkan, [last] membawa catatan ganjil.
+  /// Sparing: pemain [club] yang belum berpasangan. Satu sisa jadi baris "–", dua atau lebih jadi chip (satu aturan
+  /// untuk bagian klub dan catatan chip).
+  List<Player> _unpairedOf(Club club) {
+    final paired = {for (final pair in _pairs) ...pair.playerIds};
+    return [
+      for (final p in widget.config.playersOfClub(club.id))
+        if (!paired.contains(p.id)) p,
+    ];
+  }
+
+  /// Sparing: bagian satu klub (14a–14c, 14e). [first] membawa Acak ulang/Urungkan, [oddNote] = klub ganjil terakhir (catatan dekat baris "–").
   Widget _clubSection(Club club, {required bool first, required String? chipNoteClubId, required bool oddNote}) {
     final members = widget.config.playersOfClub(club.id);
     final pairs = [
       for (final pair in _pairs)
         if (widget.config.clubOfPair(pair)?.id == club.id) pair,
     ];
-    final paired = {for (final pair in _pairs) ...pair.playerIds};
-    final unpaired = [
-      for (final p in members)
-        if (!paired.contains(p.id)) p,
-    ];
+    final unpaired = _unpairedOf(club);
     final leftover = unpaired.length == 1 ? unpaired.single : null;
     final chips = leftover == null ? unpaired : const <Player>[];
     final slots = members.length ~/ 2;
@@ -182,13 +188,12 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
 
   /// Sparing: tombol Buat jadwal menghitung pasangan yang belum jadi di kedua klub, lalu sisa ganjil (K12).
   Widget _sparingBody(List<Club> clubs) {
-    final paired = {for (final pair in _pairs) ...pair.playerIds};
     final oddClubs = [
       for (final c in clubs)
         if (widget.config.playersOfClub(c.id).length.isOdd) c,
     ];
     // Catatan chip: di bawah klub pemain yang dipilih, tanpa pilihan di klub terakhir yang masih punya chip (14b, 14e).
-    bool hasChips(Club c) => widget.config.playersOfClub(c.id).where((p) => !paired.contains(p.id)).length > 1;
+    bool hasChips(Club c) => _unpairedOf(c).length > 1;
     final noteClub = _picked != null ? _picked!.clubId : clubs.where(hasChips).lastOrNull?.id;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -199,7 +204,7 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
             club,
             first: i == 0,
             chipNoteClubId: noteClub,
-            oddNote: oddClubs.isNotEmpty && i == clubs.length - 1,
+            oddNote: oddClubs.isNotEmpty && club == oddClubs.last,
           ),
         ],
       ],

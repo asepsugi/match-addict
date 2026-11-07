@@ -167,6 +167,13 @@ void main() {
     expect(find.text('Fixed butuh pemain genap per klub'), findsOneWidget);
   });
 
+  testWidgets('K12: hanya Garuda ganjil, catatan di bawah baris sisa Garuda (di atas header Matcha)', (tester) async {
+    await pumpScreen(tester, screen(garuda9, matchaNames));
+    final note = tester.getTopLeft(find.text('Fixed butuh pemain genap per klub')).dy;
+    expect(note, lessThan(tester.getTopLeft(find.text('Matcha Club · 3 pasangan')).dy));
+    expect(button(tester).meta, '· 1 pemain tanpa pasangan');
+  });
+
   testWidgets('Manual ganjil: chip terakhir klub pindah ke baris "–"', (tester) async {
     await pumpScreen(tester, screen(garuda9, matchaNames));
     await manual(tester, [...garudaNames, ...matchaNames]);
