@@ -589,12 +589,7 @@ class ActiveTournament {
         pair,
   ];
 
-  String playerName(String id) => config.players
-      .firstWhere(
-        (p) => p.id == id,
-        orElse: () => const Player(id: '', name: '?'),
-      )
-      .name;
+  String playerName(String id) => config.playerById(id)?.name ?? '?';
 
   Court courtById(String id) => config.courts.firstWhere((c) => c.id == id, orElse: () => config.courts.first);
 

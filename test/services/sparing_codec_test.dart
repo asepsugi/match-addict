@@ -617,6 +617,37 @@ void main() {
     });
   });
 
+  group('encode menolak bentuk sparing yang tidak bisa dibaca kembali (assert)', () {
+    test('pemain sparing tanpa klub', () {
+      final active = _fixed13a(filled: 3);
+      final broken = active.copyWith(
+        tournament: active.tournament.copyWith(
+          config: active.config.copyWith(
+            players: [for (final p in active.config.players) p.id == 'p-andi' ? Player(id: p.id, name: p.name) : p],
+          ),
+        ),
+      );
+      expect(() => TournamentCodec.encode(broken), throwsA(isA<AssertionError>()));
+    });
+
+    test('pair1 dari klub kedua', () {
+      final active = _fixed13a(filled: 3);
+      final first = active.matches.first;
+      final swapped = MatchGame(
+        id: first.id,
+        roundNumber: first.roundNumber,
+        matchNumberInRound: first.matchNumberInRound,
+        courtId: first.courtId,
+        pair1: first.pair2,
+        pair2: first.pair1,
+      );
+      final broken = active.copyWith(
+        tournament: active.tournament.copyWith(matches: [swapped, ...active.matches.skip(1)]),
+      );
+      expect(() => TournamentCodec.encode(broken), throwsA(isA<AssertionError>()));
+    });
+  });
+
   group('helper klub total (id tak dikenal tidak melempar)', () {
     test('turnamen biasa: semua null / kosong', () {
       final config = TournamentCodec.decode(_fixed310)!.config;
@@ -661,7 +692,8 @@ void main() {
     'ukuran: 7/8 pasangan (30 pemain, 56 match per satuan) + 2 satuan tambahan, encode < 256 KB (MAX_BYTES relay)',
     () {
       // Terukur 2026-11-07: 168 match (56 + 2 × 56), id UUID, semua match berskor → 106 681 byte (±104 KB, ±635 B
-      // per match), 41% dari batas.
+      // per match), 41% dari batas. Jadwal di sini buatan, hanya untuk ukuran (satu pasangan bisa muncul dua kali
+      // dalam satu round): jangan disalin sebagai data jadwal.
       const uuid = Uuid();
       const p1 = 7, p2 = 8, courtCount = 4;
       final players = [

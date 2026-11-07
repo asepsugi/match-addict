@@ -22,6 +22,13 @@ class TournamentCodec {
   static const _sparingRevision = '1';
 
   static String encode(ActiveTournament active) {
+    // Mutator yang merusak bentuk sparing (pemain tanpa klub, `pair1` dari klub kedua, …) akan menulis payload yang
+    // ditolak decode, dan turnamennya baru hilang saat resume. Assert memakai aturan baca yang sama supaya kesalahan
+    // itu gagal di test yang menyimpan (juga lewat `TournamentStore.memory`); tanpa biaya di rilis.
+    assert(
+      !active.config.isSparing || (active.extraPutaran >= 0 && _isValidSparing(active.tournament)),
+      'Turnamen sparing melanggar bentuk simpanan (docs/data.md → Aturan baca); decode akan menolaknya.',
+    );
     // Kunci sparing hanya untuk turnamen sparing: encode turnamen biasa harus byte-sama dengan 3.1.0 (AC-S19).
     final sparing = active.config.isSparing;
     return jsonEncode({
