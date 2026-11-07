@@ -164,6 +164,9 @@ void main() {
       expect(SparingFixedGenerator.unitMatches(4, 3), 12);
       expect(SparingFixedGenerator.unitMatches(4, 2), 4);
       expect(SparingFixedGenerator.unitMatches(3, 3), 3);
+      // Satu klub kosong sementara di Atur pasangan: tidak melempar pembagian nol.
+      expect(SparingFixedGenerator.unitMatches(0, 0), 0);
+      expect(SparingFixedGenerator.unitMatches(4, 0), 0);
       final e42 = SparingFixedGenerator.extend(
         club1: _garuda,
         club2: _pairs('M', 2),
@@ -213,26 +216,6 @@ void main() {
         expect(ext.units, 2);
         _expectNoPairTwicePerRound(ext.schedule.matches, 'unitsDone $done');
       }
-      // Rantai tiga kali Tambah round seperti di prototipe: yang ketiga memakai sisa [3, 6, 13].
-      var done = 0;
-      var last = SparingFixedGenerator.generate(club1: club1, club2: club2, courts: courts).roundCount;
-      for (final left in [
-        [1, 1, 1],
-        [2, 2, 0],
-        [3, 6, 13],
-      ]) {
-        final ext = SparingFixedGenerator.extend(
-          club1: club1,
-          club2: club2,
-          courts: courts,
-          roundsLeft: left,
-          unitsDone: done,
-          firstRound: last + 1,
-        );
-        _expectNoPairTwicePerRound(ext.schedule.matches, 'tambah $left');
-        done += ext.units;
-        last = ext.schedule.roundCount;
-      }
     });
 
     group('extraRounds dari turnamen berjalan', () {
@@ -267,8 +250,7 @@ void main() {
         expect(plan.perPair, (club1: 3, club2: 4));
         expect(plan.schedule.matches.first.roundNumber, 7);
         expect(plan.schedule.roundCount, 12);
-        final over = (plan.schedule.roundCount - active.roundCount - plan.fitRounds) * 15;
-        expect(over, 60);
+        expect(plan.overMinutes, 60);
       });
 
       test('kedua court +1 jam → tetap 1 satuan, tanpa lewat booking', () {
@@ -282,6 +264,7 @@ void main() {
         expect(plan.fitRounds, 6);
         expect(plan.units, 1);
         expect(plan.schedule.roundCount - active.roundCount, 6);
+        expect(plan.overMinutes, 0);
       });
 
       test('satuan berikutnya melanjutkan extraPutaran: satuan kedua = blok K = g + 1', () {

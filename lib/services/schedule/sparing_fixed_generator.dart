@@ -29,7 +29,8 @@ class SparingFixedGenerator {
   static int activeCourts(int courts, int p1, int p2) => min(courts, min(p1, p2));
 
   /// Satu satuan round tambahan = satu blok = KPK(p1, p2) match; klub pertama +L÷p1, klub kedua +L÷p2 per pasangan.
-  static int unitMatches(int p1, int p2) => p1 ~/ p1.gcd(p2) * p2;
+  /// 0 kalau salah satu klub tanpa pasangan (sheet Atur pasangan bisa sementara mengosongkan satu klub; FPB 0).
+  static int unitMatches(int p1, int p2) => p1 == 0 || p2 == 0 ? 0 : p1 ~/ p1.gcd(p2) * p2;
 
   /// Jadwal awal: p1 × p2 match di Court 1..C'; court bernomor terakhir yang tidak aktif.
   static SparingFixedSchedule generate({
@@ -88,13 +89,15 @@ class SparingFixedGenerator {
 
   /// Rencana round tambahan untuk sheet Tambah round, padanan `RoundRobinGenerator.extraRounds`. [club1]/[club2] =
   /// pasangan per klub (hasil Atur pasangan atau pasangan sekarang); [roundsLeft] dihitung sama persis.
-  /// [perPair] = match tambahan tiap pasangan, per klub.
+  /// [perPair] = match tambahan tiap pasangan, per klub. [overMinutes] = menit lewat booking = (round tambahan −
+  /// [fitRounds]) × durasi, 0 kalau muat.
   static ({
     SparingFixedSchedule schedule,
     int units,
     ({int club1, int club2}) perPair,
     int fitRounds,
     List<int> roundsLeft,
+    int overMinutes,
   })
   extraRounds(
     ActiveTournament active,
@@ -116,13 +119,16 @@ class SparingFixedGenerator {
       unitsDone: active.extraPutaran,
       firstRound: active.roundCount + 1,
     );
-    final matches = extra.units * (club1.isEmpty || club2.isEmpty ? 0 : unitMatches(club1.length, club2.length));
+    final matches = extra.schedule.matches.length;
+    final fit = roundsLeft.fold(0, max);
+    final added = matches == 0 ? 0 : extra.schedule.roundCount - active.roundCount;
     return (
       schedule: extra.schedule,
       units: extra.units,
       perPair: (club1: club1.isEmpty ? 0 : matches ~/ club1.length, club2: club2.isEmpty ? 0 : matches ~/ club2.length),
-      fitRounds: roundsLeft.fold(0, max),
+      fitRounds: fit,
       roundsLeft: roundsLeft,
+      overMinutes: max(0, added - fit) * config.matchDurationMinutes,
     );
   }
 
