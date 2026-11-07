@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:match_addict/core/app_version.dart';
 import 'package:match_addict/features/home/app_install.dart';
 import 'package:match_addict/features/home/home_screen.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
@@ -112,6 +113,9 @@ void main() {
   Future<void> golden(WidgetTester tester, String frame, Widget screen, {Future<void> Function(WidgetTester)? act}) async {
     await precacheHifiAssets(tester, [SportType.tennis.assetPath, SportType.padel.assetPath]);
     await expectMatchesHifi(tester, screen, frame, act: act);
+    // Golden bertoleransi 2%: "v3.2.0" di frame vs versi kode (sementara 3.1.0) tidak terbaca di piksel,
+    // jadi teksnya dicek terpisah. Ada di semua kondisi Beranda, termasuk di bawah dialog/sheet (01h, 01i).
+    expect(find.text('v$appVersion'), findsOneWidget, reason: 'versi app di banner $frame');
   }
 
   testWidgets('01a belum terpasang + ada riwayat', (tester) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/app_version.dart';
 import '../../../core/theme/mabar_theme.dart';
 import '../../../core/widgets/court_painter.dart';
 import '../../../core/widgets/mabar_ball.dart';
@@ -109,6 +110,7 @@ class _CourtBannerState extends State<CourtBanner> with SingleTickerProviderStat
             children: [
               court,
               Positioned(left: 16, right: 16, top: top + 11, child: const _Wordmark()),
+              const Positioned(right: 16, top: 0, child: _AppVersion()),
               if (widget.live case final live?)
                 _LiveBlock(live: live, sport: to, top: top)
               else ...[
@@ -131,6 +133,42 @@ class _CourtBannerState extends State<CourtBanner> with SingleTickerProviderStat
       child: Text(sport.label, style: MabarType.scoreXl.copyWith(color: Colors.white)),
     ),
   );
+}
+
+/// `.appver` — "v3.2.0" di kanan atas, sejajar dasar wordmark, di run-off biru di atas dinding lapangan
+/// (jadi sama untuk tennis dan padel dan tidak bertabrakan dengan info round). Bukan tombol: tanpa
+/// `onTap`, dan `IgnorePointer` supaya tidak menelan ketukan.
+class _AppVersion extends StatelessWidget {
+  const _AppVersion();
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
+    return Padding(
+      padding: EdgeInsets.only(top: top + 11),
+      // Kotak 28 pt setinggi wordmark, teks rata bawah dengan padding 3 (CSS `.appver`).
+      child: SizedBox(
+        height: 28,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 3),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: IgnorePointer(
+              child: Text(
+                'v$appVersion',
+                style: MabarType.caption.copyWith(
+                  fontWeight: FontWeight.w500,
+                  height: 1,
+                  color: Colors.white,
+                  fontFeatures: MabarType.tabular,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// `.wordmark` — bola brand + "Match Addict" lebar. Di layar sempit atau teks diperbesar wordmark mengecil,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/core/app_version.dart';
 import 'package:match_addict/core/theme/mabar_theme.dart';
 import 'package:match_addict/core/widgets/court_painter.dart';
 import 'package:match_addict/features/home/widgets/court_banner.dart';
@@ -35,6 +36,7 @@ void main() {
         Rect.fromLTRB(band.left, band.top, band.right, panel.top - 40),
         label: 'court-band',
       );
+      expect(find.text('v$appVersion'), findsOneWidget);
     });
   }
 
