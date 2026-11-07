@@ -216,16 +216,7 @@ class _LiveBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (live.clubs case final clubs?)
-            // Satu baris; tiap nama klub berelipsis sendiri, skor tebal tidak pernah terpotong.
-            Row(
-              children: [
-                Flexible(child: Text(clubs.club1, style: text, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                Text(' ', style: text),
-                Text(clubs.score, style: text.copyWith(fontWeight: FontWeight.w700)),
-                Text(' ', style: text),
-                Flexible(child: Text(clubs.club2, style: text, maxLines: 1, overflow: TextOverflow.ellipsis)),
-              ],
-            )
+            _ClubsLine(clubs: clubs, style: text)
           else
             Text(live.subtitle, style: text, maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 10),
@@ -262,6 +253,66 @@ class _LiveBlock extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Baris kecil sparing: "klub1 **skor** klub2" dalam satu baris. Nama yang muat dapat lebar alaminya, sisanya untuk
+/// nama yang panjang (elipsis per nama); skor tebal tidak pernah terpotong. Dua `Flexible` sama rata akan memotong nama
+/// pendek-muat hanya karena temannya panjang.
+class _ClubsLine extends StatelessWidget {
+  final CourtBannerClubs clubs;
+  final TextStyle style;
+
+  const _ClubsLine({required this.clubs, required this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = MediaQuery.textScalerOf(context);
+    final bold = style.copyWith(fontWeight: FontWeight.w700);
+    double measure(String text, TextStyle s) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: s),
+        textDirection: TextDirection.ltr,
+        textScaler: scale,
+        maxLines: 1,
+      )..layout();
+      final width = painter.width;
+      painter.dispose();
+      return width;
+    }
+
+    return LayoutBuilder(
+      builder: (context, box) {
+        final gap = measure(' ', style);
+        final score = measure(clubs.score, bold);
+        final free = (box.maxWidth - score - 2 * gap).clamp(0.0, double.infinity);
+        // +1 menutup pembulatan ukur supaya nama yang pas tidak berelipsis.
+        final w1 = measure(clubs.club1, style) + 1, w2 = measure(clubs.club2, style) + 1;
+        final double a, b;
+        if (w1 + w2 <= free) {
+          (a, b) = (w1, w2);
+        } else if (w1 <= free / 2) {
+          (a, b) = (w1, free - w1);
+        } else if (w2 <= free / 2) {
+          (a, b) = (free - w2, w2);
+        } else {
+          (a, b) = (free / 2, free / 2);
+        }
+        Widget name(String t, double w) => SizedBox(
+          width: w,
+          child: Text(t, style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
+        );
+        return Row(
+          children: [
+            name(clubs.club1, a),
+            SizedBox(width: gap),
+            Text(clubs.score, style: bold),
+            SizedBox(width: gap),
+            name(clubs.club2, b),
+          ],
+        );
+      },
     );
   }
 }

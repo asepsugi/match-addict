@@ -44,6 +44,7 @@ void main() {
       expect((s.first.winsLabel, s.second.winsLabel), ('0', '0'));
       expect((s.leads(s.first), s.leads(s.second)), (false, false));
       expect(s.detailLabel(s.first), '0 game · 0');
+      expect(s.scoreLabel, '0 – 0');
     });
   });
 
@@ -62,6 +63,7 @@ void main() {
     test('setelah R5: 6 – 4, 45 – 43, +8 / −8', () {
       final s = ClubResult.of(fixedSparing(c13.sublist(0, 10)))!;
       expect((s.first.winsLabel, s.second.winsLabel), ('6', '4'));
+      expect(s.scoreLabel, '6 – 4');
       expect((s.first.totalPoint, s.second.totalPoint), (45, 43));
       expect((s.first.diffLabel, s.second.diffLabel), ('+8', '−8'));
     });
@@ -120,6 +122,7 @@ void main() {
       final s = ClubResult.of(fixedSparing(s14u, format: const ScoreFormat(ScoringMethod.americano, 20)))!;
       expect((s.first.halfWins, s.second.halfWins), (13, 11));
       expect((s.first.winsLabel, s.second.winsLabel), ('6½', '5½'));
+      expect(s.scoreLabel, '6½ – 5½');
       expect((s.first.totalPoint, s.second.totalPoint), (122, 118));
       expect((s.first.diffLabel, s.second.diffLabel), ('+4', '−4'));
       expect(s.unit, 'poin');

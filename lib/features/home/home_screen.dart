@@ -87,8 +87,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Turnamen terakhir; hanya Mixed yang bisa dilanjutkan, dan tidak tampil bersama turnamen berjalan.
     final last = ended ? stored : ref.watch(lastFinishedProvider);
     final sport = _sport(active, last);
-    // Skor klub dari ClubResult; hanya dibaca untuk sparing tanpa nama yang berjalan.
-    final clubScore = active != null && active.config.name == null ? ref.watch(clubScoreProvider) : null;
+    // Skor klub dari ClubResult; hanya dibaca untuk sparing yang berjalan.
+    final clubScore = active != null && active.config.isSparing ? ref.watch(clubScoreProvider) : null;
     final installMode = ref.watch(appInstallModeProvider);
 
     final banner = CourtBanner(
@@ -98,11 +98,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ? null
           : CourtBannerLive(
               subtitle: _summary(active),
-              clubs: clubScore == null
+              // Sparing bernama: nama tetap di baris kecil, tanpa skor sampai 15w dikerjakan.
+              clubs: clubScore == null || active.config.name != null
                   ? null
                   : CourtBannerClubs(
                       club1: clubScore.first.club.name,
-                      score: '${clubScore.first.winsLabel} – ${clubScore.second.winsLabel}',
+                      score: clubScore.scoreLabel,
                       club2: clubScore.second.club.name,
                     ),
               title: 'Round ${active.currentRound}',

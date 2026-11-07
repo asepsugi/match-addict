@@ -61,6 +61,9 @@ class ClubResult {
     return identical(t, first) ? l == ClubLead.first : l == ClubLead.second;
   }
 
+  /// Skor klub satu teks: "6 – 4", "6½ – 3½", "0 – 0" (Beranda, 14x).
+  String get scoreLabel => '${first.winsLabel} – ${second.winsLabel}';
+
   /// Teks kecil di samping nama klub (`.clubscore .tp`): "56 game · +13".
   String detailLabel(ClubTally t) => '${t.totalPoint} $unit · ${t.diffLabel}';
 
