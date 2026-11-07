@@ -10,6 +10,7 @@ import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../schedule/mixed/resume_tournament_sheet.dart';
+import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
 import 'app_install.dart';
 import 'ios_install_sheet.dart';
@@ -41,6 +42,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   static String _summary(ActiveTournament t) =>
       t.config.name ?? '${t.config.sport.label} · ${t.config.mode.label} · ${t.activePlayers.length} pemain';
 
+  /// Untuk dialog 01h/14y: "PB Garuda vs Matcha Club" (sparing tanpa nama), nama turnamen, atau "Padel · Mixed".
+  static String _label(ActiveTournament t) {
+    final clubs = t.config.clubs;
+    if (t.config.name == null && clubs != null && clubs.length == 2) return '${clubs[0].name} vs ${clubs[1].name}';
+    return t.config.name ?? '${t.config.sport.label} · ${t.config.mode.label}';
+  }
+
   /// Slot turnamen aktif cuma satu, jadi memulai turnamen baru membuang yang sedang berjalan; dialog 01h
   /// menyebut turnamen mana yang akan hilang.
   Future<void> _start(SportType sport, ActiveTournament? active) async {
@@ -50,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: 'Mulai turnamen baru?',
         message:
             'Turnamen yang berjalan akan dihapus:\n'
-            '${active.config.name ?? '${active.config.sport.label} · ${active.config.mode.label}'}, '
+            '${_label(active)}, '
             'Round ${active.currentRound}',
         confirmLabel: 'Hapus & mulai baru',
         destructive: true,
@@ -79,6 +87,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Turnamen terakhir; hanya Mixed yang bisa dilanjutkan, dan tidak tampil bersama turnamen berjalan.
     final last = ended ? stored : ref.watch(lastFinishedProvider);
     final sport = _sport(active, last);
+    // Skor klub dari ClubResult; hanya dibaca untuk sparing tanpa nama yang berjalan.
+    final clubScore = active != null && active.config.name == null ? ref.watch(clubScoreProvider) : null;
     final installMode = ref.watch(appInstallModeProvider);
 
     final banner = CourtBanner(
@@ -88,6 +98,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ? null
           : CourtBannerLive(
               subtitle: _summary(active),
+              clubs: clubScore == null
+                  ? null
+                  : CourtBannerClubs(
+                      club1: clubScore.first.club.name,
+                      score: '${clubScore.first.winsLabel} – ${clubScore.second.winsLabel}',
+                      club2: clubScore.second.club.name,
+                    ),
               title: 'Round ${active.currentRound}',
               progress: active.matches.isEmpty ? 0 : active.playedMatchCount / active.matches.length,
               matches: '${active.playedMatchCount} dari ${active.matches.length} match',

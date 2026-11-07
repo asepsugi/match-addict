@@ -7,6 +7,16 @@ import '../../../core/widgets/mabar_ball.dart';
 import '../../../core/widgets/mabar_controls.dart';
 import '../../../models/models.dart';
 
+/// Baris kecil sparing tanpa nama: "PB Garuda 6 – 4 Matcha Club". Angka sudah jadi teks dari `ClubResult`.
+class CourtBannerClubs {
+  final String club1, club2;
+
+  /// "6 – 4", "6½ – 3½", "0 – 0".
+  final String score;
+
+  const CourtBannerClubs({required this.club1, required this.score, required this.club2});
+}
+
 /// Isi `.liveblock`: turnamen yang sedang berjalan, ditulis di zona belakang lapangan.
 class CourtBannerLive {
   /// Nama turnamen atau "Padel · Mixed · 8 pemain"; satu baris, elipsis.
@@ -22,7 +32,11 @@ class CourtBannerLive {
   final String matches;
   final VoidCallback onContinue;
 
+  /// Kalau ada, menggantikan [subtitle] (sparing tanpa nama, 14x).
+  final CourtBannerClubs? clubs;
+
   const CourtBannerLive({
+    this.clubs,
     required this.subtitle,
     required this.title,
     required this.progress,
@@ -201,7 +215,19 @@ class _LiveBlock extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(live.subtitle, style: text, maxLines: 1, overflow: TextOverflow.ellipsis),
+          if (live.clubs case final clubs?)
+            // Satu baris; tiap nama klub berelipsis sendiri, skor tebal tidak pernah terpotong.
+            Row(
+              children: [
+                Flexible(child: Text(clubs.club1, style: text, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Text(' ', style: text),
+                Text(clubs.score, style: text.copyWith(fontWeight: FontWeight.w700)),
+                Text(' ', style: text),
+                Flexible(child: Text(clubs.club2, style: text, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              ],
+            )
+          else
+            Text(live.subtitle, style: text, maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 10),
           Text(live.title, style: MabarType.scoreL.copyWith(color: Colors.white)),
           const SizedBox(height: 10),
