@@ -300,6 +300,8 @@ Aturan bersama SP-18:
 - Turnamen biasa: golden 03*, 06*, 07*, 08*, 09*, 10*, 12* dan Fixed sparing 13k–14y tetap lolos tanpa diubah (AC-S19).
 
 ## SP-18a · Fondasi Mixed sparing: fixture bersama, istirahat per klub di model, `RestingList.clubs` — kuat
+- **Status:** selesai, di-approve (2026-11-08). Getter baru dan urutan daftar pemain untuk tab round lewat: catat di
+  `docs/architecture.md` saat SP-19.
 - **Goal:** (1) fixture golden Mixed sparing bersama, semua susunan dari generator dengan seed frame; (2) pengelompokan
   istirahat per klub pindah dari widget ke `ActiveTournament` dan dipakai Jadwal Fixed (catatan review SP-11);
   (3) `RestingList.clubs` mendukung judul Prioritas / "Istirahat lagi" / judul lain; (4) klub yang membatasi match per
