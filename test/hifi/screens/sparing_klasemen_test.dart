@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/core/widgets/club_score.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/features/leaderboard/leaderboard_screen.dart';
 import 'package:match_addict/features/live/live_view_controller.dart';
 import 'package:match_addict/features/schedule/sparing_providers.dart';
@@ -35,12 +36,15 @@ void main() {
     expect(find.byKey(ClubScore.ballKey), findsNWidgets(balls));
   }
 
+  bool appBarScrolled(WidgetTester tester) => tester.widget<MabarAppBar>(find.byType(MabarAppBar)).scrolled;
+
   testWidgets('13n Sementara: 6 – 4, 45 – 43 (AC-S14)', (tester) async {
     await expectMatchesHifi(tester, screen(sparingAfterR5(), rounds: 5), '13n');
     expectBoard(first: '6', second: '4', balls: 1);
     expect(find.text('45 game · +8'), findsOneWidget);
     expect(find.text('43 game · −8'), findsOneWidget);
     expect(find.text('Padel · Fixed · Sementara · R6 · 10 dari 12 match'), findsOneWidget);
+    expect(appBarScrolled(tester), isFalse); // belum digulir: tanpa garis bawah app bar
   });
 
   testWidgets('13o Final digulir: papan dan tab tetap, 7 – 5, 56 – 49, "1 match WO" di bawah (AC-S14)', (tester) async {
@@ -50,6 +54,7 @@ void main() {
     expect(find.text('49 game · −13'), findsOneWidget);
     expect(find.text('1 match WO'), findsOneWidget);
     expect(find.text('Padel · Fixed · Final · 6 round · 12 match'), findsOneWidget);
+    expect(appBarScrolled(tester), isTrue); // digulir: garis bawah app bar muncul
   });
 
   testWidgets('13o papan dan tab metode tidak bergeser saat digulir', (tester) async {
@@ -99,6 +104,7 @@ void main() {
     expect(find.text('Gilang'), findsOneWidget);
     expect(find.text('Oki'), findsOneWidget);
     expect(find.text('Padel · Fixed · Sementara · R7 · 12 dari 24 match'), findsOneWidget);
+    expect(appBarScrolled(tester), isTrue);
   });
 
   testWidgets('14s klub kedua unggul: bola pindah ke baris bawah, 5 – 7, 56 – 60', (tester) async {

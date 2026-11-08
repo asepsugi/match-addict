@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/mabar_icons.dart';
 import '../../core/theme/mabar_theme.dart';
 import '../../core/widgets/club_score.dart';
-import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_controls.dart';
+import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
 import '../../models/models.dart';
 import '../../services/ranking/club_score.dart';
@@ -25,17 +25,32 @@ String rankingStatus(ActiveTournament active, DateTime now) => active.isFinal(no
 
 /// Screen 09 · Peringkat — tabel rapat, status di subjudul. Metode yang dipilih di sini juga dipakai Detail
 /// dan Bagikan ([rankingMethodProvider]). Baris diketuk → Detail.
-class LeaderboardScreen extends ConsumerWidget {
+class LeaderboardScreen extends ConsumerStatefulWidget {
   const LeaderboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LeaderboardScreen> createState() => _LeaderboardScreenState();
+}
+
+class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
+  bool _scrolled = false;
+
+  /// Garis bawah app bar begitu isi tergulir ke bawahnya (13o, 14p), sama dengan Konfigurasi.
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth == 0) {
+      final scrolled = n.metrics.pixels > 0;
+      if (scrolled != _scrolled) setState(() => _scrolled = scrolled);
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final active = ref.watch(tournamentProvider);
     if (active == null) return const Scaffold(backgroundColor: MabarColors.paper);
 
     final watching = ref.watch(liveCodeProvider) != null;
     final method = ref.watch(rankingMethodProvider);
-    final entries = ref.watch(standingEntriesProvider);
     final config = active.config;
     final format = config.format;
     final fixed = config.mode == PartnerMode.fixed;
@@ -43,6 +58,8 @@ class LeaderboardScreen extends ConsumerWidget {
     // Sparing: papan skor klub tetap di atas dan satu tabel per klub, nomor mulai #1 di tiap klub (PRD §13, K3).
     final clubResult = ref.watch(clubScoreProvider);
     final clubGroups = clubResult == null ? const <ClubStandings>[] : ref.watch(clubStandingEntriesProvider);
+    // Nomor lintas klub tidak dipakai di sparing, jadi provider ini hanya dibaca untuk turnamen biasa.
+    final entries = clubResult == null ? ref.watch(standingEntriesProvider) : const <StandingEntry>[];
 
     String record(PlayerStanding s) => format.canDraw ? '${s.wins}–${s.losses}–${s.draws}' : '${s.wins}–${s.losses}';
     final unit = format.unit;
@@ -84,8 +101,8 @@ class LeaderboardScreen extends ConsumerWidget {
         children: [
           MabarAppBar(
             title: 'Klasemen',
-            subtitle:
-                '${config.sport.label} · ${config.mode.label} · ${rankingStatus(active, ref.read(clockProvider)())}',
+            subtitle: '${config.sport.label} · ${config.mode.label} · ${rankingStatus(active, ref.read(clockProvider)())}',
+            scrolled: _scrolled,
             onBack: () => context.pop(),
           ),
           // `.clubscore` di luar ListView: tetap di tempat saat tabel digulir, sama dengan tab metode (13o).
@@ -107,30 +124,33 @@ class LeaderboardScreen extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.only(top: 12, bottom: 16 + (watching ? MediaQuery.paddingOf(context).bottom : 0)),
-              children: [
-                if (clubResult == null)
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: table(entries))
-                else
-                  for (final (i, group) in clubGroups.indexed)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(16, i == 0 ? 0 : 10, 16, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          MabarGroupHeader.text(group.club.name),
-                          const SizedBox(height: 2),
-                          table(group.entries),
-                        ],
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: ListView(
+                padding: EdgeInsets.only(top: 12, bottom: 16 + (watching ? MediaQuery.paddingOf(context).bottom : 0)),
+                children: [
+                  if (clubResult == null)
+                    Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: table(entries))
+                  else
+                    for (final (i, group) in clubGroups.indexed)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16, i == 0 ? 0 : 10, 16, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            MabarGroupHeader.text(group.club.name),
+                            const SizedBox(height: 2),
+                            table(group.entries),
+                          ],
+                        ),
                       ),
+                  if (notes.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                      child: Text(notes.join(' · '), style: MabarType.caption.copyWith(color: MabarColors.ink3)),
                     ),
-                if (notes.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                    child: Text(notes.join(' · '), style: MabarType.caption.copyWith(color: MabarColors.ink3)),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
           // Penonton (12j) tidak membagikan poster.
@@ -138,11 +158,7 @@ class LeaderboardScreen extends ConsumerWidget {
             MabarActionBar(
               children: [
                 Expanded(
-                  child: MabarButton(
-                    label: 'Bagikan',
-                    icon: MabarIcons.shareNetwork,
-                    onPressed: () => context.push('/share'),
-                  ),
+                  child: MabarButton(label: 'Bagikan', icon: MabarIcons.shareNetwork, onPressed: () => context.push('/share')),
                 ),
               ],
             ),
