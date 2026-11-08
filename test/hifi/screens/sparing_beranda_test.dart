@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/core/app_version.dart';
 import 'package:match_addict/features/home/app_install.dart';
 import 'package:match_addict/features/home/home_screen.dart';
 import 'package:match_addict/features/home/widgets/court_banner.dart';
@@ -11,17 +12,19 @@ import 'package:match_addict/services/storage/tournament_store.dart';
 import '../hifi_golden.dart';
 import 'screen_harness.dart';
 import 'sparing_fixture.dart';
+import 'sparing_mixed_fixture.dart';
 
 /// Golden Beranda sparing, frame 14x–14y. Data = `sparingAfterR5` (R6 berjalan, 6 – 4, 10 dari 12 match).
 void main() {
-  Widget screen(ActiveTournament active) {
+  Widget screen(ActiveTournament active, {ActiveTournament? last}) {
     final store = TournamentStore.memory();
-    store.saveActive(active);
+    // [last] = turnamen terakhir (selesai, sudah ditutup), bukan yang berjalan.
+    if (last == null) store.saveActive(active);
     return hifiScreen(
       const HomeScreen(),
       overrides: [
         tournamentStoreProvider.overrideWithValue(store),
-        lastFinishedProvider.overrideWith((ref) => null),
+        lastFinishedProvider.overrideWith((ref) => last),
         appInstallModeProvider.overrideWithValue(ValueNotifier(AppInstallMode.none) as ValueListenable<AppInstallMode>),
       ],
     );
@@ -74,16 +77,64 @@ void main() {
     expect(find.textContaining('½'), findsOneWidget);
   });
 
-  // Perilaku sementara sampai 15w: nama turnamen di baris kecil, tanpa skor klub; dialog memakai nama turnamen.
-  testWidgets('sparing bernama: banner dan dialog memakai nama turnamen', (tester) async {
-    final named = sparingScored(sparingSchedule(sparingConfig(name: 'Mabar Jumat')), scores13c, filled: 10);
-    await tester.pumpWidget(screen(named));
+  testWidgets('15w sparing bernama berjalan: nama di baris kecil, skor dua baris di samping Round', (tester) async {
+    await golden(tester, '15w', screen(mixedSparing15w().active));
+    expect(find.text(mixedSparingName), findsOneWidget);
+    expect(find.text('Round 4'), findsOneWidget);
+    expect(find.text('PB Garuda'), findsOneWidget);
+    expect(find.text('Matcha Club'), findsOneWidget);
+    expect(find.text('4'), findsOneWidget);
+    expect(find.text('2'), findsOneWidget);
+    expect(find.text('6 dari 8 match'), findsOneWidget);
+    expect(find.text('v$appVersion'), findsOneWidget);
+    // Skor tidak lagi dirangkai di baris kecil.
+    expect(find.text('4 – 2'), findsNothing);
+  });
+
+  testWidgets('15w: skor di samping Round tidak menambah tinggi info round', (tester) async {
+    await tester.pumpWidget(screen(mixedSparing15w().active));
     await tester.pump();
-    expect(find.text('Mabar Jumat'), findsOneWidget);
-    expect(find.text('6 – 4'), findsNothing);
-    await tester.tap(find.text('Mulai turnamen Padel'));
-    await tester.pumpAndSettle();
-    expect(find.text('Turnamen yang berjalan akan dihapus:\nMabar Jumat, Round 6'), findsOneWidget);
+    final round = tester.getRect(find.text('Round 4'));
+    final progress = tester.getRect(find.text('6 dari 8 match'));
+    final first = tester.getRect(find.text('PB Garuda'));
+    final second = tester.getRect(find.text('Matcha Club'));
+    expect(first.top, greaterThanOrEqualTo(round.top - 6));
+    expect(second.bottom, lessThanOrEqualTo(round.bottom + 6));
+    expect(first.top, lessThan(second.top));
+    expect(progress.top, greaterThan(round.bottom));
+  });
+
+  testWidgets('15y dialog mulai baru saat sparing bernama berjalan menyebut nama turnamen', (tester) async {
+    await golden(
+      tester,
+      '15y',
+      screen(mixedSparing15w().active),
+      act: (tester) => tester.tap(find.text('Mulai turnamen Padel')),
+    );
+    expect(find.text('Turnamen yang berjalan akan dihapus:\n$mixedSparingName, Round 4'), findsOneWidget);
+  });
+
+  testWidgets('15x turnamen terakhir Mixed sparing tanpa nama: judul memuat skor klub', (tester) async {
+    final last = mixedSparing15f().active;
+    await golden(tester, '15x', screen(last, last: last));
+    expect(find.text('PB Garuda 10 – 6 Matcha Club', findRichText: true), findsOneWidget);
+    expect(find.text('Selesai di R8 · tambah jam untuk lanjut'), findsOneWidget);
+    expect(find.text('v$appVersion'), findsOneWidget);
+  });
+
+  testWidgets('turnamen terakhir Mixed sparing bernama: judul = nama turnamen saja', (tester) async {
+    final last = mixedSparing15w().active;
+    await tester.pumpWidget(screen(last, last: last));
+    await tester.pump();
+    expect(find.text(mixedSparingName), findsOneWidget);
+    expect(find.textContaining('Matcha Club', findRichText: true), findsNothing);
+  });
+
+  testWidgets('turnamen terakhir Fixed sparing tidak tampil', (tester) async {
+    final last = sparingAfterR5();
+    await tester.pumpWidget(screen(last, last: last));
+    await tester.pump();
+    expect(find.textContaining('Selesai di R'), findsNothing);
   });
 
   // Nama pendek tidak ikut terpotong hanya karena nama temannya panjang; skor tetap utuh.

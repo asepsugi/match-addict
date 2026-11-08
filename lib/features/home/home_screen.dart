@@ -9,6 +9,7 @@ import '../../core/theme/mabar_theme.dart';
 import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
+import '../../services/ranking/club_score.dart';
 import '../schedule/mixed/resume_tournament_sheet.dart';
 import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
@@ -41,6 +42,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Nama turnamen, atau "Padel · Mixed · 8 pemain" (jumlah pemain aktif sekarang) kalau tanpa nama.
   static String _summary(ActiveTournament t) =>
       t.config.name ?? '${t.config.sport.label} · ${t.config.mode.label} · ${t.activePlayers.length} pemain';
+
+  static String _lastSubtitle(ActiveTournament t) => 'Selesai di R${t.roundCount} · tambah jam untuk lanjut';
+
+  /// Judul baris turnamen terakhir sparing tanpa nama (15x): "PB Garuda **10 – 6** Matcha Club" + subjudul 01c.
+  /// `titleWidget` menggantikan judul dan subjudul sekaligus, jadi subjudulnya ikut ditulis di sini.
+  static Widget _lastClubsTitle(ClubResult r, String subtitle) {
+    final title = MabarType.body.copyWith(color: MabarColors.ink);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text.rich(
+          TextSpan(
+            style: title,
+            children: [
+              TextSpan(text: '${r.first.club.name} '),
+              TextSpan(
+                text: r.scoreLabel,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              TextSpan(text: ' ${r.second.club.name}'),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(subtitle, style: MabarType.caption),
+      ],
+    );
+  }
 
   /// Untuk dialog 01h/14y: "PB Garuda vs Matcha Club" (sparing tanpa nama), nama turnamen, atau "Padel · Mixed".
   static String _label(ActiveTournament t) {
@@ -89,6 +120,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final sport = _sport(active, last);
     // Skor klub dari ClubResult; hanya dibaca untuk sparing yang berjalan.
     final clubScore = active != null && active.config.isSparing ? ref.watch(clubScoreProvider) : null;
+    // Turnamen terakhir Mixed sparing tanpa nama (15x): judul baris memuat skor klub. Bernama: nama saja (01a).
+    final lastScore = active == null && last != null && last.config.isSparing && last.config.name == null
+        ? ClubResult.of(last)
+        : null;
     final installMode = ref.watch(appInstallModeProvider);
 
     final banner = CourtBanner(
@@ -98,13 +133,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ? null
           : CourtBannerLive(
               subtitle: _summary(active),
-              // Sparing bernama: nama tetap di baris kecil, tanpa skor sampai 15w dikerjakan.
+              // Tanpa nama: skor menggantikan subjudul (14x). Bernama: nama tetap di baris kecil, skor di samping
+              // "Round n" (15w).
               clubs: clubScore == null || active.config.name != null
                   ? null
                   : CourtBannerClubs(
                       club1: clubScore.first.club.name,
                       score: clubScore.scoreLabel,
                       club2: clubScore.second.club.name,
+                    ),
+              clubsAside: clubScore == null || active.config.name == null
+                  ? null
+                  : CourtBannerClubsAside(
+                      club1: clubScore.first.club.name,
+                      score1: clubScore.first.winsLabel,
+                      club2: clubScore.second.club.name,
+                      score2: clubScore.second.winsLabel,
                     ),
               title: 'Round ${active.currentRound}',
               progress: active.matches.isEmpty ? 0 : active.playedMatchCount / active.matches.length,
@@ -126,9 +170,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             MabarRow(
               padded: true,
               leading: const MabarRowIcon(MabarIcons.clockCounterClockwise),
-              title: _summary(last),
+              title: lastScore == null ? _summary(last) : null,
+              titleWidget: lastScore == null ? null : _lastClubsTitle(lastScore, _lastSubtitle(last)),
               titleOneLine: true,
-              subtitle: 'Selesai di R${last.roundCount} · tambah jam untuk lanjut',
+              subtitle: _lastSubtitle(last),
               chevron: true,
               onTap: () => _resumeLast(last),
             ),

@@ -7,7 +7,8 @@ import '../../../core/widgets/mabar_ball.dart';
 import '../../../core/widgets/mabar_controls.dart';
 import '../../../models/models.dart';
 
-/// Baris kecil sparing tanpa nama: "PB Garuda 6 – 4 Matcha Club". Angka sudah jadi teks dari `ClubResult`.
+/// Skor klub sparing di banner. Tanpa nama (14x): baris kecil "PB Garuda 6 – 4 Matcha Club" menggantikan subjudul.
+/// Bernama (15w): [CourtBannerClubsAside] di samping "Round n", nama turnamen tetap di baris kecil.
 class CourtBannerClubs {
   final String club1, club2;
 
@@ -15,6 +16,14 @@ class CourtBannerClubs {
   final String score;
 
   const CourtBannerClubs({required this.club1, required this.score, required this.club2});
+}
+
+/// Skor klub dua baris rata kanan (15w): satu angka per klub, klub pertama di atas, seperti papan skor klub.
+/// Angka sudah jadi teks dari `ClubTally.winsLabel`.
+class CourtBannerClubsAside {
+  final String club1, score1, club2, score2;
+
+  const CourtBannerClubsAside({required this.club1, required this.score1, required this.club2, required this.score2});
 }
 
 /// Isi `.liveblock`: turnamen yang sedang berjalan, ditulis di zona belakang lapangan.
@@ -35,8 +44,12 @@ class CourtBannerLive {
   /// Kalau ada, menggantikan [subtitle] (sparing tanpa nama, 14x).
   final CourtBannerClubs? clubs;
 
+  /// Sparing bernama: skor klub di samping [title]; [subtitle] (nama turnamen) tetap tampil.
+  final CourtBannerClubsAside? clubsAside;
+
   const CourtBannerLive({
     this.clubs,
+    this.clubsAside,
     required this.subtitle,
     required this.title,
     required this.progress,
@@ -220,7 +233,20 @@ class _LiveBlock extends StatelessWidget {
           else
             Text(live.subtitle, style: text, maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 10),
-          Text(live.title, style: MabarType.scoreL.copyWith(color: Colors.white)),
+          if (live.clubsAside case final aside?)
+            // Tinggi baris = tinggi "Round n" (54 × 0,88): dua baris skor tidak menambah tinggi info round.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(live.title, style: MabarType.scoreL.copyWith(color: Colors.white)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _ClubsAside(aside: aside, style: text),
+                ),
+              ],
+            )
+          else
+            Text(live.title, style: MabarType.scoreL.copyWith(color: Colors.white)),
           const SizedBox(height: 10),
           ClipRRect(
             borderRadius: BorderRadius.circular(3),
@@ -313,6 +339,35 @@ class _ClubsLine extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Skor klub dua baris rata kanan di samping "Round n" (15w). Nama klub elipsis di kolom sisa, angka utuh dan rata kanan.
+class _ClubsAside extends StatelessWidget {
+  final CourtBannerClubsAside aside;
+  final TextStyle style;
+
+  const _ClubsAside({required this.aside, required this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = style.copyWith(fontWeight: FontWeight.w600);
+    final number = MabarType.numM.copyWith(color: Colors.white, height: 1);
+    Widget line(String club, String score) => Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Flexible(
+          child: Text(club, style: name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        const SizedBox(width: 10),
+        Text(score, style: number),
+      ],
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [line(aside.club1, aside.score1), const SizedBox(height: 4), line(aside.club2, aside.score2)],
     );
   }
 }
