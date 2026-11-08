@@ -433,8 +433,8 @@ Aturan bersama SP-18:
   `sparing_klasemen_test.dart`, `sparing_detail_test.dart`.
 - **Ubah:** `features/leaderboard/**`, `features/detail_player/**` hanya kalau perlu; test di dua file test itu.
 - **Acceptance:** AC-S17 (15s: Fajar 21 (+7) di atas Budi 21 (+2), Joko 26 (+5) di atas Nanda 26 (−4)); K11 (15t: Maya
-  24, Lina 18, Matcha 58); Detail Mixed: Beda partner = klub sendiri − 1 ("3 / 7"), Beda lawan = klub lain ("6 / 6")
-  di 15u/15v (catatan review SP-14); `find.text` subjudul "Belum main · {klub} · …" untuk pemain sparing yang belum
+  24, Lina 18, Matcha 58); Detail Mixed: Beda partner = dari klub sendiri − 1, Beda lawan = dari klub lain (catatan
+  review SP-14): 15u Andi "3 / 7" dan "6 / 6", 15v Lina "5 / 5" dan "7 / 8" (`find.text` keduanya); `find.text` subjudul "Belum main · {klub} · …" untuk pemain sparing yang belum
   main (Oki setelah ditambah, keadaan 15l); golden 15s (+ digulir), 15t (digulir sampai bawah), 15u, 15v; penonton
   Live Klasemen memakai angka yang sama (`find.text`).
 - **Dependensi:** SP-18a. **Paralel:** ya. **Model:** default.
