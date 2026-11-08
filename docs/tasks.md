@@ -351,6 +351,7 @@ Aturan bersama SP-18:
   **Model:** kuat (semua task SP-18 membangun di atasnya; pencarian seed dan skor yang konsisten).
 
 ## SP-18b · Atur turnamen Mixed sparing (13i, 13j)
+- **Status:** selesai, di-approve, digabung setelah SP-18c (2026-11-08).
 - **Goal:** cabut `_mixedSparingBlocked` (catatan review SP-9); tombol "Mulai Round 1 · ±R round", ditambah " · C' court"
   kalau C' < court dipesan, angka dari `EndlessRoundGenerator.sparingEstimate` (tidak dihitung di layar).
 - **Baca:** `13-sparing.md` 13h–13j, `logic.md` §13.6 (Estimasi Konfigurasi), `konfigurasi_screen.dart`
@@ -363,6 +364,7 @@ Aturan bersama SP-18:
   tanpa tampilan klub), tidak wajib. **Model:** default.
 
 ## SP-18c · Jadwal Mixed sparing (13m, 15a–15i, 15n, 15p) + penonton Live
+- **Status:** selesai, di-approve (2026-11-08).
 - **Goal:** `schedule_mixed_screen.dart` untuk sparing: `ClubScore` di atas daftar (ikut tergulir, seperti 13k);
   Istirahat round terakhir per klub dari `EndlessRoundGenerator.restingByClubAfterLastRound` (bukan gabungan
   `restingAfterLastRound`, catatan review SP-3): "Istirahat · Prioritas main di R(n+1)" lalu "Istirahat lagi di
