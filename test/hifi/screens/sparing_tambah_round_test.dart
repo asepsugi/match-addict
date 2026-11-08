@@ -79,6 +79,21 @@ void main() {
     expect(find.text('Buat R7–R12'), findsOneWidget);
   });
 
+  testWidgets('pasangan sama (3 + 3): satu angka tanpa nama klub', (tester) async {
+    final equal = sparingScored(
+      sparingSchedule(sparingConfig(garudaPlayers: garudaNames.take(6).toList())),
+      scores13c,
+      filled: 9,
+    );
+    await pump(tester, screen(equal, sparingAt(5)));
+    await openSheet(tester);
+    expect(find.text('match lagi tiap pasangan'), findsOneWidget);
+    expect(find.text('match lagi tiap pasangan PB Garuda'), findsNothing);
+    expect(find.text('match lagi tiap pasangan Matcha Club'), findsNothing);
+    expect(find.text('3 + 3 pasangan · sama dengan sebelumnya'), findsOneWidget);
+    expect(find.textContaining(' round (R'), findsOneWidget);
+  });
+
   testWidgets('AC-S18: 1 jam di kedua court → tetap 1 satuan, tanpa lewat booking', (tester) async {
     await pump(tester, screen(sparingFull(), sparingAt(6)));
     await openSheet(tester);

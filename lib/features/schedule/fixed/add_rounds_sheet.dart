@@ -39,6 +39,11 @@ class AddRoundsSheet extends ConsumerStatefulWidget {
 }
 
 class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
+  // Dua baris klub di 14n: nilai ini menggantikan `gap: 6` + `line-height: .72` di CSS 14n (diukur dari frame, bukan
+  // dari padding 06w).
+  static const _stackedGapBefore = 12.5;
+  static const _stackedPadBottom = 1.5;
+
   /// Tambahan jam per court id.
   final Map<String, int> _extraHours = {};
 
@@ -145,7 +150,7 @@ class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
           ? SheetEstimate(number: plan.perPair.club1, label: label, lines: [facts])
           // Dua baris klub (14n): jarak ke baris Pasangan dan ke tombol diukur dari frame, bukan padding 06w.
           : Padding(
-              padding: const EdgeInsets.only(bottom: 1.5),
+              padding: const EdgeInsets.only(bottom: _stackedPadBottom),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -200,7 +205,7 @@ class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
             ),
           ],
         ),
-        SizedBox(height: stackedEstimate ? 12.5 : 16),
+        SizedBox(height: stackedEstimate ? _stackedGapBefore : 16),
         estimate,
         const SizedBox(height: 16),
         MabarButton(

@@ -77,7 +77,13 @@ class SheetEstimate extends StatelessWidget {
   /// Tanpa padding atas/bawah: baris klub bertumpuk di ringkasan sparing (14n) rapat satu sama lain.
   final bool stacked;
 
-  const SheetEstimate({super.key, required this.number, required this.label, required this.lines, this.stacked = false});
+  const SheetEstimate({
+    super.key,
+    required this.number,
+    required this.label,
+    required this.lines,
+    this.stacked = false,
+  });
 
   @override
   Widget build(BuildContext context) {
