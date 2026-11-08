@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/mabar_icons.dart';
 import '../../core/theme/mabar_theme.dart';
-import '../../core/widgets/club_score.dart';
 import '../../core/widgets/mabar_controls.dart';
 import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
@@ -12,7 +11,7 @@ import '../../models/models.dart';
 import '../../services/ranking/club_score.dart';
 import '../../services/ranking/ranking_calculator.dart';
 import '../live/live_view_controller.dart';
-import '../schedule/club_score_row.dart';
+import '../schedule/club_score_view.dart';
 import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
 import 'widgets/standing_table.dart';
@@ -107,13 +106,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           ),
           // `.clubscore` di luar ListView: tetap di tempat saat tabel digulir, sama dengan tab metode (13o).
           if (clubResult != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ClubScore(
-                first: clubScoreRowOf(clubResult, clubResult.first),
-                second: clubScoreRowOf(clubResult, clubResult.second),
-              ),
-            ),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: clubScoreOf(clubResult)),
           if (clubResult != null) const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
