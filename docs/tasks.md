@@ -257,6 +257,7 @@ Bentrok berkas yang diketahui:
 - **Dependensi:** SP-4, SP-5. **Paralel:** ya. **Model:** default.
 
 ## SP-16 · Tambah round + Atur pasangan sparing
+- **Status:** selesai, di-approve (2026-11-08).
 - **Goal:** sheet Tambah round dengan ringkasan per klub (+3 / +4, satu baris kalau jumlah pasangan sama), baris
   "4 + 3 pasangan", "Buat R7–R12"; Atur pasangan satu bagian per klub.
 - **Baca:** `14-sparing-fixed.md` 14n–14o, `logic.md` §12, §13.3, §13.5, `add_rounds_sheet.dart`,
