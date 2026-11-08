@@ -14,8 +14,9 @@ Aturan untuk semua task:
 - Data test = angka di `logic.md` §13.11 (= PRD = frame). Nama test memakai ID AC (`AC-S5 …`) dan id frame golden.
 - Golden: `test/hifi/screens/sparing_<alur>_test.dart`, data persis frame, `clockProvider` di-override. Teks kecil yang
   lolos toleransi 2% walau salah (versi app, angka skor klub, hitung mundur) dicek juga dengan `find.text`.
-- Fixture bersama `test/hifi/screens/sparing_fixture.dart` dibuat SP-5. Task layar menambah varian di file test-nya
-  sendiri, tidak mengubah fixture bersama (supaya task paralel tidak bentrok).
+- Fixture bersama `test/hifi/screens/sparing_fixture.dart` (Fixed) dibuat SP-5, `sparing_mixed_fixture.dart` (Mixed)
+  dibuat SP-18a. Task layar menambah varian di file test-nya sendiri, tidak mengubah fixture bersama (supaya task
+  paralel tidak bentrok).
 - Kategori semua task: MINOR (bagian dari 3.2.0); versi baru dinaikkan di SP-19 saja.
 - **Model**: "kuat" = fondasi/algoritma/lintas modul; sisanya engineer default.
 
@@ -23,15 +24,24 @@ Aturan untuk semua task:
 
 | Gelombang | Task (paralel di dalam gelombang kecuali ditulis) |
 |---|---|
-| 0 — sekarang | SP-0 (DBA), SP-2, SP-6, SP-7 |
-| 1 | SP-1 (setelah SP-0) |
-| 2 | SP-3, SP-4, SP-5 (SP-5 juga butuh SP-2), SP-8 |
-| 3 | SP-9, SP-10, SP-11, SP-12, SP-13, SP-14, SP-15, SP-17; SP-16 setelah SP-11 |
-| 4 | SP-18 (menunggu hi-fi Mixed + SP-3), lalu SP-19 |
+| 0–2 (selesai) | SP-0, SP-1, SP-2, SP-3, SP-4, SP-5, SP-6, SP-7, SP-8 |
+| 3 | selesai: SP-9…SP-14, SP-17 · berjalan: SP-16 · menunggu frame poster: SP-15 |
+| 4 — sekarang | SP-18a (fondasi Mixed, kuat), SP-18b (Atur turnamen) |
+| 5 | setelah SP-18a: SP-18c, SP-18f, SP-18g, SP-18h; SP-18d dan SP-18e mulai bersamaan, golden + merge setelah SP-18c |
+| 6 | SP-19 (setelah semua, termasuk SP-15 dan SP-16) |
 
-Bentrok berkas yang diketahui: SP-3 dan SP-5 sama-sama menyentuh `tournament_controller.dart` dan `models.dart`
-(method berbeda) → boleh paralel di worktree, gabungkan SP-5 dulu (layar Fixed menunggunya), SP-3 rebase. SP-16 dan
-SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-7 (sama-sama Beranda).
+Bentrok berkas yang diketahui:
+- Selesai: SP-3/SP-5 (`tournament_controller.dart`, `models.dart`), SP-11/SP-16 (berurutan), SP-17 setelah SP-7.
+- SP-18a ↔ SP-16: `models.dart` (`ActiveTournament`, method berbeda; SP-16 mungkin menambah helper `roundsLeft` dekat
+  `capacityAhead`) dan `schedule_fixed_screen.dart` (SP-18a hanya `_restingByClub`). Boleh paralel di worktree; yang
+  selesai belakangan rebase. Kalau SP-16 sudah siap merge, gabungkan SP-16 dulu.
+- SP-18e ↔ SP-16: `widgets/extend_sheet_parts.dart` (Lanjutkan dan Tambah round) — SP-18e tidak mengubahnya; kalau
+  ternyata perlu, tunggu SP-16 di-merge.
+- SP-18c/18d/18e sama-sama di `features/schedule/`, berkas terpisah: hanya SP-18c yang mengubah
+  `schedule_mixed_screen.dart`; SP-18d hanya `mixed/manage_players_sheet.dart`; SP-18e hanya `mixed/manage_courts_sheet.dart`,
+  `mixed/resume_tournament_sheet.dart`, `mixed/mixed_guide_sheet.dart`. `resting_list.dart`, `models.dart`, dan
+  `sparing_mixed_fixture.dart` hanya diubah SP-18a.
+- Urutan merge SP-18: SP-18a → SP-18c → SP-18d/18e/18f/18g/18h bebas; SP-18b kapan saja (sebaiknya setelah SP-18c).
 
 ---
 
@@ -168,14 +178,14 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Dependensi:** SP-1. **Paralel:** ya. **Model:** default.
 
 ## SP-9 · Atur turnamen sparing
-- **Status:** selesai, di-approve (f08e2d5 + ee6ac20 (bagian Fixed; Mixed 13i/13j di SP-18) di `sparing`, 2026-11-08).
+- **Status:** selesai, di-approve (f08e2d5 + ee6ac20 (bagian Fixed; Mixed 13i/13j di SP-18b) di `sparing`, 2026-11-08).
 - **Goal:** subjudul "olahraga · klub1 n · klub2 n"; estimasi tombol Fixed sparing K10 (dari SP-2) dan Mixed sparing
   (dari SP-3); config yang dibuat membawa klub.
 - **Baca:** `screens/13-sparing.md` 13h–13j, `14-sparing-fixed.md` 14f–14g, `logic.md` §13.4, §13.6,
   `konfigurasi_screen.dart`.
 - **Ubah:** `features/konfigurasi/**`.
 - **Acceptance:** AC-S7a, AC-S10 (estimasi); golden 13h, 14f, 14g; 13i, 13j setelah SP-3.
-- **Dependensi:** SP-2, SP-5 (navigasi ke Pasangan), SP-3 untuk 13i/13j. **Paralel:** ya. **Model:** default.
+- **Dependensi:** SP-2, SP-5 (navigasi ke Pasangan), SP-3 untuk 13i/13j (→ SP-18b). **Paralel:** ya. **Model:** default.
 
 ## SP-10 · Pasangan sparing
 - **Status:** selesai, di-approve (86924cc + 538b526 di `sparing`, 2026-11-08).
@@ -261,46 +271,190 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Dependensi:** SP-5, SP-11. **Paralel:** setelah SP-11. **Model:** default.
 
 ## SP-17 · Beranda sparing
-- **Status:** selesai, di-approve (6b6b41d + 898e238 (14x/14y; 15w/15x/15y di SP-18) di `sparing`, 2026-11-08).
+- **Status:** selesai, di-approve (6b6b41d + 898e238 (14x/14y; 15w/15x/15y di SP-18h) di `sparing`, 2026-11-08).
 - **Goal:** baris "PB Garuda 6 – 4 Matcha Club" (tanpa nama turnamen), dialog mulai baru 14y.
 - **Baca:** `14-sparing-fixed.md` 14x–14y, `home_screen.dart`, `logic.md` §13.9.
 - **Ubah:** `features/home/**`.
 - **Acceptance:** golden 14x, 14y; "0 – 0" sebelum ada hasil. Sparing **bernama** 15w/15y dan turnamen terakhir Mixed
-  sparing 15x (hi-fi Mixed disetujui host 2026-11-07) boleh ikut task ini atau SP-18.
+  sparing 15x pindah ke SP-18h.
 - **Dependensi:** SP-4, SP-7. **Paralel:** ya. **Model:** default.
 
-## SP-18 · Layar Mixed sparing — menunggu hi-fi Mixed
-- Hi-fi Mixed **disetujui host 2026-11-07** (`design/spec/screens/15-sparing-mixed.md`, 15a–15y); tech-lead memecahnya
-  jadi task setelah SP-3. Undian di frame dipanggil langsung dengan `seed: 0x5eed` (bukan FNV-1a id turnamen) dan
-  seed `Random` per frame tertulis di pembuka section Mixed. Cakupan perkiraan:
-  Jadwal Mixed sparing (13m + 15*), Istirahat per klub dengan Prioritas /
-  Istirahat lagi, Kelola pemain per klub, Kelola court, sheet Cara kerja Mixed sparing, Klasemen/Detail per pemain,
-  Bagikan Mixed, Live. Dipecah jadi task setelah hi-fi alur Mixed disetujui host. Logikanya sudah di SP-3.
-- Catatan fixture: designer menulis susunan 13m/15a–15y sebagai "hasil generator" dari prototipe yang sudah dihapus;
-  `EndlessRoundGenerator.generateSparingRound` memberi hasil identik untuk input yang sama (dicek di review SP-3, dan
-  dikunci grup "frame 13m / 15*" di `test/services/sparing_mixed_test.dart`). Seed undian `0x5eed` dipakai langsung,
-  bukan FNV-1a id turnamen: fixture memilih id turnamen yang `drawSeed`-nya `0x5eed`, atau menulis match secara
-  eksplisit dan hanya mengecek daftar prioritas lewat `priorityOrder` dengan seed itu. `Random` per frame: pembuka
-  `screens/15-sparing-mixed.md` (yang masih menyebut path prototipe; baca sebagai `generateSparingRound`,
-  `courtUse`/`courtMatch`, `priorityOrder`).
-- **Catatan review SP-3:** layar Mixed sparing wajib memakai `restingByClubAfterLastRound` (bukan gabungan
-  `restingAfterLastRound`). `manage_players_sheet.dart:56` masih memakai `activeCount > 4` dan memanggil `addPlayer` tanpa
-  klub: ganti ke `active.canWithdraw(p.id)` dan pilihan klub (15l/15m).
-- **Catatan review SP-9:** Atur turnamen sementara mematikan "Mulai Round 1" untuk Mixed sparing (config membawa klub,
-  tapi layar Mixed belum ada). Cabut penjagaan itu di task ini bersama tombol 13i/13j (estimasi Mixed sparing dari SP-3).
-- **Catatan review SP-14:** Detail Mixed sparing (Beda partner = klub sendiri − 1, Beda lawan = klub lain) sudah lewat
-  `coverageTotals` tapi belum diuji: tambah test di 15u/15v. Kunci juga subjudul pemain sparing yang belum main
-  ("Belum main · {klub} · …") dengan `find.text`.
-- **Catatan review SP-11:** pengelompokan istirahat per klub masih di widget (`schedule_fixed_screen.dart:97-110`,
-  `_restingByClub`). Kolom Mixed sparing 13m butuh hal yang sama: pindahkan ke getter `ActiveTournament`
-  (mis. `restingPairsByClub(round)`) dan pakai bersama. Tambah `assert(clubs.length == 2)` di `RestingList.clubs`.
-  Adaptor papan skor: `features/schedule/club_score_view.dart` (`clubScoreOf`, `clubScoreRowOf`).
-- **Dependensi:** hi-fi Mixed, SP-3, SP-6, SP-11. **Model:** default (kecuali ada logika baru dari hi-fi).
+## SP-18 · Layar Mixed sparing (dipecah SP-18a…SP-18h)
+Hi-fi Mixed **disetujui host 2026-11-07** (`design/spec/screens/15-sparing-mixed.md` 15a–15y, `13-sparing.md` 13i, 13j,
+13m). Logikanya sudah ada di SP-3/SP-4 (`docs/architecture.md` → Sparing); task di bawah hanya layar, kecuali getter
+kecil di SP-18a. **Bagikan Mixed (poster, caption) tetap di SP-15**, tidak di sini.
+
+Aturan bersama SP-18:
+- Data frame = fixture bersama `test/hifi/screens/sparing_mixed_fixture.dart` (SP-18a). Task lain menambah varian di
+  file test-nya sendiri dan **tidak mengubah** fixture itu, `resting_list.dart`, atau `models.dart`; kalau butuh
+  keadaan baru di model, laporkan ke tech-lead.
+- Undian frame dipanggil dengan `seed: 0x5eed` (bukan FNV-1a id turnamen) dan `Random` per frame dari pembuka
+  `15-sparing-mixed.md` (path prototipe di sana dibaca sebagai `generateSparingRound`, `courtUse`/`courtMatch`,
+  `priorityOrder`). Layar memakai `drawSeed`, jadi fixture memakai id turnamen yang `drawSeed`-nya `0x5eed`.
+- Golden sheet berlatar Jadwal Mixed sparing (15c, 15g, 15h, 15j, 15l, 15m, 15o) baru bisa lolos setelah SP-18c
+  di-merge: task sheet boleh mulai bersamaan, tapi golden dan merge setelah SP-18c.
+- Hanya `schedule_mixed_screen.dart` (SP-18c) yang mengubah layar Jadwal Mixed; tanda tangan `show…Sheet` tetap.
+- Skor klub lewat adaptor `club_score_view.dart` (`clubScoreOf`, `clubScoreRowOf`) / `ClubResult`, nomor lewat
+  `clubStandingEntriesProvider`; tidak merangkai atau menghitung di widget (catatan review SP-6).
+- Turnamen biasa: golden 03*, 06*, 07*, 08*, 09*, 10*, 12* dan Fixed sparing 13k–14y tetap lolos tanpa diubah (AC-S19).
+
+## SP-18a · Fondasi Mixed sparing: fixture bersama, istirahat per klub di model, `RestingList.clubs` — kuat
+- **Goal:** (1) fixture golden Mixed sparing bersama, semua susunan dari generator dengan seed frame; (2) pengelompokan
+  istirahat per klub pindah dari widget ke `ActiveTournament` dan dipakai Jadwal Fixed (catatan review SP-11);
+  (3) `RestingList.clubs` mendukung judul Prioritas / "Istirahat lagi" / judul lain; (4) klub yang membatasi match per
+  round untuk kalimat Lanjutkan 15j.
+- **Baca:** `15-sparing-mixed.md` (pembuka + catatan semua frame), `13-sparing.md` 13m;
+  `test/services/sparing_mixed_test.dart` grup "frame 13m / 15*" (`_run`, `_frameSeed`, cara memanggil generator);
+  `sparing_fixture.dart` dan `schedule_fixture.dart` (`LoadedTournament`, pola fixture); `sparing_pasangan_test.dart:49-51`
+  (daftar 16 + 14 dari 14e, dipakai 15d); `resting_list.dart`; `schedule_fixed_screen.dart:97-110` (`_restingByClub`);
+  `models.dart` (`ActiveTournament`, `drawSeed`, `capacityAhead`, `sparingActiveCourts`); controller
+  `generateNextRound` (cara `restingPlayerIdsByRound` diisi).
+- **Ubah:**
+  - `test/hifi/screens/sparing_mixed_fixture.dart` (baru):
+    - Klub dan pemain: Garuda g01–g08, Matcha m01–m06, Oki m07, urut daftar. 15d: 16 + 14 dengan nama dan urutan 14e
+      (g01–g16, m01–m14; Oki tetap m07).
+    - Id turnamen yang `drawSeed == 0x5eed`: cari sekali dengan skrip di scratchpad (FNV-1a bisa dibalik karena
+      pengalinya prima ganjil; meet-in-the-middle 3 + 3 karakter cukup), lalu dikunci `expect(active.drawSeed, 0x5eed)`.
+      Tanpa ini daftar Prioritas di layar (memakai `drawSeed`) berbeda dengan frame.
+    - Round dari `generateSparingRound(seed: 0x5eed, random: …)`: `Random(1)` bersambung R1–R8; 8 / 3 (15e) dan 16 / 14
+      (15d) masing-masing `Random(1)` baru; Court 3 (15o/15p) = `courtMatch(…, random: Random(2))` saat R4 berjalan;
+      15n: R1–R3 `Random(1)`, Oki ditambah setelah R3, R4–R6 `Random(3)` dengan `late: {m07}`.
+      `restingPlayerIdsByRound` diisi seperti controller. Tidak ada match yang ditulis tangan.
+    - Satu keadaan per frame/latar (nama bebas): 15k (R1 baru), 13m (R3 berjalan, Court 2 belum), 15a (R3 lengkap),
+      15b (R4 baru; latar 15c, 15g, 15h, 15o), 15d, 15e (8 / 3), 15f (R8 lengkap, waktu habis; latar 15j, 15s, 15u,
+      15v, 15x), 15i (diakhiri saat R4), 15l → 15n (Oki), 15m (8 / 3, Kiki keluar), 15p (Court 3 ditambah 19.47),
+      15r/15t (Americano 21, WO R3 Court 2 Citra · Gita absen), 15w/15y (sparing bernama berjalan, data dari frame),
+      dan jam per keadaan (`mixedSparingAt(…)`).
+    - Skor: yang tertulis di catatan dipakai persis (13m, 15a, 15r). Skor yang tidak tertulis (R1–R2 di 15d, R4–R8 di
+      15f) dipilih supaya **semua** angka yang tampil di 15d, 15f, 15s, 15u, 15v cocok (skor klub, Total Point,
+      selisih per pemain, riwayat Detail). Kalau tidak ada susunan yang cocok: berhenti dan laporkan, jangan memilih.
+  - `test/hifi/screens/sparing_mixed_fixture_test.dart` (baru): susunan tiap keadaan = catatan frame; skor klub 13m
+    4 – 1 · 27 – 21, 15a 4 – 2 · 32 – 27, 15d 4 – 1 · 28 – 20, 15f 10 – 6 · 83 – 69, 15t 4 – 2 · Matcha 58; jumlah
+    main 15f; `TournamentCodec.decode(encode(state)) != null` untuk tiap keadaan.
+  - `models.dart` (`ActiveTournament`, total, tidak melempar, kosong di turnamen biasa, urut `config.clubs`):
+    `restingPairsByClub(round)` (Fixed, dari `restingPairIdsByRound`) dan `restingPlayersByClub(round)` (Mixed, round
+    lewat, dari `restingPlayerIdsByRound`); `sparingLimitingClub` = klub dengan ⌊aktif ÷ 2⌋ terkecil (sama → yang
+    pemainnya lebih sedikit, masih sama → klub pertama; asumsi tech-lead, frame hanya memberi contoh 8 / 3). Test
+    `test/services/sparing_resting_test.dart` dengan data 13A (Fixed setelah R5) dan 13B (Mixed R3, 8 / 3).
+  - `schedule_fixed_screen.dart`: `_restingByClub` hanya memetakan nama dari `restingPairsByClub` (perilaku tetap).
+  - `widgets/resting_list.dart`: `RestingList.clubs` menerima `priorityRound`, `later`, `title` dengan judul yang sama
+    dengan daftar biasa (06o: "Istirahat lagi" pudar), kolom kosong "–"; `assert(clubs.length == 2)`. Test widget di
+    file baru `test/hifi/components/resting_clubs_test.dart` (judul, dua kolom, "–", `find.text`).
+- **Acceptance:** AC-S8 (main setelah R8: Garuda 4, Matcha Lina/Nanda 6, lainnya 5), AC-S10 (8 / 3 hanya Court 1),
+  AC-S11 (Prioritas per klub keadaan 13m, 15a, 15b, 15d = `restingByClubAfterLastRound` pada id fixture = isi round
+  berikutnya), AC-S13 (Court 3 15p), K11 (15t Matcha 58), AC-S20 (simpanan); golden 13k, 13l, 14h–14m tetap lolos
+  tanpa diubah.
+- **Dependensi:** SP-3, SP-11 (selesai). **Paralel:** dengan SP-18b; bentrok kecil dengan SP-16 (lihat Peta urutan).
+  **Model:** kuat (semua task SP-18 membangun di atasnya; pencarian seed dan skor yang konsisten).
+
+## SP-18b · Atur turnamen Mixed sparing (13i, 13j)
+- **Goal:** cabut `_mixedSparingBlocked` (catatan review SP-9); tombol "Mulai Round 1 · ±R round", ditambah " · C' court"
+  kalau C' < court dipesan, angka dari `EndlessRoundGenerator.sparingEstimate` (tidak dihitung di layar).
+- **Baca:** `13-sparing.md` 13h–13j, `logic.md` §13.6 (Estimasi Konfigurasi), `konfigurasi_screen.dart`
+  (`_mixedSparingBlocked`, `_sparingMeta`), `test/hifi/screens/sparing_konfigurasi_test.dart`.
+- **Ubah:** `features/konfigurasi/**`; `sparing_konfigurasi_test.dart`.
+- **Acceptance:** AC-S10 (13j "· 1 court"); golden 13i, 13j + `find.text` label tombol; Mulai Round 1 aktif untuk Mixed
+  sparing, config yang dikirim ke `/schedule` membawa `clubs`; 03*, 13h, 14f, 14g tetap lolos.
+- **Dependensi:** SP-3, SP-9 (selesai); tidak butuh SP-18a (data 13B cukup dari `sparing_fixture.dart`).
+  **Paralel:** ya, mulai sekarang. Merge sebaiknya setelah SP-18c (supaya branch tidak membuka Jadwal Mixed sparing
+  tanpa tampilan klub), tidak wajib. **Model:** default.
+
+## SP-18c · Jadwal Mixed sparing (13m, 15a–15i, 15n, 15p) + penonton Live
+- **Goal:** `schedule_mixed_screen.dart` untuk sparing: `ClubScore` di atas daftar (ikut tergulir, seperti 13k);
+  Istirahat round terakhir per klub dari `EndlessRoundGenerator.restingByClubAfterLastRound` (bukan gabungan
+  `restingAfterLastRound`, catatan review SP-3): "Istirahat · Prioritas main di R(n+1)" lalu "Istirahat lagi di
+  R(n+1)" hanya kalau ada klub yang punya, kolom klub yang kosong "–"; tab round lewat dari `restingPlayersByClub`;
+  meta Buat "· n court" memakai C' (`sparingActiveCourts` dengan court yang masih muat), bukan jumlah court tersedia;
+  Buat/Batalkan/menu ⋯/Akhiri/diakhiri/waktu habis sama dengan Mixed biasa. Penonton Live (`live_screen.dart` memakai
+  layar yang sama) ikut tanpa perubahan di `features/live/**`.
+- **Baca:** `13-sparing.md` 13m, `15-sparing-mixed.md` 15a–15i, 15n, 15p; `06-jadwal-mixed.md` 06f–06o;
+  `schedule_mixed_screen.dart`; `schedule_fixed_screen.dart` (pola sparing SP-11: `clubScoreOf`, `RestingList.clubs`);
+  `test/hifi/screens/jadwal_fixed_sparing_test.dart` (pola golden + penonton Live).
+- **Ubah:** `schedule_mixed_screen.dart` (+ `schedule_widgets.dart` kalau perlu); test baru
+  `test/hifi/screens/jadwal_mixed_sparing_test.dart`.
+- **Acceptance:** AC-S7 (klub pertama baris atas), AC-S10 (15e: Court 2 tidak tampil), AC-S11 (keadaan 15a → ketuk Buat
+  R4 → pemain R4 tiap klub = daftar Prioritas yang tampil), AC-S14 (skor klub `find.text`); golden 13m, 15a, 15b, 15c,
+  15d, 15e, 15f, 15g, 15h, 15i, 15n, 15p; hitung mundur 15p "02:00" dengan `find.text`; tombol Pemain (15) di 15n;
+  penonton Live (`liveViewProvider` di-override): skor klub dan Istirahat per klub tampil, tanpa ⋯ dan Batalkan;
+  golden 06f–06u tetap.
+- **Dependensi:** SP-18a. **Paralel:** dengan SP-18d–SP-18h. **Model:** default.
+
+## SP-18d · Kelola pemain sparing (15l, 15m)
+- **Goal:** sheet 08a versi sparing: dua chip klub di bawah kotak nama tanpa pilihan awal, Tambah mati sampai nama terisi
+  dan klub dipilih, `addPlayer(name, clubId:)`; daftar per klub berlabel "{klub} · n aktif" (· n keluar); Keluarkan
+  memakai `active.canWithdraw(p.id)` — ganti `activeCount > 4` di `manage_players_sheet.dart:56` (catatan review SP-3;
+  hasil sama untuk turnamen biasa); alasan "Butuh minimal 2 pemain per klub" di bawah daftar klub yang Keluarkan-nya mati
+  karena klub (total aktif > 4), "Butuh minimal 4 pemain" tetap untuk batas total; Kembalikan ke klubnya sendiri.
+  Turnamen biasa tidak berubah.
+- **Baca:** `15-sparing-mixed.md` 15l, 15m; `07-pemain-court-dan-lanjutkan-mixed.md` 08a, 08b;
+  `manage_players_sheet.dart`; controller `addPlayer`, `withdrawPlayer`, `reinstatePlayer`;
+  `kelola_lanjutkan_test.dart` (pola golden sheet).
+- **Ubah:** `features/schedule/mixed/manage_players_sheet.dart`; test baru `test/hifi/screens/sparing_kelola_pemain_test.dart`.
+- **Acceptance:** AC-S12 (tanpa klub tidak bisa ditambah; Keluarkan mati di Matcha 15m, Garuda tetap bisa; Kembalikan
+  Kiki ke Matcha); golden 15l (latar 13m, "Oki" + Matcha Club dipilih), 15m; `find.text('Andi sudah ada di PB Garuda')`;
+  setelah Tambah Oki simpanan terbaca (`decode(encode) != null`); golden 08a, 08b tetap.
+- **Dependensi:** SP-18a; golden dan merge setelah SP-18c (latar). **Paralel:** dengan SP-18c, SP-18e–SP-18h (berkas
+  sendiri). **Model:** default.
+
+## SP-18e · Kelola court, Lanjutkan, Cara kerja sparing (15j, 15k, 15o)
+- **Goal:** 15o: "Langsung main di R4" dengan kolom klub (`RestingList.clubs(title: …)`), pemain dari
+  `EndlessRoundGenerator.courtUse(…).players` dikelompokkan per klub lewat `config.clubOfPlayer` (bukan indeks); "Tambah court
+  · mulai R5" tetap. 15j: angka dari `capacityAhead` (sudah C'); kalimat batas pemain sparing "maks n match per round
+  ({klub} n pemain)" dari `sparingLimitingClub`. 15k: Max Round, Court Aktif, Total Match, Match/Pemain per klub dari
+  `sparingEstimate` dengan pemain aktif per klub; aturan Fairness ketiga per klub (teks frame). Muncul sekali saat R1
+  dibuat (alur yang ada).
+- **Baca:** `15-sparing-mixed.md` 15j, 15k, 15o; `06-jadwal-mixed.md` 06k; `07-pemain-court-dan-lanjutkan-mixed.md`
+  08c–08k; `manage_courts_sheet.dart`, `resume_tournament_sheet.dart`, `mixed_guide_sheet.dart`;
+  `kelola_court_test.dart`, `kelola_lanjutkan_test.dart`.
+- **Ubah:** tiga sheet itu saja; test baru `test/hifi/screens/sparing_mixed_sheets_test.dart`. **Jangan** mengubah
+  `widgets/extend_sheet_parts.dart` (dipakai SP-16); kalau perlu, tunggu SP-16 di-merge.
+- **Acceptance:** AC-S10 (keadaan 15e: `find.text` "maks 1 match per round (Matcha Club 3 pemain)"), AC-S13 (15o:
+  Fajar, Gita · Joko, Maya; Simpan → match Court 3 berisi keempatnya), golden 15j, 15k, 15o; alur 13i → Mulai Round 1
+  → sheet 15k muncul sekali (setelah SP-18b); golden 06k, 08c–08k tetap.
+- **Dependensi:** SP-18a; golden dan merge setelah SP-18c (latar); test alur 13i → 15k setelah SP-18b.
+  **Paralel:** dengan SP-18c, SP-18d, SP-18f–SP-18h.
+  **Model:** default.
+
+## SP-18f · Input Skor + WO Mixed sparing (15q, 15r)
+- **Goal:** pastikan papan dan sheet WO Mixed sparing sama dengan Fixed sparing (SP-12): dua pemain klub pertama di
+  atas, tanpa label klub; nilai WO pemain 4.4 dan klub K11 setelah simpan.
+- **Baca:** `15-sparing-mixed.md` 15q, 15r; `score_input_screen.dart`, `walkover_sheet.dart`;
+  `sparing_input_skor_test.dart`.
+- **Ubah:** `features/score_input/**` hanya kalau perlu; tambah test di `sparing_input_skor_test.dart`.
+- **Acceptance:** AC-S7; K11 (15r → simpan: Matcha +1 menang, +12 Total Point klub, selisih tetap; Lina 7 + 11,
+  Maya 12 + 12 di klasemen pemain); golden 15q (dari 13m Court 2 R3), 15r.
+- **Dependensi:** SP-18a. **Paralel:** ya. **Model:** default.
+
+## SP-18g · Klasemen + Detail Mixed sparing (15s–15v)
+- **Goal:** pastikan Klasemen (tabel pemain per klub, nomor mulai #1 di tiap klub) dan Detail (K9) berlaku untuk Mixed
+  sparing; tutup catatan review SP-14.
+- **Baca:** `15-sparing-mixed.md` 15s–15v; `leaderboard_screen.dart`, `detail_player_screen.dart`;
+  `sparing_klasemen_test.dart`, `sparing_detail_test.dart`.
+- **Ubah:** `features/leaderboard/**`, `features/detail_player/**` hanya kalau perlu; test di dua file test itu.
+- **Acceptance:** AC-S17 (15s: Fajar 21 (+7) di atas Budi 21 (+2), Joko 26 (+5) di atas Nanda 26 (−4)); K11 (15t: Maya
+  24, Lina 18, Matcha 58); Detail Mixed: Beda partner = klub sendiri − 1 ("3 / 7"), Beda lawan = klub lain ("6 / 6")
+  di 15u/15v (catatan review SP-14); `find.text` subjudul "Belum main · {klub} · …" untuk pemain sparing yang belum
+  main (Oki setelah ditambah, keadaan 15l); golden 15s (+ digulir), 15t (digulir sampai bawah), 15u, 15v; penonton
+  Live Klasemen memakai angka yang sama (`find.text`).
+- **Dependensi:** SP-18a. **Paralel:** ya. **Model:** default.
+
+## SP-18h · Beranda Mixed sparing (15w, 15x, 15y)
+- **Goal:** sisa SP-17. 15w: sparing bernama berjalan, nama tetap di baris kecil, skor klub dua baris rata kanan di
+  samping "Round n" (klub pertama atas), nama klub panjang elipsis, angka utuh, tinggi info round tidak bertambah.
+  15x: turnamen terakhir Mixed sparing tanpa nama → judul "{klub1} · skor · {klub2}", bernama → nama turnamen; ketuk →
+  Lanjutkan (archived). 15y: dialog mulai baru menyebut nama turnamen. Fixed sparing selesai tetap tidak tampil.
+- **Baca:** `15-sparing-mixed.md` 15w–15y; `14-sparing-fixed.md` 14x, 14y; `01-beranda.md` 01a, 01c, 01e, 01h;
+  `home_screen.dart`, `widgets/court_banner.dart` (`CourtBannerClubs`), `widgets/home_panel.dart`;
+  `sparing_beranda_test.dart`.
+- **Ubah:** `features/home/**`; `sparing_beranda_test.dart`.
+- **Acceptance:** golden 15w, 15x, 15y + `find.text` skor klub dan `v$appVersion`; 01a–01j, 14x, 14y tetap; teks skor
+  dari `ClubResult.scoreLabel`.
+- **Dependensi:** SP-18a (keadaan 15f dan bernama). **Paralel:** ya. **Model:** default.
 
 ## SP-19 · Rilis 3.2.0
 - **Goal:** `pubspec.yaml` 3.2.0+14 + `appVersion`; `docs/architecture.md`, `docs/ui-v2.md`, CLAUDE.md (tech-lead) dan
   `docs/data.md` (DBA) diperbarui; `logic.md` §13 status "sudah diimplementasi".
-- **Acceptance:** `flutter analyze` tanpa peringatan baru, `flutter test` lulus (termasuk golden semua frame 01–14),
+- **Acceptance:** `flutter analyze` tanpa peringatan baru, `flutter test` lulus (termasuk golden semua frame 01–15),
   test `slow` lulus (`flutter test --tags slow --run-skipped`, ±11–17 menit), `tool/build_web.sh` sukses dan semua URL
   precache 200 (tech-infra kalau ada masalah build), AC-S21 dicek offline. Merge `sparing` → `main` hanya atas perintah main session.
 - **Catatan review SP-7:** hapus frasa "sementara 3.1.0" di komentar `beranda_test.dart` saat `appVersion` naik.
