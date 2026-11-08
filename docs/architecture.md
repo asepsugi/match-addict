@@ -85,6 +85,43 @@ service/model.
   main di round pertamanya habis; court yang sejak awal tidak dapat tambahan bukan "berkurang" (bug lama).
 - Lanjutkan Turnamen (resume, `extendedBy`): lihat `docs/data.md`.
 
+## Sparing (3.2.0, branch `sparing`)
+
+Dua klub, partner sesama klub, lawan klub lain (PRD §13, aturan + data test `design/spec/logic.md` §13). Setiap
+cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). Simpanan: `docs/data.md` → Sparing.
+- **Model** (`models.dart`): `TournamentConfig.clubs` (tepat dua, klub pertama = sisi atas match), `Player.clubId`
+  (tidak pernah berubah, K8), helper `clubById`/`clubOfPlayer`/`clubOfPair`/`playersOfClub`/`pairsOfClub`; total, tidak
+  melempar. `ActiveTournament.restingPairIdsByRound` (Fixed sparing: beberapa pasangan istirahat per round),
+  `activePlayersOfClub`, `activePlayersByClub`, `canWithdraw`. **Invariant:** S1 tiap pemain berklub, S2 pasangan
+  sesama klub, S4 `pair1` klub pertama — mutator yang melanggarnya assert di debug dan tidak mengubah state di rilis
+  (simpanan yang melanggar terbaca null).
+- **Validasi layar Pemain**: `pairing/club_roster.dart` (`ClubRoster.check`, K4/K6/K8: minimal 2 per klub, total 4–30,
+  nama tidak di dua klub). Pasangan: `PairGenerator.randomByClub` / `manual` + `sameClub` (satu-satunya tempat aturan
+  S2), `PairDraft.canPair` untuk Atur pasangan per klub.
+- **Fixed** — `schedule/sparing_fixed_generator.dart` (`SparingFixedGenerator`; tes `sparing_fixed_test.dart`,
+  `sparing_fixed_flow_test.dart`): algoritma diagonal per blok KPK(p1, p2), bukan circle method; court aktif
+  `activeCourts = min(C, p1, p2)`. `generate` (jadwal awal), `extend`/`extraRounds` (round tambahan per satuan
+  `unitMatches` = KPK match, `extraPutaran` = jumlah satuan, boleh lewat booking → `overMinutes`), `estimate`
+  (Konfigurasi K10). **Invariant:** tiap kombinasi pasangan dua klub tepat sekali per g blok; selisih main satu klub ≤ 1
+  setelah setiap round. Controller: `startIfNeeded` dan `addRounds` bercabang sparing (`_sparingPairs`).
+- **Mixed** — `EndlessRoundGenerator.generateSparingRound` (tes `sparing_mixed_test.dart`, sweep `slow`): court aktif
+  `C' = ActiveTournament.sparingActiveCourts` = min(court muat, ⌊n1÷2⌋, ⌊n2÷2⌋), satu rumus untuk generator, slot
+  R(n+1), `courtUse`/`courtMatch`, `capacityAhead.matchesPerRound`, dan `sparingEstimate` (Konfigurasi, Cara kerja).
+  `priorityOrder` dipanggil per klub dengan slot klub `2·C'` (jeda pemain telat per klub dengan sendirinya); susunan
+  diacak per klub, match i = pasangan klub pertama ke-i vs klub kedua ke-i. `restingByClubAfterLastRound` = daftar
+  Prioritas/Istirahat lagi per klub, sama dengan Buat R(n+1) (AC-S11). Kelola court langsung main hanya kalau tiap
+  klub punya ≥ 2 yang istirahat. Kelola pemain: `addPlayer(name, clubId:)` wajib klub, Keluarkan mati kalau klubnya
+  tinggal 2 aktif. **Invariant:** selisih main antar pemain satu klub yang hadir sejak awal ≤ 1; antar klub boleh
+  beda (K1).
+- **Skor klub** — `ranking/club_score.dart`: `ClubResult.of(active)` (menang dalam setengah-poin `halfWins`, Total
+  Point klub termasuk nilai WO K11, selisih, unggul/Seri: menang → Total Point, selisih hanya tampil). Adaptor teks
+  untuk widget `ClubScore` (`core/widgets`, menerima string jadi): `scoreLabel` ("6 – 4"), `detailLabel` ("56 game ·
+  +13"), `leads` (bola; belum ada hasil → tanpa bola). Jadwal, Klasemen, Beranda, poster, caption, dan Live memakai
+  adaptor yang sama, tidak merangkai sendiri. `clubStandings` = `RankingCalculator.rank` sekali lalu `standingEntries`
+  per klub, jadi nomor dimulai #1 di tiap klub.
+- **Provider** (`features/schedule/sparing_providers.dart`): `clubScoreProvider`, `clubStandingEntriesProvider`,
+  `playerClubPositionProvider` ("Peringkat n · {klub}" di Detail); null/kosong untuk turnamen biasa.
+
 ## Ranking & klasemen
 
 - `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang

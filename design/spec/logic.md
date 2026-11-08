@@ -322,12 +322,14 @@ Keputusan host 2026-11-03 (frame 06v–06z, 04f–04h, 09g, 10d; PRD 3.3a), dari
 
 ## 13. Sparing · dua klub (3.2.0)
 
-Keputusan host 19 + K1–K12 (PRD §13, 2026-11-04); frame 13a–13q (inti), 14a–14y (alur Fixed). Alur Mixed masih
-digambar; aturan Mixed di bawah sudah dikunci PRD, jadi logikanya boleh dikerjakan sekarang. **Status: belum
-diimplementasi** — task SP-0…SP-19 di `docs/tasks.md`. Prototipe + test properti yang membuktikan aturan di bagian
-ini: `tool/sparing_proto/` (paket sendiri, dikecualikan analyzer; `cd tool/sparing_proto && flutter test`), dihapus
-oleh SP-2/SP-3 yang selesai terakhir, setelah isinya pindah ke `lib/` + `test/`. Turnamen biasa tidak berubah sedikit
-pun (AC-S19): setiap cabang sparing dimulai dari `config.isSparing`.
+Keputusan host 19 + K1–K12 (PRD §13, 2026-11-04); frame 13a–13q (inti), 14a–14y (alur Fixed), 15a–15y (alur
+Mixed, disetujui host 2026-11-07). **Status: logika selesai, layar sebagian** (Fixed berjalan, Mixed di SP-18) — task
+SP-0…SP-19 di `docs/tasks.md`. Logikanya di `lib/` dengan test (2026-11-08): Fixed
+`services/schedule/sparing_fixed_generator.dart` (SP-2), Mixed `EndlessRoundGenerator.generateSparingRound` +
+`ActiveTournament.sparingActiveCourts` (SP-3), skor klub `services/ranking/club_score.dart` (SP-4). Prototipe
+`tool/sparing_proto/` yang dulu membuktikan aturan ini sudah dihapus (isinya: `git show 13646f4:tool/sparing_proto/…`);
+generator produksi memberi hasil identik untuk input yang sama (dicek tech-lead pada review SP-3). Turnamen biasa tidak
+berubah sedikit pun (AC-S19): setiap cabang sparing dimulai dari `config.isSparing`.
 
 Istilah: klub pertama `k1` (blok atas layar Pemain), klub kedua `k2`; `p1`/`p2` pasangan, `n1`/`n2` pemain aktif,
 `C` court, `C'` court aktif.
@@ -413,18 +415,20 @@ Data test (Padel 15 mnt, court 2 jam): 8/6 di 2 court → "Lanjut · 6 round · 
 ### 13.6 Mixed · per klub
 
 - Court aktif round baru `C' = min(|courtsAvailableAt(now)| (kosong → semua court), ⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`; slot klub =
-  `2·C'`. **Satu fungsi** di `EndlessRoundGenerator` (mis. `activeCourts`) menggantikan `slotsFor` di semua pemakainya
-  untuk sparing: `generateRound`, `_nextRoundSlots`/`restingAfterLastRound`, `courtUse`/`courtMatch`,
-  `ActiveTournament.capacityAhead.matchesPerRound` (= `min(⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`), estimasi Konfigurasi Mixed, sheet
-  Cara kerja Mixed. Turnamen biasa tetap `slotsFor`.
+  `2·C'`. **Satu fungsi** `ActiveTournament.sparingActiveCourts` (di model, karena `capacityAhead` juga memakainya
+  dan model tidak meng-import services) menggantikan `slotsFor` di semua pemakainya untuk sparing:
+  `generateSparingRound`, slot R(n+1) / `restingByClubAfterLastRound`, `courtUse`/`courtMatch`,
+  `ActiveTournament.capacityAhead.matchesPerRound` (= `min(⌊n1 ÷ 2⌋, ⌊n2 ÷ 2⌋)`, tanpa batas court),
+  `EndlessRoundGenerator.sparingEstimate` (Konfigurasi Mixed, sheet Cara kerja Mixed). Turnamen biasa tetap `slotsFor`.
 - Siapa main: `priorityOrder` dipanggil **per klub** dengan pemain aktif klub itu saja, `slots` = slot klub, seed dan
   `latePlayerIds` sama → jeda pemain telat `k = max(2, slot klub ÷ istirahat klub + 1)` per klub dengan sendirinya.
   Ambil `2·C'` teratas tiap klub.
 - Susunan: acak terpisah per klub, match i = (klub1[2i], klub1[2i+1]) vs (klub2[2i], klub2[2i+1]); penalti sama
   (ulang match 1000, partner 10, lawan 3, 400 percobaan). Pasangan sesama klub dan lawan sesama klub mustahil secara
   konstruksi (S2, S3).
-- `restingAfterLastRound` mengembalikan daftar Prioritas / Istirahat lagi **per klub**, dari panggilan `priorityOrder`
-  yang sama persis dengan Buat R(n+1) (AC-S11).
+- `EndlessRoundGenerator.restingByClubAfterLastRound` mengembalikan daftar Prioritas / Istirahat lagi **per klub**,
+  dari panggilan `priorityOrder` yang sama persis dengan Buat R(n+1) (AC-S11). `restingAfterLastRound` di turnamen
+  sparing = gabungan keduanya (supaya pemanggil lama tetap benar); layar sparing memakai yang per klub.
 - `courtUse` (Kelola court): "langsung main" kalau round berjalan, court belum punya match, muat, dan **tiap klub**
   punya ≥ 2 yang istirahat; pemainnya = 2 teratas `priorityOrder(n+1)` tiap klub di antara yang istirahat, dengan slot
   klub dari `C'` round berikutnya (court baru ikut). "Round berikutnya" kalau `C'` dengan court ini > tanpa court ini.
@@ -437,7 +441,7 @@ Data test (Padel 15 mnt, court 2 jam): 8/6 di 2 court → "Lanjut · 6 round · 
 
 ### 13.7 Skor klub (K2, K11)
 
-Satu fungsi murni di `lib/services/ranking/` (mis. `ClubScore.of(active)`), dipakai Jadwal, Klasemen, Beranda, poster,
+Satu fungsi murni `ClubResult.of(active)` (`lib/services/ranking/club_score.dart`; widget-nya bernama `ClubScore`), dipakai Jadwal, Klasemen, Beranda, poster,
 caption, Live — tidak dihitung ulang di widget.
 - Per match `done`: menang 1, seri ½ (simpan sebagai setengah-poin bulat, `halfWins`), kalah 0; Total Point klub +=
   game sisi klub; selisih klub += game sendiri − game lawan.
@@ -464,7 +468,7 @@ caption, Live — tidak dihitung ulang di widget.
 
 - Beranda sparing tanpa nama: baris kecil "{klub1} {skor} – {skor} {klub2}" menggantikan "olahraga · mode · n pemain",
   "0 – 0" sebelum ada hasil (14x). Dialog mulai baru: "{klub1} vs {klub2}, Round n" (14y). Sparing bernama: nama di
-  baris kecil, skor klub di baris sendiri — frame 15w/15y di draf alur Mixed (belum disetujui host).
+  baris kecil, skor klub di baris sendiri — frame 15w/15y (alur Mixed, disetujui host 2026-11-07).
 - Versi app (keputusan 20): "v{appVersion}" di kanan atas banner di semua kondisi Beranda (01a–01f, 01h, 01i). Golden
   2% tidak menangkap teks sekecil ini → test wajib `find.text('v$appVersion')`.
 - Poster Ringkas (13q): `.pscore` (dua baris klub, klub pertama atas, Total Point · selisih + match menang, tanpa bola)
@@ -472,7 +476,8 @@ caption, Live — tidak dihitung ulang di widget.
 - Caption: baris pertama "🏆 {klub1} {menang}–{menang} {klub2} · {olahraga}" (seri skor + Total Point sama: "… · Seri ·
   Padel"), nama turnamen di baris kedua kalau ada, lalu blok "Klasemen Akhir · {klub}" per klub (baris sama dengan
   caption biasa), kaki sama. Lengkap menambah "Hasil per Round" (baris match klub pertama dulu). Teks persis: 13q.
-- Lengkap / Feed / Story sparing **tidak digambar** (Bagikan akan dirombak host). Yang sudah pasti dari aturan
+- Lengkap / Feed / Story sparing: host setuju (2026-11-07) designer menambah framenya dengan gaya poster yang ada;
+  sedang digambar (SP-15). Yang sudah pasti dari aturan
   poster: Lengkap = semua baris bernomor per klub dengan label `.pclub`; pasangan selalu satu kolom. Yang belum ada
   nilainya: ukuran `.pscore`/`.pclub` di Feed dan Story, dan apakah label klub dihitung sebagai baris di
   `_density`/dua kolom Mixed — lihat SP-15.
@@ -543,10 +548,13 @@ M3 Maya · Nanda. Padel, Race to 6, 15 mnt, 2 court × 2 jam.
   4 semua; setelah R8 Garuda 4 semua, Matcha {6, 6, 5, 5, 5, 5}. Kelola court saat R4 berjalan (AC-S13): Court 3
   langsung berisi 2 Garuda + 2 Matcha (keduanya yang istirahat), R5 = 3 match dan 6 Matcha main. Oki masuk Matcha
   setelah R3: main R4, R5, istirahat R6 (k = 2). Nanda keluar setelah R3: 4 dari 5 Matcha main per round. Tabel 8
-  round 13.4 PRD (8/6, 7/6, 8/3, 15/15, 2/2) cocok semua. Susunan di 13m dan 15a–15y (alur Mixed, belum disetujui)
-  ditulis designer sebagai "hasil generator". Undian prioritas berseed id turnamen dan susunan pasangan memakai
-  `Random`, jadi fixture golden Mixed butuh **id turnamen + seed `Random` + versi prototipe** yang dipakai designer;
-  tanpa itu daftar prioritas di frame tidak bisa direproduksi (SP-18).
+  round 13.4 PRD (8/6, 7/6, 8/3, 15/15, 2/2) cocok semua. Susunan di 13m dan 15a–15y (alur Mixed, disetujui host 2026-11-07)
+  ditulis designer sebagai "hasil generator" (prototipe yang sekarang identik dengan
+  `EndlessRoundGenerator.generateSparingRound`). Reproduksi untuk fixture golden (SP-18): undian `seed: 0x5eed`
+  dipanggil langsung (bukan FNV-1a id turnamen, jadi fixture memilih id yang menghasilkan seed itu atau menulis match
+  secara eksplisit), `Random` per frame sesuai pembuka `screens/15-sparing-mixed.md`. Test grup "frame 13m / 15*" di
+  `test/services/sparing_mixed_test.dart` mengunci R1–R4, Prioritas per klub, Court 3 (15o/15p), Oki (15n), dan 8/3
+  (15e).
 
 ### 13.12 Test properti (wajib ikut ke `test/services/`)
 
@@ -560,6 +568,9 @@ M3 Maya · Nanda. Padel, Race to 6, 15 mnt, 2 court × 2 jam.
 - Mixed — 2–28 pemain per klub (total ≤ 30) × court 1/2/3/4/7/10 × 30 round: `C'` match per round, partner sesama
   klub, pair1 klub pertama, tanpa pemain dua kali per round, selisih main satu klub ≤ 1. Ukuran AC-S9 + pemain telat
   di R4 dan keluar di R7: selisih ≤ 1 di antara yang hadir sejak awal.
-- Waktu jalan di prototipe: Fixed ±8 detik, Mixed ±86 detik. Mixed penuh terlalu lama untuk tiap `flutter test`:
-  jalankan versi ringkas (ukuran AC-S9 + sampel acak berseed) di suite biasa, sweep penuh di test bertag `slow`
-  (`dart_test.yaml`, `flutter test --tags slow` di CI terpisah atau sebelum rilis).
+- Letak: Fixed penuh di suite biasa (`test/services/sparing_fixed_test.dart`, beberapa detik). Mixed ringkas (ukuran
+  AC-S9 + pemain telat/keluar + 12 ukuran acak berseed) di `test/services/sparing_mixed_test.dart`; sweep penuh di
+  `sparing_mixed_sweep_test.dart` (satu test per n1, 27 test, bersama `sparing_mixed_property.dart`), bertag `slow` dan
+  dilewati `flutter test` biasa lewat `skip:` di `dart_test.yaml` — CI deploy tidak menjalankannya. Jalankan sebelum
+  rilis (SP-19): `flutter test --tags slow --run-skipped` (tanpa `--run-skipped` tidak ada yang jalan). Waktu ±11–17
+  menit tergantung beban mesin (di prototipe dulu ±86 detik).
