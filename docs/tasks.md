@@ -252,8 +252,8 @@ Bentrok berkas yang diketahui:
 - **Acceptance:** AC-S17 (nomor sama), K7; golden 13q; test caption = teks 13q persis; caption Seri "… 6–6 … · Seri ·
   Padel" dan "6½–5½".
 - **Feed/Story/Lengkap:** host setuju (2026-11-07) designer menambah frame poster sparing Feed, Story, dan Lengkap,
-  persis gaya poster yang ada (bukan rombak Bagikan). Sedang digambar; ukuran `.pscore`/`.pclub` dan aturan kepadatan
-  dengan label klub ada di catatan frame itu. Jangan mengarang ukuran sebelum frame-nya di-commit.
+  persis gaya poster yang ada (bukan rombak Bagikan). Frame 13r–13w **disetujui host 2026-11-08**; ukuran
+  `.pscore`/`.pclub` per target dan aturan kepadatan dengan label klub ada di catatan frame (`13-sparing.md`).
 - **Dependensi:** SP-4, SP-5. **Paralel:** ya. **Model:** default.
 
 ## SP-16 · Tambah round + Atur pasangan sparing

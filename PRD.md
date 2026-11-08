@@ -479,7 +479,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     caption dibuka skor klub; poster Ringkas = 3 teratas tiap klub (dikonfirmasi host); Detail menaruh tim sendiri di
     atas dengan nama klub di subjudul; estimasi Fixed sparing pasti ("Lanjut · 14 round · lewat booking 01:30");
     pemain ganjil per klub menahan Buat jadwal seperti Fixed biasa; nilai WO klub di Mixed Best of/Americano =
-    rata-rata nilai WO kedua pemenang (rincian K1–K12). Turnamen
+    rata-rata nilai WO kedua pemenang (rincian K1–K13). Turnamen
     biasa tidak berubah; rilis 3.2.0 MINOR (2026-11-04).
 20. **Versi app tampil lagi di Beranda** (permintaan host): `appVersion` (`MAJOR.MINOR.PATCH`) ditampilkan di Beranda.
     Membatalkan sebagian keputusan hi-fi v2 yang menghapus footer "Skor tersimpan otomatis · v1.0" (Cakupan →
@@ -531,7 +531,7 @@ Aturan:
 ## 13. Sparing — Dua Klub Bertanding
 
 > **Disetujui host 2026-11-04** (keputusan 19, §10), rencana rilis **3.2.0 (MINOR)**. Bagian lain PRD tidak berubah:
-> turnamen biasa (bukan sparing) tetap persis seperti 3.1.0. Keputusan: 13.11 (K1–K12); verifikasi tech lead: 13.12.
+> turnamen biasa (bukan sparing) tetap persis seperti 3.1.0. Keputusan: 13.11 (K1–K13); verifikasi tech lead: 13.12.
 
 Ide host (2026-11-04): *"gw ada ide untuk menambahkan fitur sparing. dimana nanti 2 club akan bertanding. untuk mode
 nya tetap bisa fixed maupun mixed partner, yang membedakan adalah pasangan dari club yang sama tidak akan menjadi
@@ -825,11 +825,12 @@ Jawaban host berikutnya (2026-11-04):
   antara court aktif: "Lanjut · R round · lewat booking hh:mm", tanpa jumlah match dan court karena teks penuhnya tidak
   muat di tombol (jawaban host 2026-11-04 atas temuan designer di 14f). Contoh 16 / 14 di 4 court × 2 jam: "Lanjut · 14
   round · lewat booking 01:30".
+- **K11.** Nilai WO untuk skor klub di Mixed Best of/Americano = rata-rata nilai WO kedua pemenang, dibulatkan ,5 ke
+  atas (Andi 14, Budi 17 → 16); di klasemen pemain tiap pemenang tetap mendapat nilainya sendiri.
 - **K12.** Pemain ganjil di satu klub Fixed sparing: "Buat jadwal" menunggu sampai jumlah pemain tiap klub genap, sama
   dengan Fixed biasa 04c (host 2026-11-04, 14c). Draft awal menulis sisa jadi "Belum main" dan jadwal tetap dibuat;
   itu dibatalkan.
-- **K11.** Nilai WO untuk skor klub di Mixed Best of/Americano = rata-rata nilai WO kedua pemenang, dibulatkan ,5 ke
-  atas (Andi 14, Budi 17 → 16); di klasemen pemain tiap pemenang tetap mendapat nilainya sendiri.
+- **K13.** App versi lama (≤ 3.1.0, masih ter-cache di PWA) tidak boleh membaca turnamen sparing sebagai turnamen biasa: simpanan dan payload live sparing membawa penanda yang membuat versi lama menolaknya, jadi penonton melihat "Live tidak bisa dibuka" sampai web-nya ter-update, dan HP host versi lama tidak menimpa turnamen sparing (host 2026-11-08; rincian `docs/data.md`).
 
 ### 13.12 Verifikasi tech lead (selesai 2026-11-04)
 

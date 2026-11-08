@@ -120,7 +120,7 @@ dibaca penonton lewat `TournamentCodec.decode` yang sama. App 3.1.0 yang masih t
 reload ke-2, `docs/infra.md`) tanpa penjagaan akan **membaca payload sparing sebagai turnamen biasa**: kunci baru
 diabaikan.
 
-| Pembaca | Tanpa penanda | Dengan penanda `bye.sparing` (keputusan ini) |
+| Pembaca | Tanpa penanda | Dengan penanda `bye.sparing` (disetujui host 2026-11-08, PRD K13) |
 |---|---|---|
 | Penonton web 3.1.0 buka link live sparing | Jadwal tanpa Istirahat per klub, Klasemen satu tabel campur dua klub, tanpa skor klub; kelihatan benar tapi salah | `decode` null → layar "Live tidak bisa dibuka" (`LiveViewStatus.unreadable`, sudah ada di 3.1.0). Pembukaan berikutnya memuat 3.2.0 |
 | Host dengan tab/instalasi 3.1.0 tersisa membaca `active` sparing di box yang sama | Turnamen terbuka sebagai biasa; skor yang diinput disimpan ulang **tanpa** klub (klub hilang permanen); Tambah round Fixed membuat pasangan sesama klub; Buat R Mixed mencampur klub | null → Beranda kosong, **simpanan tidak ditimpa** sampai host memulai turnamen baru; app 3.2.0 membacanya lagi |
