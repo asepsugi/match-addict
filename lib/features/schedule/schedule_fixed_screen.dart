@@ -95,19 +95,10 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
   }
 
   /// Pasangan yang istirahat di [round], per klub menurut urutan `config.clubs` (klub pertama di kiri).
-  List<RestingClub> _restingByClub(ActiveTournament active, int round) {
-    final ids = active.restingPairIdsByRound[round] ?? const <String>[];
-    return [
-      for (final club in active.config.clubs!)
-        RestingClub(
-          club: club.name,
-          names: [
-            for (final id in ids)
-              if (active.clubOfPairId(id)?.id == club.id) pairNames(active, active.pairById(id)!).join(' · '),
-          ],
-        ),
-    ];
-  }
+  List<RestingClub> _restingByClub(ActiveTournament active, int round) => [
+    for (final c in active.restingPairsByClub(round))
+      RestingClub(club: c.club.name, names: [for (final p in c.pairs) pairNames(active, p).join(' · ')]),
+  ];
 
   @override
   Widget build(BuildContext context) {

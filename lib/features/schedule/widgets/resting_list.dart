@@ -19,12 +19,19 @@ class RestingList extends StatelessWidget {
     : clubs = null;
 
   /// Sparing (`.rest .names.clubs`, 13k): dua kolom, satu per klub (klub pertama di kiri), masing-masing diawali nama
-  /// klubnya. Kolom klub yang tidak punya yang istirahat ditulis "–". [names] tidak dipakai.
-  const RestingList.clubs({super.key, required List<RestingClub> this.clubs})
-    : names = const [],
-      priorityRound = null,
-      later = false,
-      title = null;
+  /// klubnya. Kolom klub yang tidak punya yang istirahat ditulis "–". [names] tidak dipakai. Judulnya sama dengan
+  /// daftar biasa: "Istirahat", "Istirahat · Prioritas main di R…" ([priorityRound]), "Istirahat lagi di R…"
+  /// ([later] + [priorityRound], nama pudar, 15d/15e), atau [title] ("Langsung main di R4", 15o).
+  const RestingList.clubs({
+    super.key,
+    required List<RestingClub> this.clubs,
+    this.priorityRound,
+    this.later = false,
+    this.title,
+  }) : names = const [],
+       // Satu kolom per klub; sparing selalu tepat dua klub (S1).
+       assert(clubs.length == 2, 'RestingList.clubs butuh tepat dua klub.'),
+       assert(!later || priorityRound != null, 'Istirahat lagi butuh nomor round berikutnya.');
 
   /// Round berikutnya untuk daftar kedua (06o).
   const RestingList.later({super.key, required this.names, required int nextRound})

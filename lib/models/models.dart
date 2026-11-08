@@ -517,6 +517,59 @@ class ActiveTournament {
     return courts == null ? byPlayers : min(courts, byPlayers);
   }
 
+  /// Mixed sparing: klub yang membatasi match per round dari sisi pemain — ⌊aktif ÷ 2⌋ terkecil, sama → yang pemainnya
+  /// lebih sedikit, masih sama → klub pertama — untuk kalimat Lanjutkan "maks n match per round ({klub} n pemain)"
+  /// (15j). Null di turnamen biasa.
+  Club? get sparingLimitingClub {
+    final clubs = config.clubs;
+    if (clubs == null) return null;
+    final (club1, club2) = activePlayersByClub;
+    final byPairs = (club2.length ~/ 2).compareTo(club1.length ~/ 2);
+    final second = byPairs < 0 || (byPairs == 0 && club2.length < club1.length);
+    return second ? clubs[1] : clubs[0];
+  }
+
+  /// Fixed sparing: pasangan yang istirahat di [round] per klub, urut `config.clubs` (klub pertama dulu) lalu urutan
+  /// tercatat. Pasangan lama yang sudah diatur ulang tetap ketemu lewat [pairById]; id yang tidak dikenal dilewati,
+  /// supaya layar tidak gagal karena simpanan yang janggal. Kosong di turnamen biasa.
+  List<({Club club, List<Pair> pairs})> restingPairsByClub(int round) {
+    final clubs = config.clubs;
+    if (clubs == null) return const [];
+    final pairs = [
+      for (final id in restingPairIdsByRound[round] ?? const <String>[])
+        if (pairById(id) case final pair?) pair,
+    ];
+    return [
+      for (final club in clubs)
+        (
+          club: club,
+          pairs: [
+            for (final p in pairs)
+              if (config.clubOfPair(p)?.id == club.id) p,
+          ],
+        ),
+    ];
+  }
+
+  /// Mixed sparing: pemain yang istirahat di [round] (round lewat, catatan saat round itu dibuat) per klub, urut
+  /// `config.clubs` lalu urut daftar pemain — sama dengan kolom Prioritas round terakhir. Id yang tidak dikenal
+  /// dilewati. Kosong di turnamen biasa.
+  List<({Club club, List<Player> players})> restingPlayersByClub(int round) {
+    final clubs = config.clubs;
+    if (clubs == null) return const [];
+    final ids = {...?restingPlayerIdsByRound[round]};
+    return [
+      for (final club in clubs)
+        (
+          club: club,
+          players: [
+            for (final p in config.players)
+              if (ids.contains(p.id) && p.clubId == club.id) p,
+          ],
+        ),
+    ];
+  }
+
   /// Kelola pemain: Keluarkan mati kalau total aktif tinggal [TournamentConfig.minPlayers], dan di sparing juga kalau
   /// klub pemain itu tinggal 2 aktif — kurang dari itu klubnya tidak bisa mengisi satu sisi match (AC-S12).
   bool canWithdraw(String playerId) {
