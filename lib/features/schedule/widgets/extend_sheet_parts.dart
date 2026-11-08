@@ -74,13 +74,16 @@ class SheetEstimate extends StatelessWidget {
   final String label;
   final List<String> lines;
 
-  const SheetEstimate({super.key, required this.number, required this.label, required this.lines});
+  /// Tanpa padding atas/bawah: baris klub bertumpuk di ringkasan sparing (14n) rapat satu sama lain.
+  final bool stacked;
+
+  const SheetEstimate({super.key, required this.number, required this.label, required this.lines, this.stacked = false});
 
   @override
   Widget build(BuildContext context) {
     final caption = MabarType.caption.copyWith(color: MabarColors.ink3);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
+      padding: EdgeInsets.fromLTRB(4, stacked ? 0 : 2, 4, stacked ? 0 : 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,

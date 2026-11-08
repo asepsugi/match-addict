@@ -10,6 +10,7 @@ import '../../../core/widgets/mabar_layers.dart';
 import '../../../models/models.dart';
 import '../../../services/pairing/pair_draft.dart';
 import '../../../services/schedule/round_robin_generator.dart';
+import '../../../services/schedule/sparing_fixed_generator.dart';
 import '../../pair_edit/pair_edit_screen.dart';
 import '../tournament_controller.dart';
 import '../widgets/extend_sheet_parts.dart';
@@ -73,36 +74,97 @@ class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
   Widget build(BuildContext context) {
     final now = ref.read(clockProvider)();
     final n = _source.roundCount;
-    final plan = RoundRobinGenerator.extraRounds(_source, now, extraMinutes: _extraMinutes, pairs: _pairs);
-    final rounds = plan.schedule.matches.isEmpty ? 0 : plan.schedule.roundCount - n;
-    final range = rounds == 1 ? 'R${n + 1}' : 'R${n + 1}–R${n + rounds}';
-
     final draft = _draft ?? PairDraft.of(_source.config);
     final fresh = draft.newPairsFrom(_current);
     final idle = draft.unpaired.length;
+    final clubs = _source.config.clubs;
+    final pairCount = clubs == null
+        ? '${draft.pairs.length}'
+        : clubs.map((c) => draft.pairsOf(c.id).length).join(' + ');
     final pairsLine = [
-      '${draft.pairs.length} pasangan',
+      '$pairCount pasangan',
       if (fresh == 0 && idle == 0) 'sama dengan sebelumnya',
       if (fresh > 0) '$fresh baru',
       if (idle > 0) '$idle tidak main',
     ].join(' · ');
 
-    // Court di round pertama = yang masih muat satu round; berkurang kalau salah satunya habis di tengah (sama
-    // dengan Lanjutkan 08c). Lewat booking = round sesudah semua court habis.
-    final courts = plan.roundsLeft.where((k) => k >= 1).length;
-    int? fewerFrom;
-    for (var r = 2; r <= rounds && r <= plan.fitRounds; r++) {
-      if (plan.roundsLeft.where((k) => k >= r).length < courts) {
-        fewerFrom = r;
-        break;
+    final Widget estimate;
+    var stackedEstimate = false;
+    final int rounds;
+    final String range;
+    if (clubs == null) {
+      final plan = RoundRobinGenerator.extraRounds(_source, now, extraMinutes: _extraMinutes, pairs: _pairs);
+      rounds = plan.schedule.matches.isEmpty ? 0 : plan.schedule.roundCount - n;
+      range = rounds == 1 ? 'R${n + 1}' : 'R${n + 1}–R${n + rounds}';
+
+      // Court di round pertama = yang masih muat satu round; berkurang kalau salah satunya habis di tengah (sama
+      // dengan Lanjutkan 08c). Lewat booking = round sesudah semua court habis.
+      final courts = plan.roundsLeft.where((k) => k >= 1).length;
+      int? fewerFrom;
+      for (var r = 2; r <= rounds && r <= plan.fitRounds; r++) {
+        if (plan.roundsLeft.where((k) => k >= r).length < courts) {
+          fewerFrom = r;
+          break;
+        }
       }
+      final over = (rounds - plan.fitRounds) * _source.config.matchDurationMinutes;
+      final facts = [
+        '$rounds round ($range)',
+        fewerFrom == null ? '$courts court' : '$courts court, berkurang mulai R${n + fewerFrom}',
+        if (over > 0) 'lewat booking ${countdownText(over)}',
+      ].join(' · ');
+      estimate = plan.perPair > 0
+          ? SheetEstimate(number: plan.perPair, label: 'match lagi tiap pasangan', lines: [facts])
+          : const SheetEstimateEmpty('Tambah jam minimal satu court');
+    } else {
+      // Sparing (14n): satu satuan = KPK(pasangan klub 1, klub 2) match; tambahan per pasangan beda antar klub.
+      final p1 = draft.pairsOf(clubs[0].id), p2 = draft.pairsOf(clubs[1].id);
+      final plan = SparingFixedGenerator.extraRounds(_source, now, club1: p1, club2: p2, extraMinutes: _extraMinutes);
+      rounds = plan.schedule.matches.isEmpty ? 0 : plan.schedule.roundCount - n;
+      range = rounds == 1 ? 'R${n + 1}' : 'R${n + 1}–R${n + rounds}';
+      int courtsAt(int r) =>
+          SparingFixedGenerator.activeCourts(plan.roundsLeft.where((k) => k >= r).length, p1.length, p2.length);
+      final courts = courtsAt(1);
+      int? fewerFrom;
+      for (var r = 2; r <= rounds && r <= plan.fitRounds; r++) {
+        if (courtsAt(r) < courts) {
+          fewerFrom = r;
+          break;
+        }
+      }
+      final facts = [
+        '$rounds round ($range)',
+        fewerFrom == null ? '$courts court' : '$courts court, berkurang mulai R${n + fewerFrom}',
+        if (plan.overMinutes > 0) 'lewat booking ${countdownText(plan.overMinutes)}',
+      ].join(' · ');
+      const label = 'match lagi tiap pasangan';
+      stackedEstimate = rounds > 0 && plan.perPair.club1 != plan.perPair.club2;
+      estimate = rounds == 0
+          ? const SheetEstimateEmpty('Tambah jam minimal satu court')
+          : plan.perPair.club1 == plan.perPair.club2
+          ? SheetEstimate(number: plan.perPair.club1, label: label, lines: [facts])
+          // Dua baris klub (14n): jarak ke baris Pasangan dan ke tombol diukur dari frame, bukan padding 06w.
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 1.5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SheetEstimate(
+                    number: plan.perPair.club1,
+                    label: '$label ${clubs[0].name}',
+                    lines: const [],
+                    stacked: true,
+                  ),
+                  SheetEstimate(
+                    number: plan.perPair.club2,
+                    label: '$label ${clubs[1].name}',
+                    lines: [facts],
+                    stacked: true,
+                  ),
+                ],
+              ),
+            );
     }
-    final over = (rounds - plan.fitRounds) * _source.config.matchDurationMinutes;
-    final facts = [
-      '$rounds round ($range)',
-      fewerFrom == null ? '$courts court' : '$courts court, berkurang mulai R${n + fewerFrom}',
-      if (over > 0) 'lewat booking ${countdownText(over)}',
-    ].join(' · ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -126,7 +188,10 @@ class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
               titleWidget: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Pasangan', style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink)),
+                  Text(
+                    'Pasangan',
+                    style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink),
+                  ),
                   Text(pairsLine, style: MabarType.caption),
                 ],
               ),
@@ -135,16 +200,13 @@ class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        if (plan.perPair > 0)
-          SheetEstimate(number: plan.perPair, label: 'match lagi tiap pasangan', lines: [facts])
-        else
-          const SheetEstimateEmpty('Tambah jam minimal satu court'),
+        SizedBox(height: stackedEstimate ? 12.5 : 16),
+        estimate,
         const SizedBox(height: 16),
         MabarButton(
-          label: plan.perPair > 0 ? 'Buat $range' : 'Buat round',
+          label: rounds > 0 ? 'Buat $range' : 'Buat round',
           icon: MabarIcons.plus,
-          onPressed: plan.perPair > 0 ? _create : null,
+          onPressed: rounds > 0 ? _create : null,
         ),
       ],
     );
