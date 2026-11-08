@@ -10,6 +10,7 @@ import '../hifi_golden.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
 import 'sparing_fixture.dart';
+import 'sparing_mixed_fixture.dart';
 
 /// Golden Detail pasangan sparing, frame 14v (Eko · Fajar, PB Garuda) dan 14w (Maya · Nanda, Matcha Club), data
 /// `sparingFull()`.
@@ -37,6 +38,36 @@ void main() {
     // AC-S7: tim sendiri di atas, R2 "Maya · Nanda" sebelum "Eko · Fajar".
     final maya = tester.getTopLeft(find.text('Maya · Nanda').last).dy;
     expect(maya, lessThan(tester.getTopLeft(find.text('vs Eko · Fajar')).dy));
+  });
+
+  Widget mixedScreen(MixedSparingState s, String playerId) => hifiScreen(
+    DetailPlayerScreen(playerId: playerId),
+    overrides: [
+      tournamentProvider.overrideWith(() => LoadedTournament(s.active)),
+      clockProvider.overrideWithValue(() => s.now),
+    ],
+  );
+
+  testWidgets('15u Detail Mixed sparing klub pertama: Andi, Beda partner 3 / 7, Beda lawan 6 / 6', (tester) async {
+    await expectMatchesHifi(tester, mixedScreen(mixedSparing15f(), 'g01'), '15u');
+    expect(find.widgetWithText(MabarAppBar, 'Andi'), findsOneWidget);
+    expect(find.textContaining('PB Garuda · Padel · Mixed · Race to 6'), findsOneWidget);
+    expect(find.text('3 / 7'), findsOneWidget); // 8 pemain Garuda - 1
+    expect(find.text('6 / 6'), findsOneWidget); // 6 pemain Matcha
+  });
+
+  testWidgets('15v Detail Mixed sparing klub kedua: Lina, Beda partner 5 / 5, Beda lawan 7 / 8', (tester) async {
+    await expectMatchesHifi(tester, mixedScreen(mixedSparing15f(), 'm04'), '15v');
+    expect(find.widgetWithText(MabarAppBar, 'Lina'), findsOneWidget);
+    expect(find.textContaining('Matcha Club · Padel · Mixed · Race to 6'), findsOneWidget);
+    expect(find.text('5 / 5'), findsOneWidget); // 6 pemain Matcha - 1
+    expect(find.text('7 / 8'), findsOneWidget); // 8 pemain Garuda
+  });
+
+  testWidgets('Pemain sparing yang belum main: subjudul "Belum main · klub · …" (Oki, 15l)', (tester) async {
+    await tester.pumpWidget(mixedScreen(mixedSparing15lOki(), 'm07'));
+    await tester.pumpAndSettle();
+    expect(find.text('Belum main · Matcha Club · Padel · Mixed · Race to 6'), findsOneWidget);
   });
 
   test('coverageTotals: sparing 8 vs 6, turnamen biasa tidak berubah', () {

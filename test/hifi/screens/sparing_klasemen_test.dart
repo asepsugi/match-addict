@@ -13,6 +13,7 @@ import '../hifi_golden.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
 import 'sparing_fixture.dart';
+import 'sparing_mixed_fixture.dart';
 
 /// Golden Klasemen sparing, frame 13n–13p, 14p, 14s–14u (docs/tasks.md SP-13). Data dari `sparing_fixture.dart`.
 void main() {
@@ -130,6 +131,63 @@ void main() {
     await tester.pumpAndSettle();
     expectBoard(first: '7', second: '5', balls: 1);
     expect(find.text('56 game · +13'), findsOneWidget);
+    expect(find.text('Bagikan'), findsNothing);
+  });
+
+  // Mixed sparing (SP-18g): satu baris per pemain di tabel klubnya, nomor per klub (AC-S17, K11).
+  Widget mixedScreen(MixedSparingState s, {List<Override> extra = const []}) => hifiScreen(
+    const LeaderboardScreen(),
+    overrides: [
+      tournamentProvider.overrideWith(() => LoadedTournament(s.active)),
+      clockProvider.overrideWithValue(() => s.now),
+      ...extra,
+    ],
+  );
+
+  testWidgets('15s Mixed Final: Fajar 21 (+7) di atas Budi 21 (+2), Joko 26 (+5) di atas Nanda 26 (-4)', (tester) async {
+    await expectMatchesHifi(tester, mixedScreen(mixedSparing15f()), '15s');
+    expectBoard(first: '10', second: '6', balls: 1);
+    expect(find.text('83 game · +14'), findsOneWidget);
+    expect(find.text('69 game · −14'), findsOneWidget);
+    final container = ProviderScope.containerOf(tester.element(find.byType(LeaderboardScreen)));
+    final groups = container.read(clubStandingEntriesProvider);
+    List<String> names(int g) => [for (final e in groups[g].entries) e.players.single.name];
+    expect(names(0).indexOf('Fajar'), lessThan(names(0).indexOf('Budi')));
+    expect(names(1).indexOf('Joko'), lessThan(names(1).indexOf('Nanda')));
+    for (final g in groups) {
+      expect([for (final e in g.entries) e.position].first, 1); // nomor mulai #1 di tiap klub (K3)
+    }
+  });
+
+  testWidgets('15s digulir: tabel Matcha berlanjut di bawah action bar', (tester) async {
+    await tester.pumpWidget(mixedScreen(mixedSparing15f()));
+    await tester.pumpAndSettle();
+    await scrollDown(tester);
+    await tester.pumpAndSettle();
+    expect(find.text('Matcha Club'), findsWidgets);
+    expect(appBarScrolled(tester), isTrue);
+  });
+
+  testWidgets('15t Americano: WO di skor klub, Total Point klub Matcha 58, Maya 24, Lina 18', (tester) async {
+    await expectMatchesHifi(tester, mixedScreen(mixedSparing15t()), '15t', act: scrollDown);
+    expectBoard(first: '4', second: '2', balls: 1);
+    // Total Point klub (58) = 46 poin main + nilai WO klub 12 (K11): dari ClubResult, bukan jumlah baris pemain.
+    expect(find.text('59 poin · +13'), findsOneWidget);
+    expect(find.text('58 poin · −13'), findsOneWidget);
+    expect(find.text('1 match WO'), findsOneWidget);
+    final container = ProviderScope.containerOf(tester.element(find.byType(LeaderboardScreen)));
+    final points = {
+      for (final g in container.read(clubStandingEntriesProvider))
+        for (final e in g.entries) e.players.single.name: e.standing.totalPoint,
+    };
+    expect([points['Maya'], points['Lina']], [24, 18]);
+  });
+
+  testWidgets('Penonton Live Mixed sparing membaca angka yang sama, tanpa Bagikan', (tester) async {
+    await tester.pumpWidget(mixedScreen(mixedSparing15f(), extra: [liveCodeProvider.overrideWithValue('K7Q2MX')]));
+    await tester.pumpAndSettle();
+    expectBoard(first: '10', second: '6', balls: 1);
+    expect(find.text('83 game · +14'), findsOneWidget);
     expect(find.text('Bagikan'), findsNothing);
   });
 }
