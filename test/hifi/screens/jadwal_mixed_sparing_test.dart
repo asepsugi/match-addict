@@ -121,6 +121,32 @@ void main() {
     expect(find.text('· 1 court'), findsNothing);
   });
 
+  testWidgets('Meta Buat "· n court" dari C\' (Matcha 3 aktif), R4 berisi 1 match', (tester) async {
+    await tester.pumpWidget(screen(mixedSparing15a()));
+    await tester.pumpAndSettle();
+    expect(find.text('· 1 court'), findsNothing);
+    final container = ProviderScope.containerOf(tester.element(find.byType(ScheduleMixedScreen)));
+    for (final id in ['m02', 'm01', 'm03']) {
+      container.read(tournamentProvider.notifier).withdrawPlayer(id);
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('· 1 court'), findsOneWidget);
+    await tester.tap(find.text('Buat R4'));
+    await tester.pumpAndSettle();
+    expect(container.read(tournamentProvider)!.matchesOfRound(4), hasLength(1));
+  });
+
+  testWidgets('Tab round lewat: Istirahat R1 per klub tanpa Prioritas', (tester) async {
+    await tester.pumpWidget(screen(mixedSparing15a()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('R1'));
+    await tester.pumpAndSettle();
+    expectTexts(['Andi', 'Budi', 'Dewi', 'Hadi', 'Indra', 'Lina']);
+    expect(find.textContaining('Prioritas main di'), findsNothing);
+    expect(find.text('Kiki'), findsNothing);
+    expect(find.text('Nanda'), findsNothing);
+  });
+
   testWidgets('15f waktu habis, banyak round: 10 – 6, Tambah jam', (tester) async {
     await expectMatchesHifi(tester, screen(mixedSparing15f()), '15f');
     expectBoard((garuda, '83 game · +14', '10'), (matcha, '69 game · −14', '6'), balls: 1);

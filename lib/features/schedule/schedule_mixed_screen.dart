@@ -128,6 +128,7 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
     if (active == null || active.roundCount == 0) return const Scaffold(backgroundColor: MabarColors.paper);
 
     final watching = ref.watch(liveCodeProvider) != null;
+    final clubScore = ref.watch(clubScoreProvider);
     final now = ref.read(clockProvider)();
     final finished = active.tournament.isFinished;
     final last = active.roundCount;
@@ -145,7 +146,6 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
     // round itu dibuat.
     final List<Widget> resting;
     // Sparing: papan skor klub di atas daftar (ikut tergulir, 13m) dan Istirahat per klub dua kolom.
-    final clubScore = ref.watch(clubScoreProvider);
     if (active.config.isSparing) {
       if (onLast) {
         // Per klub, bukan gabungan: tiap klub punya slot dan prioritasnya sendiri (AC-S11).
