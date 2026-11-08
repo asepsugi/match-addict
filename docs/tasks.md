@@ -215,6 +215,8 @@ SP-11 sama-sama di `schedule_fixed_screen.dart` → berurutan. SP-17 setelah SP-
 - **Dependensi:** SP-5. **Paralel:** ya. **Model:** default.
 
 ## SP-13 · Klasemen sparing
+- **Status:** selesai, di-approve (2040a7e + 7866fb4 + 62311b3 di `sparing`, 2026-11-08). Garis app bar saat digulir
+  berlaku juga untuk Klasemen biasa.
 - **Goal:** `ClubScore` tetap di atas tab metode, tabel per klub bernomor sendiri, "Belum main" per klub, baris campuran
   setelah Atur pasangan, "1 match WO" di bawah tabel terakhir; Live penonton memakai angka yang sama.
 - **Baca:** `13-sparing.md` 13n–13p, `14-sparing-fixed.md` 14p, 14s–14u, `leaderboard_screen.dart`, `logic.md` §13.8.
