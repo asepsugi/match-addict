@@ -95,7 +95,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - **Berikutnya: Sparing** (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, rencana 3.2.0
   (MINOR). Implementasi di branch `sparing` (rilis sekali setelah Mixed selesai; `main` tetap 3.1.0 untuk hotfix);
-  task di `docs/tasks.md`: SP-0…SP-14, SP-16, SP-17 selesai (semua layar Fixed); SP-18a…h (layar Mixed) berjalan; SP-15 (Bagikan),
+  task di `docs/tasks.md`: SP-0…SP-14, SP-16, SP-17, SP-18a/b/c/g selesai; dijeda 2026-11-08: SP-15 (belum direview), SP-18h (perbaikan
+  review), SP-18d/e/f belum mulai; SP-15 (Bagikan),
   SP-18 (layar Mixed), SP-19 belum. Logika Fixed + Mixed sparing sudah di `lib/services/**` (`docs/architecture.md` →
   Sparing). Ikut rilis yang sama: versi app tampil lagi di Beranda (keputusan 20).
 
