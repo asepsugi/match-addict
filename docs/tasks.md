@@ -429,6 +429,8 @@ Aturan bersama SP-18:
 - **Dependensi:** SP-18a. **Paralel:** ya. **Model:** default.
 
 ## SP-18g · Klasemen + Detail Mixed sparing (15s–15v)
+- **Status:** selesai (2026-11-08): layar sudah benar untuk Mixed sparing, hanya golden + test (tanpa `lib/`; dicek
+  main session, tanpa review terpisah karena hanya test).
 - **Goal:** pastikan Klasemen (tabel pemain per klub, nomor mulai #1 di tiap klub) dan Detail (K9) berlaku untuk Mixed
   sparing; tutup catatan review SP-14.
 - **Baca:** `15-sparing-mixed.md` 15s–15v; `leaderboard_screen.dart`, `detail_player_screen.dart`;
