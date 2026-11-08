@@ -45,6 +45,26 @@ class SharePosterRow {
   const SharePosterRow({required this.position, required this.names, required this.value, this.detail, required this.diff});
 }
 
+/// `.pscore .ps` — satu baris skor klub poster sparing (K7); teks sudah jadi dari `ClubResult`, widget tidak
+/// menghitung: "PB Garuda", "56 game · +13", "7".
+class SharePosterClubScore {
+  final String name;
+  final String detail;
+  final String score;
+
+  const SharePosterClubScore({required this.name, required this.detail, required this.score});
+}
+
+/// Satu klub di daftar poster sparing: label `.pclub` (+ "+n pasangan lainnya" kalau terpotong) lalu barisnya, nomor
+/// mulai #1 di tiap klub.
+class SharePosterClub {
+  final String name;
+  final String? more;
+  final List<SharePosterRow> rows;
+
+  const SharePosterClub({required this.name, required this.rows, this.more});
+}
+
 /// Isi poster yang sudah jadi teks.
 class SharePosterData {
   final SportType sport;
@@ -63,6 +83,12 @@ class SharePosterData {
   /// Lengkap = semua baris berbagi tinggi kartu; Ringkas di pratinjau = baris setinggi isinya.
   final bool complete;
 
+  /// Sparing: dua baris skor klub (klub pertama dulu) di bawah judul. Null untuk turnamen biasa.
+  final List<SharePosterClubScore>? clubScore;
+
+  /// Sparing: daftar per klub, menggantikan [rows] (yang kosong); "+n lainnya" ada di label klub, bukan [more].
+  final List<SharePosterClub>? clubs;
+
   const SharePosterData({
     required this.sport,
     required this.eyebrow,
@@ -71,7 +97,29 @@ class SharePosterData {
     required this.summary,
     this.more,
     this.complete = false,
+    this.clubScore,
+    this.clubs,
   });
+}
+
+/// Pengali huruf baris poster sparing (catatan 13s): label klub dihitung satu baris, skor klub tidak; ambangnya =
+/// frame sparing terpadat yang tidak dikecilkan: satu kolom 8 baris (13q), dua kolom per klub 10 baris per kolom
+/// termasuk label (13u), Story 16 baris nama (13t, 13v; pasangan bertumpuk = 2 baris nama). Lebih dari itu semua huruf
+/// baris dan label × ambang ÷ baris. Ringkas (maks 3 per klub) tidak pernah dikecilkan. [clubRows] = jumlah baris
+/// tiap klub; [clubColumns] = Mixed sparing di pratinjau/Feed (satu kolom per klub).
+double sparingPosterDensity({
+  required SharePosterTarget target,
+  required List<int> clubRows,
+  required bool complete,
+  required bool stackPairs,
+  required bool clubColumns,
+}) {
+  if (!complete || clubRows.isEmpty) return 1;
+  final labels = clubRows.length;
+  final rows = clubRows.fold(0, (a, b) => a + b);
+  if (target == SharePosterTarget.story) return min(1, 16 / (rows * (stackPairs ? 2 : 1) + labels));
+  if (clubColumns) return min(1, 10 / (clubRows.reduce(max) + 1));
+  return min(1, 8 / (rows + labels));
 }
 
 /// Ukuran huruf satu tata letak baris (font dasar/nama, nomor, nilai) dan lebar kolom nomor. Angka-angka
@@ -91,17 +139,31 @@ class SharePoster extends StatelessWidget {
   const SharePoster({super.key, required this.data, required this.theme, required this.target});
 
   bool get _story => target == SharePosterTarget.story;
-  bool get _pairRows => data.rows.any((r) => r.names.length > 1);
+  bool get _sparing => data.clubs != null;
+  Iterable<SharePosterRow> get _allRows => data.clubs?.expand((c) => c.rows) ?? data.rows;
+  bool get _pairRows => _allRows.any((r) => r.names.length > 1);
 
   /// Pasangan (Fixed) tidak pernah dua kolom: nama kedua anggota butuh lebar penuh, di kolom sempit yang kedua
-  /// terpotong habis.
-  bool get _twoColumns => !_story && data.rows.length > 10 && !_pairRows;
+  /// terpotong habis. Sparing punya aturannya sendiri ([_clubColumns]).
+  bool get _twoColumns => !_sparing && !_story && data.rows.length > 10 && !_pairRows;
   bool get _stackPairs => _story && _pairRows;
+
+  /// Mixed sparing di pratinjau dan Feed: satu kolom per klub (kiri klub pertama), tidak pernah dua klub satu kolom.
+  bool get _clubColumns => _sparing && !_story && !_pairRows;
 
   /// Lengkap yang lebih padat dari frame terpadat yang disetujui (Story 20 baris nama, 11f/11g; satu kolom 10
   /// baris, 11b/11g; dua kolom 15 baris per kolom, 11l) mengecilkan semua huruf baris sebanding: 30 baris nama
   /// di Story → 20/30. Dua kolom lewat 15 baris hanya kalau pemain yang keluar ikut di klasemen (30 aktif + keluar).
   double get _density {
+    if (_sparing) {
+      return sparingPosterDensity(
+        target: target,
+        clubRows: [for (final c in data.clubs!) c.rows.length],
+        complete: data.complete,
+        stackPairs: _stackPairs,
+        clubColumns: _clubColumns,
+      );
+    }
     if (!data.complete) return 1;
     if (_twoColumns) return min(1, 15 / ((data.rows.length + 1) ~/ 2));
     final lines = data.rows.length * (_stackPairs ? 2 : 1);
@@ -112,7 +174,8 @@ class SharePoster extends StatelessWidget {
   /// hi-fi dan kaki Feed Ringkas meluber dari padding; disamakan atas keputusan host 2026-10-22.
   static const _lineHeight = 1.4;
 
-  _RowMode get _mode => data.complete
+  /// Sparing (13q, 13r) juga di Ringkas memakai baris Lengkap yang berbagi tinggi tersisa.
+  _RowMode get _mode => data.complete || _sparing
       ? _RowMode.share
       : (target == SharePosterTarget.preview ? _RowMode.natural : _RowMode.atLeastContent);
 
@@ -123,6 +186,17 @@ class SharePoster extends StatelessWidget {
   }
 
   _RowSizes get _presetSizes {
+    // Sparing: Ringkas dan Lengkap sama-sama ukuran Lengkap target itu (13q = 11b, 13r = 11g, 13u = 11e, 13v = 11f).
+    if (_sparing) {
+      return switch (target) {
+        SharePosterTarget.preview when _clubColumns => (text: 12, rank: 13, value: 13.5, rankWidth: 24),
+        SharePosterTarget.preview => (text: 12.5, rank: 14, value: 14, rankWidth: 32),
+        SharePosterTarget.feed when _clubColumns => (text: 11.5, rank: 12.5, value: 13, rankWidth: 24),
+        SharePosterTarget.feed => (text: 12, rank: 14, value: 14, rankWidth: 32),
+        SharePosterTarget.story when _stackPairs => (text: 9.5, rank: 11, value: 11, rankWidth: 20),
+        SharePosterTarget.story => (text: 9.5, rank: 9.5, value: 10, rankWidth: 20),
+      };
+    }
     switch (target) {
       case SharePosterTarget.preview:
         if (!data.complete) return (text: 14, rank: 18, value: 18, rankWidth: 32);
@@ -198,7 +272,7 @@ class SharePoster extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: target == SharePosterTarget.preview && !data.complete ? 14 : 12),
+        SizedBox(height: target == SharePosterTarget.preview && !data.complete && !_sparing ? 14 : 12),
         _CssLines(
           fontSize: eyebrow,
           lineHeight: _lineHeight,
@@ -231,7 +305,13 @@ class SharePoster extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        // Sparing: `.pscore` margin-top 8, lalu daftar `margin-top: 2` (13q).
+        if (data.clubScore case final score?) ...[
+          const SizedBox(height: 8),
+          _clubScore(score),
+          const SizedBox(height: 2),
+        ] else
+          const SizedBox(height: 12),
       ],
     );
 
@@ -306,6 +386,7 @@ class SharePoster extends StatelessWidget {
       ),
     };
     final gap = switch (target) {
+      SharePosterTarget.preview when _sparing => 8.0,
       SharePosterTarget.preview => data.complete ? 10.0 : 0.0,
       _ => 8.0,
     };
@@ -320,6 +401,7 @@ class SharePoster extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final space = constraints.minHeight;
+        if (_sparing) return _clubRows(space, sizes, base);
         if (_twoColumns) {
           // `grid-template-rows: repeat(k, minmax(0, 1fr))` + `grid-auto-flow: column`: ⌈n/2⌉ baris tetap,
           // kiri diisi dulu dari atas; slot sisa di kanan kosong supaya baris kiri-kanan sejajar.
@@ -362,6 +444,165 @@ class SharePoster extends StatelessWidget {
     );
   }
 
+  /// `.pscore` — skor klub sparing di bawah judul: per klub nama · Total Point · selisih · match menang, garis di
+  /// atas tiap baris dan di bawah blok. Bagian kepala, jadi tidak ikut [_density]; Story = Feed × 0,75 (13r).
+  Widget _clubScore(List<SharePosterClubScore> rows) {
+    final ink = theme.ink;
+    final line = BorderSide(color: theme.inkAlpha(0.18));
+    final (double height, double name, double detail, double score, double scoreWidth, double gap) = _story
+        ? (20, 12, 8.5, 18, 22, 6)
+        : (26, 16, 11, 24, 30, 8);
+    final base = MabarType.body.copyWith(color: ink, height: _lineHeight);
+    return Container(
+      decoration: BoxDecoration(border: Border(bottom: line)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final r in rows)
+            // Garis atas di dalam tinggi baris (border-box), sama dengan CSS.
+            Container(
+              height: height,
+              decoration: BoxDecoration(border: Border(top: line)),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      r.name,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      style: base.copyWith(fontSize: name, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  SizedBox(width: gap),
+                  Opacity(
+                    opacity: 0.75,
+                    child: Text(
+                      r.detail,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: base.copyWith(
+                        fontSize: detail,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: MabarType.tabular,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: gap),
+                  SizedBox(
+                    width: scoreWidth,
+                    child: Text(
+                      r.score,
+                      textAlign: TextAlign.right,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: MabarType.numM.copyWith(fontSize: score, height: 1, color: ink),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Daftar sparing per klub, tiap klub diawali label [_clubLabel]. Satu kolom: label setinggi tetap, sisa ruang dibagi
+  /// rata ke baris seperti `.rows` (garis atas di luar bagian itu; baris pertama sesudah label tanpa garis). Mixed di
+  /// pratinjau/Feed ([_clubColumns], `.cols.clubs`): satu kolom per klub, k = baris klub terbesar, jadi baris kiri dan
+  /// kanan sejajar dan slot sisa klub yang lebih kecil kosong.
+  Widget _clubRows(double space, _RowSizes sizes, TextStyle base) {
+    final clubs = data.clubs!;
+    final d = _density;
+    final label = (_story ? 14.0 : 18.0) * d;
+    if (_clubColumns) {
+      final k = clubs.fold(1, (n, c) => max(n, c.rows.length));
+      // Grid `minmax(0, 1fr)`: garis atas ada di dalam tinggi baris.
+      final height = max(0.0, space - label) / k;
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (i, club) in clubs.indexed) ...[
+            if (i > 0) const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _clubLabel(club, label, d, base),
+                  for (var r = 0; r < k; r++)
+                    SizedBox(
+                      height: height,
+                      child: r < club.rows.length ? _row(club.rows[r], sizes, base, divider: r > 0) : null,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      );
+    }
+    final count = clubs.fold(0, (n, c) => n + c.rows.length);
+    final borders = clubs.fold(0, (n, c) => n + max(0, c.rows.length - 1));
+    final shared = count == 0 ? 0.0 : (space - clubs.length * label - borders) / count;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final club in clubs) ...[
+          _clubLabel(club, label, d, base),
+          for (var r = 0; r < club.rows.length; r++)
+            SizedBox(
+              height: shared + (r > 0 ? 1 : 0),
+              child: _row(club.rows[r], sizes, base, divider: r > 0),
+            ),
+        ],
+      ],
+    );
+  }
+
+  /// `.pclub` — label klub gaya baris kecil (kapital, 75%), "+n pasangan lainnya" di ujung kanan dan tidak pernah
+  /// terpotong; nama klub panjang terpotong elipsis. Isinya rata bawah (`align-items: flex-end`, padding bawah 2).
+  /// Ikut [_density] (huruf dan tinggi), Story lebih kecil (13r).
+  Widget _clubLabel(SharePosterClub club, double height, double d, TextStyle base) {
+    final (double nameSize, double moreSize) = _story ? (8, 8.5) : (10.5, 11.5);
+    return Container(
+      height: height,
+      padding: EdgeInsets.only(bottom: 2 * d),
+      alignment: Alignment.bottomLeft,
+      child: Opacity(
+        opacity: 0.75,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                club.name.toUpperCase(),
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: base.copyWith(
+                  fontSize: nameSize * d,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: nameSize * d * 0.08,
+                ),
+              ),
+            ),
+            if (club.more case final more?) ...[
+              const SizedBox(width: 8),
+              Text(
+                more,
+                maxLines: 1,
+                softWrap: false,
+                style: base.copyWith(fontSize: moreSize * d, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _row(SharePosterRow row, _RowSizes sizes, TextStyle base, {required bool divider}) {
     final gold = row.position == 1;
     // `.rows`/`.cols` (Lengkap): line-height 1,1, tanpa padding, isi di tengah. Selain itu `.prow` biasa:
@@ -398,7 +639,7 @@ class SharePoster extends StatelessWidget {
             ),
           )
         : Text(row.names.join(' + '), maxLines: 1, overflow: TextOverflow.ellipsis, style: name);
-    final unit = row.detail != null && !_story && !_twoColumns;
+    final unit = row.detail != null && !_story && !_twoColumns && !_clubColumns;
     final value = Text.rich(
       TextSpan(
         text: row.value,
@@ -441,7 +682,7 @@ class SharePoster extends StatelessWidget {
             : rank,
       ),
     );
-    final gap = _twoColumns ? 6.0 : 8.0;
+    final gap = _twoColumns || _clubColumns ? 6.0 : 8.0;
     final content = Row(
       crossAxisAlignment: _mode == _RowMode.natural ? CrossAxisAlignment.baseline : CrossAxisAlignment.center,
       textBaseline: TextBaseline.alphabetic,

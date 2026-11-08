@@ -1,10 +1,14 @@
 import '../../models/models.dart';
+import '../../services/ranking/club_score.dart';
 import '../../services/ranking/ranking_calculator.dart';
 import '../../services/share/result_text_builder.dart';
 import 'widgets/share_poster.dart';
 
 /// Jumlah baris poster Ringkas.
 const shareSummaryCount = 5;
+
+/// Jumlah baris tiap klub di poster Ringkas sparing (13q, dikonfirmasi host).
+const shareClubSummaryCount = 3;
 
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -20,12 +24,18 @@ String? shareRowNoun(ActiveTournament active, List<StandingEntry> entries) {
 /// menghitung "pasangan". Tiap baris = nilai metode + selisih, dua angka penentu nomornya ("42 poin · +12",
 /// "100% · +12"). Turnamen bernama: nama menggantikan baris kecil
 /// "olahraga · mode · tanggal" dan tanggalnya pindah ke ringkasan, sama dengan baris akhir caption.
+///
+/// Sparing ([clubResult] + [clubEntries] = `clubScoreProvider` + `clubStandingEntriesProvider`, nomor per klub sama
+/// dengan Klasemen): skor klub di bawah judul, lalu daftar per klub; Ringkas = 3 teratas tiap klub dengan "+n
+/// pasangan lainnya" di label klubnya, bukan di kaki (13q–13w).
 SharePosterData sharePosterData({
   required ActiveTournament active,
   required List<StandingEntry> entries,
   required RankingMethod method,
   required ShareFormat format,
   required bool isFinal,
+  ClubResult? clubResult,
+  List<ClubStandings> clubEntries = const [],
 }) {
   final config = active.config;
   final unit = config.format.unit;
@@ -48,18 +58,41 @@ SharePosterData sharePosterData({
     );
   }
 
+  final sparing = clubResult != null && clubEntries.isNotEmpty;
+  SharePosterClub club(ClubStandings g) {
+    final ranked = [for (final e in g.entries) if (e.position != null) e];
+    final shown = format == ShareFormat.ringkas ? ranked.take(shareClubSummaryCount).toList() : ranked;
+    final hidden = g.entries.length - shown.length;
+    return SharePosterClub(
+      name: g.club.name,
+      rows: [for (final e in shown) row(e)],
+      more: format == ShareFormat.ringkas && hidden > 0
+          ? ['+$hidden', ?shareRowNoun(active, g.entries), 'lainnya'].join(' ')
+          : null,
+    );
+  }
+
   return SharePosterData(
     sport: config.sport,
     eyebrow: config.name ?? '${config.sport.label} · ${config.mode.label} · $date',
     isFinal: isFinal,
-    rows: [for (final e in rows) row(e)],
+    rows: sparing ? const [] : [for (final e in rows) row(e)],
+    clubScore: sparing
+        ? [
+            for (final t in [clubResult.first, clubResult.second])
+              SharePosterClubScore(name: t.club.name, detail: clubResult.detailLabel(t), score: t.winsLabel),
+          ]
+        : null,
+    clubs: sparing ? [for (final g in clubEntries) club(g)] : null,
     summary: [
       '${active.playedRoundCount} round',
       '${active.playedMatchCount} match',
       if (wo > 0) '$wo WO',
       if (config.name != null) date,
     ].join(' · '),
-    more: format == ShareFormat.ringkas && hidden > 0 ? ['+$hidden', ?shareRowNoun(active, entries), 'lainnya'].join(' ') : null,
+    more: !sparing && format == ShareFormat.ringkas && hidden > 0
+        ? ['+$hidden', ?shareRowNoun(active, entries), 'lainnya'].join(' ')
+        : null,
     complete: format == ShareFormat.lengkap,
   );
 }

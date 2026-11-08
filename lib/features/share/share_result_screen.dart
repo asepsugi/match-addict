@@ -13,6 +13,7 @@ import '../../core/widgets/mabar_inputs.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../../services/share/result_text_builder.dart';
+import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
 import 'share_content.dart';
 import 'share_theme.dart';
@@ -56,6 +57,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       standings: ref.read(standingEntriesProvider),
       format: _format,
       now: ref.read(clockProvider)(),
+      clubStandings: ref.read(clubStandingEntriesProvider),
     );
     try {
       // Watermark raket harus sudah ter-decode sebelum render di luar layar, kalau tidak posternya tanpa gambar.
@@ -87,6 +89,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
     if (active == null) return const Scaffold(backgroundColor: MabarColors.paper);
 
     final entries = ref.watch(standingEntriesProvider);
+    final clubEntries = ref.watch(clubStandingEntriesProvider);
     final isFinal = active.isFinal(ref.read(clockProvider)());
     final data = sharePosterData(
       active: active,
@@ -94,9 +97,14 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       method: ref.watch(rankingMethodProvider),
       format: _format,
       isFinal: isFinal,
+      clubResult: ref.watch(clubScoreProvider),
+      clubEntries: clubEntries,
     );
     final config = active.config;
-    final count = entries.where((e) => e.position != null).length;
+    // Sparing: jumlah dan kata dari baris per klub (nomor per klub), "3 teratas tiap klub" di Ringkas (13q, 13s).
+    final rowsByClub = clubEntries.isEmpty ? entries : [for (final g in clubEntries) ...g.entries];
+    final count = rowsByClub.where((e) => e.position != null).length;
+    final top = clubEntries.isEmpty ? '$shareSummaryCount teratas' : '$shareClubSummaryCount teratas tiap klub';
 
     return Scaffold(
       backgroundColor: MabarColors.paper,
@@ -131,7 +139,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
                 const SizedBox(height: 14),
                 MabarSection(
                   note: MabarGroupNote(
-                    '${_format == ShareFormat.ringkas ? '$shareSummaryCount teratas' : ['Semua $count', ?shareRowNoun(active, entries)].join(' ')}'
+                    '${_format == ShareFormat.ringkas ? top : ['Semua $count', ?shareRowNoun(active, rowsByClub)].join(' ')}'
                     ' · gambar Feed 1:1 & Story 9:16',
                   ),
                   child: MabarSegmented<ShareFormat>(
