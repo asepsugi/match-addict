@@ -390,6 +390,9 @@ Aturan bersama SP-18:
 - **Dependensi:** SP-18a. **Paralel:** dengan SP-18d–SP-18h. **Model:** default.
 
 ## SP-18d · Kelola pemain sparing (15l, 15m)
+- **Rencana lanjut (2026-11-08):** SP-18d, SP-18e, dan SP-18f dikerjakan **satu engineer (Sonnet)** dalam satu worktree,
+  supaya konteks dibaca sekali (aturan "Token budget" di playbook). Review hanya dicek main session (layar), kecuali
+  ada perubahan logika di `lib/services/**`/model.
 - **Goal:** sheet 08a versi sparing: dua chip klub di bawah kotak nama tanpa pilihan awal, Tambah mati sampai nama terisi
   dan klub dipilih, `addPlayer(name, clubId:)`; daftar per klub berlabel "{klub} · n aktif" (· n keluar); Keluarkan
   memakai `active.canWithdraw(p.id)` — ganti `activeCount > 4` di `manage_players_sheet.dart:56` (catatan review SP-3;
