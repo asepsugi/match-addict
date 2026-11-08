@@ -4,11 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/mabar_icons.dart';
 import '../../core/theme/mabar_theme.dart';
+import '../../core/widgets/club_score.dart';
+import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_controls.dart';
 import '../../core/widgets/mabar_inputs.dart';
 import '../../models/models.dart';
+import '../../services/ranking/club_score.dart';
 import '../../services/ranking/ranking_calculator.dart';
 import '../live/live_view_controller.dart';
+import '../schedule/club_score_row.dart';
+import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
 import 'widgets/standing_table.dart';
 
@@ -35,8 +40,38 @@ class LeaderboardScreen extends ConsumerWidget {
     final format = config.format;
     final fixed = config.mode == PartnerMode.fixed;
 
+    // Sparing: papan skor klub tetap di atas dan satu tabel per klub, nomor mulai #1 di tiap klub (PRD §13, K3).
+    final clubResult = ref.watch(clubScoreProvider);
+    final clubGroups = clubResult == null ? const <ClubStandings>[] : ref.watch(clubStandingEntriesProvider);
+
     String record(PlayerStanding s) => format.canDraw ? '${s.wins}–${s.losses}–${s.draws}' : '${s.wins}–${s.losses}';
     final unit = format.unit;
+
+    Widget table(List<StandingEntry> entries) => StandingTable(
+      subjectLabel: fixed ? 'Pasangan' : 'Pemain',
+      recordLabel: format.canDraw ? 'W–L–D' : 'W–L',
+      valueLabel: method == RankingMethod.winPercent ? 'Win %' : '${unit[0].toUpperCase()}${unit.substring(1)}',
+      rows: [
+        for (final e in entries)
+          if (e.position case final position?)
+            StandingTableRow(
+              position: position,
+              names: [for (final p in e.players) p.name],
+              played: e.standing.matchesPlayed,
+              record: record(e.standing),
+              diff: e.standing.diffLabel,
+              value: method == RankingMethod.winPercent
+                  ? '${e.standing.winPercent.round()}'
+                  : '${e.standing.totalPoint}',
+              // Fixed: anggota pertama mewakili pasangannya (statistiknya sama).
+              onTap: () => context.push('/detail-player', extra: e.players.first.id),
+            ),
+      ],
+      idleNames: [
+        for (final e in entries)
+          if (e.position == null) [for (final p in e.players) p.name],
+      ],
+    );
     final notes = [
       for (final (status, label) in [(MatchStatus.wo, 'match WO'), (MatchStatus.cancelled, 'match tidak dimainkan')])
         if (active.matches.where((m) => m.status == status).length case final n when n > 0) '$n $label',
@@ -49,9 +84,20 @@ class LeaderboardScreen extends ConsumerWidget {
         children: [
           MabarAppBar(
             title: 'Klasemen',
-            subtitle: '${config.sport.label} · ${config.mode.label} · ${rankingStatus(active, ref.read(clockProvider)())}',
+            subtitle:
+                '${config.sport.label} · ${config.mode.label} · ${rankingStatus(active, ref.read(clockProvider)())}',
             onBack: () => context.pop(),
           ),
+          // `.clubscore` di luar ListView: tetap di tempat saat tabel digulir, sama dengan tab metode (13o).
+          if (clubResult != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ClubScore(
+                first: clubScoreRowOf(clubResult, clubResult.first),
+                second: clubScoreRowOf(clubResult, clubResult.second),
+              ),
+            ),
+          if (clubResult != null) const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: MabarSegmented<RankingMethod>(
@@ -64,34 +110,21 @@ class LeaderboardScreen extends ConsumerWidget {
             child: ListView(
               padding: EdgeInsets.only(top: 12, bottom: 16 + (watching ? MediaQuery.paddingOf(context).bottom : 0)),
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: StandingTable(
-                    subjectLabel: fixed ? 'Pasangan' : 'Pemain',
-                    recordLabel: format.canDraw ? 'W–L–D' : 'W–L',
-                    valueLabel: method == RankingMethod.winPercent ? 'Win %' : '${unit[0].toUpperCase()}${unit.substring(1)}',
-                    rows: [
-                      for (final e in entries)
-                        if (e.position case final position?)
-                          StandingTableRow(
-                            position: position,
-                            names: [for (final p in e.players) p.name],
-                            played: e.standing.matchesPlayed,
-                            record: record(e.standing),
-                            diff: e.standing.diffLabel,
-                            value: method == RankingMethod.winPercent
-                                ? '${e.standing.winPercent.round()}'
-                                : '${e.standing.totalPoint}',
-                            // Fixed: anggota pertama mewakili pasangannya (statistiknya sama).
-                            onTap: () => context.push('/detail-player', extra: e.players.first.id),
-                          ),
-                    ],
-                    idleNames: [
-                      for (final e in entries)
-                        if (e.position == null) [for (final p in e.players) p.name],
-                    ],
-                  ),
-                ),
+                if (clubResult == null)
+                  Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: table(entries))
+                else
+                  for (final (i, group) in clubGroups.indexed)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, i == 0 ? 0 : 10, 16, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          MabarGroupHeader.text(group.club.name),
+                          const SizedBox(height: 2),
+                          table(group.entries),
+                        ],
+                      ),
+                    ),
                 if (notes.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
@@ -105,7 +138,11 @@ class LeaderboardScreen extends ConsumerWidget {
             MabarActionBar(
               children: [
                 Expanded(
-                  child: MabarButton(label: 'Bagikan', icon: MabarIcons.shareNetwork, onPressed: () => context.push('/share')),
+                  child: MabarButton(
+                    label: 'Bagikan',
+                    icon: MabarIcons.shareNetwork,
+                    onPressed: () => context.push('/share'),
+                  ),
                 ),
               ],
             ),
