@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,31 +19,34 @@ import '../hifi_golden.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
 import 'sparing_fixture.dart';
+import 'sparing_mixed_fixture.dart';
 
-/// Golden Bagikan sparing Fixed, frame 13q–13t (docs/tasks.md SP-15): data 13C Final ([sparingFull]), tema biru,
-/// tanpa nama. 13r/13t = lembar gambar Feed 360×360 di x 0 dan Story 203×360 di x 374, seperti 11d.
+/// Golden Bagikan sparing, frame 13q–13w (docs/tasks.md SP-15). Fixed: data 13C Final ([sparingFull]), tema biru, tanpa
+/// nama. Mixed: 15f (13u, 13v) dan 16 + 14 sampai R8 (13w). Lembar gambar: Feed 360×360 di x 0, Story 203×360 di x 374,
+/// pratinjau 358×372 di x 591 (13w), seperti 11d/11l.
 void main() {
   setUpAll(() => initializeDateFormatting('id'));
 
   final now = sparingAt(6);
-  List<Override> overrides(ActiveTournament active) => [
+  List<Override> overrides(ActiveTournament active, [DateTime? at]) => [
     tournamentProvider.overrideWith(() => LoadedTournament(active)),
-    clockProvider.overrideWithValue(() => now),
+    clockProvider.overrideWithValue(() => at ?? now),
   ];
 
-  Widget screen(ActiveTournament active) => hifiScreen(const ShareResultScreen(), overrides: overrides(active));
+  Widget screen(ActiveTournament active, [DateTime? at]) =>
+      hifiScreen(const ShareResultScreen(), overrides: overrides(active, at));
   Future<void> lengkap(WidgetTester tester) => tester.tap(find.text('Lengkap'));
 
   /// Isi poster lewat provider yang sama dengan layar (nomor per klub = Klasemen).
-  SharePosterData posterOf(ActiveTournament active, ShareFormat format) {
-    final container = ProviderContainer(overrides: overrides(active));
+  SharePosterData posterOf(ActiveTournament active, ShareFormat format, [DateTime? at]) {
+    final container = ProviderContainer(overrides: overrides(active, at));
     addTearDown(container.dispose);
     return sharePosterData(
       active: active,
       entries: container.read(standingEntriesProvider),
       method: container.read(rankingMethodProvider),
       format: format,
-      isFinal: active.isFinal(now),
+      isFinal: active.isFinal(at ?? now),
       clubResult: container.read(clubScoreProvider),
       clubEntries: container.read(clubStandingEntriesProvider),
     );
@@ -82,7 +87,8 @@ void main() {
     final data = posterOf(sparingFull(), ShareFormat.lengkap);
     expect(
       [
-        for (final c in data.clubs!) [for (final r in c.rows) '${r.position} ${r.names.join(' + ')} ${r.value} ${r.diff}'],
+        for (final c in data.clubs!)
+          [for (final r in c.rows) '${r.position} ${r.names.join(' + ')} ${r.value} ${r.diff}'],
       ],
       [
         ['1 Eko + Fajar 18 +11', '2 Andi + Budi 14 +1', '3 Gita + Hadi 14 −2', '4 Citra + Dewi 10 +3'],
@@ -96,6 +102,7 @@ void main() {
   });
 
   const feedAt = Rect.fromLTWH(0, 0, 360, 360), storyAt = Rect.fromLTWH(374, 0, 203, 360);
+  const previewAt = Rect.fromLTWH(591, 0, 358, 372);
   for (final (frame, format) in [('13r', ShareFormat.ringkas), ('13t', ShareFormat.lengkap)]) {
     for (final (target, at) in [(SharePosterTarget.feed, feedAt), (SharePosterTarget.story, storyAt)]) {
       testWidgets('$frame gambar ${format.label} ${target.name}', (tester) async {
@@ -164,5 +171,159 @@ void main() {
       '6 round · 12 match · 1 WO · 4 Nov 2026',
     );
     await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
+  });
+
+  // ---------- Mixed sparing (13u–13w) ----------
+
+  /// Frame Mixed ditulis 4 Nov 2026 (baris kecil "Padel · Mixed · 4 Nov 2026"); fixture bersama mulai 7 Nov, jadi
+  /// hanya tanggal buatnya yang diganti di sini (jadwal dan jam tidak berubah).
+  ActiveTournament on4Nov(ActiveTournament active) {
+    final t = active.tournament;
+    return active.copyWith(
+      tournament: Tournament(
+        id: t.id,
+        createdAt: DateTime(2026, 11, 4, 19),
+        config: t.config,
+        matches: t.matches,
+        isFinished: t.isFinished,
+      ),
+    );
+  }
+
+  final mixed8v6 = on4Nov(mixedSparing15f().active);
+  final mixedEnd = mixedSparing15f().now;
+
+  /// 13w: 16 + 14 (15d) dilanjutkan sampai R8 dengan `Random(1)` bersambung, skor contoh catatan 13w.
+  const scores13w = <SparingScore>[
+    (6, 3), (4, 6), (6, 4), (6, 2), (6, 5), (3, 6), (6, 2), (5, 6), //
+    (6, 4), (6, 1), (2, 6), (6, 3), (6, 4), (4, 6), (6, 3), (5, 6),
+  ];
+  final mixed16v14 = on4Nov(
+    sparingScored(
+      mixedSparingRounds(
+        mixedSparingEmpty(mixedSparingConfig(garudaPlayers: garuda16Names, matchaPlayers: matcha14Names)),
+        8,
+        Random(1),
+      ),
+      scores13w,
+    ),
+  );
+
+  testWidgets('13u Lengkap Mixed 8 + 6: dua kolom per klub, tema peach', (tester) async {
+    await precacheHifiAssets(tester, [SportType.padel.assetPath]);
+    await expectMatchesHifi(
+      tester,
+      screen(mixed8v6, mixedEnd),
+      '13u',
+      act: (tester) async {
+        await tester.tap(find.bySemanticsLabel('Tema ${ShareTheme.peach.name}'));
+        await tester.pump();
+        await lengkap(tester);
+      },
+    );
+    expect(find.text('83 game · +14'), findsOneWidget);
+    expect(find.text('69 game · −14'), findsOneWidget);
+    expect(find.text('10'), findsOneWidget);
+    expect(find.text('6'), findsOneWidget);
+    expect(find.text('PB GARUDA'), findsOneWidget);
+    expect(find.text('MATCHA CLUB'), findsOneWidget);
+    expect(find.text('8 round · 16 match'), findsOneWidget);
+    expect(find.text('Semua 14 pemain · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
+  });
+
+  testWidgets('13u nomor per klub = Klasemen 15s (AC-S17)', (tester) async {
+    final data = posterOf(mixed8v6, ShareFormat.lengkap, mixedEnd);
+    expect(
+      [
+        for (final c in data.clubs!) [for (final r in c.rows) '${r.position} ${r.names.single} ${r.value} ${r.diff}'],
+      ],
+      [
+        [
+          '1 Dewi 24 +9',
+          '2 Gita 23 +8',
+          '3 Andi 22 +9',
+          '4 Fajar 21 +7',
+          '5 Budi 21 +2',
+          '6 Eko 20 +3',
+          '7 Hadi 19 −4',
+          '8 Citra 16 −6',
+        ],
+        ['1 Lina 29 −1', '2 Joko 26 +5', '3 Nanda 26 −4', '4 Indra 23 −6', '5 Maya 20 −6', '6 Kiki 14 −16'],
+      ],
+    );
+  });
+
+  for (final (target, at) in [(SharePosterTarget.feed, feedAt), (SharePosterTarget.story, storyAt)]) {
+    testWidgets('13v gambar Lengkap Mixed 8 + 6 ${target.name}', (tester) async {
+      await precacheHifiAssets(tester, [SportType.padel.assetPath]);
+      await expectRegionMatchesHifi(
+        tester,
+        hifiStage(
+          theme: MabarTheme.light(),
+          at: at,
+          height: at.height,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: SharePoster(
+              data: posterOf(mixed8v6, ShareFormat.lengkap, mixedEnd),
+              theme: ShareTheme.peach,
+              target: target,
+            ),
+          ),
+        ),
+        '13v',
+        at,
+        label: target.name,
+      );
+      expect(find.text('83 game · +14'), findsOneWidget);
+      expect(find.text('MATCHA CLUB'), findsOneWidget);
+    });
+  }
+
+  for (final (target, at) in [
+    (SharePosterTarget.feed, feedAt),
+    (SharePosterTarget.story, storyAt),
+    (SharePosterTarget.preview, previewAt),
+  ]) {
+    testWidgets('13w gambar Lengkap Mixed 16 + 14 ${target.name}: dikecilkan', (tester) async {
+      await precacheHifiAssets(tester, [SportType.padel.assetPath]);
+      await expectRegionMatchesHifi(
+        tester,
+        hifiStage(
+          theme: MabarTheme.light(),
+          at: at,
+          height: at.height,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(target == SharePosterTarget.preview ? MabarRadius.poster : 4),
+            child: SharePoster(
+              data: posterOf(mixed16v14, ShareFormat.lengkap, mixedEnd),
+              theme: ShareTheme.biru,
+              target: target,
+            ),
+          ),
+        ),
+        '13w',
+        at,
+        label: target.name,
+        // Seperti 11l: baris rapat (line-height 1,1) dengan huruf ±7 pt, sisa geseran huruf ≤ 1 pt.
+        maxDiffRatio: target == SharePosterTarget.preview ? 0.02 : 0.03,
+      );
+      expect(find.text('83 game · +16'), findsOneWidget);
+      expect(find.text('67 game · −16'), findsOneWidget);
+      expect(find.text('8 round · 16 match'), findsOneWidget);
+    });
+  }
+
+  testWidgets('13w nomor sama untuk poin dan selisih sama (Rizky, Sari #2 · Citra, Gita #3 · Tari, Zaki #13)', (
+    tester,
+  ) async {
+    final data = posterOf(mixed16v14, ShareFormat.lengkap, mixedEnd);
+    int? position(String name) => [
+      for (final c in data.clubs!)
+        for (final r in c.rows)
+          if (r.names.single == name) r.position,
+    ].single;
+    expect([position('Rizky'), position('Sari'), position('Citra'), position('Gita')], [2, 2, 3, 3]);
+    expect([position('Tari'), position('Zaki')], [13, 13]);
   });
 }
