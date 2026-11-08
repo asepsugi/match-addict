@@ -457,6 +457,10 @@ Aturan bersama SP-18:
 - **Acceptance:** `flutter analyze` tanpa peringatan baru, `flutter test` lulus (termasuk golden semua frame 01–15),
   test `slow` lulus (`flutter test --tags slow --run-skipped`, ±11–17 menit), `tool/build_web.sh` sukses dan semua URL
   precache 200 (tech-infra kalau ada masalah build), AC-S21 dicek offline. Merge `sparing` → `main` hanya atas perintah main session.
+- **Catatan review SP-16:** satukan hitungan `roundsLeft` (tiga salinan: `RoundRobinGenerator.extraRounds`,
+  `SparingFixedGenerator.extraRounds`, `capacityAhead`) jadi satu helper di `ActiveTournament` sebelum merge ke `main`,
+  dengan test lama sebagai bukti refactor murni; "court berkurang mulai R…" di sheet ikut pindah ke rencana service.
+  Kasus langka dicatat: tambahan dua digit (13 + 2 pasangan → +13) menggeser label baris klub 14n.
 - **Catatan review SP-7:** hapus frasa "sementara 3.1.0" di komentar `beranda_test.dart` saat `appVersion` naik.
   Versi dan wordmark tidak punya ruang cadangan: aman di 390 pt, belum dicek di skala teks besar (opsional: test text
   scale 1,5 dengan `loadHifiFonts`).
