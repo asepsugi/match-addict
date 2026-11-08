@@ -10,6 +10,7 @@ import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
+import '../../services/schedule/endless_round_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
 import 'widgets/config_pickers.dart';
 
@@ -100,10 +101,6 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
 
   bool get _fixedSparing => widget.clubs != null && _mode == PartnerMode.fixed;
 
-  /// Sementara: generator Mixed sparing (SP-3) dan layar Mixed (SP-18) belum ada, jadi pasangan acak lintas klub bisa
-  /// terbentuk dan simpanan ditolak. Dicabut di SP-18 bersama 13i/13j.
-  bool get _mixedSparingBlocked => widget.clubs != null && _mode == PartnerMode.mixed;
-
   int _clubCount(Club c) => widget.players.where((p) => p.clubId == c.id).length;
 
   /// Teks tombol Fixed sparing (K10, jadwalnya pasti jadi tanpa "±"): angka dari generator, di sini hanya dirangkai.
@@ -120,6 +117,20 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
     if (e.overMinutes > 0) return '· ${e.rounds} round · lewat booking ${countdownText(e.overMinutes)}';
     final court = e.activeCourts < _courts.length ? ' · ${e.activeCourts} court' : '';
     return '· ${e.rounds} round · ${e.matches} match$court';
+  }
+
+  /// Teks tombol Mixed sparing (13i, 13j): angka dari `sparingEstimate`, di sini hanya dirangkai. Court aktif < court
+  /// dipesan → tambah "· n court".
+  String _mixedSparingMeta(int rounds) {
+    final clubs = widget.clubs!;
+    final e = EndlessRoundGenerator.sparingEstimate(
+      maxRounds: rounds,
+      courts: _courts.length,
+      club1: _clubCount(clubs[0]),
+      club2: _clubCount(clubs[1]),
+    );
+    final court = e.activeCourts < _courts.length ? ' · ${e.activeCourts} court' : '';
+    return '· ±${e.rounds} round$court';
   }
 
   void _next() {
@@ -293,8 +304,10 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
                       ? sparingMeta
                       : tooLong
                       ? null
-                      : (mixed ? '· ±$rounds round' : '· ±$rounds round · ${rounds * _courts.length} match'),
-                  onPressed: tooLong || _mixedSparingBlocked || (_fixedSparing && sparingMeta == null) ? null : _next,
+                      : (mixed
+                            ? (widget.clubs != null ? _mixedSparingMeta(rounds) : '· ±$rounds round')
+                            : '· ±$rounds round · ${rounds * _courts.length} match'),
+                  onPressed: tooLong || (_fixedSparing && sparingMeta == null) ? null : _next,
                 ),
               ),
             ],

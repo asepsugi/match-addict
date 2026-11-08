@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/core/widgets/mabar_inputs.dart';
 import 'package:match_addict/features/konfigurasi/konfigurasi_screen.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/storage/tournament_codec.dart';
 
 import '../hifi_golden.dart';
 import 'screen_harness.dart';
@@ -86,11 +89,69 @@ void main() {
     expect(find.textContaining(RegExp(r'· \d+ court')), findsNothing);
   });
 
-  testWidgets('Mixed sparing: tombol mati sampai SP-18', (tester) async {
-    await tester.pumpWidget(screen(8, 6));
+  Future<void> pickMixed(WidgetTester tester) async {
     await tester.tap(find.text('Mixed'));
     await tester.pump();
-    expect(tester.widget<MabarButton>(find.byType(MabarButton)).onPressed, isNull);
+  }
+
+  testWidgets('13i Mixed sparing 8 / 6 · ±8 round', (tester) async {
+    await expectMatchesHifi(tester, screen(8, 6), '13i', act: pickMixed);
+    expect(find.text('Padel · PB Garuda 8 · Matcha Club 6'), findsOneWidget);
+    expect(find.text('Mulai Round 1'), findsOneWidget);
+    expect(find.text('· ±8 round'), findsOneWidget);
+    expect(tester.widget<MabarButton>(find.byType(MabarButton)).onPressed, isNotNull);
+  });
+
+  testWidgets('13j / AC-S10 Mixed sparing 8 / 3 · 2 court · 1 court aktif', (tester) async {
+    await expectMatchesHifi(tester, screen(8, 3), '13j', act: pickMixed);
+    expect(find.text('Padel · PB Garuda 8 · Matcha Club 3'), findsOneWidget);
+    expect(find.text('· ±8 round · 1 court'), findsOneWidget);
+    expect(tester.widget<MabarButton>(find.byType(MabarButton)).onPressed, isNotNull);
+  });
+
+  testWidgets('Mixed sparing: Mulai Round 1 → R1 sesama klub dan simpanan sah', (tester) async {
+    Object? extra;
+    final players = roster(8, 6);
+    final router = GoRouter(
+      initialLocation: '/atur',
+      routes: [
+        GoRoute(
+          path: '/atur',
+          builder: (_, _) => KonfigurasiScreen(sport: SportType.padel, players: players, clubs: const [garuda, matcha]),
+        ),
+        GoRoute(
+          path: '/schedule',
+          builder: (_, state) {
+            extra = state.extra;
+            return const SizedBox();
+          },
+        ),
+      ],
+    );
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await pickMixed(tester);
+    await tester.tap(find.byType(MabarButton));
+    await tester.pumpAndSettle();
+    final config = extra as TournamentConfig;
+    expect(config.mode, PartnerMode.mixed);
+    expect(config.isSparing, isTrue);
+
+    final container = ProviderContainer(overrides: [clockProvider.overrideWithValue(() => sparingStart)]);
+    addTearDown(container.dispose);
+    container.read(tournamentProvider.notifier).startIfNeeded(config);
+    final active = container.read(tournamentProvider)!;
+    expect(active.roundCount, 1);
+    final r1 = active.matchesOfRound(1);
+    expect(r1, hasLength(2));
+    String? clubOf(String id) => config.playerById(id)?.clubId;
+    for (final m in r1) {
+      for (final pair in [m.pair1, m.pair2]) {
+        expect(clubOf(pair.player1Id), clubOf(pair.player2Id), reason: m.id);
+      }
+      expect(clubOf(m.pair1.player1Id), garuda.id);
+      expect(clubOf(m.pair2.player1Id), matcha.id);
+    }
+    expect(TournamentCodec.decode(TournamentCodec.encode(active)), isNotNull);
   });
 
   testWidgets('AC-S7a Lanjut membawa klub + pemain berklub ke Pasangan', (tester) async {
