@@ -11,11 +11,13 @@ import '../../models/models.dart';
 import '../../services/schedule/endless_round_generator.dart';
 import '../live/live_score.dart';
 import '../live/live_view_controller.dart';
+import 'club_score_view.dart';
 import 'mixed/manage_courts_sheet.dart';
 import 'mixed/manage_players_sheet.dart';
 import 'mixed/mixed_guide_sheet.dart';
 import 'mixed/resume_tournament_sheet.dart';
 import 'schedule_widgets.dart';
+import 'sparing_providers.dart';
 import 'tournament_controller.dart';
 import 'widgets/resting_list.dart';
 import 'widgets/round_tabs.dart';
@@ -142,7 +144,32 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
     // Round terakhir: dari pemain aktif sekarang, dibagi menurut slot R(n+1). Round lewat: catatan saat
     // round itu dibuat.
     final List<Widget> resting;
-    if (onLast) {
+    // Sparing: papan skor klub di atas daftar (ikut tergulir, 13m) dan Istirahat per klub dua kolom.
+    final clubScore = ref.watch(clubScoreProvider);
+    if (active.config.isSparing) {
+      if (onLast) {
+        // Per klub, bukan gabungan: tiap klub punya slot dan prioritasnya sendiri (AC-S11).
+        final split = EndlessRoundGenerator.restingByClubAfterLastRound(active, now);
+        List<RestingClub> column(
+          List<Player> Function(({Club club, List<Player> priority, List<Player> later})) pick,
+        ) => [
+          for (final c in split) RestingClub(club: c.club.name, names: [for (final p in pick(c)) p.name]),
+        ];
+        final priority = column((c) => c.priority);
+        final later = column((c) => c.later);
+        resting = [
+          if (priority.any((c) => c.names.isNotEmpty)) RestingList.clubs(clubs: priority, priorityRound: last + 1),
+          if (later.any((c) => c.names.isNotEmpty))
+            RestingList.clubs(clubs: later, priorityRound: last + 1, later: true),
+        ];
+      } else {
+        final past = [
+          for (final c in active.restingPlayersByClub(selected))
+            RestingClub(club: c.club.name, names: [for (final p in c.players) p.name]),
+        ];
+        resting = [if (past.any((c) => c.names.isNotEmpty)) RestingList.clubs(clubs: past)];
+      }
+    } else if (onLast) {
       final split = EndlessRoundGenerator.restingAfterLastRound(active, now);
       resting = [
         if (split.priority.isNotEmpty)
@@ -169,10 +196,15 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
       );
     } else {
       // Court yang habis di tengah: round berikutnya dapat court lebih sedikit dari round terakhir.
-      final fewer = nextCourts < active.matchesOfRound(last).map((m) => m.courtId).toSet().length;
+      // Sparing: yang dihitung court aktif C' (court yang muat, dibatasi pemain tiap klub), bukan court tersedia.
+      final (club1, club2) = active.activePlayersByClub;
+      final nextActive = active.config.isSparing
+          ? ActiveTournament.sparingActiveCourts(courts: nextCourts, club1: club1.length, club2: club2.length)
+          : nextCourts;
+      final fewer = nextActive < active.matchesOfRound(last).map((m) => m.courtId).toSet().length;
       primary = MabarButton(
         label: 'Buat R${last + 1}',
-        meta: fewer ? '· $nextCourts court' : null,
+        meta: fewer ? '· $nextActive court' : null,
         icon: MabarIcons.plus,
         onPressed: _generateNext,
       );
@@ -212,6 +244,7 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               children: [
+                if (clubScore != null) ...[clubScoreOf(clubScore), const SizedBox(height: 16)],
                 for (final (i, m) in matches.indexed) ...[
                   if (i > 0) const SizedBox(height: 8),
                   ScheduleMatchRow(
