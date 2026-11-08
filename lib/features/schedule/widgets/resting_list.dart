@@ -100,7 +100,8 @@ class RestingList extends StatelessWidget {
   }
 }
 
-/// Satu kolom klub di Istirahat sparing: nama klub dan nama pasangan yang istirahat.
+/// Satu kolom klub di [RestingList.clubs]: nama klub dan nama di bawahnya — pasangan (Fixed) atau pemain (Mixed) yang
+/// istirahat, atau pemain "Langsung main" (Kelola court 15o).
 class RestingClub {
   final String club;
   final List<String> names;

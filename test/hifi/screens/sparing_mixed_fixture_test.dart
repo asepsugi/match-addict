@@ -1,12 +1,15 @@
 import 'dart:math';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/ranking/club_score.dart';
 import 'package:match_addict/services/ranking/ranking_calculator.dart';
 import 'package:match_addict/services/schedule/endless_round_generator.dart';
 import 'package:match_addict/services/storage/tournament_codec.dart';
 
+import 'schedule_fixture.dart' show LoadedTournament;
 import 'sparing_mixed_fixture.dart';
 
 /// Fixture Mixed sparing = catatan frame 13m, 15a–15y (docs/tasks.md SP-18a): susunan, istirahat, prioritas per klub,
@@ -85,8 +88,14 @@ void main() {
     final s = mixedSparing15k();
     expect(round(s.active, 1), ['Eko · Gita vs Nanda · Kiki', 'Citra · Fajar vs Maya · Joko']);
     expect(resting(s), [
-      [['Andi', 'Budi', 'Dewi', 'Hadi'], <String>[]],
-      [['Indra', 'Lina'], <String>[]],
+      [
+        ['Andi', 'Budi', 'Dewi', 'Hadi'],
+        <String>[],
+      ],
+      [
+        ['Indra', 'Lina'],
+        <String>[],
+      ],
     ]);
     expect(clubScore(s.active), '0 – 0 · 0 – 0');
   });
@@ -98,8 +107,14 @@ void main() {
     expect(round(s.active, 3), ['Fajar · Eko 6–4 Joko · Indra', 'Citra · Gita vs Lina · Maya']);
     expect(clubScore(s.active), '4 – 1 · 27 – 21');
     expect(resting(s), [
-      [['Andi', 'Budi', 'Dewi', 'Hadi'], <String>[]],
-      [['Kiki', 'Nanda'], <String>[]],
+      [
+        ['Andi', 'Budi', 'Dewi', 'Hadi'],
+        <String>[],
+      ],
+      [
+        ['Kiki', 'Nanda'],
+        <String>[],
+      ],
     ]);
     expectPriorityIsNextRound(s);
     // Fairness per klub setelah R3 (R3 berjalan dihitung): Garuda 2·2·2·2·1·1·1·1, Matcha 2 semua.
@@ -114,12 +129,39 @@ void main() {
     expect(round(s.active, 3), ['Fajar · Eko 6–4 Joko · Indra', 'Citra · Gita 5–6 Lina · Maya']);
     expect(clubScore(s.active), '4 – 2 · 32 – 27');
     expect(resting(s), [
-      [['Andi', 'Budi', 'Dewi', 'Hadi'], <String>[]],
-      [['Kiki', 'Nanda'], <String>[]],
+      [
+        ['Andi', 'Budi', 'Dewi', 'Hadi'],
+        <String>[],
+      ],
+      [
+        ['Kiki', 'Nanda'],
+        <String>[],
+      ],
     ]);
     expectPriorityIsNextRound(s);
     // Hasil Buat R4 (15b) = daftar Prioritas 15a.
     expect(round(mixedSparing15b().active, 4), ['Budi · Hadi vs Lina · Nanda', 'Andi · Dewi vs Indra · Kiki']);
+  });
+
+  test('penjaga: Buat R4 lewat TournamentController dari 15a = 15b (pemain main dan istirahat per round)', () {
+    final a = mixedSparing15a();
+    final container = ProviderContainer(
+      overrides: [
+        tournamentProvider.overrideWith(() => LoadedTournament(a.active)),
+        clockProvider.overrideWithValue(() => a.now),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.read(tournamentProvider.notifier).generateNextRound();
+    final viaController = container.read(tournamentProvider)!;
+    final fixture = mixedSparing15b().active;
+    Set<String> playing(ActiveTournament x) => {
+      for (final m in x.matchesOfRound(4)) ...[...m.pair1.playerIds, ...m.pair2.playerIds],
+    };
+    expect(viaController.roundCount, 4);
+    expect(playing(viaController), playing(fixture));
+    expect({...?viaController.restingPlayerIdsByRound[4]}, {...?fixture.restingPlayerIdsByRound[4]});
+    expect([for (final m in viaController.matchesOfRound(4)) m.courtId], ['c1', 'c2']);
   });
 
   test('15b: R4 baru, Prioritas R5 Citra, Eko, Fajar, Gita · Joko, Maya; bisa dibatalkan', () {
@@ -127,8 +169,14 @@ void main() {
     expect(round(s.active, 4), ['Budi · Hadi vs Lina · Nanda', 'Andi · Dewi vs Indra · Kiki']);
     expect(clubScore(s.active), '4 – 2 · 32 – 27');
     expect(resting(s), [
-      [['Citra', 'Eko', 'Fajar', 'Gita'], <String>[]],
-      [['Joko', 'Maya'], <String>[]],
+      [
+        ['Citra', 'Eko', 'Fajar', 'Gita'],
+        <String>[],
+      ],
+      [
+        ['Joko', 'Maya'],
+        <String>[],
+      ],
     ]);
     expect(s.active.canCancelLastRound, isTrue);
     expectPriorityIsNextRound(s);
@@ -141,8 +189,14 @@ void main() {
     expect(round(s.active, 3), ['Hadi · Dewi 6–5 Joko · Putri', 'Iwan · Budi vs Vina · Lina']);
     expect(clubScore(s.active), '4 – 1 · 28 – 20');
     expect(resting(s), [
-      [['Gilang', 'Jaka', 'Rizky', 'Tono'], ['Andi', 'Citra', 'Eko', 'Fajar', 'Gita', 'Hendra', 'Sari', 'Umar']],
-      [['Maya', 'Oki', 'Rina', 'Yoga'], ['Indra', 'Kiki', 'Nanda', 'Tari', 'Wulan', 'Zaki']],
+      [
+        ['Gilang', 'Jaka', 'Rizky', 'Tono'],
+        ['Andi', 'Citra', 'Eko', 'Fajar', 'Gita', 'Hendra', 'Sari', 'Umar'],
+      ],
+      [
+        ['Maya', 'Oki', 'Rina', 'Yoga'],
+        ['Indra', 'Kiki', 'Nanda', 'Tari', 'Wulan', 'Zaki'],
+      ],
     ]);
     expectPriorityIsNextRound(s);
   });
@@ -154,8 +208,14 @@ void main() {
     expect({for (final m in s.active.matches) m.courtId}, {'c1'});
     expect(clubScore(s.active), '1 – 0 · 6 – 3');
     expect(resting(s), [
-      [['Eko', 'Hadi'], ['Budi', 'Dewi', 'Fajar', 'Gita']],
-      [['Joko'], <String>[]],
+      [
+        ['Eko', 'Hadi'],
+        ['Budi', 'Dewi', 'Fajar', 'Gita'],
+      ],
+      [
+        ['Joko'],
+        <String>[],
+      ],
     ]);
     expect(s.active.sparingLimitingClub, matcha);
     expectPriorityIsNextRound(s);
@@ -176,8 +236,14 @@ void main() {
       {'Indra': 5, 'Joko': 5, 'Kiki': 5, 'Lina': 6, 'Maya': 5, 'Nanda': 6},
     );
     expect(resting(s), [
-      [['Citra', 'Eko', 'Fajar', 'Gita'], <String>[]],
-      [['Joko', 'Kiki'], <String>[]],
+      [
+        ['Citra', 'Eko', 'Fajar', 'Gita'],
+        <String>[],
+      ],
+      [
+        ['Joko', 'Kiki'],
+        <String>[],
+      ],
     ]);
     // 15j: Matcha Club membatasi (⌊6 ÷ 2⌋ = 3 < ⌊8 ÷ 2⌋ = 4).
     expect(a.sparingLimitingClub, matcha);
@@ -274,13 +340,25 @@ void main() {
     () {
       final s = mixedSparing15n();
       expect(s.active.latePlayerIds, {'m07'});
-      expect([for (final m in s.active.matchesOfRound(4)) pair(s.active, m.pair1)], ['Budi · Hadi', 'Andi · Dewi']);
-      expect([for (final m in s.active.matchesOfRound(4)) pair(s.active, m.pair2)], contains('Oki · Nanda'));
+      expect(round(s.active, 4), ['Budi · Hadi vs Oki · Nanda', 'Andi · Dewi vs Indra · Kiki']);
       expect(s.active.activePlayers.length, 15);
       expect(resting(s), [
-        [['Citra', 'Eko', 'Fajar', 'Gita'], <String>[]],
-        [['Joko', 'Lina', 'Maya'], <String>[]],
+        [
+          ['Citra', 'Eko', 'Fajar', 'Gita'],
+          <String>[],
+        ],
+        [
+          ['Joko', 'Lina', 'Maya'],
+          <String>[],
+        ],
       ]);
+
+      // Random(3) bersambung R5–R6: Oki main R5 (Maya · Oki), istirahat R6 (jeda k = 2, 13.7).
+      final r6 = mixedSparing15n(rounds: 3).active;
+      expect(round(r6, 4), round(s.active, 4));
+      expect(round(r6, 5).first, 'Citra · Eko vs Maya · Oki');
+      expect(r6.restingPlayerIdsByRound[6], contains('m07'));
+      expect(r6.matchesOfRound(6).any((m) => m.pair2.contains('m07')), isFalse);
     },
   );
 
@@ -307,9 +385,13 @@ void main() {
     expect(s.active.config.courts.last.name, 'Court 3');
     expect(s.active.remainingBookingMinutes(s.active.config.courts.last, s.now), 120);
     expect(resting(s), [
-      [['Citra', 'Eko'], <String>[]],
+      [
+        ['Citra', 'Eko'],
+        <String>[],
+      ],
       [<String>[], <String>[]],
     ]);
+    expectPriorityIsNextRound(s);
     expect(names([for (final id in s.active.restingPlayerIdsByRound[4]!) s.active.config.playerById(id)!])..sort(), [
       'Citra',
       'Eko',

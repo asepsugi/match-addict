@@ -29,7 +29,7 @@ const mixedSparingSeed = 0x5eed;
 final mixedSparingStart = DateTime(2026, 11, 7, 19);
 DateTime mixedSparingAt(int minutes) => mixedSparingStart.add(Duration(minutes: minutes));
 
-const americano21 = ScoreFormat(ScoringMethod.americano, 21);
+const mixedSparingAmericano21 = ScoreFormat(ScoringMethod.americano, 21);
 
 /// 15d (30 pemain): nama dan urutan 14e, 16 + 14; Oki tetap m07.
 const garuda16Names = [
@@ -192,8 +192,9 @@ ActiveTournament _withOki(ActiveTournament active) => active.copyWith(
 MixedSparingState mixedSparing15lOki() => (active: _withOki(_garudaMatcha(3, 5)), now: mixedSparingAt(40));
 
 /// 15n: 15a + Oki, lalu Buat R4 dengan `Random(3)` (pembuka 15-sparing-mixed.md); Oki · Nanda main, 19.47.
-MixedSparingState mixedSparing15n() =>
-    (active: mixedSparingRounds(_withOki(_garudaMatcha(3, 6)), 1, Random(3)), now: mixedSparingAt(47));
+/// [rounds] > 1 = `Random(3)` yang sama bersambung ke R5, R6, … (tanpa skor; untuk mengecek jeda Oki k = 2).
+MixedSparingState mixedSparing15n({int rounds = 1}) =>
+    (active: mixedSparingRounds(_withOki(_garudaMatcha(3, 6)), rounds, Random(3)), now: mixedSparingAt(47));
 
 /// 15m: 15e dengan Kiki keluar (Matcha Club tinggal Indra dan Joko).
 MixedSparingState mixedSparing15m() {
@@ -233,7 +234,7 @@ MixedSparingState mixedSparing15r() => (
   active: _garudaMatcha(
     3,
     5,
-    config: mixedSparingConfig(format: americano21),
+    config: mixedSparingConfig(format: mixedSparingAmericano21),
     scores: mixedScoresAmericano,
   ),
   now: mixedSparingAt(40),
@@ -244,7 +245,7 @@ MixedSparingState mixedSparing15t() => (
   active: _garudaMatcha(
     3,
     6,
-    config: mixedSparingConfig(format: americano21),
+    config: mixedSparingConfig(format: mixedSparingAmericano21),
     scores: mixedScoresAmericano,
   ),
   now: mixedSparingAt(40),

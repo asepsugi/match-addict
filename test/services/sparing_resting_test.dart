@@ -81,7 +81,7 @@ void main() {
       ).copyWith(withdrawn: withdrawn).sparingLimitingClub;
     }
 
-    test('⌊aktif ÷ 2⌋ terkecil: 8 / 6 dan 8 / 3 → Matcha Club; 6 / 7 → PB Garuda', () {
+    test('⌊aktif ÷ 2⌋ terkecil: 8 / 6 dan 8 / 3 → Matcha Club; 4 / 7 → PB Garuda', () {
       expect(limiting(8, 6), matcha);
       expect(limiting(8, 3), matcha);
       expect(limiting(4, 7), garuda);
