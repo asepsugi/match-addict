@@ -762,7 +762,7 @@ class ActiveTournament {
   ];
 
   /// Court di round tambahan pertama dan round tambahan ke-r (1 = pertama) saat jumlahnya berkurang, untuk baris
-  /// "n court, berkurang mulai R…" sheet Tambah round (06w, 14n). Hanya round yang masih dalam booking ([roundsLeft],
+  /// "n court, berkurang mulai R…" sheet Tambah round (06w, 14n) dan Lanjutkan (08c, [capacityAhead]). Hanya round yang masih dalam booking ([roundsLeft],
   /// maks [rounds]) yang dihitung; sesudahnya = "lewat booking". [activeAt] mengubah jumlah court yang muat jadi court
   /// yang dipakai (sparing: C'); default apa adanya.
   static ({int courts, int? fewerFrom}) courtsAhead(
@@ -800,21 +800,19 @@ class ActiveTournament {
     final matchesPerRound = config.isSparing
         ? sparingActiveCourts(club1: club1.length, club2: club2.length)
         : activePlayers.length ~/ 4;
-    final firstCourts = perCourt.where((n) => n >= 1).length;
     var rounds = 0, matches = 0;
-    int? fewerFrom;
     for (var r = 1; ; r++) {
       final courts = perCourt.where((n) => n >= r).length;
       if (courts == 0) break;
       rounds = r;
       matches += min(courts, matchesPerRound);
-      if (courts < firstCourts) fewerFrom ??= r;
     }
+    final ahead = courtsAhead(perCourt, rounds);
     return (
       rounds: rounds,
       matches: matches,
-      courts: firstCourts,
-      fewerCourtsFrom: fewerFrom,
+      courts: ahead.courts,
+      fewerCourtsFrom: ahead.fewerFrom,
       matchesPerRound: matchesPerRound,
     );
   }

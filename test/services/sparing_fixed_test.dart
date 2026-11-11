@@ -218,6 +218,51 @@ void main() {
       }
     });
 
+    group('extraRounds: court di sheet = C\' (4 / 2 pasangan, 3 court)', () {
+      final start = DateTime(2026, 11, 4, 19);
+      final club1 = _pairs('G', 4), club2 = _pairs('M', 2);
+      ActiveTournament active(List<int> bookings) {
+        final courts = [
+          for (final (i, b) in bookings.indexed)
+            Court(id: 'c${i + 1}', name: 'Court ${i + 1}', colorIndex: i, bookingDurationMinutes: b),
+        ];
+        final base = SparingFixedGenerator.generate(club1: club1, club2: club2, courts: courts);
+        return ActiveTournament(
+          tournament: Tournament(
+            id: 't-c',
+            createdAt: start,
+            config: TournamentConfig(
+              sport: SportType.padel,
+              mode: PartnerMode.fixed,
+              matchDurationMinutes: 15,
+              courts: courts,
+              players: const [],
+              fixedPairs: [...club1, ...club2],
+            ),
+            matches: base.matches,
+          ),
+        );
+      }
+
+      test('3 court muat, C\' = 2: "2 court", tanpa berkurang', () {
+        final a = active([180, 180, 180]);
+        final plan = SparingFixedGenerator.extraRounds(a, start.add(const Duration(minutes: 60)), club1: club1, club2: club2);
+        expect(plan.roundsLeft, [8, 8, 8]);
+        expect(plan.courts, 2);
+        expect(plan.fewerCourtsFrom, isNull);
+      });
+
+      test('Court 1 habis duluan tapi masih 2 court lain: tetap 2 court; tinggal 1 court → berkurang', () {
+        final a = active([90, 120, 180]);
+        final plan = SparingFixedGenerator.extraRounds(a, start.add(const Duration(minutes: 60)), club1: club1, club2: club2);
+        expect(plan.roundsLeft, [2, 4, 8]);
+        expect(plan.courts, 2);
+        // R+3 tinggal Court 2 dan 3 (tetap C' = 2); R+5 tinggal Court 3.
+        expect(plan.rounds, 8);
+        expect(plan.fewerCourtsFrom, 5);
+      });
+    });
+
     group('extraRounds dari turnamen berjalan', () {
       final start = DateTime(2026, 11, 4, 19);
       final base = SparingFixedGenerator.generate(club1: _garuda, club2: _matcha, courts: _courts(2));
