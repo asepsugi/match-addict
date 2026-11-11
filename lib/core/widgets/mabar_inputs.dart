@@ -67,7 +67,8 @@ class MabarSegmented<T> extends StatelessWidget {
 /// ketikan dirapikan [normalizeTyped] (bawaan: dikembalikan ke batas terdekat). [error] = angka clay
 /// (nilai penyebab error di catatan grup, 03d).
 class MabarStepper extends StatefulWidget {
-  final int value;
+  /// Null = kosong (angka dihapus host, durasi di 03p): tombol − mati, + mengisi [min].
+  final int? value;
   final int min;
   final int max;
   final int step;
@@ -75,6 +76,9 @@ class MabarStepper extends StatefulWidget {
   /// Satuan kecil di sebelah angka ("game", "mnt", "jam").
   final String? unit;
   final ValueChanged<int> onChanged;
+
+  /// Dipanggil begitu isian diketik jadi kosong; tanpa ini kosong diabaikan dan angka lama kembali.
+  final VoidCallback? onCleared;
   final int Function(int typed)? normalizeTyped;
   final bool error;
 
@@ -84,6 +88,7 @@ class MabarStepper extends StatefulWidget {
     required this.min,
     required this.max,
     required this.onChanged,
+    this.onCleared,
     this.step = 1,
     this.unit,
     this.normalizeTyped,
@@ -117,8 +122,8 @@ class _MabarStepperState extends State<MabarStepper> {
   void _startEditing() {
     setState(() => _editing = true);
     _controller
-      ..text = '${widget.value}'
-      ..selection = TextSelection(baseOffset: 0, extentOffset: '${widget.value}'.length);
+      ..text = '${widget.value ?? ''}'
+      ..selection = TextSelection(baseOffset: 0, extentOffset: '${widget.value ?? ''}'.length);
     _focus.requestFocus();
   }
 
@@ -134,15 +139,16 @@ class _MabarStepperState extends State<MabarStepper> {
 
   @override
   Widget build(BuildContext context) {
-    final canDown = widget.value - widget.step >= widget.min;
-    final canUp = widget.value + widget.step <= widget.max;
+    final value = widget.value;
+    final canDown = value != null && value - widget.step >= widget.min;
+    final canUp = value == null || value + widget.step <= widget.max;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _StepButton(
           icon: MabarIcons.minus,
           label: 'Kurangi',
-          onPressed: canDown ? () => widget.onChanged(widget.value - widget.step) : null,
+          onPressed: canDown ? () => widget.onChanged(value - widget.step) : null,
         ),
         const SizedBox(width: 4),
         SizedBox(
@@ -155,7 +161,9 @@ class _MabarStepperState extends State<MabarStepper> {
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(3)],
                   textAlign: TextAlign.center,
                   style: _number,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
+                    suffixText: _controller.text.isEmpty ? widget.unit : null,
+                    suffixStyle: MabarType.caption.copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     isDense: true,
                     filled: false,
                     border: InputBorder.none,
@@ -163,6 +171,11 @@ class _MabarStepperState extends State<MabarStepper> {
                     focusedBorder: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                   ),
+                  onChanged: (text) {
+                    // Kosong: satuan tetap terlihat di samping kursor (03p).
+                    setState(() {});
+                    if (text.isEmpty) widget.onCleared?.call();
+                  },
                   onSubmitted: (_) => _focus.unfocus(),
                 )
               : GestureDetector(
@@ -170,7 +183,7 @@ class _MabarStepperState extends State<MabarStepper> {
                   onTap: _startEditing,
                   child: Text.rich(
                     TextSpan(
-                      text: '${widget.value}',
+                      text: '${widget.value ?? ''}',
                       children: [
                         // `small { margin-left: 3px }`, sejajar baseline angka.
                         if (widget.unit != null)
@@ -198,7 +211,7 @@ class _MabarStepperState extends State<MabarStepper> {
         _StepButton(
           icon: MabarIcons.plus,
           label: 'Tambah',
-          onPressed: canUp ? () => widget.onChanged(widget.value + widget.step) : null,
+          onPressed: canUp ? () => widget.onChanged(value == null ? widget.min : value + widget.step) : null,
         ),
       ],
     );

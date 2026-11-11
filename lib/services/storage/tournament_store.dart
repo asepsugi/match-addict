@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 
 import '../../models/models.dart';
 import '../live/live_relay.dart';
+import 'last_settings.dart';
 import 'tournament_codec.dart';
 
 /// Penyimpanan turnamen di device. Isinya persis yang diminta PRD bagian 5:
@@ -37,6 +38,18 @@ class TournamentStore {
     } else {
       _box == null ? _memory[key] = value : await _box.put(key, value);
     }
+  }
+
+  static String _settingsKey(SportType sport) => 'settings.${sport.name}';
+
+  /// Pengaturan terakhir per olahraga; null = belum ada atau tak terbaca (logic.md §14.5).
+  LastSettings? loadLastSettings(SportType sport) => LastSettings.read(_read(_settingsKey(sport)));
+
+  /// Kegagalan tulis (disk penuh) ditelan: turnamen tetap jalan, hanya pengaturan tidak tersimpan.
+  Future<void> saveLastSettings(SportType sport, LastSettings settings) async {
+    try {
+      await _write(_settingsKey(sport), settings.toJson());
+    } catch (_) {}
   }
 
   ActiveTournament? loadActive() => TournamentCodec.decode(_read(_activeKey));

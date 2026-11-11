@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,13 +11,17 @@ import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
+import '../../services/schedule/config_summary.dart';
 import '../../services/schedule/endless_round_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
+import '../schedule/tournament_controller.dart';
 import 'widgets/config_pickers.dart';
 
-/// Screen 03 · Konfigurasi — disusun seperti halaman pengaturan: nama turnamen, mode, format skor + durasi, court.
-/// Estimasi ada di tombol. Fixed → Pasangan; Mixed → langsung Jadwal dan membuat R1.
-class KonfigurasiScreen extends StatefulWidget {
+/// Screen 03 · Konfigurasi — satu layar yang selalu muat (keputusan 33): nama turnamen, Pasangan, lalu Skor dan Court
+/// masing-masing satu baris berisi nilainya; rinciannya di sheet jenis kelola (tiap perubahan langsung berlaku).
+/// Dibuka dengan pengaturan terakhir olahraga ini (keputusan 36). Estimasi ada di tombol. Fixed → Pasangan; Mixed →
+/// langsung Jadwal dan membuat R1.
+class KonfigurasiScreen extends ConsumerStatefulWidget {
   final SportType sport;
   final List<Player> players;
 
@@ -27,10 +32,10 @@ class KonfigurasiScreen extends StatefulWidget {
   const KonfigurasiScreen({super.key, required this.sport, required this.players, this.clubs});
 
   @override
-  State<KonfigurasiScreen> createState() => _KonfigurasiScreenState();
+  ConsumerState<KonfigurasiScreen> createState() => _KonfigurasiScreenState();
 }
 
-class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
+class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
   static const _minCourts = 1;
   static const _defaultCourtCount = 2;
   static const _defaultBookingHours = 2;
@@ -39,36 +44,59 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
 
   PartnerMode _mode = PartnerMode.fixed;
   ScoreFormat _format = ScoreFormat.standard;
-  late int _duration = widget.sport.defaultMatchDurationMinutes;
+
+  /// Null = durasi dikosongkan host (03p); tetap kosong sampai diisi.
+  late int? _duration = widget.sport.defaultMatchDurationMinutes;
   final List<_CourtDraft> _courts = [];
   final _name = TextEditingController();
   var _scrolled = false;
 
+  /// Mengabari isi sheet yang terbuka supaya ikut berubah bersama baris di belakangnya.
+  final _tick = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
-    for (var i = 0; i < _defaultCourtCount; i++) {
-      _courts.add(_createCourt(i));
+    var last = ref.read(tournamentStoreProvider).loadLastSettings(widget.sport);
+    if (widget.clubs != null) last = last?.forSparing();
+    if (last != null) {
+      _mode = last.mode;
+      _format = last.format;
+      _duration = last.matchDurationMinutes;
+      for (final (i, c) in last.courts.indexed) {
+        _courts.add(_createCourt(i, colorIndex: c.colorIndex, hours: c.bookingMinutes ~/ 60)..name.text = c.name ?? '');
+      }
+    } else {
+      for (var i = 0; i < _defaultCourtCount; i++) {
+        _courts.add(_createCourt(i));
+      }
     }
   }
 
   @override
   void dispose() {
     _name.dispose();
+    _tick.dispose();
     for (final c in _courts) {
       c.dispose();
     }
     super.dispose();
   }
 
-  _CourtDraft _createCourt(int index) => _CourtDraft(
+  // Court dari simpanan tetap mendapat id baru: id milik turnamen, bukan pengaturan.
+  _CourtDraft _createCourt(int index, {int? colorIndex, int? hours}) => _CourtDraft(
     id: const Uuid().v4(),
-    colorIndex: index % MabarColors.courtPalette.length,
-    hours: _defaultBookingHours,
+    colorIndex: colorIndex ?? index % MabarColors.courtPalette.length,
+    hours: hours ?? _defaultBookingHours,
   );
 
+  void _change(VoidCallback fn) {
+    setState(fn);
+    _tick.value++;
+  }
+
   void _setCourtCount(int next) {
-    setState(() {
+    _change(() {
       while (_courts.length < next) {
         _courts.add(_createCourt(_courts.length));
       }
@@ -78,20 +106,21 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
     });
   }
 
-  Future<void> _pickColor(int index) async {
+  Future<void> _pickColor(BuildContext sheetContext, int index) async {
     final court = _courts[index];
     final picked = await showMabarSheet<int>(
-      context,
-      title: 'Warna ${court.label(index)}',
+      sheetContext,
+      // 03k: judulnya nomor court walau namanya custom ("Court VIP" tetap "Warna Court 2").
+      title: 'Warna Court ${index + 1}',
       builder: (context) => CourtColorGrid(selected: court.colorIndex, onSelect: (i) => Navigator.pop(context, i)),
     );
-    if (picked != null && mounted) setState(() => court.colorIndex = picked);
+    if (picked != null && mounted) _change(() => court.colorIndex = picked);
   }
 
   TournamentConfig get _config => TournamentConfig(
     sport: widget.sport,
     mode: _mode,
-    matchDurationMinutes: _duration,
+    matchDurationMinutes: _duration ?? 0,
     courts: [for (var i = 0; i < _courts.length; i++) _courts[i].toCourt(i)],
     players: widget.players,
     format: _format,
@@ -111,7 +140,7 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
       players1: _clubCount(clubs[0]),
       players2: _clubCount(clubs[1]),
       bookingMinutes: [for (final c in _courts) c.hours * 60],
-      matchDurationMinutes: _duration,
+      matchDurationMinutes: _duration!,
     );
     if (e.rounds == 0) return null;
     if (e.overMinutes > 0) return '· ${e.rounds} round · lewat booking ${countdownText(e.overMinutes)}';
@@ -138,7 +167,7 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
     context.push(config.mode == PartnerMode.fixed ? '/pair-setup' : '/schedule', extra: config);
   }
 
-  /// Garis bawah app bar begitu isi tergulir ke bawahnya (court banyak).
+  /// Garis bawah app bar begitu isi tergulir ke bawahnya.
   bool _onScroll(ScrollNotification n) {
     if (n.depth == 0) {
       final scrolled = n.metrics.pixels > 0;
@@ -147,24 +176,139 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
     return false;
   }
 
+  /// Fixed sparing tetap bisa lanjut walau lewat booking (K10): jadwalnya dibuat utuh, host mengakhirinya sendiri.
+  bool get _tooLong => _duration != null && _config.maxRounds == 0 && !_fixedSparing;
+
+  /// Catatan di bawah grup Skor, di layar dan di sheet Skor/Court (03f, 03l–03n, 03p): satu sumber.
+  Widget? _scoreNote({bool withDraw = true}) {
+    if (_duration == null) return const MabarGroupNote('Isi durasi match', error: true);
+    if (_tooLong) {
+      // Court penyebab "tidak muat" = booking terpendek.
+      final shortest = _courts.indexed.reduce((a, b) => b.$2.hours < a.$2.hours ? b : a);
+      return MabarGroupNote(
+        'Lebih lama dari booking ${shortest.$2.label(shortest.$1)} (${shortest.$2.hours} jam)',
+        error: true,
+      );
+    }
+    if (withDraw && _format.method == ScoringMethod.bestOf && _format.canDraw) return const MabarGroupNote('Bisa berakhir seri');
+    return null;
+  }
+
+  /// Isi sheet Skor (03d): segmented, angka format, durasi. Grup berlatar paper di dalam sheet.
+  Widget _scoreGroup(BuildContext sheetContext) {
+    final method = _format.method;
+    return MabarGroup(
+      color: MabarColors.paper,
+      children: [
+        MabarRow.stack(
+          children: [
+            MabarSegmented<ScoringMethod>(
+              options: [for (final m in ScoringMethodX.selectable) (m, m.label)],
+              selected: method,
+              onChanged: (m) => _change(() => _format = ScoreFormat(m, m.defaultTarget)),
+            ),
+          ],
+        ),
+        MabarRow(
+          title: switch (method) {
+            ScoringMethod.raceTo => 'Target game',
+            ScoringMethod.bestOf => 'Game per match',
+            ScoringMethod.americano => 'Poin per match',
+          },
+          trailing: MabarStepper(
+            value: _format.target,
+            min: method.minTarget,
+            max: method.maxTarget,
+            // Americano tanpa satuan: "21" sudah jelas poin.
+            unit: method == ScoringMethod.americano ? null : method.unit,
+            onChanged: (n) => _change(() => _format = ScoreFormat(method, n)),
+          ),
+        ),
+        MabarRow(
+          title: 'Durasi match',
+          trailing: MabarStepper(
+            value: _duration,
+            min: TournamentConfig.durationStep,
+            max: _maxDuration,
+            step: TournamentConfig.durationStep,
+            unit: 'mnt',
+            error: _tooLong,
+            normalizeTyped: TournamentConfig.roundDuration,
+            onCleared: () => _change(() => _duration = null),
+            onChanged: (n) => _change(() => _duration = n),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Isi sheet Court (03g, 03i, 03j): jumlah, lalu satu baris per court.
+  Widget _courtGroup(BuildContext sheetContext) {
+    final duration = _duration ?? 0;
+    return MabarGroup(
+      color: MabarColors.paper,
+      children: [
+        MabarRow(
+          title: 'Jumlah court',
+          trailing: MabarStepper(
+            value: _courts.length,
+            min: _minCourts,
+            max: TournamentConfig.maxCourts,
+            onChanged: _setCourtCount,
+          ),
+        ),
+        for (final (i, court) in _courts.indexed)
+          MabarRow(
+            key: ValueKey(court.id),
+            leading: CourtSwatch(
+              color: MabarColors.courtPalette[court.colorIndex],
+              number: i + 1,
+              onTap: () => _pickColor(sheetContext, i),
+            ),
+            titleWidget: MabarField.inline(
+              controller: court.name,
+              hint: 'Court ${i + 1}',
+              textCapitalization: TextCapitalization.words,
+              // Nama dipakai judul sheet warna; tidak mengubah estimasi.
+              onChanged: (_) => _change(() {}),
+            ),
+            trailing: MabarStepper(
+              value: court.hours,
+              min: 1,
+              max: _maxBookingHours,
+              unit: 'jam',
+              error: _duration != null && court.hours * 60 < duration,
+              onChanged: (h) => _change(() => court.hours = h),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Sheet jenis kelola: tanpa footer, isi dibangun ulang tiap [_change].
+  void _openSheet(String title, Widget Function(BuildContext) group, {bool withDraw = true}) {
+    showMabarSheet<void>(
+      context,
+      title: title,
+      builder: (sheetContext) => ValueListenableBuilder<int>(
+        valueListenable: _tick,
+        builder: (context, _, _) => MabarSection(note: _scoreNote(withDraw: withDraw), child: group(sheetContext)),
+      ),
+    );
+  }
+
+  /// Baris ringkasan yang membuka sheet: nilai di judul, chevron di kanan.
+  Widget _summaryRow(Widget text, VoidCallback onTap) =>
+      MabarGroup(children: [MabarRow(titleWidget: text, chevron: true, onTap: onTap)]);
+
   @override
   Widget build(BuildContext context) {
     final rounds = _config.maxRounds;
-    // Court penyebab "tidak muat" = booking terpendek; yang lebih pendek dari durasi ikut ditandai.
-    final shortest = _courts.indexed.reduce((a, b) => b.$2.hours < a.$2.hours ? b : a);
-    // Fixed sparing tetap bisa lanjut walau lewat booking (K10): jadwalnya dibuat utuh, host mengakhirinya sendiri.
-    final tooLong = rounds == 0 && !_fixedSparing;
-    final sparingMeta = _fixedSparing ? _sparingMeta() : null;
-    final method = _format.method;
+    final tooLong = _tooLong;
+    final sparingMeta = _fixedSparing && _duration != null ? _sparingMeta() : null;
     final mixed = _mode == PartnerMode.mixed;
-    final scoreNote = tooLong
-        ? MabarGroupNote(
-            'Lebih lama dari booking ${shortest.$2.label(shortest.$1)} (${shortest.$2.hours} jam)',
-            error: true,
-          )
-        : method == ScoringMethod.bestOf && _format.canDraw
-        ? const MabarGroupNote('Bisa berakhir seri')
-        : null;
+    final (scoreFormat, scoreDuration) = ConfigSummary.scoreParts(_format, _duration);
+    final bodyStyle = MabarType.body.copyWith(color: MabarColors.ink);
 
     return Scaffold(
       backgroundColor: MabarColors.paper,
@@ -199,95 +343,48 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
                     MabarSection(
                       bodyGap: 12,
                       header: const MabarGroupLabel('Pasangan'),
-                      child: ModePicker(selected: _mode, onChanged: (m) => setState(() => _mode = m)),
+                      child: ModePicker(
+                        selected: _mode,
+                        onChanged: (m) => setState(() => _mode = m),
+                        // Sparing hanya dua kartu (keputusan 27, 13h–13j); kolom ketiga = Mexicano (bagian 2).
+                        slots: widget.clubs == null ? 3 : 2,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     MabarSection(
                       bodyGap: 12,
                       header: const MabarGroupLabel('Skor'),
-                      note: scoreNote,
-                      child: MabarGroup(
-                        children: [
-                          MabarRow.stack(
+                      note: _scoreNote(),
+                      child: _summaryRow(
+                        Text.rich(
+                          TextSpan(
+                            style: bodyStyle,
                             children: [
-                              MabarSegmented<ScoringMethod>(
-                                options: [for (final m in ScoringMethodX.selectable) (m, m.label)],
-                                selected: method,
-                                onChanged: (m) => setState(() => _format = ScoreFormat(m, m.defaultTarget)),
+                              TextSpan(text: '$scoreFormat · '),
+                              TextSpan(
+                                text: scoreDuration,
+                                style: tooLong || _duration == null ? const TextStyle(color: MabarColors.clay) : null,
                               ),
                             ],
                           ),
-                          MabarRow(
-                            title: switch (method) {
-                              ScoringMethod.raceTo => 'Target game',
-                              ScoringMethod.bestOf => 'Game per match',
-                              ScoringMethod.americano => 'Poin per match',
-                            },
-                            trailing: MabarStepper(
-                              value: _format.target,
-                              min: method.minTarget,
-                              max: method.maxTarget,
-                              // Americano tanpa satuan: "21" sudah jelas poin.
-                              unit: method == ScoringMethod.americano ? null : method.unit,
-                              onChanged: (n) => setState(() => _format = ScoreFormat(method, n)),
-                            ),
-                          ),
-                          MabarRow(
-                            title: 'Durasi match',
-                            trailing: MabarStepper(
-                              value: _duration,
-                              min: TournamentConfig.durationStep,
-                              max: _maxDuration,
-                              step: TournamentConfig.durationStep,
-                              unit: 'mnt',
-                              error: tooLong,
-                              normalizeTyped: TournamentConfig.roundDuration,
-                              onChanged: (n) => setState(() => _duration = n),
-                            ),
-                          ),
-                        ],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        () => _openSheet('Skor', _scoreGroup),
                       ),
                     ),
                     const SizedBox(height: 12),
                     MabarSection(
                       bodyGap: 12,
                       header: const MabarGroupLabel('Court'),
-                      child: MabarGroup(
-                        children: [
-                          MabarRow(
-                            title: 'Jumlah court',
-                            trailing: MabarStepper(
-                              value: _courts.length,
-                              min: _minCourts,
-                              max: TournamentConfig.maxCourts,
-                              onChanged: _setCourtCount,
-                            ),
-                          ),
-                          for (final (i, court) in _courts.indexed)
-                            MabarRow(
-                              key: ValueKey(court.id),
-                              leading: CourtSwatch(
-                                color: MabarColors.courtPalette[court.colorIndex],
-                                number: i + 1,
-                                onTap: () => _pickColor(i),
-                              ),
-                              titleWidget: MabarField.inline(
-                                controller: court.name,
-                                hint: 'Court ${i + 1}',
-                                textCapitalization: TextCapitalization.words,
-                                // Nama dipakai judul sheet warna; tidak mengubah estimasi.
-                                onChanged: (_) => setState(() {}),
-                              ),
-                              trailing: MabarStepper(
-                                value: court.hours,
-                                min: 1,
-                                max: _maxBookingHours,
-                                unit: 'jam',
-                                error: court.hours * 60 < _duration,
-                                onChanged: (h) => setState(() => court.hours = h),
-                              ),
-                            ),
-                        ],
+                      child: _summaryRow(
+                        Text(
+                          ConfigSummary.courts([for (final c in _courts) c.hours * 60]),
+                          style: bodyStyle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        () => _openSheet('Court', _courtGroup, withDraw: false),
                       ),
                     ),
                   ],
@@ -300,14 +397,16 @@ class _KonfigurasiScreenState extends State<KonfigurasiScreen> {
               Expanded(
                 child: MabarButton(
                   label: mixed ? 'Mulai Round 1' : 'Lanjut',
-                  meta: _fixedSparing
+                  meta: _duration == null
+                      ? null
+                      : _fixedSparing
                       ? sparingMeta
                       : tooLong
                       ? null
                       : (mixed
                             ? (widget.clubs != null ? _mixedSparingMeta(rounds) : '· ±$rounds round')
                             : '· ±$rounds round · ${rounds * _courts.length} match'),
-                  onPressed: tooLong || (_fixedSparing && sparingMeta == null) ? null : _next,
+                  onPressed: _duration == null || tooLong || (_fixedSparing && sparingMeta == null) ? null : _next,
                 ),
               ),
             ],

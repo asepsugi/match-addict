@@ -9,6 +9,7 @@ import '../../services/ranking/ranking_calculator.dart';
 import '../../services/schedule/endless_round_generator.dart';
 import '../../services/schedule/round_robin_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
+import '../../services/storage/last_settings.dart';
 import '../../services/storage/tournament_codec.dart';
 import '../../services/storage/tournament_store.dart';
 
@@ -76,6 +77,9 @@ class TournamentController extends Notifier<ActiveTournament?> {
       byePairIdByRound: schedule?.byePairIdByRound ?? const {},
       restingPairIdsByRound: sparing?.restingPairIdsByRound ?? const {},
     );
+
+    // Pengaturan terakhir per olahraga: ditulis saat turnamen dimulai, bukan saat Konfigurasi ditinggalkan.
+    unawaited(_store.saveLastSettings(config.sport, LastSettings.fromConfig(config)));
 
     // Mixed dan Mexicano tidak punya jadwal di awal — round 1 langsung digenerate.
     if (config.mode.isEndless) generateNextRound();

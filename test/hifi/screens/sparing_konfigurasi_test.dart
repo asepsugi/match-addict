@@ -33,12 +33,15 @@ void main() {
     }
   }
 
-  Future<void> toBottom(WidgetTester tester) async {
-    final page = tester.state<ScrollableState>(
-      find.descendant(of: find.byType(SingleChildScrollView), matching: find.byType(Scrollable)).first,
-    );
-    page.position.jumpTo(page.position.maxScrollExtent);
-    await tester.pump();
+  /// Jumlah court di sheet Court (stepper pertama); sheet ditutup lagi lewat scrim supaya layarnya terlihat.
+  Future<void> addCourts(WidgetTester tester, int times, {bool close = true}) async {
+    await tester.tap(find.text('2 court · 2 jam'));
+    await tester.pumpAndSettle();
+    await tapStep(tester, 0, 'Tambah', times: times);
+    if (close) {
+      await tester.tapAt(const Offset(195, 20));
+      await tester.pumpAndSettle();
+    }
   }
 
   testWidgets('13h Fixed sparing 8 / 6 · 2 court', (tester) async {
@@ -52,10 +55,7 @@ void main() {
       tester,
       screen(16, 14),
       '14f',
-      act: (tester) async {
-        await tapStep(tester, 2, 'Tambah', times: 2);
-        await toBottom(tester);
-      },
+      act: (tester) => addCourts(tester, 2),
     );
     expect(find.text('Padel · PB Garuda 16 · Matcha Club 14'), findsOneWidget);
     expect(find.text('· 14 round · lewat booking 01:30'), findsOneWidget);
@@ -67,10 +67,7 @@ void main() {
       tester,
       screen(8, 4),
       '14g',
-      act: (tester) async {
-        await tapStep(tester, 2, 'Tambah');
-        await toBottom(tester);
-      },
+      act: (tester) => addCourts(tester, 1),
     );
     expect(find.text('Padel · PB Garuda 8 · Matcha Club 4'), findsOneWidget);
     expect(find.text('· 4 round · 8 match · 2 court'), findsOneWidget);
@@ -83,7 +80,7 @@ void main() {
 
   testWidgets('AC-S7a K10 lewat booking dan court aktif < dipesan: tanpa "· n court"', (tester) async {
     await tester.pumpWidget(screen(20, 2));
-    await tapStep(tester, 2, 'Tambah', times: 2);
+    await addCourts(tester, 2, close: false);
     expect(find.textContaining('lewat booking'), findsOneWidget);
     expect(find.textContaining('court aktif'), findsNothing);
     expect(find.textContaining(RegExp(r'· \d+ court')), findsNothing);
@@ -128,7 +125,7 @@ void main() {
         ),
       ],
     );
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpWidget(ProviderScope(child: MaterialApp.router(routerConfig: router)));
     await pickMixed(tester);
     await tester.tap(find.byType(MabarButton));
     await tester.pumpAndSettle();
@@ -173,7 +170,7 @@ void main() {
         ),
       ],
     );
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpWidget(ProviderScope(child: MaterialApp.router(routerConfig: router)));
     await tester.tap(find.byType(MabarButton));
     await tester.pumpAndSettle();
     final config = extra as TournamentConfig;

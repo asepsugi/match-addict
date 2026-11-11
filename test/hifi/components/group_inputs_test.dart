@@ -12,42 +12,38 @@ import '../hifi_golden.dart';
 void main() {
   final theme = MabarTheme.light();
 
-  testWidgets('MabarSection + MabarGroup: segmented + dua baris stepper (03a, grup Skor)', (tester) async {
-    final label = hifiRect('03a', 'glabel', text: 'Skor');
-    final group = hifiRect('03a', 'group', text: 'Race to');
-    final region = Rect.fromLTRB(group.left, label.top, group.right, group.bottom);
+  testWidgets('MabarGroup di sheet: segmented + dua baris stepper (03d, sheet Skor)', (tester) async {
+    final region = hifiRect('03d', 'group', text: 'Race to');
     await expectRegionMatchesHifi(
       tester,
       hifiStage(
         theme: theme,
+        background: MabarColors.card,
         at: region,
-        child: MabarSection(
-          bodyGap: 12,
-          header: const MabarGroupLabel('Skor'),
-          child: MabarGroup(
-            children: [
-              MabarRow.stack(
-                children: [
-                  MabarSegmented(
-                    options: const [(0, 'Race to'), (1, 'Best of'), (2, 'Americano')],
-                    selected: 0,
-                    onChanged: (_) {},
-                  ),
-                ],
-              ),
-              MabarRow(
-                title: 'Target game',
-                trailing: MabarStepper(value: 6, min: 2, max: 9, unit: 'game', onChanged: (_) {}),
-              ),
-              MabarRow(
-                title: 'Durasi match',
-                trailing: MabarStepper(value: 20, min: 5, max: 120, step: 5, unit: 'mnt', onChanged: (_) {}),
-              ),
-            ],
-          ),
+        child: MabarGroup(
+          color: MabarColors.paper,
+          children: [
+            MabarRow.stack(
+              children: [
+                MabarSegmented(
+                  options: const [(0, 'Race to'), (1, 'Best of'), (2, 'Americano')],
+                  selected: 1,
+                  onChanged: (_) {},
+                ),
+              ],
+            ),
+            MabarRow(
+              title: 'Game per match',
+              trailing: MabarStepper(value: 5, min: 1, max: 15, unit: 'game', onChanged: (_) {}),
+            ),
+            MabarRow(
+              title: 'Durasi match',
+              trailing: MabarStepper(value: 15, min: 5, max: 180, step: 5, unit: 'mnt', onChanged: (_) {}),
+            ),
+          ],
         ),
       ),
-      '03a',
+      '03d',
       region,
       label: 'group',
     );

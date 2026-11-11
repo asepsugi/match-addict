@@ -4,67 +4,80 @@ import '../../../core/theme/mabar_icons.dart';
 import '../../../core/theme/mabar_theme.dart';
 import '../../../models/models.dart';
 
-/// `.modes` — dua kartu Fixed / Mixed, isi rata tengah. Ilustrasi dari ikon: orang 40 pt + penghubung
-/// 20 pt (`equals` = pasangan tetap, `shuffle` = berganti), warnanya ikut status terpilih.
+/// `.modes` — kartu mode tanpa deskripsi (keputusan 35): ilustrasi dari ikon (orang 30 pt + penghubung 16 pt, `equals`
+/// = Fixed, `shuffle` = Mixed) di atas nama mode, rata tengah, tinggi 86. Warna ikut status terpilih.
+///
+/// [slots] = jumlah kolom; lebih besar dari [modes] menyisakan kolom kosong di kanan. Biasa tiga kolom (`.modes.m3`,
+/// jarak 8), Sparing dua kolom (jarak 10). Kartu Mexicano (kolom ketiga) ditambahkan di KF-1 bagian 2.
 class ModePicker extends StatelessWidget {
   final PartnerMode selected;
   final ValueChanged<PartnerMode> onChanged;
+  final List<PartnerMode> modes;
+  final int slots;
 
-  const ModePicker({super.key, required this.selected, required this.onChanged});
+  const ModePicker({
+    super.key,
+    required this.selected,
+    required this.onChanged,
+    this.modes = const [PartnerMode.fixed, PartnerMode.mixed],
+    this.slots = 3,
+  });
+
+  static IconData _link(PartnerMode mode) => switch (mode) {
+    PartnerMode.fixed => MabarIcons.equals,
+    PartnerMode.mixed => MabarIcons.shuffle,
+  };
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(child: _card(PartnerMode.fixed, MabarIcons.equals, 'Pasangan tetap')),
-          const SizedBox(width: 10),
-          Expanded(child: _card(PartnerMode.mixed, MabarIcons.shuffle, 'Pasangan berganti')),
+    final gap = SizedBox(width: slots >= 3 ? 8 : 10);
+    return Row(
+      children: [
+        for (var i = 0; i < slots; i++) ...[
+          if (i > 0) gap,
+          Expanded(child: i < modes.length ? _card(modes[i]) : const SizedBox.shrink()),
         ],
-      ),
+      ],
     );
   }
 
-  Widget _card(PartnerMode mode, IconData link, String description) {
+  Widget _card(PartnerMode mode) {
     final on = mode == selected;
     final art = on ? MabarColors.ink : MabarColors.ink3;
     return Semantics(
       button: true,
       selected: on,
-      child: Material(
-        color: MabarColors.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: on ? MabarColors.ink : MabarColors.line, width: on ? 2 : 1.5),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => onChanged(mode),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
+      child: SizedBox(
+        height: 86,
+        child: Material(
+          color: MabarColors.card,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: on ? MabarColors.ink : MabarColors.line, width: on ? 2 : 1.5),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => onChanged(mode),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  height: 44,
+                  height: 32,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(MabarIcons.user, size: 40, color: art),
+                      Icon(MabarIcons.user, size: 30, color: art),
                       const SizedBox(width: 2),
-                      Icon(link, size: 20, color: art),
+                      Icon(_link(mode), size: 16, color: art),
                       const SizedBox(width: 2),
-                      Icon(MabarIcons.user, size: 40, color: art),
+                      Icon(MabarIcons.user, size: 30, color: art),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(mode.label, style: MabarType.body.copyWith(fontSize: 17, fontWeight: FontWeight.w700, color: MabarColors.ink)),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: MabarType.caption.copyWith(height: 1.35),
+                  mode.label,
+                  style: MabarType.body.copyWith(fontSize: 17, fontWeight: FontWeight.w700, color: MabarColors.ink),
                 ),
               ],
             ),
