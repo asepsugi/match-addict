@@ -60,9 +60,16 @@ class LastSettings {
     ],
   );
 
-  /// Konfigurasi Sparing: mode tetap bila Sparing menawarkannya. Mode yang tidak ditawarkan Sparing (Mexicano, bagian
-  /// 2) jatuh ke Mixed dengan format dan court yang sama.
-  LastSettings forSparing() => this;
+  /// Konfigurasi Sparing: Mexicano tidak ditawarkan (keputusan 27), jadi jatuh ke Mixed dengan format dan court yang
+  /// sama; mode lain tetap.
+  LastSettings forSparing() => mode == PartnerMode.mexicano
+      ? LastSettings(
+          mode: PartnerMode.mixed,
+          format: format,
+          matchDurationMinutes: matchDurationMinutes,
+          courts: courts,
+        )
+      : this;
 
   String toJson() => jsonEncode({
     'v': _version,
@@ -84,6 +91,8 @@ class LastSettings {
       if (j is! Map || j['v'] is! int || j['v'] != _version) return null;
       final mode = PartnerMode.values.byName(j['mode'] as String);
       final format = ScoreFormat(ScoringMethod.values.byName(j['scoring'] as String), j['target'] as int);
+      // Mexicano selalu Americano (sama dengan aturan baca turnamen, docs/data.md).
+      if (mode == PartnerMode.mexicano && format.method != ScoringMethod.americano) return null;
       final duration = j['duration'] as int;
       final rawCourts = j['courts'] as List;
       if (!format.isValid || duration < TournamentConfig.durationStep || duration > _maxDuration) return null;

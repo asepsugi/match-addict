@@ -12,19 +12,16 @@ import '../hifi_golden.dart';
 void main() {
   final theme = MabarTheme.light();
 
-  testWidgets('ModePicker: Fixed terpilih (03a); kartu Mexicano menyusul di KF-1 bagian 2', (tester) async {
-    final at = hifiRect('03a', 'modes');
-    // Dibandingkan hanya sampai tepi kanan kartu Mixed: kolom ketiga (Mexicano) belum ada sampai bagian 2.
-    final mixed = hifiRect('03a', 'mode', text: 'Mixed');
+  testWidgets('ModePicker: Fixed terpilih, tiga kartu (03a)', (tester) async {
     await expectRegionMatchesHifi(
       tester,
       hifiStage(
         theme: theme,
-        at: at,
+        at: hifiRect('03a', 'modes'),
         child: ModePicker(selected: PartnerMode.fixed, onChanged: (_) {}),
       ),
       '03a',
-      Rect.fromLTRB(at.left, at.top, mixed.right, at.bottom),
+      hifiRect('03a', 'modes'),
       label: 'modes',
     );
   });

@@ -6,8 +6,7 @@ import 'package:match_addict/services/schedule/config_summary.dart';
 import 'package:match_addict/services/storage/last_settings.dart';
 import 'package:match_addict/services/storage/tournament_store.dart';
 
-/// Pengaturan terakhir per olahraga (logic.md §14.5, docs/data.md → `settings.<olahraga>`). Bagian Mexicano (03q,
-/// `forSparing` Mexicano → Mixed, mexicano + bukan Americano) menunggu KF-1 bagian 2.
+/// Pengaturan terakhir per olahraga (logic.md §14.5, docs/data.md → `settings.<olahraga>`).
 void main() {
   Court court(int n, {String? name, int color = 0, int minutes = 120}) =>
       Court(id: 'c$n', name: name ?? 'Court $n', colorIndex: color, bookingDurationMinutes: minutes);
@@ -60,6 +59,16 @@ void main() {
       expect(again.matchDurationMinutes, 15);
     });
 
+    test('03q: Padel Mexicano Americano 24, 15 menit, 3 court × 2 jam tersimpan dan terbaca', () {
+      final saved = LastSettings.fromConfig(config(mode: PartnerMode.mexicano));
+      final again = LastSettings.read(saved.toJson())!;
+      expect(again.mode, PartnerMode.mexicano);
+      expect(again.format, const ScoreFormat(ScoringMethod.americano, 24));
+      expect(again.matchDurationMinutes, 15);
+      expect(again.courts, saved.courts);
+      expect(again.courts, hasLength(3));
+    });
+
     test('nama turnamen tidak ikut', () {
       final json = LastSettings.fromConfig(config(name: 'Mabar Jumat')).toJson();
       expect(json, isNot(contains('Mabar Jumat')));
@@ -94,6 +103,15 @@ void main() {
       expect(sparing.format, saved.format);
       expect(sparing.courts, saved.courts);
     });
+
+    test('03q: Mexicano → Mixed, format dan court sama', () {
+      final saved = LastSettings.fromConfig(config(mode: PartnerMode.mexicano));
+      final sparing = saved.forSparing();
+      expect(sparing.mode, PartnerMode.mixed);
+      expect(sparing.format, const ScoreFormat(ScoringMethod.americano, 24));
+      expect(sparing.matchDurationMinutes, 15);
+      expect(sparing.courts, saved.courts);
+    });
   });
 
   group('read', () {
@@ -109,6 +127,14 @@ void main() {
       expect(LastSettings.read('{rusak'), isNull);
       expect(LastSettings.read('[1,2]'), isNull);
       expect(LastSettings.read('"x"'), isNull);
+    });
+
+    test('mode mexicano dengan scoring bukan americano → null (seluruh entri default); americano terbaca', () {
+      expect(read({...valid(), 'mode': 'mexicano'})!.mode, PartnerMode.mexicano);
+      expect(read({...valid(), 'mode': 'mexicano', 'scoring': 'raceTo', 'target': 6}), isNull);
+      expect(read({...valid(), 'mode': 'mexicano', 'scoring': 'bestOf', 'target': 5}), isNull);
+      // Mixed dengan Race to tetap sah.
+      expect(read({...valid(), 'scoring': 'raceTo', 'target': 6})!.format.method, ScoringMethod.raceTo);
     });
 
     test('v selain 1, mode/scoring tak dikenal → null', () {

@@ -5,10 +5,10 @@ import '../../../core/theme/mabar_theme.dart';
 import '../../../models/models.dart';
 
 /// `.modes` — kartu mode tanpa deskripsi (keputusan 35): ilustrasi dari ikon (orang 30 pt + penghubung 16 pt, `equals`
-/// = Fixed, `shuffle` = Mixed) di atas nama mode, rata tengah, tinggi 86. Warna ikut status terpilih.
+/// = Fixed, `shuffle` = Mixed, `ranking` = Mexicano) di atas nama mode, rata tengah, tinggi 86. Warna ikut status terpilih.
 ///
 /// [slots] = jumlah kolom; lebih besar dari [modes] menyisakan kolom kosong di kanan. Biasa tiga kolom (`.modes.m3`,
-/// jarak 8), Sparing dua kolom (jarak 10). Kartu Mexicano (kolom ketiga) ditambahkan di KF-1 bagian 2.
+/// jarak 8), Sparing dua kolom (jarak 10).
 class ModePicker extends StatelessWidget {
   final PartnerMode selected;
   final ValueChanged<PartnerMode> onChanged;
@@ -19,14 +19,14 @@ class ModePicker extends StatelessWidget {
     super.key,
     required this.selected,
     required this.onChanged,
-    this.modes = const [PartnerMode.fixed, PartnerMode.mixed],
+    this.modes = const [PartnerMode.fixed, PartnerMode.mixed, PartnerMode.mexicano],
     this.slots = 3,
   });
 
   static IconData _link(PartnerMode mode) => switch (mode) {
     PartnerMode.fixed => MabarIcons.equals,
     PartnerMode.mixed => MabarIcons.shuffle,
-    // Mexicano: ikon yang sama dengan Klasemen (03-konfigurasi.md); kartunya baru ditawarkan di KF-1 bagian 2.
+    // Mexicano: ikon yang sama dengan Klasemen (03-konfigurasi.md).
     PartnerMode.mexicano => MabarIcons.ranking,
   };
 
@@ -112,7 +112,10 @@ class CourtSwatch extends StatelessWidget {
         shape: BoxShape.circle,
         // `0 0 0 3px card, 0 0 0 5px ink`: celah putih 3 lalu cincin tinta 2, di luar lingkaran.
         boxShadow: selected
-            ? const [BoxShadow(color: MabarColors.ink, spreadRadius: 5), BoxShadow(color: MabarColors.card, spreadRadius: 3)]
+            ? const [
+                BoxShadow(color: MabarColors.ink, spreadRadius: 5),
+                BoxShadow(color: MabarColors.card, spreadRadius: 3),
+              ]
             : null,
       ),
       child: number != null

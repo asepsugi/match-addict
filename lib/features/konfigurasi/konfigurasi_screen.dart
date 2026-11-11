@@ -162,9 +162,15 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
     return '· ±${e.rounds} round$court';
   }
 
+  /// Mexicano hanya Americano (AC-M1): format berubah saat kartu dipilih dan tidak kembali ketika pindah mode lagi.
+  void _pickMode(PartnerMode m) => setState(() {
+    _mode = m;
+    if (m == PartnerMode.mexicano) _format = _format.forMexicano;
+  });
+
   void _next() {
     final config = _config;
-    context.push(config.mode == PartnerMode.fixed ? '/pair-setup' : '/schedule', extra: config);
+    context.push(config.mode.isEndless ? '/schedule' : '/pair-setup', extra: config);
   }
 
   /// Garis bawah app bar begitu isi tergulir ke bawahnya.
@@ -200,15 +206,17 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
     return MabarGroup(
       color: MabarColors.paper,
       children: [
-        MabarRow.stack(
-          children: [
-            MabarSegmented<ScoringMethod>(
-              options: [for (final m in ScoringMethodX.selectable) (m, m.label)],
-              selected: method,
-              onChanged: (m) => _change(() => _format = ScoreFormat(m, m.defaultTarget)),
-            ),
-          ],
-        ),
+        // Mexicano hanya Americano: tanpa segmented, formatnya tertulis sebagai subjudul (03e).
+        if (_mode != PartnerMode.mexicano)
+          MabarRow.stack(
+            children: [
+              MabarSegmented<ScoringMethod>(
+                options: [for (final m in ScoringMethodX.selectable) (m, m.label)],
+                selected: method,
+                onChanged: (m) => _change(() => _format = ScoreFormat(m, m.defaultTarget)),
+              ),
+            ],
+          ),
         MabarRow(
           title: switch (method) {
             ScoringMethod.raceTo => 'Target game',
@@ -286,10 +294,11 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
   }
 
   /// Sheet jenis kelola: tanpa footer, isi dibangun ulang tiap [_change].
-  void _openSheet(String title, Widget Function(BuildContext) group, {bool withDraw = true}) {
+  void _openSheet(String title, Widget Function(BuildContext) group, {bool withDraw = true, String? subtitle}) {
     showMabarSheet<void>(
       context,
       title: title,
+      subtitle: subtitle,
       builder: (sheetContext) => ValueListenableBuilder<int>(
         valueListenable: _tick,
         builder: (context, _, _) => MabarSection(note: _scoreNote(withDraw: withDraw), child: group(sheetContext)),
@@ -306,7 +315,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
     final rounds = _config.maxRounds;
     final tooLong = _tooLong;
     final sparingMeta = _fixedSparing && _duration != null ? _sparingMeta() : null;
-    final mixed = _mode == PartnerMode.mixed;
+    final endless = _mode.isEndless;
     final (scoreFormat, scoreDuration) = ConfigSummary.scoreParts(_format, _duration);
     final bodyStyle = MabarType.body.copyWith(color: MabarColors.ink);
 
@@ -345,8 +354,11 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                       header: const MabarGroupLabel('Pasangan'),
                       child: ModePicker(
                         selected: _mode,
-                        onChanged: (m) => setState(() => _mode = m),
-                        // Sparing hanya dua kartu (keputusan 27, 13h–13j); kolom ketiga = Mexicano (bagian 2).
+                        onChanged: _pickMode,
+                        // Sparing hanya dua kartu (keputusan 27, 13h–13j).
+                        modes: widget.clubs == null
+                            ? const [PartnerMode.fixed, PartnerMode.mixed, PartnerMode.mexicano]
+                            : const [PartnerMode.fixed, PartnerMode.mixed],
                         slots: widget.clubs == null ? 3 : 2,
                       ),
                     ),
@@ -370,7 +382,12 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        () => _openSheet('Skor', _scoreGroup),
+                        // Mexicano: formatnya tertulis sebagai subjudul fakta (03e); segmented tidak ada.
+                        () => _openSheet(
+                          'Skor',
+                          _scoreGroup,
+                          subtitle: _mode == PartnerMode.mexicano ? _format.method.label : null,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -396,14 +413,14 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
             children: [
               Expanded(
                 child: MabarButton(
-                  label: mixed ? 'Mulai Round 1' : 'Lanjut',
+                  label: endless ? 'Mulai Round 1' : 'Lanjut',
                   meta: _duration == null
                       ? null
                       : _fixedSparing
                       ? sparingMeta
                       : tooLong
                       ? null
-                      : (mixed
+                      : (endless
                             ? (widget.clubs != null ? _mixedSparingMeta(rounds) : '· ±$rounds round')
                             : '· ±$rounds round · ${rounds * _courts.length} match'),
                   onPressed: _duration == null || tooLong || (_fixedSparing && sparingMeta == null) ? null : _next,

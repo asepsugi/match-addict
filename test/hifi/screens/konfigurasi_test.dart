@@ -10,19 +10,31 @@ import 'package:match_addict/features/konfigurasi/widgets/config_pickers.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/storage/last_settings.dart';
+import 'package:match_addict/services/storage/tournament_codec.dart';
 import 'package:match_addict/services/storage/tournament_store.dart';
 
 import '../hifi_golden.dart';
 import 'screen_harness.dart';
 
-/// Golden layar penuh Konfigurasi diringkas (KF-1 bagian 1), frame 03a, 03b, 03d, 03f–03p; 03c, 03e, 03q (Mexicano)
-/// menunggu bagian 2. Isian diubah lewat sheet seperti host; baris, estimasi, dan catatan kecil dicek juga lewat
+/// Golden layar penuh Konfigurasi diringkas (KF-1 bagian 1), frame 03a–03q (Mexicano: 03c, 03e, 03q, bagian 2). Isian diubah lewat sheet seperti host; baris, estimasi, dan catatan kecil dicek juga lewat
 /// `find.text` karena teks kecil lolos toleransi 2% walau salah.
 void main() {
   List<Player> roster(int n) => [for (var i = 1; i <= n; i++) Player(id: 'p$i', name: 'Pemain $i')];
 
   Widget screen(SportType sport, {int players = 8, List<Override> overrides = const []}) => hifiScreen(
     KonfigurasiScreen(sport: sport, players: roster(players)),
+    overrides: overrides,
+  );
+
+  Widget sparingScreen({List<Override> overrides = const []}) => hifiScreen(
+    KonfigurasiScreen(
+      sport: SportType.padel,
+      players: roster(8),
+      clubs: const [
+        Club(id: 'a', name: 'PB Garuda'),
+        Club(id: 'b', name: 'Matcha Club'),
+      ],
+    ),
     overrides: overrides,
   );
 
@@ -127,6 +139,50 @@ void main() {
     expect(row('Best of 5 · 15 menit'), findsOneWidget);
     expect(find.text('2 court · 2 jam'), findsOneWidget);
     expect((button(tester).label, button(tester).meta), ('Mulai Round 1', '· ±8 round'));
+  });
+
+  Future<void> mexicano(WidgetTester tester) async {
+    await tester.tap(find.text('Mexicano'));
+    await tester.pump();
+  }
+
+  testWidgets('03c Mexicano dipilih · format jadi Americano', (tester) async {
+    await expectMatchesHifi(
+      tester,
+      screen(SportType.padel),
+      '03c',
+      act: (tester) async {
+        await mixed(tester);
+        await bestOf5(tester);
+        await closeSheet(tester);
+        await mexicano(tester);
+      },
+    );
+    expect(row('Americano 21 · 15 menit'), findsOneWidget);
+    expect(find.text('2 court · 2 jam'), findsOneWidget);
+    expect((button(tester).label, button(tester).meta), ('Mulai Round 1', '· ±8 round'));
+    // Tanpa tulisan bahwa Race to / Best of tidak tersedia.
+    expect(find.textContaining('Best of'), findsNothing);
+    expect(find.text('Mexicano'), findsOneWidget);
+  });
+
+  testWidgets('03e sheet Skor · Mexicano', (tester) async {
+    await expectMatchesHifi(
+      tester,
+      screen(SportType.padel),
+      '03e',
+      act: (tester) async {
+        await mexicano(tester);
+        await tapText(tester, 'Americano 21 · 15 menit');
+      },
+    );
+    // Subjudul = format sebagai fakta; segmented tidak ada (jebakan 10).
+    expect(find.text('Americano'), findsOneWidget);
+    expect(find.byType(MabarSegmented<ScoringMethod>), findsNothing);
+    expect(find.text('Race to'), findsNothing);
+    expect(find.text('Best of'), findsNothing);
+    expect(find.text('Poin per match'), findsOneWidget);
+    expect(find.text('Durasi match'), findsOneWidget);
   });
 
   testWidgets('03d sheet Skor · Mixed · Best of 5', (tester) async {
@@ -421,28 +477,105 @@ void main() {
     expect(find.text('2 court · 2 jam'), findsOneWidget);
   });
 
-  testWidgets('AC-M2 kartu: biasa tiga kolom (Mexicano menyusul), Sparing dua kartu', (tester) async {
+  testWidgets('AC-M1: Race to 6 → Mexicano → Americano 21; segmented tidak ada di sheet Skor', (tester) async {
+    await pumpScreen(tester, SportType.padel);
+    expect(row('Race to 6 · 15 menit'), findsOneWidget);
+    await mexicano(tester);
+    expect(row('Americano 21 · 15 menit'), findsOneWidget);
+    await tapText(tester, 'Americano 21 · 15 menit');
+    expect(find.byType(MabarSegmented<ScoringMethod>), findsNothing);
+  });
+
+  testWidgets('AC-M1: Americano 24 → Mexicano tetap 24; durasi dan court tidak berubah', (tester) async {
+    await pumpScreen(tester, SportType.padel);
+    await tapText(tester, 'Race to 6 · 15 menit');
+    await tester.tap(find.text('Americano'));
+    await tester.pumpAndSettle();
+    await tapStep(tester, 0, 'Tambah', times: 3);
+    await closeSheet(tester);
+    await mexicano(tester);
+    expect(row('Americano 24 · 15 menit'), findsOneWidget);
+    expect(find.text('2 court · 2 jam'), findsOneWidget);
+  });
+
+  testWidgets('AC-M1 / jebakan 10: kembali ke Mixed atau Fixed tetap Americano, segmented muncul lagi', (tester) async {
+    await pumpScreen(tester, SportType.padel);
+    await tapText(tester, 'Race to 6 · 15 menit');
+    await tester.tap(find.text('Best of'));
+    await tester.pumpAndSettle();
+    await closeSheet(tester);
+    await mexicano(tester);
+    await mixed(tester);
+    expect(row('Americano 21 · 15 menit'), findsOneWidget);
+    await tapText(tester, 'Americano 21 · 15 menit');
+    expect(find.byType(MabarSegmented<ScoringMethod>), findsOneWidget);
+    expect(
+      tester.widget<MabarSegmented<ScoringMethod>>(find.byType(MabarSegmented<ScoringMethod>)).selected,
+      ScoringMethod.americano,
+    );
+    await closeSheet(tester);
+    await tester.tap(find.text('Fixed'));
+    await tester.pump();
+    expect(row('Americano 21 · 15 menit'), findsOneWidget);
+    expect((button(tester).label, button(tester).meta), ('Lanjut', '· ±8 round · 16 match'));
+  });
+
+  testWidgets('AC-M2: biasa tiga kartu Fixed · Mixed · Mexicano; Sparing hanya Fixed dan Mixed', (tester) async {
     await pumpScreen(tester, SportType.tennis);
     expect(tester.widget<ModePicker>(find.byType(ModePicker)).slots, 3);
-    expect(find.text('Mexicano'), findsNothing); // kartu ketiga: KF-1 bagian 2
+    expect(tester.widget<ModePicker>(find.byType(ModePicker)).modes, [
+      PartnerMode.fixed,
+      PartnerMode.mixed,
+      PartnerMode.mexicano,
+    ]);
+    for (final t in ['Fixed', 'Mixed', 'Mexicano']) {
+      expect(find.text(t), findsOneWidget);
+    }
 
-    await tester.pumpWidget(
-      hifiScreen(
-        KonfigurasiScreen(
-          sport: SportType.padel,
-          players: roster(8),
-          clubs: const [
-            Club(id: 'a', name: 'PB Garuda'),
-            Club(id: 'b', name: 'Matcha Club'),
-          ],
-        ),
-      ),
-    );
+    await tester.pumpWidget(sparingScreen());
     await tester.pump();
     expect(tester.widget<ModePicker>(find.byType(ModePicker)).slots, 2);
+    expect(tester.widget<ModePicker>(find.byType(ModePicker)).modes, [PartnerMode.fixed, PartnerMode.mixed]);
     expect(find.text('Mexicano'), findsNothing);
     expect(find.text('Fixed'), findsOneWidget);
     expect(find.text('Mixed'), findsOneWidget);
+  });
+
+  testWidgets('AC-M3: estimasi Mexicano = Mixed untuk ukuran yang sama; Mulai Round 1 → Jadwal tanpa Pasangan', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844) * hifiPixelRatio;
+    tester.view.devicePixelRatio = hifiPixelRatio;
+    addTearDown(tester.view.reset);
+    final opened = <(String, TournamentConfig)>[];
+    final router = GoRouter(
+      initialLocation: '/konfigurasi',
+      routes: [
+        GoRoute(
+          path: '/konfigurasi',
+          builder: (_, _) => KonfigurasiScreen(sport: SportType.padel, players: roster(12)),
+        ),
+        for (final path in ['/pair-setup', '/schedule'])
+          GoRoute(
+            path: path,
+            builder: (_, state) {
+              opened.add((path, state.extra! as TournamentConfig));
+              return const Text('Tujuan');
+            },
+          ),
+      ],
+    );
+    await tester.pumpWidget(hifiRouterScreen(router));
+    await mixed(tester);
+    final mixedButton = (button(tester).label, button(tester).meta);
+    await mexicano(tester);
+    expect((button(tester).label, button(tester).meta), mixedButton);
+    expect(mixedButton, ('Mulai Round 1', '· ±8 round'));
+    await tester.tap(find.text('Mulai Round 1'));
+    await tester.pumpAndSettle();
+    expect(opened.single.$1, '/schedule');
+    expect(opened.single.$2.mode, PartnerMode.mexicano);
+    expect(opened.single.$2.format, const ScoreFormat(ScoringMethod.americano, 21));
   });
 
   testWidgets('Kartu mode tanpa deskripsi, tinggi 86', (tester) async {
@@ -465,7 +598,92 @@ void main() {
       ],
     );
 
+    // 03q: turnamen terakhir Padel Mexicano, Americano 24, 15 menit, 3 court × 2 jam.
+    LastSettings mexicanoLast() => const LastSettings(
+      mode: PartnerMode.mexicano,
+      format: ScoreFormat(ScoringMethod.americano, 24),
+      matchDurationMinutes: 15,
+      courts: [
+        LastCourt(colorIndex: 0, bookingMinutes: 120),
+        LastCourt(colorIndex: 1, bookingMinutes: 120),
+        LastCourt(colorIndex: 2, bookingMinutes: 120),
+      ],
+    );
+
     List<Override> withStore(TournamentStore store) => [tournamentStoreProvider.overrideWithValue(store)];
+
+    testWidgets('03q pengaturan terakhir di HP · Mexicano · 3 court', (tester) async {
+      final store = TournamentStore.memory()..saveLastSettings(SportType.padel, mexicanoLast());
+      await expectMatchesHifi(tester, screen(SportType.padel, players: 12, overrides: withStore(store)), '03q');
+      expect(row('Americano 24 · 15 menit'), findsOneWidget);
+      expect(find.text('3 court · 2 jam'), findsOneWidget);
+      expect((button(tester).label, button(tester).meta), ('Mulai Round 1', '· ±8 round'));
+      expect(tester.widget<ModePicker>(find.byType(ModePicker)).selected, PartnerMode.mexicano);
+      expect(tester.widget<TextField>(find.byType(TextField).first).controller!.text, '');
+    });
+
+    testWidgets('03q keputusan 38: Sparing + simpanan Mexicano → Mixed, Americano 24, 3 court; tanpa kartu Mexicano', (
+      tester,
+    ) async {
+      final store = TournamentStore.memory()..saveLastSettings(SportType.padel, mexicanoLast());
+      tester.view.physicalSize = const Size(390, 844) * hifiPixelRatio;
+      tester.view.devicePixelRatio = hifiPixelRatio;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(sparingScreen(overrides: withStore(store)));
+      expect(tester.widget<ModePicker>(find.byType(ModePicker)).selected, PartnerMode.mixed);
+      expect(row('Americano 24 · 15 menit'), findsOneWidget);
+      expect(find.text('3 court · 2 jam'), findsOneWidget);
+      expect(find.text('Mexicano'), findsNothing);
+    });
+
+    testWidgets('Sparing + simpanan Mexicano: Mulai Round 1 membuat Mixed berklub yang bisa disimpan (canEncode)', (
+      tester,
+    ) async {
+      final store = TournamentStore.memory()..saveLastSettings(SportType.padel, mexicanoLast());
+      tester.view.physicalSize = const Size(390, 844) * hifiPixelRatio;
+      tester.view.devicePixelRatio = hifiPixelRatio;
+      addTearDown(tester.view.reset);
+      final opened = <TournamentConfig>[];
+      final router = GoRouter(
+        initialLocation: '/konfigurasi',
+        routes: [
+          GoRoute(
+            path: '/konfigurasi',
+            builder: (_, _) => KonfigurasiScreen(
+              sport: SportType.padel,
+              players: [for (var i = 1; i <= 8; i++) Player(id: 'p$i', name: 'Pemain $i', clubId: i <= 4 ? 'a' : 'b')],
+              clubs: const [
+                Club(id: 'a', name: 'PB Garuda'),
+                Club(id: 'b', name: 'Matcha Club'),
+              ],
+            ),
+          ),
+          GoRoute(
+            path: '/schedule',
+            builder: (_, state) {
+              opened.add(state.extra! as TournamentConfig);
+              return const Text('Jadwal');
+            },
+          ),
+        ],
+      );
+      await tester.pumpWidget(hifiRouterScreen(router, overrides: withStore(store)));
+      await tester.tap(find.text('Mulai Round 1'));
+      await tester.pumpAndSettle();
+      final config = opened.single;
+      expect(config.mode, PartnerMode.mixed);
+      expect(config.clubs, isNotNull);
+
+      final container = ProviderContainer(
+        overrides: [
+          tournamentStoreProvider.overrideWithValue(TournamentStore.memory()),
+          clockProvider.overrideWithValue(() => DateTime(2026)),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.read(tournamentProvider.notifier).startIfNeeded(config);
+      expect(TournamentCodec.canEncode(container.read(tournamentProvider)!), isTrue);
+    });
 
     testWidgets('Padel dibuka dengan pengaturan tersimpan; nama turnamen kosong', (tester) async {
       final store = TournamentStore.memory()..saveLastSettings(SportType.padel, padelLast());
