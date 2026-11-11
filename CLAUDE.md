@@ -94,8 +94,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Live score (relay tanpa database) — `docs/live.md`.
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - Sparing 3.2.0 (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, `docs/architecture.md` →
-  Sparing, `docs/data.md` → Sparing. Semua task SP-0…SP-19 di branch `sparing`; menunggu QA + security, lalu merge ke
-  `main` (= deploy) atas perintah host.
+  Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). Berikutnya (PATCH):
+  temuan `docs/security.md` (validasi encode di rilis, batas `roundNumber`).
 
 ## Area docs
 
@@ -107,7 +107,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
 | `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
-| `docs/tasks.md` | mengerjakan atau mereview task fitur yang sedang berjalan (sekarang Sparing SP-n) | tech-lead |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur (terakhir: Sparing SP-n, selesai) | tech-lead |
 
 ## Pitfalls (lintas area)
 
