@@ -468,6 +468,9 @@ Aturan bersama SP-18:
 - **Dependensi:** SP-18a (keadaan 15f dan bernama). **Paralel:** ya. **Model:** default.
 
 ## SP-19 · Rilis 3.2.0
+- **Status (2026-11-11):** `roundsLeft` disatukan (7a0b363 + 5fc5574, review Approve), versi 3.2.0+14 + docs (7176f6e),
+  `flutter test` penuh, `slow` 27 lulus, `tool/build_web.sh` sukses + 26 URL precache 200. Sisa: QA, security, AC-S21
+  offline di Chrome, uji share di HP, merge ke `main` atas perintah host.
 - **Goal:** `pubspec.yaml` 3.2.0+14 + `appVersion`; `docs/architecture.md`, `docs/ui-v2.md`, CLAUDE.md (tech-lead) dan
   `docs/data.md` (DBA) diperbarui; `logic.md` §13 status "sudah diimplementasi".
 - **Acceptance:** `flutter analyze` tanpa peringatan baru, `flutter test` lulus (termasuk golden semua frame 01–15),
