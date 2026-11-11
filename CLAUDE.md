@@ -106,6 +106,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/data.md` | mengubah simpanan/codec, `schemaVersion`, resume, Lanjutkan turnamen, slot aktif | dba |
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
+| `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
 | `docs/tasks.md` | mengerjakan atau mereview task fitur yang sedang berjalan (sekarang Sparing SP-n) | tech-lead |
 
 ## Pitfalls (lintas area)
