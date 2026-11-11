@@ -35,6 +35,8 @@ tanpa migrasi. Fixture literal tiap bentuk ada di test (SP-1 menambahkan yang be
 | `credits` | sampai 2.6 | — | dibuang, tidak dibaca |
 | `extraPutaran` | 3.1.0 | opsional | tanpa kunci = 0 |
 | sparing: `config.clubs`, `players[].club`, `restingPairs`, penanda di `bye` | 3.2.0 | opsional, satu paket | tanpa `config.clubs` = turnamen biasa (lihat di bawah) |
+| `mode: "mexicano"` | 3.4.0 | nilai baru, tanpa kunci baru | ditolak kalau bersama `clubs` atau bukan Americano (lihat "Mexicano"); pembaca ≤ 3.3.x menolaknya (null) |
+| `settings.<olahraga>` (pengaturan terakhir) | 3.4.0 | kunci Hive terpisah, bukan bagian payload turnamen | tak terbaca = default; ≤ 3.3.x tidak membacanya |
 
 ## Sparing (3.2.0, MINOR)
 
@@ -151,6 +153,110 @@ penanda". Kalau suatu hari app 3.1.0 sudah tidak mungkin beredar, penanda tetap 
 - Ukuran: 7/8 pasangan (30 pemain, terbesar per satuan: 56 match) + 2 satuan tambahan, encode < 256 KB (`MAX_BYTES`
   relay). Perkiraan ±660 B per match (id pemain UUID) = ±37 KB per satuan, jadi masih jauh; tulis angka sebenarnya di
   komentar test.
+
+## Mexicano (3.4.0, MINOR)
+
+Keputusan host: `schemaVersion` tetap 2 (PRD §14, keputusan 23–41). Aturan produk: PRD §14, `design/spec/logic.md` §14. Di sini
+hanya bentuk simpanannya. Perubahan payload turnamen cuma satu nilai: `config.mode = "mexicano"` (`c.mode.name`,
+`tournament_codec.dart:143`). Tidak ada kunci baru; Fixed, Mixed, dan Sparing ter-encode byte-sama dengan 3.3.x (MX-1
+membuktikannya dengan fixture literal). Turunan Mexicano mengikuti Mixed: istirahat di `resting` (id pemain), `bye` kosong,
+tanpa `restingPairs`, `extraPutaran` 0, `withdrawn` terpakai (Kembalikan, keputusan 39).
+
+### Kenapa `schemaVersion` tetap 2 dan tanpa penanda
+
+Pembaca ≤ 3.3.x menolak `mode: "mexicano"` sendiri. Menaikkan skema (selalu MAJOR) akan membuang simpanan 3.3.x di app baru,
+dan penanda seperti `bye.sparing` tidak perlu:
+
+- `_readConfig` memakai `PartnerMode.values.byName(j['mode'] as String)` (`tournament_codec.dart:200`). Baris yang sama ada di
+  semua rilis: bc38717:111, 3.1.0 (10817f4):122, 3.2.0 (564ea67):186, 3.3.2 (8af509b, `main`). Enum lama hanya
+  `{fixed, mixed}`, jadi `byName("mexicano")` melempar `ArgumentError`.
+- Pelemparnya di dalam `try { … } catch (_) { return null; }` (`tournament_codec.dart:68`, `106-110`): `decode` null. `schema` 2 dan
+  `appVersion` String lolos dulu (`:70`), jadi penolakan memang karena `mode`.
+- Penonton ≤ 3.3.x: `_check` menerima `null` dari `decode` sebagai `LiveViewStatus.unreadable`
+  (`features/live/live_view_controller.dart:83-85`) → layar "Live tidak bisa dibuka"; pembukaan berikutnya memuat versi baru.
+  Relay tidak berubah: hanya memeriksa `schema` angka dan `tournament` objek (`relay/src/*.js:121`), tidak membaca `mode`.
+- Host ≤ 3.3.x (tab/instalasi tersisa di box yang sama): `loadActive` → null (`tournament_store.dart:42`), `build()` mengembalikan
+  null, dan listener auto-save mengabaikan state null (`tournament_controller.dart:34`), jadi tidak ada tulisan yang menimpa
+  `active`. Simpanan tertimpa **hanya** kalau host memulai turnamen baru di versi lama (risiko yang sama dengan Sparing, "Risiko
+  app lama"). `lastFinished` Mexicano di versi lama juga null (kartu terakhir tidak muncul) tetapi tidak dihapus.
+- Konsekuensi yang diterima, sama dengan Sparing: selama versi lama masih aktif, live Mexicano terlihat "tidak bisa dibuka",
+  bukan data salah. Ini dibuktikan dengan membaca kode (versi lama tidak bisa dijalankan di sini); MX-1 menguji decoder
+  menolak `mode` tak dikenal (`mode: "zzz"` → null), perilaku yang sama dengan yang dipakai versi lama.
+
+### Aturan baca baru (semua = `decode` null, bukan melempar)
+
+| Kondisi | Hasil |
+|---|---|
+| `mode` = `"mexicano"` dan ada `config.clubs` | null (Mexicano tanpa klub; kartu Mexicano tidak ada di Sparing, AC-M2) |
+| `mode` = `"mexicano"` dan `scoring` ≠ `"americano"` | null (Mexicano selalu Americano, `ScoreFormat.forMexicano`) |
+| `mode` = `"mexicano"` dengan kunci sparing lain (`club` di pemain, `restingPairs`, `bye.sparing`) | null lewat aturan yang sudah ada (tanpa `clubs`, kunci sparing = rusak) |
+| `mode` bukan `fixed`, `mixed`, atau `mexicano` | null (`byName` melempar, ditangkap) |
+
+`canEncode` ikut dua aturan pertama supaya `encode` melempar `UnreadableTournamentError` dan store melewati tulisannya, sama
+seperti bentuk sparing yang rusak. Alasan memeriksa saat baca: layar Mexicano tidak punya cabang klub dan memakai Total Point;
+payload yang melanggarnya tidak bisa ditulis penulis mana pun. Yang **tidak** diperiksa: jumlah pemain dan kehadiran per round
+(keadaan, bukan bentuk; `canReinstate` harus total).
+
+### Pengaturan terakhir (`settings.<olahraga>`)
+
+Pengaturan Konfigurasi turnamen terakhir, supaya turnamen berikutnya tidak mengisi ulang court dan format (keputusan 33–38).
+Kode: `services/storage/last_settings.dart` (KF-1), Dart murni, ter-test.
+
+- **Kunci**: `settings.tennis` dan `settings.padel` (`SportType.name`) di box Hive `tournament`, bernilai String JSON seperti
+  `active`/`lastFinished`/`live`. Dibaca dan ditulis lewat `TournamentStore` (`_read`/`_write`), jadi `TournamentStore.memory()`
+  ikut berlaku. Di luar `TournamentCodec`: tanpa `schema`/`appVersion`, tidak pernah ikut payload turnamen atau relay, tidak
+  disentuh `archiveActive`.
+- **Bentuk**:
+
+```json
+{ "v": 1, "mode": "mexicano", "scoring": "americano", "target": 24, "duration": 15,
+  "courts": [ {"name": null, "colorIndex": 0, "bookingMinutes": 120},
+              {"name": "Court Timur", "colorIndex": 1, "bookingMinutes": 120} ] }
+```
+
+- **Validasi per field**. Satu pelanggaran = **seluruh entri** tak terbaca (tanpa perbaikan sebagian, supaya layar tidak terisi
+  setengah rusak):
+
+| Field | Syarat |
+|---|---|
+| `v` | int tepat 1 (nilai lain, termasuk versi lebih baru, = tak terbaca) |
+| `mode` | nama enum `fixed`/`mixed`/`mexicano` |
+| `scoring` + `target` | `scoring` nama `ScoringMethod`; `target` int dengan `ScoreFormat.isValid` (Race to 2–9, Best of 1–15, Americano 2–99); `mode` mexicano wajib `americano` (sama dengan aturan baca turnamen) |
+| `duration` | int kelipatan 5 (`TournamentConfig.durationStep`) dalam 5–180 (`_maxDuration`, `konfigurasi_screen.dart:38`) |
+| `courts` | list 1..`TournamentConfig.maxCourts` (10) map |
+| `courts[].colorIndex` | int 0..`MabarColors.courtPalette.length - 1` (`mabar_theme.dart:64`, sekarang 0–9) |
+| `courts[].bookingMinutes` | int kelipatan 60 dalam 60–720 (stepper 1–12 jam, `konfigurasi_screen.dart:283-285`) |
+| `courts[].name` | null atau String; String kosong/spasi saja dibaca null. Panjang tidak diperiksa (UI tidak membatasinya) |
+| Panjang String JSON | maksimal 16 KB; lebih dari itu tak terbaca (jaring untuk data rusak/raksasa) |
+
+- **Nama court**: ditulis `null` kalau sama dengan label default "Court n" (n = urutan). Konfigurasi menulis nama default ke
+  config saat kolom kosong (`_CourtDraft.label`, `konfigurasi_screen.dart:333-336`), jadi yang dibandingkan label default,
+  bukan string kosong. Tanpa ini, mengubah jumlah court di turnamen berikutnya membawa "Court 3" yang salah urutan. Id court
+  tidak disimpan: tiap Konfigurasi dibuka court mendapat id baru (`Uuid().v4()`, `:65`).
+- **Kapan ditulis**: sekali per turnamen **baru**, di `startIfNeeded` setelah `state` dibuat (bukan di cabang `identical` yang
+  kembali lebih awal, `tournament_controller.dart:48`). Resume, Lanjutkan turnamen, dan Kelola court tidak menulis. Termasuk
+  turnamen Sparing (modenya fixed/mixed, tanpa klub). Tidak ikut: nama turnamen, pemain, klub, pasangan. Tulis ulang menimpa
+  seluruh entri olahraga itu (satu `put` per kunci); olahraga lain tidak disentuh. Kegagalan tulis (disk penuh) ditelan:
+  turnamen tetap jalan, hanya pengaturan tidak tersimpan. Satu panggilan di satu tempat dan tidak ada mutator yang menulisnya,
+  jadi tidak ada call site yang bisa lupa atau menggandakan; ini juga bukan state turnamen, jadi jalur auto-save turnamen tetap satu.
+- **Perlakuan tak terbaca**: kunci tidak ada, bukan JSON, bukan map, atau melanggar satu baris tabel → `LastSettings.read`
+  mengembalikan null tanpa melempar (`try/catch` di sekitar `jsonDecode` dan cast, pola `TournamentCodec.decode`). Konfigurasi
+  memakai default 03a (Fixed, Race to 6, durasi bawaan olahraga, 2 court × 2 jam). Entri rusak tidak dihapus atau diperbaiki;
+  ditimpa pada turnamen berikutnya.
+- **Turunan saat dibaca**: Sparing + entri Mexicano → mode Mixed, format dan court tetap (`LastSettings.forSparing`): penyesuaian
+  di layar, bukan perubahan simpanan.
+- **Versi lama**: ≤ 3.3.x tidak membaca kunci ini. Akses ke box hanya lewat `TournamentStore` dengan kunci tetap (`active`,
+  `lastFinished`, `live`); tidak ada yang menghitung atau mengosongkan isi box (`.keys`/`.clear` tidak muncul di
+  `lib/services` dan `main.dart`), jadi kunci tambahan diabaikan dan entri 3.4.0 tetap utuh. Bentuk berikutnya yang tidak
+  kompatibel menaikkan `v`; pembaca lama menganggapnya tak terbaca (default).
+
+### Test wajib
+
+- MX-1 `test/services/mexicano_codec_test.dart` (AC-M20): fixture literal 3.3.x Fixed/Mixed/Sparing terbaca dan ter-encode
+  byte-sama; round trip Mexicano dengan pemain keluar; tiap baris tabel aturan baca → null; `mode: "zzz"` → null.
+- KF-1 `test/services/last_settings_test.dart`: satu test per baris tabel validasi (→ null, tidak melempar), JSON terpotong,
+  `v: 2`, round trip (nama default → null → "Court n"), tennis dan padel terpisah, Sparing + Mexicano → Mixed, nama turnamen
+  tidak tersimpan, resume tidak menulis, olahraga lain tidak berubah.
 
 ## Auto-save & resume
 

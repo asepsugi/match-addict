@@ -727,6 +727,10 @@ acak, cepat):
   `TournamentCodec`, tidak pernah lewat relay. Nilai di luar batas (format `isValid`, durasi kelipatan 5 dalam 5–180,
   court 1–10, warna 0–9, booking kelipatan 60 dalam 60–720, mode tak dikenal) → abaikan entri itu (default). Versi lama
   tidak membaca kunci ini.
+- **Final (dba, MX-0, 2026-11-12): bentuk dan kunci di atas dipakai apa adanya**; rincian lengkap di `docs/data.md` →
+  Mexicano. Tambahan yang belum ada di draf: (1) entri `mode` mexicano dengan `scoring` ≠ americano = tak terbaca (sama
+  dengan aturan baca turnamen); (2) `v` ≠ 1 = tak terbaca; (3) String JSON > 16 KB = tak terbaca; (4) nama court kosong/spasi
+  dibaca null, panjang tidak dibatasi; (5) satu pelanggaran membuat seluruh entri default, tanpa perbaikan sebagian.
 
 ### 14.7 Jebakan untuk engineer dan reviewer
 
