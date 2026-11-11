@@ -7,7 +7,6 @@ import 'package:match_addict/core/theme/mabar_theme.dart';
 import 'package:match_addict/features/schedule/sparing_providers.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/features/share/share_content.dart';
-import 'package:match_addict/features/share/share_result_screen.dart';
 import 'package:match_addict/features/share/share_theme.dart';
 import 'package:match_addict/features/share/widgets/share_poster.dart';
 import 'package:match_addict/models/models.dart';
