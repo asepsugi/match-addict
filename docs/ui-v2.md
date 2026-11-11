@@ -156,6 +156,9 @@ booking 1–12 jam per court.
 - Lengkap: Mixed > 10 baris di pratinjau/Feed jadi dua kolom, pasangan dan Story selalu satu kolom; lebih padat dari
   frame terpadat yang disetujui (10 baris satu kolom, 15 per kolom, 20 baris nama di Story) semua huruf baris
   dikecilkan sebanding (`SharePoster._density`, frame 11k/11l).
+- Sparing (13q–13w): `SharePosterClubScore` (`.pscore`, teks jadi dari `ClubResult`) di bawah judul, per klub
+  `SharePosterClub` (`.pclub` + "+n …") lalu barisnya; nomor dari `clubStandingEntriesProvider`. Kepadatan Lengkap
+  `sparingPosterDensity` (aturan di `logic.md` §13.9). Golden 13w Feed/Story bertoleransi 3% seperti 11l.
 - Teks kepala/kaki poster dibungkus `_CssLines` (tinggi = n baris × ukuran × line-height, ikut skala teks) supaya ruang
   daftar sama dengan CSS. Golden Feed/Story 11l bertoleransi 3%: kotaknya sudah sama dengan Chrome, sisa geseran huruf
   ≤ 1 pt di baris rapat (line-height 1,1) jadi ±1,7% piksel di Mac dan ±0,7 poin lebih tinggi di CI Linux (pernah gagal

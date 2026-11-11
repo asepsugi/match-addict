@@ -243,11 +243,8 @@ Bentrok berkas yang diketahui:
 - **Dependensi:** SP-4, SP-5. **Paralel:** ya. **Model:** default.
 
 ## SP-15 · Bagikan sparing: Ringkas + caption
-- **Status (2026-11-08, dijeda):** dikerjakan, **belum direview**. Branch `worktree-agent-aa1397bf15a87285b`
-  (worktree `.claude/worktrees/agent-aa1397bf15a87285b`): `f30b037` (Fixed 13q–13t) + `2377367` (Mixed 13u–13w), basis `0dac442`.
-  Laporan engineer: golden 13q–13w lolos (Feed/Story 13w toleransi 3% seperti 11l), `flutter test` penuh 710 lulus.
-  Langkah berikut: review tech-lead baru (opus) → cherry-pick ke `sparing`. Sisa dokumen: `docs/ui-v2.md` bagian
-  SharePoster dan `logic.md` §13.9 ("sedang digambar" → disetujui).
+- **Status:** selesai, di-approve (7222885 + cb3c0b7 di `sparing`, 2026-11-11). Saran review yang belum dikerjakan
+  (opsional): test poster nama klub panjang, tanpa hasil "0 – 0", skor ½.
 - **Goal:** `sharePosterData` sparing (`.pscore`, label `.pclub`, 3 teratas tiap klub, "+n pasangan lainnya"),
   `SharePoster` pratinjau Ringkas, caption 13q (termasuk Seri dan sparing bernama), Lengkap pratinjau per aturan
   `logic.md` §13.9.
@@ -454,15 +451,7 @@ Aturan bersama SP-18:
 - **Dependensi:** SP-18a. **Paralel:** ya. **Model:** default.
 
 ## SP-18h · Beranda Mixed sparing (15w, 15x, 15y)
-- **Status (2026-11-08, dijeda):** dikerjakan (`1b78c85`, branch `worktree-agent-a270017440546198f`, basis `899c1fc`),
-  review = **Request changes**, perbaikan belum dimulai. Yang wajib:
-  1. `court_banner.dart` `_ClubsAside` (±357–372) ikut CSS 15w (`design/hifi.html` ±3718): angka
-     `MabarType.numM.copyWith(color: Colors.white, fontSize: 19, height: 1.1)`, nama
-     `MabarType.body.copyWith(fontSize: 14, fontWeight: FontWeight.w600, height: 1.1, color: Colors.white)`, jarak
-     nama–angka 5, antarbaris 2, baris luar `_LiveBlock` `CrossAxisAlignment.end`; lihat PNG 15w/15y setelahnya.
-  2. `sparing_beranda_test.dart` test 15w: assert fontSize 19 dan 14/w600 lewat `.style`, tinggi blok skor ≤ rect
-     "Round 4" dan bawahnya ≤ bawah "Round 4", disarankan `top` "Lanjutkan" = banner sparing tanpa nama.
-  Lalu re-review (diff perbaikan saja) → rebase ke `sparing` → gabung.
+- **Status:** selesai, di-approve (f525fcd + perbaikan review 9d209e1 di `sparing`, 2026-11-11).
 - **Goal:** sisa SP-17. 15w: sparing bernama berjalan, nama tetap di baris kecil, skor klub dua baris rata kanan di
   samping "Round n" (klub pertama atas), nama klub panjang elipsis, angka utuh, tinggi info round tidak bertambah.
   15x: turnamen terakhir Mixed sparing tanpa nama → judul "{klub1} · skor · {klub2}", bernama → nama turnamen; ketuk →

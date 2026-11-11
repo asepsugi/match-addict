@@ -476,11 +476,11 @@ caption, Live — tidak dihitung ulang di widget.
 - Caption: baris pertama "🏆 {klub1} {menang}–{menang} {klub2} · {olahraga}" (seri skor + Total Point sama: "… · Seri ·
   Padel"), nama turnamen di baris kedua kalau ada, lalu blok "Klasemen Akhir · {klub}" per klub (baris sama dengan
   caption biasa), kaki sama. Lengkap menambah "Hasil per Round" (baris match klub pertama dulu). Teks persis: 13q.
-- Lengkap / Feed / Story sparing: host setuju (2026-11-07) designer menambah framenya dengan gaya poster yang ada;
-  sedang digambar (SP-15). Yang sudah pasti dari aturan
-  poster: Lengkap = semua baris bernomor per klub dengan label `.pclub`; pasangan selalu satu kolom. Yang belum ada
-  nilainya: ukuran `.pscore`/`.pclub` di Feed dan Story, dan apakah label klub dihitung sebagai baris di
-  `_density`/dua kolom Mixed — lihat SP-15.
+- Lengkap / Feed / Story sparing (frame 13r–13w, disetujui host 2026-11-08, diimplementasi SP-15): Lengkap = semua
+  baris bernomor per klub dengan label `.pclub`; pasangan dan Story selalu satu kolom, Mixed di pratinjau/Feed satu
+  kolom per klub. Ukuran `.pscore`/`.pclub` per target di catatan frame (`13-sparing.md`; Story ×0,75). Kepadatan
+  (`sparingPosterDensity`, hanya Lengkap): label klub dihitung satu baris, skor klub tidak; ambang 8 baris (satu kolom),
+  10 per kolom (dua kolom per klub), 16 baris nama (Story); lebih dari itu huruf × ambang ÷ baris.
 
 ### 13.10 Data (final, DBA SP-0 — bentuk lengkap, aturan baca, dan risiko di `docs/data.md` → Sparing)
 
