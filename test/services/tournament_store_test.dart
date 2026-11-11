@@ -124,6 +124,38 @@ void main() {
       final half = TournamentCodec.encode(_sample());
       expect(TournamentCodec.decode(half.substring(0, half.length ~/ 2)), isNull);
     });
+
+    test('roundNumber di luar 1..maxRoundNumber ditolak (security #4: tab penonton membeku)', () {
+      String withRound(int round) {
+        final json = jsonDecode(TournamentCodec.encode(_sample())) as Map<String, dynamic>;
+        (json['tournament']['matches'] as List).last['roundNumber'] = round;
+        return jsonEncode(json);
+      }
+
+      expect(TournamentCodec.decode(withRound(TournamentCodec.maxRoundNumber)), isNotNull);
+      expect(TournamentCodec.decode(withRound(TournamentCodec.maxRoundNumber + 1)), isNull);
+      expect(TournamentCodec.decode(withRound(1000000000)), isNull);
+      expect(TournamentCodec.decode(withRound(0)), isNull);
+      expect(TournamentCodec.decode(withRound(-1)), isNull);
+    });
+
+    test('encode menolak roundNumber di luar batas, simetris dengan decode', () {
+      final sample = _sample();
+      final last = sample.matches.last;
+      final far = MatchGame(
+        id: last.id,
+        roundNumber: TournamentCodec.maxRoundNumber + 1,
+        matchNumberInRound: last.matchNumberInRound,
+        courtId: last.courtId,
+        pair1: last.pair1,
+        pair2: last.pair2,
+      );
+      final broken = sample.copyWith(
+        tournament: sample.tournament.copyWith(matches: [...sample.matches.take(sample.matches.length - 1), far]),
+      );
+      expect(TournamentCodec.canEncode(broken), isFalse);
+      expect(() => TournamentCodec.encode(broken), throwsA(isA<UnreadableTournamentError>()));
+    });
   });
 
   group('TournamentStore (Hive)', () {

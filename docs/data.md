@@ -75,9 +75,11 @@ produknya: PRD §13, `design/spec/logic.md` §13. Di sini hanya bentuk simpanann
   `logic.md` §13.3) yang sudah dibuat, `u` di rumus blok `K = g + u`; di Fixed biasa tetap jumlah putaran. Tafsir ikut
   `isSparing`, jadi tidak ambigu. Di sparing nilainya ≥ 0; Mixed sparing selalu 0. Tetap naik walau Atur pasangan mengubah
   jumlah pasangan (`g`, `L` dihitung ulang dari jumlah baru).
-- **Encode menolak sparing yang tidak sah** (review SP-1): `encode` punya `assert` dengan aturan baca yang sama, jadi
-  mutator yang membuat pemain sparing tanpa `clubId` atau match dengan `pair1` dari klub kedua langsung gagal di test,
-  bukan diam-diam menghasilkan simpanan yang terbaca null saat resume (turnamen hilang).
+- **Encode menolak bentuk yang tidak terbaca** (review SP-1, PATCH 3.3.2): `TournamentCodec.canEncode` memakai aturan baca
+  yang sama (bentuk sparing, `roundNumber` 1..`maxRoundNumber` = 1000). `encode` melempar `UnreadableTournamentError`
+  juga di rilis; `TournamentStore` melewati tulisan (simpanan sah terakhir tetap, `archiveActive` tidak mengosongkan slot
+  aktif) dan live tidak mengirim (penonton tetap di kiriman sah terakhir). Jaring test: `assert(canEncode)` di auto-save
+  `TournamentController`, jadi mutator yang merusak bentuk gagal di test, bukan baru ketahuan saat resume.
 - **Penanda di `bye`**: payload sparing menulis `"bye": {"sparing": "1"}` (tambahan atas nomor round, yang kosong).
   Ini sengaja: decoder 3.1.0 melakukan `int.parse` pada tiap kunci `bye`, jadi kunci "sparing" membuatnya melempar dan
   `decode` jadi null di app lama (lihat "Risiko app lama"). Decoder 3.2.0 membuang kunci persis `sparing` sebelum

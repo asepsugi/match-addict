@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/core/app_version.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/storage/tournament_codec.dart';
+import 'package:match_addict/services/storage/tournament_store.dart';
 import 'package:uuid/uuid.dart';
 
 // --- Simpanan 3.1.0 (literal) ------------------------------------------------
@@ -617,7 +618,7 @@ void main() {
     });
   });
 
-  group('encode menolak bentuk sparing yang tidak bisa dibaca kembali (assert)', () {
+  group('encode menolak bentuk sparing yang tidak bisa dibaca kembali (UnreadableTournamentError, juga di rilis)', () {
     test('pemain sparing tanpa klub', () {
       final active = _fixed13a(filled: 3);
       final broken = active.copyWith(
@@ -627,7 +628,7 @@ void main() {
           ),
         ),
       );
-      expect(() => TournamentCodec.encode(broken), throwsA(isA<AssertionError>()));
+      expect(() => TournamentCodec.encode(broken), throwsA(isA<UnreadableTournamentError>()));
     });
 
     test('pair1 dari klub kedua', () {
@@ -644,7 +645,29 @@ void main() {
       final broken = active.copyWith(
         tournament: active.tournament.copyWith(matches: [swapped, ...active.matches.skip(1)]),
       );
-      expect(() => TournamentCodec.encode(broken), throwsA(isA<AssertionError>()));
+      expect(() => TournamentCodec.encode(broken), throwsA(isA<UnreadableTournamentError>()));
+    });
+
+    test('TournamentStore tidak menimpa simpanan sah terakhir dengan bentuk rusak (security #1)', () async {
+      final active = _fixed13a(filled: 3);
+      final broken = active.copyWith(
+        tournament: active.tournament.copyWith(
+          config: active.config.copyWith(
+            players: [for (final p in active.config.players) p.id == 'p-andi' ? Player(id: p.id, name: p.name) : p],
+          ),
+        ),
+      );
+      final store = TournamentStore.memory();
+      await store.saveActive(active);
+      final saved = TournamentCodec.encode(store.loadActive()!);
+
+      await store.saveActive(broken);
+      expect(TournamentCodec.encode(store.loadActive()!), saved);
+
+      // Menutup turnamen: slot aktif dibiarkan supaya turnamennya kembali saat app dibuka, bukan hilang.
+      await store.archiveActive(broken);
+      expect(TournamentCodec.encode(store.loadActive()!), saved);
+      expect(store.loadLastFinished(), isNull);
     });
   });
 

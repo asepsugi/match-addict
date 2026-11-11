@@ -77,7 +77,8 @@ redesain + format skor + data app lama tidak dimuat); 2.2.0 Kelola court; 2.3.0 
 (kredit dihapus); 2.8.0 Best of/Americano berhenti lebih awal (semuanya MINOR); 3.0.0 (MAJOR) = nama Match Addict +
 pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda); 3.1.0 (MINOR) = round tambahan Fixed
 + atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
-Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda.
+Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
+3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`).
 
 ## Status
 
@@ -96,9 +97,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Live score (relay tanpa database) — `docs/live.md`.
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - Sparing 3.2.0 (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, `docs/architecture.md` →
-  Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). Berikutnya (PATCH):
-  temuan `docs/security.md` (validasi encode di rilis, batas `roundNumber`). Branch `default-metode-ikut-format`
-  (3.3.0 + 3.3.1, belum di `main`): kerjakan PATCH security di atasnya, lalu push ke `main` sekaligus (keputusan host).
+  Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). Branch `default-metode-ikut-format`
+  (3.3.0–3.3.2, belum di `main`): siap push ke `main` sekaligus (keputusan host).
 
 ## Area docs
 

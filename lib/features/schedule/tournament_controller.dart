@@ -9,6 +9,7 @@ import '../../services/ranking/ranking_calculator.dart';
 import '../../services/schedule/endless_round_generator.dart';
 import '../../services/schedule/round_robin_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
+import '../../services/storage/tournament_codec.dart';
 import '../../services/storage/tournament_store.dart';
 
 /// Penyimpanan turnamen di device. Di-override di `main()` dengan box Hive yang
@@ -30,7 +31,10 @@ class TournamentController extends Notifier<ActiveTournament?> {
     // Auto-save lewat satu listener: semua mutasi di controller ini berakhir di
     // `state =`, jadi tidak ada call site yang bisa lupa menyimpan.
     listenSelf((_, next) {
-      if (next != null) unawaited(_store.saveActive(next));
+      if (next == null) return;
+      // Di rilis store melewati bentuk yang tak terbaca; di test bug mutatornya harus langsung gagal di sini.
+      assert(TournamentCodec.canEncode(next), 'Mutator menghasilkan turnamen yang tidak bisa disimpan (docs/data.md).');
+      unawaited(_store.saveActive(next));
     });
     // Resume: kalau app sebelumnya di-kill, turnamennya kembali dari sini.
     return _store.loadActive();

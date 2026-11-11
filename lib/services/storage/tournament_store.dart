@@ -43,7 +43,20 @@ class TournamentStore {
 
   ActiveTournament? loadLastFinished() => TournamentCodec.decode(_read(_lastFinishedKey));
 
-  Future<void> saveActive(ActiveTournament active) => _write(_activeKey, TournamentCodec.encode(active));
+  Future<void> saveActive(ActiveTournament active) async {
+    final raw = _encodeOrNull(active);
+    if (raw != null) await _write(_activeKey, raw);
+  }
+
+  /// Null = bentuk tidak bisa dibaca lagi ([TournamentCodec.encode]); simpanan sah terakhir dibiarkan, lebih baik
+  /// resume ke keadaan sebelumnya daripada turnamennya hilang.
+  static String? _encodeOrNull(ActiveTournament active) {
+    try {
+      return TournamentCodec.encode(active);
+    } on UnreadableTournamentError {
+      return null;
+    }
+  }
 
   /// Satu live saja: turnamen aktif, atau turnamen terakhir yang masih bisa dilanjutkan dari Beranda.
   LiveSession? loadLive() => LiveSession.fromJson(_read(_liveKey));
@@ -54,7 +67,10 @@ class TournamentStore {
   /// Menutup turnamen: pindah dari slot aktif ke slot "terakhir selesai".
   /// Sesuai PRD, menutup turnamen tidak menghapus hasilnya.
   Future<void> archiveActive(ActiveTournament active) async {
-    await _write(_lastFinishedKey, TournamentCodec.encode(active));
+    final raw = _encodeOrNull(active);
+    // Slot aktif hanya dikosongkan kalau hasilnya benar tersimpan; kalau tidak, turnamen kembali saat app dibuka.
+    if (raw == null) return;
+    await _write(_lastFinishedKey, raw);
     await _write(_activeKey, null);
   }
 }

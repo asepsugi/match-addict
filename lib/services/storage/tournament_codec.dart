@@ -6,6 +6,13 @@ import '../../models/models.dart';
 /// Serialisasi [ActiveTournament] ke JSON dan kembali. Dipisah dari Hive supaya
 /// bisa dites tanpa plugin, dan supaya format simpanan tidak terikat ke
 /// TypeAdapter yang butuh codegen + nomor typeId.
+/// Turnamen yang kalau ditulis tidak bisa dibaca kembali (docs/data.md → Aturan baca). Tipe sendiri supaya StateError
+/// lain dari encode (`.first`, …) tidak ikut ditelan penangkapnya.
+class UnreadableTournamentError extends StateError {
+  UnreadableTournamentError()
+    : super('Turnamen melanggar bentuk simpanan (docs/data.md → Aturan baca); decode akan menolaknya.');
+}
+
 class TournamentCodec {
   /// Dinaikkan kalau bentuk JSON berubah tidak kompatibel. Payload dengan versi
   /// lain dibuang, bukan dipaksa dibaca — turnamen lama hilang lebih baik
@@ -21,14 +28,20 @@ class TournamentCodec {
   /// Revisi bentuk sparing; revisi tak kompatibel berikutnya menaikkannya supaya pembaca lama menolak.
   static const _sparingRevision = '1';
 
+  /// Batas `roundNumber` yang dibaca. Turnamen nyata jauh di bawahnya; payload live dengan nomor raksasa membuat tab
+  /// penonton membeku karena banyak turunan mengulang 1..roundCount (docs/security.md #4).
+  static const maxRoundNumber = 1000;
+
+  /// Bentuk yang akan diterima decode lagi. Dipakai [encode] (juga di rilis) dan assert auto-save di controller, supaya
+  /// bug mutator gagal keras di test walau [TournamentStore] melewati tulisannya.
+  static bool canEncode(ActiveTournament active) =>
+      active.matches.every((m) => m.roundNumber >= 1 && m.roundNumber <= maxRoundNumber) &&
+      (!active.config.isSparing || (active.extraPutaran >= 0 && _isValidSparing(active.tournament)));
+
+  /// Melempar [UnreadableTournamentError] kalau bentuknya akan ditolak decode: pemanggil jangan menimpa simpanan/kiriman
+  /// sah terakhir dengannya (docs/security.md #1).
   static String encode(ActiveTournament active) {
-    // Mutator yang merusak bentuk sparing (pemain tanpa klub, `pair1` dari klub kedua, …) akan menulis payload yang
-    // ditolak decode, dan turnamennya baru hilang saat resume. Assert memakai aturan baca yang sama supaya kesalahan
-    // itu gagal di test yang menyimpan (juga lewat `TournamentStore.memory`); tanpa biaya di rilis.
-    assert(
-      !active.config.isSparing || (active.extraPutaran >= 0 && _isValidSparing(active.tournament)),
-      'Turnamen sparing melanggar bentuk simpanan (docs/data.md → Aturan baca); decode akan menolaknya.',
-    );
+    if (!canEncode(active)) throw UnreadableTournamentError();
     // Kunci sparing hanya untuk turnamen sparing: encode turnamen biasa harus byte-sama dengan 3.1.0 (AC-S19).
     final sparing = active.config.isSparing;
     return jsonEncode({
@@ -56,6 +69,7 @@ class TournamentCodec {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       if (json['schema'] != schemaVersion || json['appVersion'] is! String) return null;
       final tournament = _readTournament(json['tournament'] as Map<String, dynamic>);
+      if (tournament.matches.any((m) => m.roundNumber < 1 || m.roundNumber > maxRoundNumber)) return null;
       final config = tournament.config;
       // Penanda dibuang sebelum nomor round dibaca; kunci non-angka lain tetap membuat payload rusak.
       final bye = Map<String, dynamic>.of(json['bye'] as Map<String, dynamic>);

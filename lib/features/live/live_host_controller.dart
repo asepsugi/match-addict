@@ -151,6 +151,9 @@ class LiveHostController extends Notifier<LiveHost?> {
       } else {
         _scheduleRetry();
       }
+    } on UnreadableTournamentError {
+      // Bentuk tidak terbaca (TournamentCodec.encode): penonton tetap melihat kiriman sah terakhir; perubahan
+      // berikutnya mencoba lagi, tanpa retry berkala.
     } catch (_) {
       _scheduleRetry();
     } finally {
