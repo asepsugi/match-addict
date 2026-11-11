@@ -13,8 +13,9 @@ import '../hifi_golden.dart';
 import 'schedule_fixture.dart' show LoadedTournament;
 import 'screen_harness.dart';
 import 'sparing_fixture.dart';
+import 'sparing_mixed_fixture.dart' show MixedSparingState, mixedSparing13m, mixedSparing15r;
 
-/// Golden Input Skor + sheet WO turnamen sparing (14q, 14r) dan perilakunya (AC-S7, AC-S15). Papan membaca
+/// Golden Input Skor + sheet WO turnamen sparing (14q, 14r; Mixed 15q, 15r) dan perilakunya (AC-S7, AC-S15, K11). Papan membaca
 /// `pair1` = klub pertama (S4), jadi layarnya sama dengan Input Skor biasa.
 void main() {
   Widget screen(ActiveTournament active, String matchId, DateTime now) => hifiScreen(
@@ -127,5 +128,63 @@ void main() {
     expect(after.second.totalPoint - before.second.totalPoint, 6);
     expect(after.first.totalPoint, before.first.totalPoint);
     expect((after.first.diff, after.second.diff), (before.first.diff, before.second.diff));
+  });
+
+  // SP-18f: Mixed sparing memakai layar dan sheet yang sama dengan Fixed (S4: pair1 = klub pertama).
+  Widget mixedScreen(MixedSparingState s, String matchId) => screen(s.active, matchId, s.now);
+
+  testWidgets('15q Input Skor Mixed sparing Court 2 R3 (klub pertama di atas, tanpa label klub)', (tester) async {
+    final s = mixedSparing13m();
+    await expectMatchesHifi(tester, mixedScreen(s, 'm-r3-2'), '15q', act: (tester) => type(tester, [5, 6]));
+    expect(find.text('Lina & Maya menang 6–5'), findsOneWidget);
+    // AC-S7: dua pemain klub pertama di baris atas papan, tanpa nama klub.
+    expect(tester.getTopLeft(find.text('Citra')).dy, lessThan(tester.getTopLeft(find.text('Lina')).dy));
+    expect(find.text('PB Garuda'), findsNothing);
+    expect(find.text('Matcha Club'), findsNothing);
+  });
+
+  testWidgets('15r sheet walkover Mixed sparing Americano: urutan pilihan = urutan papan', (tester) async {
+    final s = mixedSparing15r();
+    await expectMatchesHifi(
+      tester,
+      mixedScreen(s, 'm-r3-2'),
+      '15r',
+      act: (tester) async {
+        await tester.tap(find.text('WO'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Citra · Gita'));
+        await tester.pump();
+        await tester.tap(find.text('Absen'));
+      },
+    );
+    expect(tester.getTopLeft(find.text('Citra · Gita')).dy, lessThan(tester.getTopLeft(find.text('Lina · Maya')).dy));
+    expect(find.text('Lina & Maya menang WO dan dapat poin rata-rata mereka, minimal 11.'), findsOneWidget);
+  });
+
+  testWidgets('K11 simpan WO 15r: Matcha +1 menang, +12 Total Point klub, selisih tetap; Lina 18, Maya 24', (
+    tester,
+  ) async {
+    final s = mixedSparing15r();
+    final container = await pump(tester, s.active, 'm-r3-2', s.now);
+    final before = container.read(clubScoreProvider)!;
+    await tester.tap(find.text('WO'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Citra · Gita'));
+    await tester.pump();
+    await tester.tap(find.text('Simpan WO'));
+    await tester.pumpAndSettle();
+    final after = container.read(clubScoreProvider)!;
+    expect(after.second.halfWins - before.second.halfWins, 2);
+    expect(after.second.totalPoint - before.second.totalPoint, 12);
+    expect(after.first.totalPoint, before.first.totalPoint);
+    expect((after.first.diff, after.second.diff), (before.first.diff, before.second.diff));
+    expect(line(after), '4 – 2 · 59 – 58');
+
+    // Nilai WO pemain (4.4): rata-rata poin mereka sendiri, minimal 11 — Lina 7 + 11, Maya 12 + 12.
+    final points = {
+      for (final g in container.read(clubStandingEntriesProvider))
+        for (final e in g.entries) e.players.single.name: e.standing.totalPoint,
+    };
+    expect([points['Lina'], points['Maya']], [18, 24]);
   });
 }
