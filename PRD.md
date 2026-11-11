@@ -316,6 +316,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Mixed: Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen.
 - Fixed setelah semua match terisi: ikon Klasemen + "Tambah round" → sheet jam booking per court, baris Pasangan,
   "n match lagi tiap pasangan" dan "Buat R15–R16" (3.3a).
+- Back (tombol ‹, back HP, back browser) selalu ke Beranda, bukan ke Atur turnamen/Pasangan: dari sana "Buat jadwal"
+  memulai turnamen baru dan skor yang sudah diisi hilang. Turnamen dilanjutkan dari Beranda (keputusan 22).
 
 ### 5.6 Input Skor & Walkover (07a–07o)
 - Papan skor gelap: nama lengkap satu pemain per baris, satu angka besar per tim, keypad sendiri, pesan validasi,
@@ -499,6 +501,9 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     (Race to 6): Dewi · Citra 1W–2L (16, +2) di atas Gita · Andi 2W–1L (16, +1). Riset aturan resmi: skor
     menang/kalah selalu memakai jumlah menang dulu; total poin dulu hanya lazim di Americano. Rilis 3.3.0 MINOR
     (2026-11-11).
+22. **Back dari Jadwal ke Beranda** (5.5): sebelumnya back kembali ke Atur turnamen (atau Pasangan), dan "Buat jadwal"
+    lagi di sana menghapus skor yang sudah diisi. Sekarang back di Jadwal Fixed dan Mixed (tombol, HP, browser)
+    langsung ke Beranda; penonton live tidak berubah. Rilis 3.3.1 PATCH (2026-11-11).
 
 ---
 

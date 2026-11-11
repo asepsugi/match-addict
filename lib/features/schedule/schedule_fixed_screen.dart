@@ -125,106 +125,109 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
 
     Widget faded(double opacity, Widget child) => locked ? Opacity(opacity: opacity, child: child) : child;
 
-    return Scaffold(
-      backgroundColor: MabarColors.paper,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          MabarAppBar(
-            title: 'Round $selected',
-            subtitle: scheduleSubtitle(active, named: watching),
-            onBack: watching ? null : () => context.pop(),
-            actions: [
-              if (!watching)
-                Builder(
-                  builder: (anchor) => MabarIconButton(
-                    icon: MabarIcons.dotsThree,
-                    semanticLabel: 'Menu',
-                    // Setelah diakhiri menunya tinggal Live score (12f).
-                    onPressed: () => _openMenu(anchor, finished),
-                  ),
-                )
-              else if (!active.isFinal(now))
-                const LiveTag(),
-            ],
-          ),
-          RoundTabs(
-            count: active.roundCount,
-            selected: selected,
-            onSelect: (r) => setState(() => _selectedRound = r),
-            liveRound: live ? current : null,
-            isFuture: finished ? null : (r) => r > current,
-            meta: '$played/${matches.length} match',
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              children: [
-                if (clubScore != null) ...[clubScoreOf(clubScore), const SizedBox(height: 16)],
-                if (locked) ...[
-                  Row(
-                    children: [
-                      const Icon(MabarIcons.lockSimple, size: MabarSize.iconInButton, color: MabarColors.ink3),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Terbuka setelah semua skor R${selected - 1} terisi',
-                        style: MabarType.body.copyWith(fontSize: 14, color: MabarColors.ink3),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                faded(
-                  0.5,
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final (i, m) in matches.indexed) ...[
-                        if (i > 0) const SizedBox(height: 8),
-                        ScheduleMatchRow(
-                          active: active,
-                          match: m,
-                          now: now,
-                          onTap: readOnly ? null : () => openScore(m),
-                          onFill: readOnly || m.status != MatchStatus.pending ? null : () => openScore(m),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (restingClubs != null) ...[
-                  if (restingClubs.any((c) => c.names.isNotEmpty)) ...[
-                    const SizedBox(height: 16),
-                    faded(0.6, RestingList.clubs(clubs: restingClubs)),
-                  ],
-                ] else if (byePair != null) ...[
-                  const SizedBox(height: 16),
-                  faded(0.6, RestingList(names: [pairNames(active, byePair).join(' · ')])),
-                ],
+    return ScheduleBackToHome(
+      enabled: !watching,
+      child: Scaffold(
+        backgroundColor: MabarColors.paper,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MabarAppBar(
+              title: 'Round $selected',
+              subtitle: scheduleSubtitle(active, named: watching),
+              onBack: watching ? null : () => context.go('/'),
+              actions: [
+                if (!watching)
+                  Builder(
+                    builder: (anchor) => MabarIconButton(
+                      icon: MabarIcons.dotsThree,
+                      semanticLabel: 'Menu',
+                      // Setelah diakhiri menunya tinggal Live score (12f).
+                      onPressed: () => _openMenu(anchor, finished),
+                    ),
+                  )
+                else if (!active.isFinal(now))
+                  const LiveTag(),
               ],
             ),
-          ),
-          MabarActionBar(
-            // Semua match terisi dan belum diakhiri (06v): Klasemen jadi ikon, seperti Mixed saat waktu habis.
-            children: !watching && active.canAddRounds
-                ? [
-                    MabarIconButton(
-                      icon: MabarIcons.ranking,
-                      semanticLabel: 'Klasemen',
-                      solid: true,
-                      onPressed: () => context.push('/leaderboard'),
+            RoundTabs(
+              count: active.roundCount,
+              selected: selected,
+              onSelect: (r) => setState(() => _selectedRound = r),
+              liveRound: live ? current : null,
+              isFuture: finished ? null : (r) => r > current,
+              meta: '$played/${matches.length} match',
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                children: [
+                  if (clubScore != null) ...[clubScoreOf(clubScore), const SizedBox(height: 16)],
+                  if (locked) ...[
+                    Row(
+                      children: [
+                        const Icon(MabarIcons.lockSimple, size: MabarSize.iconInButton, color: MabarColors.ink3),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Terbuka setelah semua skor R${selected - 1} terisi',
+                          style: MabarType.body.copyWith(fontSize: 14, color: MabarColors.ink3),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: MabarButton(
-                        label: 'Tambah round',
-                        icon: MabarIcons.plus,
-                        onPressed: () => _addRounds(active),
+                    const SizedBox(height: 16),
+                  ],
+                  faded(
+                    0.5,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (i, m) in matches.indexed) ...[
+                          if (i > 0) const SizedBox(height: 8),
+                          ScheduleMatchRow(
+                            active: active,
+                            match: m,
+                            now: now,
+                            onTap: readOnly ? null : () => openScore(m),
+                            onFill: readOnly || m.status != MatchStatus.pending ? null : () => openScore(m),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (restingClubs != null) ...[
+                    if (restingClubs.any((c) => c.names.isNotEmpty)) ...[
+                      const SizedBox(height: 16),
+                      faded(0.6, RestingList.clubs(clubs: restingClubs)),
+                    ],
+                  ] else if (byePair != null) ...[
+                    const SizedBox(height: 16),
+                    faded(0.6, RestingList(names: [pairNames(active, byePair).join(' · ')])),
+                  ],
+                ],
+              ),
+            ),
+            MabarActionBar(
+              // Semua match terisi dan belum diakhiri (06v): Klasemen jadi ikon, seperti Mixed saat waktu habis.
+              children: !watching && active.canAddRounds
+                  ? [
+                      MabarIconButton(
+                        icon: MabarIcons.ranking,
+                        semanticLabel: 'Klasemen',
+                        solid: true,
+                        onPressed: () => context.push('/leaderboard'),
                       ),
-                    ),
-                  ]
-                : [Expanded(child: LeaderboardButton(isFinal: active.isFinal(now)))],
-          ),
-        ],
+                      Expanded(
+                        child: MabarButton(
+                          label: 'Tambah round',
+                          icon: MabarIcons.plus,
+                          onPressed: () => _addRounds(active),
+                        ),
+                      ),
+                    ]
+                  : [Expanded(child: LeaderboardButton(isFinal: active.isFinal(now)))],
+            ),
+          ],
+        ),
       ),
     );
   }

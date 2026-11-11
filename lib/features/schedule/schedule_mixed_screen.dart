@@ -210,90 +210,93 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: MabarColors.paper,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          MabarAppBar(
-            title: 'Round $selected',
-            subtitle: scheduleSubtitle(active, named: watching),
-            onBack: watching ? null : () => context.pop(),
-            actions: [
-              if (!watching)
-                Builder(
-                  builder: (anchor) => MabarIconButton(
-                    icon: MabarIcons.dotsThree,
-                    semanticLabel: 'Menu',
-                    onPressed: () => _openMenu(anchor, active),
-                  ),
-                )
-              else if (!active.isFinal(now))
-                const LiveTag(),
-            ],
-          ),
-          RoundTabs(
-            count: last,
-            selected: selected,
-            onSelect: (r) => setState(() => _selectedRound = r == last ? null : r),
-            liveRound: !finished && !active.isRoundComplete(last) ? last : null,
-            meta: timeUp ? 'Waktu habis' : '$played/${matches.length} match',
-            metaAlert: timeUp,
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              children: [
-                if (clubScore != null) ...[clubScoreOf(clubScore), const SizedBox(height: 16)],
-                for (final (i, m) in matches.indexed) ...[
-                  if (i > 0) const SizedBox(height: 8),
-                  ScheduleMatchRow(
-                    active: active,
-                    match: m,
-                    now: now,
-                    onTap: watching ? null : () => openScore(m),
-                    onFill: !watching && m.status == MatchStatus.pending ? () => openScore(m) : null,
-                  ),
-                ],
-                for (final list in resting) ...[const SizedBox(height: 16), list],
-                // Hanya di tab round terakhir: di tab lain bisa terbaca membatalkan round yang dilihat.
-                if (!watching && onLast && active.canCancelLastRound) ...[
-                  const SizedBox(height: 16),
-                  Center(
-                    child: MabarButton(
-                      label: 'Batalkan R$last',
-                      icon: MabarIcons.arrowCounterClockwise,
-                      variant: MabarButtonVariant.ghost,
-                      small: true,
-                      onPressed: () => _cancelLastRound(last),
+    return ScheduleBackToHome(
+      enabled: !watching,
+      child: Scaffold(
+        backgroundColor: MabarColors.paper,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MabarAppBar(
+              title: 'Round $selected',
+              subtitle: scheduleSubtitle(active, named: watching),
+              onBack: watching ? null : () => context.go('/'),
+              actions: [
+                if (!watching)
+                  Builder(
+                    builder: (anchor) => MabarIconButton(
+                      icon: MabarIcons.dotsThree,
+                      semanticLabel: 'Menu',
+                      onPressed: () => _openMenu(anchor, active),
                     ),
-                  ),
-                ],
+                  )
+                else if (!active.isFinal(now))
+                  const LiveTag(),
               ],
             ),
-          ),
-          MabarActionBar(
-            children: watching
-                ? [Expanded(child: LeaderboardButton(isFinal: active.isFinal(now)))]
-                : [
-                    MabarIconButton(
-                      icon: MabarIcons.ranking,
-                      semanticLabel: 'Klasemen',
-                      solid: true,
-                      onPressed: () => context.push('/leaderboard'),
+            RoundTabs(
+              count: last,
+              selected: selected,
+              onSelect: (r) => setState(() => _selectedRound = r == last ? null : r),
+              liveRound: !finished && !active.isRoundComplete(last) ? last : null,
+              meta: timeUp ? 'Waktu habis' : '$played/${matches.length} match',
+              metaAlert: timeUp,
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                children: [
+                  if (clubScore != null) ...[clubScoreOf(clubScore), const SizedBox(height: 16)],
+                  for (final (i, m) in matches.indexed) ...[
+                    if (i > 0) const SizedBox(height: 8),
+                    ScheduleMatchRow(
+                      active: active,
+                      match: m,
+                      now: now,
+                      onTap: watching ? null : () => openScore(m),
+                      onFill: !watching && m.status == MatchStatus.pending ? () => openScore(m) : null,
                     ),
-                    if (!finished)
-                      MabarIconButton(
-                        icon: MabarIcons.users,
-                        semanticLabel: 'Pemain',
-                        solid: true,
-                        count: active.activePlayers.length,
-                        onPressed: () => showManagePlayersSheet(context),
-                      ),
-                    Expanded(child: primary),
                   ],
-          ),
-        ],
+                  for (final list in resting) ...[const SizedBox(height: 16), list],
+                  // Hanya di tab round terakhir: di tab lain bisa terbaca membatalkan round yang dilihat.
+                  if (!watching && onLast && active.canCancelLastRound) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: MabarButton(
+                        label: 'Batalkan R$last',
+                        icon: MabarIcons.arrowCounterClockwise,
+                        variant: MabarButtonVariant.ghost,
+                        small: true,
+                        onPressed: () => _cancelLastRound(last),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            MabarActionBar(
+              children: watching
+                  ? [Expanded(child: LeaderboardButton(isFinal: active.isFinal(now)))]
+                  : [
+                      MabarIconButton(
+                        icon: MabarIcons.ranking,
+                        semanticLabel: 'Klasemen',
+                        solid: true,
+                        onPressed: () => context.push('/leaderboard'),
+                      ),
+                      if (!finished)
+                        MabarIconButton(
+                          icon: MabarIcons.users,
+                          semanticLabel: 'Pemain',
+                          solid: true,
+                          count: active.activePlayers.length,
+                          onPressed: () => showManagePlayersSheet(context),
+                        ),
+                      Expanded(child: primary),
+                    ],
+            ),
+          ],
+        ),
       ),
     );
   }

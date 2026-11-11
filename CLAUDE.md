@@ -77,7 +77,7 @@ redesain + format skor + data app lama tidak dimuat); 2.2.0 Kelola court; 2.3.0 
 (kredit dihapus); 2.8.0 Best of/Americano berhenti lebih awal (semuanya MINOR); 3.0.0 (MAJOR) = nama Match Addict +
 pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda); 3.1.0 (MINOR) = round tambahan Fixed
 + atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
-Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point).
+Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda.
 
 ## Status
 
