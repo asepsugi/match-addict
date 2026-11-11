@@ -97,7 +97,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - Sparing 3.2.0 (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, `docs/architecture.md` →
   Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). Berikutnya (PATCH):
-  temuan `docs/security.md` (validasi encode di rilis, batas `roundNumber`).
+  temuan `docs/security.md` (validasi encode di rilis, batas `roundNumber`). Branch `default-metode-ikut-format`
+  (3.3.0 + 3.3.1, belum di `main`): kerjakan PATCH security di atasnya, lalu push ke `main` sekaligus (keputusan host).
 
 ## Area docs
 
