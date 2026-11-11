@@ -1,7 +1,8 @@
 # PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
 **Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
-ada di hi-fi
+ada di hi-fi; Mexicano (§14) diputuskan host 2026-11-11 (keputusan 23–27, aturan rinci usulan PM menunggu konfirmasi),
+rencana app 3.4.0, belum ada di hi-fi
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -15,7 +16,8 @@ data test: `design/spec/logic.md`.
 
 Aplikasi untuk host turnamen mabar yang:
 
-- Mengundi pasangan (mode Fixed) atau mengacak pasangan tiap round (mode Mixed)
+- Mengundi pasangan (mode Fixed), mengacak pasangan tiap round (mode Mixed), atau memasangkan menurut klasemen tiap
+  round (mode Mexicano, §14)
 - Membuat jadwal adil: tiap orang main sama banyak (selisih ≤ 1), partner & lawan merata
 - Mencatat skor satu angka per tim dalam format Race to N, Best of N, atau Americano N
 - Menghitung peringkat Total Point atau Win %, termasuk walkover (WO)
@@ -51,8 +53,8 @@ Aplikasi untuk host turnamen mabar yang:
 
 ```
 [Beranda] → [Pemain] → [Konfigurasi] ─ Fixed → [Pasangan] → [Jadwal Fixed]
-   ↑ Lanjutkan            (format skor,  └ Mixed → [Jadwal Mixed] (R1 langsung dibuat, sheet Cara kerja Mixed)
-   │                      court, durasi)
+   ↑ Lanjutkan            (format skor,  ├ Mixed → [Jadwal Mixed] (R1 langsung dibuat, sheet Cara kerja Mixed)
+   │                      court, durasi) └ Mexicano → [Jadwal Mexicano] (seperti Mixed, §14)
 [Jadwal] ↔ [Input Skor] ↔ [Walkover]
 [Jadwal] → [Klasemen] → [Detail Pemain]
 [Klasemen] → [Bagikan] → Selesai → [Beranda]
@@ -61,7 +63,7 @@ Aplikasi untuk host turnamen mabar yang:
 ### 3.2 Mode Partner
 
 Sparing (dua klub bertanding, Fixed maupun Mixed; keputusan 19): §13. Aturan di bawah ini tetap berlaku untuk turnamen
-biasa.
+biasa. Mode ketiga **Mexicano** (pasangan dari klasemen tiap round, hanya Americano; keputusan 23–27): §14.
 
 #### A. Fixed Partner (Pasangan Tetap)
 
@@ -293,7 +295,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 ### 5.3 Konfigurasi (03a–03e)
 - Nama turnamen opsional paling atas (maks 40 karakter, dipangkas; kosong = tanpa nama). Hanya diisi di sini, tidak
   bisa diubah setelah turnamen dibuat.
-- Mode Fixed/Mixed, format skor (4.1), durasi match (stepper ±5), jumlah court 1–10, per court nama/warna (10 warna
+- Mode Fixed/Mixed (Mexicano: 14.2), format skor (4.1), durasi match (stepper ±5), jumlah court 1–10, per court nama/warna (10 warna
   preset)/booking. Estimasi di tombol. Fixed → Pasangan; Mixed → langsung Jadwal + R1.
 
 ### 5.4 Pasangan — Fixed (04a–04h)
@@ -504,6 +506,22 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 22. **Back dari Jadwal ke Beranda** (5.5): sebelumnya back kembali ke Atur turnamen (atau Pasangan), dan "Buat jadwal"
     lagi di sana menghapus skor yang sudah diisi. Sekarang back di Jadwal Fixed dan Mixed (tombol, HP, browser)
     langsung ke Beranda; penonton live tidak berubah. Rilis 3.3.1 PATCH (2026-11-11).
+23. **Mexicano** (§14) jadi mode pemasangan ketiga, sejajar Fixed dan Mixed, untuk tennis dan padel: R1 diundi, round
+    berikutnya pemain dikelompokkan berempat per court menurut klasemen. Alasan: pasangan acak Mixed sering membuat
+    match berat sebelah; Mexicano menyeimbangkan tanpa host menilai kemampuan pemain. Rencana 3.4.0 MINOR (2026-11-11).
+24. Format skor Mexicano **hanya Americano**: urutannya memakai total poin, yang memang tujuan Americano (sejalan
+    keputusan 21) (2026-11-11).
+25. Istirahat di Mexicano memakai **aturan prioritas main Mixed** (3.4) apa adanya; yang main lalu dipasangkan menurut
+    klasemen. Selisih jumlah main tetap ≤ 1 (2026-11-11).
+26. Partner berulang di Mexicano **dihindari selama masih ada susunan lain di court itu** (1+3 vs 2+4 → 1+4 vs 2+3 →
+    1+2 vs 3+4); pemain tidak dipindah court (2026-11-11).
+27. **Sparing dan pemain telat di Mexicano ditunda**: Sparing tidak menawarkan Mexicano, dan pemain tidak bisa ditambah
+    di tengah turnamen Mexicano (2026-11-11).
+28. Pemain telat **tidak bisa ikut sama sekali** di turnamen Mexicano, juga saat R1; kalau belum ada skor, host memulai
+    turnamen baru dari Beranda (14.12 Q1, 2026-11-11).
+29. Pemain yang dikeluarkan di Mexicano **tidak bisa kembali setelah melewatkan satu round**; Kembalikan hanya untuk
+    membetulkan salah ketuk sebelum round berikutnya dibuat (14.12 Q2, 2026-11-11).
+30. Seri di urutan Mexicano **diundi, terkunci per round**, bukan diurut nama (14.12 Q3, 2026-11-11).
 
 ---
 
@@ -519,6 +537,8 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 8. Target user: **klub/komunitas**
 9. Sparing antar **2 klub**, Fixed maupun Mixed, pasangan sesama klub tidak jadi lawan; semua usulan PM disetujui
    (2026-11-04, §13)
+10. Mexicano sebagai mode ketiga, hanya Americano, istirahat ikut prioritas Mixed, partner berulang dihindari per court;
+    Sparing dan pemain telat di Mexicano ditunda (2026-11-11, §14)
 
 ---
 
@@ -859,3 +879,317 @@ Jawaban host berikutnya (2026-11-04):
 - **T2 — selesai.** Angka 13A–13C dicek dengan generator dan kalkulator. Jadwal 13A dan tabel round 13C diganti dengan
   hasil generator (WO pindah ke R3); skor klub, Total Point, selisih, klasemen 13.6, 13B, tabel ukuran, 8 / 4 di 3
   court, dan contoh round tambahan tetap sama. Designer dan data test memakai angka di bagian ini.
+
+---
+
+## 14. Mexicano — Pasangan dari Klasemen
+
+> **Diputuskan host 2026-11-11** (keputusan 23–27, §10), rencana rilis **3.4.0 (MINOR)**. Aturan rinci di bagian ini
+> yang tidak tertulis di keputusan itu adalah **usulan PM** (14.11, U1–U9) dan menunggu konfirmasi host. Belum ada di
+> hi-fi. Fixed, Mixed, dan Sparing tidak berubah.
+
+Mexicano adalah **cara memasangkan pemain**, bukan format skor. Round 1 diundi; round berikutnya pemain diurutkan
+menurut klasemen saat itu dan dikelompokkan berempat per court menurut peringkat yang berdekatan, jadi pemain kuat
+bertemu pemain kuat. Tidak ada rulebook resmi; dasar aturan ini praktik umum klub/vendor padel (riset main session
+2026-11-11): urutan per court 1+3 lawan 2+4, kalau partnernya berulang 1+4 lawan 2+3, lalu 1+2 lawan 3+4; skor poin
+ala Americano; pemenang = total poin terbanyak.
+
+### 14.0 Situasi nyata
+
+- Klub padel/tennis main sore/malam, 8–16 orang di 2–4 court yang di-booking per jam. Host memegang **satu HP**,
+  offline, sambil ikut main.
+- Kemampuan pemain beragam. Di Mixed pasangan acak, jadi pemain kuat sering "menggendong" pemain baru dan match berat
+  sebelah. Mexicano membuat match makin seimbang tiap round tanpa host menilai kemampuan siapa pun.
+- Round berikutnya baru bisa dibuat setelah **semua** skor round sebelumnya masuk (pasangannya tergantung skor itu).
+  Americano N berakhir di jumlah poin tetap, jadi court selesai hampir bersamaan; host mengisi skor di sela main.
+- Yang ditunggu di akhir: siapa total poin terbanyak. Hasil dibagikan ke grup WhatsApp.
+
+Istilah di bagian ini: **urutan Mexicano** = urutan pemain untuk memasangkan (14.3); **posisi 1–4** = urutan empat
+pemain di satu court menurut urutan Mexicano; **pernah berpasangan** = satu tim di match mana pun di round yang sudah
+dibuat (termasuk match WO).
+
+### 14.1 Aturan inti
+
+- **M1.** Mexicano = mode ketiga di Konfigurasi, sejajar Fixed dan Mixed, untuk tennis dan padel (keputusan 23).
+- **M2.** Format skor hanya **Americano N** (N 2–99, default 21; aturan 4.1 termasuk berhenti lebih awal dan seri di N
+  genap). Race to dan Best of tidak bisa dipilih selama mode Mexicano (keputusan 24).
+- **M3.** Seperti Mixed, tidak ada target match: R1 dibuat saat Konfigurasi selesai, host menekan **Buat R(n+1)**.
+  Buat R(n+1) aktif kalau round terakhir lengkap (selesai/WO) dan masih ada court yang waktunya cukup (3.4).
+- **M4.** Siapa main dan siapa istirahat = aturan prioritas main Mixed (3.4) apa adanya; yang main lalu dipasangkan
+  menurut urutan Mexicano (keputusan 25). Akibatnya selisih jumlah main antar pemain ≤ 1 setiap saat, sama dengan Mixed.
+- **M5.** Partner berulang dihindari selama masih ada susunan lain **di court itu**; pemain tidak dipindah ke court lain
+  untuk menghindarinya (keputusan 26).
+- **M6.** Sparing tidak menawarkan Mexicano, dan pemain tidak bisa ditambah di tengah turnamen Mexicano (keputusan 27,
+  14.7).
+- **M7.** Wording UI ikut `CLAUDE.md`: "Mexicano" nama format, ditulis apa adanya seperti court/round/match; semua
+  orang "pemain"; tanpa kalimat penjelas di layar (Prinsip "Tanpa Petunjuk", 7).
+
+### 14.2 Konfigurasi & alur
+
+- Layar Pemain tidak berubah (4–30 pemain). Kalau di layar Pemain dipilih Sparing, Konfigurasi hanya menawarkan Fixed
+  dan Mixed.
+- Konfigurasi: Mode **Fixed / Mixed / Mexicano**. Memilih Mexicano saat format Race to atau Best of → format menjadi
+  **Americano 21**; kalau sudah Americano, N-nya tetap (mis. Americano 24 tetap 24). Kembali ke Fixed/Mixed tidak
+  mengubah format. Tampilan format yang tidak bisa dipilih: designer (U9).
+- Estimasi di tombol sama dengan Mixed (Max Round · Match/Pemain · Court Aktif · Total Match).
+- Mexicano → langsung Jadwal + R1 (tanpa layar Pasangan), seperti Mixed. Jadwal Mexicano memakai kontrol Jadwal Mixed:
+  Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen, daftar "Istirahat · Prioritas main di
+  R(n+1)" dan "Istirahat lagi di R(n+1)", menu ⋯ (Kelola court, Akhiri, Live score). Sheet pengganti "Cara kerja Mixed":
+  designer, dan isinya ikut persetujuan host.
+
+### 14.3 Urutan Mexicano (dasar memasangkan)
+
+Pemain diurutkan:
+
+1. **Total Point** turun (4.2: game/poin dimenangkan + nilai WO 4.4).
+2. **Selisih** turun (4.3; WO tidak mengubah selisih).
+3. Masih sama → **undian terkunci per round** (`lockedDraw(drawSeed + nomor round)`, undian yang sama dengan prioritas
+   main 3.4), lalu id.
+
+- Selalu Total Point, **apa pun tab** yang dipilih host di Klasemen; memilih Win % tidak mengubah pasangan (U1).
+- Dihitung dari match Selesai/WO di round yang sudah dibuat. Pemain yang belum main dihitung 0 poin, selisih 0, dan
+  diurutkan dengan angka itu seperti pemain lain (di Klasemen mereka tetap di grup "Belum main").
+- Langkah 1–2 = angka yang menentukan nomor Klasemen, jadi pemain dengan nomor lebih kecil selalu lebih dulu. Hanya
+  pemain bernomor sama yang urutannya ditentukan undian, bukan nama (U2): nama membuat pemain berawalan "A" selalu di
+  posisi 1 dan mendapat partner posisi 3, bukan 4.
+- R1: semua pemain 0 / 0, jadi urutan R1 = undian R1. Tidak ada aturan khusus untuk R1.
+- Undian terkunci membuat hasil Buat R(n+1) pasti: membuka ulang app, Batalkan lalu Buat lagi, atau HP lain dengan
+  simpanan yang sama memberi round yang sama.
+
+### 14.4 Siapa main & pengisian court
+
+```
+function generateMexicanoRound(activePlayers, history, courts, round):
+    courtsUsed = court yang muat satu match (3.4), urut nomor court
+    slots      = (min(activePlayers, courtsUsed × 4) ÷ 4, bulat ke bawah) × 4      // sama dengan Mixed
+    order      = priorityOrder(...)                         // 3.4 apa adanya; tidak ada pemain telat di Mexicano
+    playing    = order.take(slots); resting = order.skip(slots)
+    ranked     = playing.sortBy(urutan Mexicano 14.3)
+    for i in 0 .. slots÷4 − 1:
+        court  = courtsUsed[i]                              // court bernomor terkecil dapat kelompok teratas
+        [p1, p2, p3, p4] = ranked[4i .. 4i+3]
+        match  = susunan 14.5 dari p1..p4
+```
+
+- Pemain yang istirahat **tidak** ikut dikelompokkan: kelompok dibentuk dari pemain yang main saja (14B).
+- Court yang dipakai = court yang muat satu match, urut nomor; kelompok teratas ke court bernomor terkecil di antaranya
+  (U4). Court lebih banyak dari pemain ÷ 4 → court bernomor terakhir kosong, seperti Mixed. Contoh: Court 1 habis lebih
+  dulu dari Court 2 → kelompok teratas main di Court 2.
+- Waktu habis di semua court → slot dihitung dari semua court untuk daftar prioritas, tombol jadi "Tambah jam" (3.4).
+
+### 14.5 Susunan di satu court (partner berulang)
+
+Empat pemain posisi 1–4 (urutan Mexicano). Tiga susunan, dicoba berurutan:
+
+| Susunan | Sisi atas | Sisi bawah |
+|---------|-----------|------------|
+| A | 1 + 3 | 2 + 4 |
+| B | 1 + 4 | 2 + 3 |
+| C | 1 + 2 | 3 + 4 |
+
+- **Beban ulang** satu susunan = berapa kali dua pasangannya pernah berpasangan, dijumlah (pasangan yang pernah
+  berpasangan dua kali dihitung 2).
+- Pilih susunan dengan beban ulang **terkecil**; sama → yang lebih dulu di tabel (A, lalu B, lalu C) (U3). Jadi A
+  dipakai kalau tidak mengulang partner; B atau C hanya kalau A mengulang.
+- Semua susunan mengulang (4 pemain / 1 court setelah R3) → tetap dipilih yang bebannya terkecil; match tetap dibuat.
+- Sisi atas = tim berisi posisi 1. Di dalam tim, nama posisi lebih kecil ditulis dulu ("Citra · Hadi").
+- Ulang lawan dan ulang match persis **tidak** dihindari (berbeda dengan penalti Mixed): lawan memang ditentukan
+  peringkat.
+
+### 14.6 Contoh hitung
+
+Semua contoh: Padel, Americano 21, 15 menit, court 2 jam. "Undian Rn" = hasil `lockedDraw(drawSeed + n)`; data test
+memilih id turnamen yang memberi undian ini (seperti fixture `courtTournament`) atau menyuntik undiannya. Angka
+"22 (+2)" = Total Point 22, selisih +2.
+
+**Contoh 14A — 8 pemain, 2 court** (Andi, Budi, Citra, Dewi, Eko, Fajar, Gita, Hadi). Tanpa istirahat.
+
+R1 — undian R1: Andi, Budi, Citra, Dewi, Eko, Fajar, Gita, Hadi.
+
+| Court | Posisi 1–4 | Susunan | Match | Skor |
+|-------|------------|---------|-------|------|
+| Court 1 | Andi, Budi, Citra, Dewi | A | Andi · Citra vs Budi · Dewi | 15–6 |
+| Court 2 | Eko, Fajar, Gita, Hadi | A | Eko · Gita vs Fajar · Hadi | 9–12 |
+
+Setelah R1: Andi 15 (+9), Citra 15 (+9), Fajar 12 (+3), Hadi 12 (+3), Eko 9 (−3), Gita 9 (−3), Budi 6 (−9), Dewi 6
+(−9). Klasemen #1 Andi, Citra · #2 Fajar, Hadi · #3 Eko, Gita · #4 Budi, Dewi.
+
+R2 — semua seri berpasangan; undian R2 menaruh Citra di atas Andi, Fajar di atas Hadi, Gita di atas Eko, Budi di atas
+Dewi.
+
+| Court | Posisi 1–4 | Susunan | Match | Skor |
+|-------|------------|---------|-------|------|
+| Court 1 | Citra, Andi, Fajar, Hadi | A (beban 0) | Citra · Fajar vs Andi · Hadi | 11–10 |
+| Court 2 | Gita, Eko, Budi, Dewi | A (beban 0) | Gita · Budi vs Eko · Dewi | 8–13 |
+
+Setelah R2: Citra 26 (+10), Andi 25 (+8), Fajar 23 (+4), **Hadi 22 (+2), Eko 22 (+2)**, Dewi 19 (−4), Gita 17 (−8),
+Budi 14 (−14). Total 168 = 4 match × 21 × 2. Klasemen #1 Citra · #2 Andi · #3 Fajar · #4 Hadi, Eko · #5 Dewi · #6 Gita ·
+#7 Budi.
+
+R3 — **partner berulang** dan **seri di batas court**: Hadi dan Eko sama persis, undian R3 menentukan siapa ke Court 1.
+Undian R3 menaruh Hadi di atas Eko:
+
+| Court | Posisi 1–4 | Beban A / B / C | Dipilih | Match |
+|-------|------------|-----------------|---------|-------|
+| Court 1 | Citra, Andi, Fajar, Hadi | 2 (Citra·Fajar R2, Andi·Hadi R2) / 0 / 2 (Citra·Andi R1, Fajar·Hadi R1) | B | Citra · Hadi vs Andi · Fajar |
+| Court 2 | Eko, Dewi, Gita, Budi | 2 (Eko·Gita R1, Dewi·Budi R1) / 0 / 2 (Eko·Dewi R2, Gita·Budi R2) | B | Eko · Budi vs Dewi · Gita |
+
+Kalau undian R3 menaruh Eko di atas Hadi:
+
+| Court | Posisi 1–4 | Beban A / B / C | Dipilih | Match |
+|-------|------------|-----------------|---------|-------|
+| Court 1 | Citra, Andi, Fajar, Eko | 1 (Citra·Fajar R2) / 0 / 1 (Citra·Andi R1) | B | Citra · Eko vs Andi · Fajar |
+| Court 2 | Hadi, Dewi, Gita, Budi | 1 (Dewi·Budi R1) / 0 / 1 (Gita·Budi R2) | B | Hadi · Budi vs Dewi · Gita |
+
+**Contoh 14B — 10 pemain, 2 court** (14A + Indra, Joko). Slot 8, 2 istirahat per round.
+
+R1 — undian R1: Andi, Budi, Citra, Dewi, Eko, Fajar, Gita, Hadi, Indra, Joko. Semua 0 main → prioritas = undian:
+**Indra, Joko istirahat**. Yang main dan skornya sama dengan R1 14A.
+
+R2 — undian R2: Budi, Gita, Andi, Eko, Indra, Dewi, Fajar, Joko, Citra, Hadi.
+- Prioritas (3.4): Indra, Joko (0 main) lebih dulu; lalu 8 pemain 1 main, semua terakhir main di R1 → urut undian:
+  Budi, Gita, Andi, Eko, Dewi, Fajar, Citra, Hadi. Slot 8 → **Citra dan Hadi istirahat** (walau Citra #1 Klasemen).
+- Yang main, urutan Mexicano: Andi 15 (+9), Fajar 12 (+3), Gita 9 (−3), Eko 9 (−3), Budi 6 (−9), Dewi 6 (−9), Indra
+  0 (0), Joko 0 (0). Seri diurut undian R2: Gita sebelum Eko, Budi sebelum Dewi, Indra sebelum Joko. Indra dan Joko di
+  bawah Budi/Dewi karena 0 < 6, walau selisih mereka lebih baik.
+
+| Court | Posisi 1–4 | Susunan | Match |
+|-------|------------|---------|-------|
+| Court 1 | Andi, Fajar, Gita, Eko | A (beban 0) | Andi · Gita vs Fajar · Eko |
+| Court 2 | Budi, Dewi, Indra, Joko | A (beban 0) | Budi · Indra vs Dewi · Joko |
+
+- R3: Citra, Hadi (1 main, terakhir R1) lalu Indra, Joko (1 main, terakhir R2) pasti main; 4 dari 6 pemain lain (2
+  main) menurut undian R3.
+- Setelah R5: semua pemain tepat 4 match (5 × 8 slot = 40 = 10 × 4).
+- Akibat keputusan 25 yang terlihat di sini: yang baru istirahat poinnya tertinggal satu match, jadi sementara main di
+  court bawah (Indra, Joko di R2). Diterima; kompensasi poin istirahat ada di 14.10.
+
+**Contoh 14C — 4 pemain, 1 court** (Andi, Budi, Citra, Dewi): semua susunan habis.
+
+| Round | Urutan Mexicano | Beban A / B / C | Match | Skor |
+|-------|-----------------|-----------------|-------|------|
+| R1 | Andi, Budi, Citra, Dewi (undian R1) | 0 / 0 / 0 | A: Andi · Citra vs Budi · Dewi | 12–9 |
+| R2 | Andi 12 (+3), Citra 12 (+3), Budi 9 (−3), Dewi 9 (−3); undian R2: Andi di atas Citra, Budi di atas Dewi | 0 / 0 / 2 | A: Andi · Budi vs Citra · Dewi | 10–11 |
+| R3 | Citra 23 (+4), Andi 22 (+2), Dewi 20 (−2), Budi 19 (−4) | 2 / 0 / 2 | B: Citra · Budi vs Andi · Dewi | 14–7 |
+| R4 | Citra 37 (+11), Budi 33 (+3), Andi 29 (−5), Dewi 27 (−9) | 2 / 2 / 2 | A (sama, yang pertama): Citra · Andi vs Budi · Dewi | — |
+
+Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas Citra · Andi.
+
+### 14.7 Interaksi dengan fitur yang ada
+
+| Fitur | Perilaku di Mexicano |
+|-------|----------------------|
+| Prioritas main, Istirahat (3.4) | Sama dengan Mixed. Daftar "Istirahat · Prioritas main di R(n+1)" tetap sama persis dengan hasil Buat R(n+1), karena siapa yang istirahat tidak tergantung skor. Yang tergantung skor hanya siapa lawan siapa. |
+| Pemain telat menyusul (3.4) | Tidak berlaku: pemain tidak bisa ditambah (keputusan 27). Jeda pemain telat tidak pernah aktif. |
+| Kelola pemain (Pemain (n)) | **Tambah tidak ada.** **Keluarkan** tersedia selama aktif > 4 (nama, skor, dan Klasemennya tetap, seperti Mixed). **Kembalikan** hanya untuk pemain yang belum melewatkan round, yaitu dikeluarkan setelah round terakhir dibuat (membetulkan salah ketuk); begitu ada round dibuat tanpa dia, Kembalikan tidak ada (U5). Contoh 14A: Gita dikeluarkan setelah R2 dibuat → masih bisa dikembalikan sampai Buat R3; R3 dibuat tanpa Gita → Gita tidak bisa kembali. |
+| Batalkan Rn | Sama dengan Mixed (round terakhir tanpa skor, bukan R1). Batalkan lalu Buat lagi tanpa perubahan → round yang sama persis (14.3). Kegunaan di Mexicano: pemain pulang sebelum round mulai (Batalkan R3 → Keluarkan → Buat R3), atau skor round sebelumnya baru dikoreksi. |
+| Koreksi skor | Mengubah skor round lama memperbarui Klasemen, tapi **tidak** membuat ulang round yang sudah dibuat (seperti Mixed, tidak ada pembuatan ulang otomatis) (U6). Round berikutnya memakai angka yang sudah dikoreksi. Contoh 14A: R3 sudah dibuat, skor R2 Court 2 dikoreksi 8–13 → 10–11: R3 tetap; kalau R3 belum ada skor, host bisa Batalkan R3 lalu Buat R3. |
+| WO (4.4) | Sama dengan Americano: pemenang WO = rata-rata poin match yang dia mainkan, minimal ⌊N ÷ 2⌋ + 1; pasangan WO 0; selisih tidak berubah. Nilai WO ikut Total Point, jadi ikut urutan Mexicano. Contoh 14A, R2 Court 2 WO (Gita · Budi absen): Eko 9 + 11 = 20 (−3), Dewi 6 + 11 = 17 (−9), Gita 9 (−3), Budi 6 (−9). Pemain yang absen tetap dijadwalkan sampai dikeluarkan, seperti Mixed. |
+| Kelola court | Sama dengan Mixed (`logic.md` §10): court ditambah saat round berjalan dan istirahat ≥ 4 → 4 teratas prioritas yang istirahat langsung main, disusun dengan 14.5 dari urutan Mexicano saat itu (skor round berjalan yang sudah masuk ikut dihitung). Round berikutnya court baru ikut urutan nomor (14.4). Hapus court: sama. |
+| Waktu booking, Tambah jam, Lanjutkan turnamen, Akhiri | Sama dengan Mixed. Lanjutkan (dari Jadwal atau Beranda) meneruskan Klasemen; round berikutnya dipasangkan dari Klasemen itu. Match Tidak dimainkan kembali Belum. |
+| Status Sementara/Final (4.6) | Sama dengan Mixed. |
+| Klasemen (4.2, 4.3, 5.7) | Satu baris per pemain seperti Mixed. Default **Total Point** (Americano, keputusan 21). Tab Win % tetap ada; tidak mengubah pasangan (14.3). |
+| Detail pemain | Seperti Mixed (partner tampil, beda partner/lawan). |
+| Beranda | "Padel · Mexicano · 8 pemain" (nama turnamen menggantikannya kalau ada). Turnamen terakhir Mexicano tampil sebagai baris riwayat → sheet Lanjutkan, seperti Mixed. |
+| Bagikan | Seperti Mixed: per pemain, nilai Total Point + selisih, baris kecil "Padel · Mexicano · tanggal". Caption sama dengan Mixed. |
+| Live score | Seperti Mixed. Penonton melihat Jadwal, Klasemen, Detail; nama mode "Mexicano". Web/app versi lama tidak boleh menampilkan Mexicano sebagai Mixed (14.8). |
+| Sparing | Tidak menawarkan Mexicano (keputusan 27). Turnamen Sparing tidak berubah. |
+| Fixed (round tambahan, Atur pasangan) | Tidak berlaku. |
+
+### 14.8 Data & versi
+
+- Mode baru `mexicano` di config. Tanpa kunci simpanan lain: urutan Mexicano dihitung ulang dari match yang tersimpan,
+  undian dari `drawSeed` yang sudah ada.
+- Simpanan 3.3.x (Fixed/Mixed/Sparing) terbaca apa adanya. `schemaVersion` tetap 2.
+- App versi lama (≤ 3.3.x, masih ter-cache di PWA) **tidak boleh** membaca turnamen Mexicano sebagai Mixed: simpanan dan
+  payload live Mexicano membawa penanda yang membuat versi lama menolaknya, sama dengan K13 Sparing (U7; rincian dba di
+  `docs/data.md`). Penonton versi lama melihat "Live tidak bisa dibuka" sampai web-nya ter-update.
+- Kategori: **MINOR → 3.4.0** (mode baru, data lama kompatibel, Fixed/Mixed/Sparing tidak berubah). Mengandaikan
+  3.3.0–3.3.2 sudah masuk `main` lebih dulu; kalau tidak, 3.4.0 tetap karena kategori tertinggi MINOR.
+- Relay live tidak perlu diubah (menyimpan JSON codec apa adanya).
+
+### 14.9 Kriteria penerimaan
+
+- **AC-M1** Konfigurasi (bukan Sparing): Mode berisi Fixed, Mixed, Mexicano. Mexicano → Race to dan Best of tidak bisa
+  dipilih; dari Race to 6 → Americano 21; dari Americano 24 → tetap 24; kembali ke Mixed → tetap Americano.
+- **AC-M2** Sparing dipilih di layar Pemain → Konfigurasi hanya Fixed dan Mixed.
+- **AC-M3** Mexicano + Lanjut → Jadwal dengan R1, tanpa layar Pasangan. Estimasi tombol sama dengan Mixed untuk ukuran
+  yang sama.
+- **AC-M4** Contoh 14A dengan undian R1–R3 di atas: R1, R2, R3 (dua varian undian R3) sama persis dengan tabel 14.6,
+  termasuk sisi atas dan urutan nama di tim.
+- **AC-M5** 14A setelah R2: Klasemen Total Point Citra 26 (+10) #1 … Budi 14 (−14) #7, Hadi dan Eko sama-sama #4.
+- **AC-M6** Contoh 14B: R1 Indra dan Joko istirahat; R2 Citra dan Hadi istirahat, match R2 sama persis dengan tabel;
+  R3 Citra, Hadi, Indra, Joko main; setelah R5 semua pemain 4 match.
+- **AC-M7** Contoh 14C: R2 susunan A, R3 susunan B, R4 susunan A (semua beban 2) dengan Citra · Andi vs Budi · Dewi.
+- **AC-M8** Test properti 30 round untuk 4/1, 5/1, 7/2, 8/2, 9/2, 10/2, 12/3, 16/4, 30/10 (pemain/court), skor acak
+  sah: (a) selisih main antar pemain ≤ 1 setelah tiap round; (b) di tiap court kelompok = 4 pemain berurutan di urutan
+  Mexicano dari pemain yang main, kelompok teratas di court bernomor terkecil yang dipakai; (c) susunan terpilih punya
+  beban ulang terkecil dari ketiganya, dan seri → yang lebih dulu di A, B, C.
+- **AC-M9** Ukuran: 4/1 tanpa istirahat; 5/1 satu istirahat per round, setelah R5 semua 4 match; 7/2 hanya Court 1
+  dipakai, 3 istirahat; 30/10 Court 1–7 dipakai, Court 8–10 kosong, 2 istirahat per round.
+- **AC-M10** Tab Klasemen Win % lalu Buat R(n+1) → round sama persis dengan saat tab Total Point.
+- **AC-M11** Sebelum skor round terakhir lengkap, daftar "Istirahat · Prioritas main di R(n+1)" dan "Istirahat lagi di
+  R(n+1)" sudah tampil, dan setelah semua skor masuk, hasil Buat R(n+1) sama persis: semua dari daftar Prioritas main
+  ikut main, semua dari "Istirahat lagi" istirahat, apa pun skornya.
+- **AC-M12** Batalkan R3 lalu Buat R3 tanpa perubahan → match R3 sama persis. Batalkan R3, keluarkan Gita, Buat R3 →
+  R3 tanpa Gita, dipasangkan ulang dari urutan Mexicano.
+- **AC-M13** Koreksi skor R2 setelah R3 dibuat: Klasemen berubah, match R3 tidak berubah; R4 memakai angka baru.
+- **AC-M14** App di-kill setelah semua skor R2 masuk → dibuka lagi → Buat R3 sama persis dengan tanpa kill. Live
+  melanjutkan kode yang sama.
+- **AC-M15** WO 14A R2 Court 2 (Gita · Budi): Eko 20, Dewi 17, Gita 9, Budi 6; selisih keempatnya sama dengan setelah R1;
+  urutan R3 memakai angka ini.
+- **AC-M16** Kelola pemain Mexicano: tidak ada tambah pemain; Keluarkan mati saat aktif 4; Kembalikan ada untuk pemain
+  yang dikeluarkan setelah round terakhir dibuat dan hilang setelah round berikutnya dibuat tanpa dia.
+- **AC-M17** Kelola court: 12 pemain / 2 court, R1 berjalan → tambah Court 3 → match baru berisi 4 pemain istirahat
+  teratas prioritas, disusun 14.5 dari urutan Mexicano saat itu; R2 memakai 3 court, kelompok teratas di Court 1.
+- **AC-M18** Court 1 habis lebih dulu dari Court 2 → round berikutnya kelompok teratas di Court 2.
+- **AC-M19** Beranda "Padel · Mexicano · 8 pemain"; turnamen terakhir Mexicano → Lanjutkan; poster "Padel · Mexicano ·
+  tanggal"; Klasemen, Detail, Bagikan, caption, dan Live memakai nomor yang sama, default Total Point.
+- **AC-M20** Simpanan 3.3.x Fixed/Mixed/Sparing dimuat tanpa perubahan; semua test dan golden yang ada lulus tanpa
+  diubah. Simpanan atau payload Mexicano dibuka versi ≤ 3.3.x → ditolak, tidak tampil sebagai Mixed, dan HP host versi
+  lama tidak menimpanya.
+- **AC-M21** Semua kriteria di atas jalan offline (kecuali Live).
+
+### 14.10 Belum sekarang
+
+- Mexicano di Sparing (keputusan 27).
+- Menambah pemain / pemain telat di tengah turnamen Mexicano (keputusan 27).
+- Race to / Best of di Mexicano (keputusan 24).
+- Kompensasi poin untuk yang istirahat (mis. rata-rata poinnya), supaya pemain yang baru istirahat tidak turun ke court
+  bawah.
+- Urutan Mexicano dari poin per match (rata-rata) alih-alih Total Point.
+- Menghindari ulang lawan atau ulang match persis.
+- Varian lain: Mexicano pasangan tetap ("Team Mexicano"), round final khusus (mis. 1+4 vs 2+3 di round terakhir),
+  King of the Court (pemenang naik court).
+- Menentukan court mana yang jadi "court atas" secara manual.
+
+### 14.11 Keputusan & usulan
+
+Keputusan host 2026-11-11: 23–30 di §10 (jangan dibuka ulang). U2 dan U5 sudah menjadi keputusan 30 dan 29.
+U9 (format skor saat Mexicano dipilih) diserahkan host ke designer: Konfigurasi dirancang ulang supaya lebih sederhana
+dan host tidak kewalahan saat memulai turnamen; aturan U9 mengikuti hasil desain yang disetujui host.
+
+**Usulan PM — belum dikonfirmasi host** (aturan di atas memakai usulan ini sampai host menjawab):
+
+- **U1.** Urutan Mexicano selalu Total Point → selisih, apa pun tab Klasemen (14.3).
+- **U2.** Seri di urutan Mexicano diundi terkunci per round, bukan diurut nama (14.3).
+- **U3.** Beban ulang = jumlah kali berpasangan; susunan dengan beban terkecil, seri → A, B, C (14.5).
+- **U4.** Kelompok teratas di court bernomor terkecil yang dipakai (14.4).
+- **U5.** Kelola pemain Mexicano: Keluarkan ada; Kembalikan hanya sebelum pemain itu melewatkan round (14.7).
+- **U6.** Koreksi skor tidak membuat ulang round yang sudah dibuat; host memakai Batalkan + Buat (14.7).
+- **U7.** Versi lama menolak simpanan/payload Mexicano, seperti K13 (14.8).
+- **U8.** Pemain belum main dihitung 0 / 0 di urutan Mexicano (14.3).
+- **U9.** Memilih Mexicano mengganti Race to/Best of ke Americano 21, Americano yang sudah ada tetap N-nya (14.2).
+
+### 14.12 Pertanyaan terbuka untuk host
+
+Q1–Q3 disetujui host 2026-11-11 sesuai rekomendasi (keputusan 28–30).
+
+- **Q1.** Pemain yang datang telat tidak bisa ikut sama sekali di turnamen Mexicano (keputusan 27), juga di R1, karena
+  R1 tidak bisa dibatalkan. Rekomendasi: terima untuk 3.4.0; host yang pemainnya telat sebelum ada skor memulai turnamen
+  baru dari Beranda.
+- **Q2.** Pemain yang dikeluarkan (pulang) di Mexicano tidak bisa kembali setelah melewatkan satu round, karena
+  kembali sama dengan pemain telat (U5). Rekomendasi: setujui; Kembalikan tetap ada untuk membetulkan salah ketuk.
+- **Q3.** Pemain bernomor sama di Klasemen (paling sering partner di round sebelumnya) diurutkan dengan undian untuk
+  menentukan siapa posisi 1 dan siapa ke court atas, sehingga Jadwal tidak selalu cocok dengan urutan nama di Klasemen
+  (U2). Rekomendasi: undian, karena urut nama memberi pemain berawalan "A" partner yang lebih kuat tiap kali seri.
