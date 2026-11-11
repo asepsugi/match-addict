@@ -4,7 +4,7 @@ Ditulis tangan (bukan hasil `tool/hifi_extract.py`). Setiap butir mengubah `lib/
 **wajib test** sesuai aturan `CLAUDE.md`. Angka di "data test" sama dengan angka di frame hi-fi, jadi test dan golden
 saling menguatkan.
 
-**Status: §1–§12 sudah diimplementasi di model/service dan ter-test** (langkah 2); §13 Sparing belum (3.2.0).
+**Status: §1–§13 sudah diimplementasi di model/service dan ter-test** (§13 Sparing = 3.2.0).
 Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor
@@ -323,7 +323,7 @@ Keputusan host 2026-11-03 (frame 06v–06z, 04f–04h, 09g, 10d; PRD 3.3a), dari
 ## 13. Sparing · dua klub (3.2.0)
 
 Keputusan host 19 + K1–K12 (PRD §13, 2026-11-04); frame 13a–13q (inti), 14a–14y (alur Fixed), 15a–15y (alur
-Mixed, disetujui host 2026-11-07). **Status: logika selesai, layar sebagian** (Fixed berjalan, Mixed di SP-18) — task
+Mixed, disetujui host 2026-11-07). **Status: sudah diimplementasi** (logika + semua layar Fixed dan Mixed, rilis 3.2.0) — task
 SP-0…SP-19 di `docs/tasks.md`. Logikanya di `lib/` dengan test (2026-11-08): Fixed
 `services/schedule/sparing_fixed_generator.dart` (SP-2), Mixed `EndlessRoundGenerator.generateSparingRound` +
 `ActiveTournament.sparingActiveCourts` (SP-3), skor klub `services/ranking/club_score.dart` (SP-4). Prototipe

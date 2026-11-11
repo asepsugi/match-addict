@@ -85,7 +85,7 @@ service/model.
   main di round pertamanya habis; court yang sejak awal tidak dapat tambahan bukan "berkurang" (bug lama).
 - Lanjutkan Turnamen (resume, `extendedBy`): lihat `docs/data.md`.
 
-## Sparing (3.2.0, branch `sparing`)
+## Sparing (3.2.0)
 
 Dua klub, partner sesama klub, lawan klub lain (PRD §13, aturan + data test `design/spec/logic.md` §13). Setiap
 cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). Simpanan: `docs/data.md` → Sparing.
@@ -104,6 +104,10 @@ cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). S
   `unitMatches` = KPK match, `extraPutaran` = jumlah satuan, boleh lewat booking → `overMinutes`), `estimate`
   (Konfigurasi K10). **Invariant:** tiap kombinasi pasangan dua klub tepat sekali per g blok; selisih main satu klub ≤ 1
   setelah setiap round. Controller: `startIfNeeded` dan `addRounds` bercabang sparing (`_sparingPairs`).
+- **Sisa round per court** — satu rumus `ActiveTournament.roundsLeftPerCourt` (⌊(sisa booking + tambahan) ÷ durasi⌋)
+  dipakai `capacityAhead` (Lanjutkan Mixed) dan kedua `extraRounds` (Tambah round Fixed); baris "n court, berkurang
+  mulai R…" dari `ActiveTournament.courtsAhead` (sparing dibatasi C'), dibaca sheet dari rencana, tidak dihitung di
+  widget.
 - **Mixed** — `EndlessRoundGenerator.generateSparingRound` (tes `sparing_mixed_test.dart`, sweep `slow`): court aktif
   `C' = ActiveTournament.sparingActiveCourts` = min(court muat, ⌊n1÷2⌋, ⌊n2÷2⌋), satu rumus untuk generator, slot
   R(n+1), `courtUse`/`courtMatch`, `capacityAhead.matchesPerRound`, dan `sparingEstimate` (Konfigurasi, Cara kerja).
@@ -118,7 +122,7 @@ cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). S
   untuk widget `ClubScore` (`core/widgets`, menerima string jadi): `scoreLabel` ("6 – 4"), `detailLabel` ("56 game ·
   +13"), `leads` (bola; belum ada hasil → tanpa bola). Jadwal, Klasemen, Beranda, poster, caption, dan Live memakai
   adaptor yang sama, tidak merangkai sendiri. `clubStandings` = `RankingCalculator.rank` sekali lalu `standingEntries`
-  per klub, jadi nomor dimulai #1 di tiap klub.
+  per klub, jadi nomor dimulai #1 di tiap klub. Caption share (`ResultTextBuilder`) memakai `clubStandings` yang sama.
 - **Provider** (`features/schedule/sparing_providers.dart`): `clubScoreProvider`, `clubStandingEntriesProvider`,
   `playerClubPositionProvider` ("Peringkat n · {klub}" di Detail); null/kosong untuk turnamen biasa.
 

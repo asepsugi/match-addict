@@ -76,7 +76,7 @@ redesain + format skor + data app lama tidak dimuat); 2.2.0 Kelola court; 2.3.0 
 2.5.0 live score; 2.6.0 nama lengkap di baris match, Akhiri di Beranda, back PWA; 2.7.0 pemain telat Mixed menyusul
 (kredit dihapus); 2.8.0 Best of/Americano berhenti lebih awal (semuanya MINOR); 3.0.0 (MAJOR) = nama Match Addict +
 pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda); 3.1.0 (MINOR) = round tambahan Fixed
-+ atur ulang pasangan.
++ atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda.
 
 ## Status
 
@@ -93,10 +93,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Persistensi lokal, resume, Lanjutkan turnamen (Mixed) — `docs/data.md`.
 - Live score (relay tanpa database) — `docs/live.md`.
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
-- **Berikutnya: Sparing** (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, rencana 3.2.0
-  (MINOR). Implementasi di branch `sparing` (rilis sekali setelah Mixed selesai; `main` tetap 3.1.0 untuk hotfix);
-  task di `docs/tasks.md`: SP-0…SP-18 selesai; belum: SP-19 (rilis + QA + security). Logika Fixed + Mixed sparing sudah di `lib/services/**` (`docs/architecture.md` →
-  Sparing). Ikut rilis yang sama: versi app tampil lagi di Beranda (keputusan 20).
+- Sparing 3.2.0 (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, `docs/architecture.md` →
+  Sparing, `docs/data.md` → Sparing. Semua task SP-0…SP-19 di branch `sparing`; menunggu QA + security, lalu merge ke
+  `main` (= deploy) atas perintah host.
 
 ## Area docs
 
