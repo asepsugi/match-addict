@@ -522,6 +522,9 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 29. Pemain yang dikeluarkan di Mexicano **tidak bisa kembali setelah melewatkan satu round**; Kembalikan hanya untuk
     membetulkan salah ketuk sebelum round berikutnya dibuat (14.12 Q2, 2026-11-11).
 30. Seri di urutan Mexicano **diundi, terkunci per round**, bukan diurut nama (14.12 Q3, 2026-11-11).
+31. Urutan Mexicano **selalu Total Point → selisih**, apa pun tab Klasemen yang dipilih (14.3, U1, 2026-11-11).
+32. Koreksi skor di Mexicano **tidak membuat ulang round yang sudah dibuat**; host memakai Batalkan round lalu Buat
+    (14.7, U6, 2026-11-11).
 
 ---
 
@@ -1165,7 +1168,7 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 
 ### 14.11 Keputusan & usulan
 
-Keputusan host 2026-11-11: 23–30 di §10 (jangan dibuka ulang). U2 dan U5 sudah menjadi keputusan 30 dan 29.
+Keputusan host 2026-11-11: 23–32 di §10 (jangan dibuka ulang). U2, U5, U1, U6 sudah menjadi keputusan 30, 29, 31, 32.
 U9 (format skor saat Mexicano dipilih) diserahkan host ke designer: Konfigurasi dirancang ulang supaya lebih sederhana
 dan host tidak kewalahan saat memulai turnamen; aturan U9 mengikuti hasil desain yang disetujui host.
 
