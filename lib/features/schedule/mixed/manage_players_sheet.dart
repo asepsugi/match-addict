@@ -175,8 +175,10 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
                 ];
                 final out = members.where((p) => withdrawn.contains(p.id)).length;
                 final activeInClub = members.length - out;
-                // Keluarkan mati karena klub (bukan karena total 4): alasannya di bawah daftar klub itu.
-                final clubBlocked = activeCount > 4 && activeInClub <= 2;
+                // Keluarkan mati karena klub (bukan karena total 4): alasannya di bawah daftar klub itu. Batasnya dari
+                // `canWithdraw`, tidak dihitung ulang di sini.
+                final clubBlocked =
+                    activeCount > 4 && members.any((p) => !withdrawn.contains(p.id) && !active.canWithdraw(p.id));
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
