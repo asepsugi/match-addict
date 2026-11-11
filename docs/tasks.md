@@ -387,6 +387,7 @@ Aturan bersama SP-18:
 - **Dependensi:** SP-18a. **Paralel:** dengan SP-18d–SP-18h. **Model:** default.
 
 ## SP-18d · Kelola pemain sparing (15l, 15m)
+- **Status:** selesai (satu engineer untuk 18d/e/f; layar dicek main session) — 720c5da + 81798d2 di `sparing`, 2026-11-11.
 - **Rencana lanjut (2026-11-08):** SP-18d, SP-18e, dan SP-18f dikerjakan **satu engineer (Sonnet)** dalam satu worktree,
   supaya konteks dibaca sekali (aturan "Token budget" di playbook). Review hanya dicek main session (layar), kecuali
   ada perubahan logika di `lib/services/**`/model.
@@ -407,6 +408,7 @@ Aturan bersama SP-18:
   sendiri). **Model:** default.
 
 ## SP-18e · Kelola court, Lanjutkan, Cara kerja sparing (15j, 15k, 15o)
+- **Status:** selesai (satu engineer untuk 18d/e/f; layar dicek main session) — 29e091e di `sparing`, 2026-11-11.
 - **Goal:** 15o: "Langsung main di R4" dengan kolom klub (`RestingList.clubs(title: …)`), pemain dari
   `EndlessRoundGenerator.courtUse(…).players` dikelompokkan per klub lewat `config.clubOfPlayer` (bukan indeks); "Tambah court
   · mulai R5" tetap. 15j: angka dari `capacityAhead` (sudah C'); kalimat batas pemain sparing "maks n match per round
@@ -426,6 +428,7 @@ Aturan bersama SP-18:
   **Model:** default.
 
 ## SP-18f · Input Skor + WO Mixed sparing (15q, 15r)
+- **Status:** selesai (satu engineer untuk 18d/e/f; layar dicek main session) — 9c91501 di `sparing`, 2026-11-11.
 - **Goal:** pastikan papan dan sheet WO Mixed sparing sama dengan Fixed sparing (SP-12): dua pemain klub pertama di
   atas, tanpa label klub; nilai WO pemain 4.4 dan klub K11 setelah simpan.
 - **Baca:** `15-sparing-mixed.md` 15q, 15r; `score_input_screen.dart`, `walkover_sheet.dart`;
