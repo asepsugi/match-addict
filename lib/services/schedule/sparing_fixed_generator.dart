@@ -90,7 +90,8 @@ class SparingFixedGenerator {
   /// Rencana round tambahan untuk sheet Tambah round, padanan `RoundRobinGenerator.extraRounds`. [club1]/[club2] =
   /// pasangan per klub (hasil Atur pasangan atau pasangan sekarang); [roundsLeft] dihitung sama persis.
   /// [perPair] = match tambahan tiap pasangan, per klub. [overMinutes] = menit lewat booking = (round tambahan −
-  /// [fitRounds]) × durasi, 0 kalau muat.
+  /// [fitRounds]) × durasi, 0 kalau muat. [rounds] = round tambahan; [courts]/[fewerCourtsFrom] =
+  /// `ActiveTournament.courtsAhead` dengan C' ([activeCourts]).
   static ({
     SparingFixedSchedule schedule,
     int units,
@@ -98,6 +99,9 @@ class SparingFixedGenerator {
     int fitRounds,
     List<int> roundsLeft,
     int overMinutes,
+    int rounds,
+    int courts,
+    int? fewerCourtsFrom,
   })
   extraRounds(
     ActiveTournament active,
@@ -107,10 +111,7 @@ class SparingFixedGenerator {
     Map<String, int> extraMinutes = const {},
   }) {
     final config = active.config;
-    final roundsLeft = [
-      for (final c in config.courts)
-        (active.remainingBookingMinutes(c, now) + (extraMinutes[c.id] ?? 0)) ~/ config.matchDurationMinutes,
-    ];
+    final roundsLeft = active.roundsLeftPerCourt(now, extraMinutes);
     final extra = extend(
       club1: club1,
       club2: club2,
@@ -122,6 +123,11 @@ class SparingFixedGenerator {
     final matches = extra.schedule.matches.length;
     final fit = roundsLeft.fold(0, max);
     final added = matches == 0 ? 0 : extra.schedule.roundCount - active.roundCount;
+    final ahead = ActiveTournament.courtsAhead(
+      roundsLeft,
+      added,
+      (courts) => activeCourts(courts, club1.length, club2.length),
+    );
     return (
       schedule: extra.schedule,
       units: extra.units,
@@ -129,6 +135,9 @@ class SparingFixedGenerator {
       fitRounds: fit,
       roundsLeft: roundsLeft,
       overMinutes: max(0, added - fit) * config.matchDurationMinutes,
+      rounds: added,
+      courts: ahead.courts,
+      fewerCourtsFrom: ahead.fewerFrom,
     );
   }
 

@@ -89,20 +89,25 @@ class RoundRobinGenerator {
 
   /// Rencana round tambahan [active] kalau tiap court ditambah [extraMinutes] (per court id), untuk sheet Tambah round
   /// (06w–06z) dan `TournamentController.addRounds`. [pairs] = hasil Atur pasangan (04f), default pasangan sekarang.
-  /// Round yang muat di tiap court ([roundsLeft], urutan `config.courts`) = ⌊(sisa + tambahan) ÷ durasi⌋, sama dengan
-  /// `capacityAhead`; [fitRounds] = yang terbesar. [perPair] = match tambahan tiap pasangan.
-  static ({FixedSchedule schedule, int putaran, int perPair, int fitRounds, List<int> roundsLeft}) extraRounds(
-    ActiveTournament active,
-    DateTime now, {
-    Map<String, int> extraMinutes = const {},
-    List<Pair>? pairs,
-  }) {
+  /// Round yang muat di tiap court ([roundsLeft], urutan `config.courts`) dari `ActiveTournament.roundsLeftPerCourt`,
+  /// sama dengan `capacityAhead`; [fitRounds] = yang terbesar. [perPair] = match tambahan tiap pasangan. [rounds] =
+  /// round tambahan; [courts]/[fewerCourtsFrom] = `ActiveTournament.courtsAhead`; [overMinutes] = menit lewat booking
+  /// = (round tambahan − [fitRounds]) × durasi, 0 kalau muat.
+  static ({
+    FixedSchedule schedule,
+    int putaran,
+    int perPair,
+    int fitRounds,
+    List<int> roundsLeft,
+    int rounds,
+    int courts,
+    int? fewerCourtsFrom,
+    int overMinutes,
+  })
+  extraRounds(ActiveTournament active, DateTime now, {Map<String, int> extraMinutes = const {}, List<Pair>? pairs}) {
     final config = active.config;
     pairs ??= config.fixedPairs ?? const <Pair>[];
-    final roundsLeft = [
-      for (final c in config.courts)
-        (active.remainingBookingMinutes(c, now) + (extraMinutes[c.id] ?? 0)) ~/ config.matchDurationMinutes,
-    ];
+    final roundsLeft = active.roundsLeftPerCourt(now, extraMinutes);
     final extra = extend(
       pairs: pairs,
       courts: config.courts,
@@ -110,12 +115,19 @@ class RoundRobinGenerator {
       putaranDone: active.extraPutaran,
       firstRound: active.roundCount + 1,
     );
+    final fit = roundsLeft.fold(0, max);
+    final rounds = extra.schedule.matches.isEmpty ? 0 : extra.schedule.roundCount - active.roundCount;
+    final ahead = ActiveTournament.courtsAhead(roundsLeft, rounds);
     return (
       schedule: extra.schedule,
       putaran: extra.putaran,
       perPair: extra.putaran * (pairs.length.isEven ? 1 : 2),
-      fitRounds: roundsLeft.fold(0, max),
+      fitRounds: fit,
       roundsLeft: roundsLeft,
+      rounds: rounds,
+      courts: ahead.courts,
+      fewerCourtsFrom: ahead.fewerFrom,
+      overMinutes: max(0, rounds - fit) * config.matchDurationMinutes,
     );
   }
 

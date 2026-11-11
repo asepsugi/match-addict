@@ -753,6 +753,36 @@ class ActiveTournament {
     return hours == 0 ? court : court.copyWith(startMinute: elapsedMinutes(now), bookingDurationMinutes: hours * 60);
   }
 
+  /// Round yang masih muat di tiap court (urutan `config.courts`) kalau court ditambah [extraMinutes] (per court id):
+  /// ⌊(sisa booking + tambahan) ÷ durasi⌋. Satu-satunya rumus; dipakai [capacityAhead] (Mixed) dan rencana round
+  /// tambahan Fixed (`RoundRobinGenerator.extraRounds`, `SparingFixedGenerator.extraRounds`).
+  List<int> roundsLeftPerCourt(DateTime now, [Map<String, int> extraMinutes = const {}]) => [
+    for (final c in config.courts)
+      (remainingBookingMinutes(c, now) + (extraMinutes[c.id] ?? 0)) ~/ config.matchDurationMinutes,
+  ];
+
+  /// Court di round tambahan pertama dan round tambahan ke-r (1 = pertama) saat jumlahnya berkurang, untuk baris
+  /// "n court, berkurang mulai R…" sheet Tambah round (06w, 14n). Hanya round yang masih dalam booking ([roundsLeft],
+  /// maks [rounds]) yang dihitung; sesudahnya = "lewat booking". [activeAt] mengubah jumlah court yang muat jadi court
+  /// yang dipakai (sparing: C'); default apa adanya.
+  static ({int courts, int? fewerFrom}) courtsAhead(
+    List<int> roundsLeft,
+    int rounds, [
+    int Function(int courts)? activeAt,
+  ]) {
+    int at(int r) {
+      final n = roundsLeft.where((k) => k >= r).length;
+      return activeAt == null ? n : activeAt(n);
+    }
+
+    final courts = at(1);
+    final fit = roundsLeft.fold(0, max);
+    for (var r = 2; r <= rounds && r <= fit; r++) {
+      if (at(r) < courts) return (courts: courts, fewerFrom: r);
+    }
+    return (courts: courts, fewerFrom: null);
+  }
+
   /// Perkiraan round & match yang masih muat kalau tiap court ditambah [extraMinutes] (per court id),
   /// untuk sheet Lanjutkan turnamen (08c). Round jalan selama masih ada satu court, jadi jumlah round
   /// cuma mengikuti court terpanjang — jumlah match-lah yang mencerminkan tambahan di tiap court.
@@ -765,10 +795,7 @@ class ActiveTournament {
     DateTime now, [
     Map<String, int> extraMinutes = const {},
   ]) {
-    final perCourt = [
-      for (final c in config.courts)
-        (remainingBookingMinutes(c, now) + (extraMinutes[c.id] ?? 0)) ~/ config.matchDurationMinutes,
-    ];
+    final perCourt = roundsLeftPerCourt(now, extraMinutes);
     final (club1, club2) = activePlayersByClub;
     final matchesPerRound = config.isSparing
         ? sparingActiveCourts(club1: club1.length, club2: club2.length)

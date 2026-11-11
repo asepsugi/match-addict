@@ -99,24 +99,13 @@ class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
     final String range;
     if (clubs == null) {
       final plan = RoundRobinGenerator.extraRounds(_source, now, extraMinutes: _extraMinutes, pairs: _pairs);
-      rounds = plan.schedule.matches.isEmpty ? 0 : plan.schedule.roundCount - n;
+      rounds = plan.rounds;
       range = rounds == 1 ? 'R${n + 1}' : 'R${n + 1}–R${n + rounds}';
-
-      // Court di round pertama = yang masih muat satu round; berkurang kalau salah satunya habis di tengah (sama
-      // dengan Lanjutkan 08c). Lewat booking = round sesudah semua court habis.
-      final courts = plan.roundsLeft.where((k) => k >= 1).length;
-      int? fewerFrom;
-      for (var r = 2; r <= rounds && r <= plan.fitRounds; r++) {
-        if (plan.roundsLeft.where((k) => k >= r).length < courts) {
-          fewerFrom = r;
-          break;
-        }
-      }
-      final over = (rounds - plan.fitRounds) * _source.config.matchDurationMinutes;
+      final fewer = plan.fewerCourtsFrom;
       final facts = [
         '$rounds round ($range)',
-        fewerFrom == null ? '$courts court' : '$courts court, berkurang mulai R${n + fewerFrom}',
-        if (over > 0) 'lewat booking ${countdownText(over)}',
+        fewer == null ? '${plan.courts} court' : '${plan.courts} court, berkurang mulai R${n + fewer}',
+        if (plan.overMinutes > 0) 'lewat booking ${countdownText(plan.overMinutes)}',
       ].join(' · ');
       estimate = plan.perPair > 0
           ? SheetEstimate(number: plan.perPair, label: 'match lagi tiap pasangan', lines: [facts])
@@ -125,21 +114,12 @@ class _AddRoundsSheetState extends ConsumerState<AddRoundsSheet> {
       // Sparing (14n): satu satuan = KPK(pasangan klub 1, klub 2) match; tambahan per pasangan beda antar klub.
       final p1 = draft.pairsOf(clubs[0].id), p2 = draft.pairsOf(clubs[1].id);
       final plan = SparingFixedGenerator.extraRounds(_source, now, club1: p1, club2: p2, extraMinutes: _extraMinutes);
-      rounds = plan.schedule.matches.isEmpty ? 0 : plan.schedule.roundCount - n;
+      rounds = plan.rounds;
       range = rounds == 1 ? 'R${n + 1}' : 'R${n + 1}–R${n + rounds}';
-      int courtsAt(int r) =>
-          SparingFixedGenerator.activeCourts(plan.roundsLeft.where((k) => k >= r).length, p1.length, p2.length);
-      final courts = courtsAt(1);
-      int? fewerFrom;
-      for (var r = 2; r <= rounds && r <= plan.fitRounds; r++) {
-        if (courtsAt(r) < courts) {
-          fewerFrom = r;
-          break;
-        }
-      }
+      final fewer = plan.fewerCourtsFrom;
       final facts = [
         '$rounds round ($range)',
-        fewerFrom == null ? '$courts court' : '$courts court, berkurang mulai R${n + fewerFrom}',
+        fewer == null ? '${plan.courts} court' : '${plan.courts} court, berkurang mulai R${n + fewer}',
         if (plan.overMinutes > 0) 'lewat booking ${countdownText(plan.overMinutes)}',
       ].join(' · ');
       const label = 'match lagi tiap pasangan';
