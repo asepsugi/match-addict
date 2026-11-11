@@ -6,6 +6,7 @@ import '../../../core/widgets/mabar_controls.dart';
 import '../../../core/widgets/mabar_group.dart';
 import '../../../core/widgets/mabar_inputs.dart';
 import '../../../core/widgets/mabar_layers.dart';
+import '../../../models/models.dart';
 import '../tournament_controller.dart';
 
 /// Sheet 08a "Kelola pemain" (Mixed) — tambah, keluarkan, atau kembalikan pemain tanpa mengulang
@@ -31,6 +32,8 @@ class _ManagePlayers extends ConsumerStatefulWidget {
 class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
   final _name = TextEditingController();
   String? _error;
+  // Sparing: klub tujuan pemain baru, tanpa pilihan awal (AC-S12).
+  String? _clubId;
 
   @override
   void dispose() {
@@ -41,19 +44,56 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
   TournamentController get _controller => ref.read(tournamentProvider.notifier);
 
   void _add() {
-    final error = _controller.addPlayer(_name.text);
+    final error = _controller.addPlayer(_name.text, clubId: _clubId);
     setState(() => _error = error);
     if (error == null) _name.clear();
+  }
+
+  Widget _playerRow(ActiveTournament active, Player p) {
+    if (active.withdrawnPlayerIds.contains(p.id)) {
+      return MabarRow(
+        padded: true,
+        titleWidget: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              p.name,
+              style: MabarType.body.copyWith(color: MabarColors.faint, decoration: TextDecoration.lineThrough),
+            ),
+            const Text('Keluar · skornya tetap dihitung', style: MabarType.caption),
+          ],
+        ),
+        trailing: MabarRowAction(
+          label: 'Kembalikan',
+          restore: true,
+          onPressed: () => setState(() => _error = _controller.reinstatePlayer(p.id)),
+        ),
+      );
+    }
+    return MabarRow(
+      title: p.name,
+      trailing: MabarRowAction(
+        label: 'Keluarkan',
+        onPressed: active.canWithdraw(p.id) ? () => _controller.withdrawPlayer(p.id) : null,
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Tambah mati sampai nama terisi (sparing), jadi tombol perlu tahu isian berubah.
+    _name.addListener(() => setState(() {}));
   }
 
   @override
   Widget build(BuildContext context) {
     final active = ref.watch(tournamentProvider);
     if (active == null) return const SizedBox.shrink();
+    final clubs = active.config.clubs;
 
     final activeCount = active.activePlayers.length;
     final withdrawn = active.withdrawnPlayerIds;
-    final canWithdraw = activeCount > 4;
     final small = MabarType.caption.copyWith(color: MabarColors.ink3);
 
     return Column(
@@ -65,6 +105,7 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
             Expanded(
               child: MabarField(
                 controller: _name,
+                hint: 'Nama pemain baru',
                 error: _error != null,
                 textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.done,
@@ -74,14 +115,31 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
             ),
             const SizedBox(width: 8),
             // Sama tinggi dengan kolom nama di sebelahnya.
-            MabarButton(label: 'Tambah', expand: false, height: 48, onPressed: _add),
+            MabarButton(
+              label: 'Tambah',
+              expand: false,
+              height: 48,
+              onPressed: clubs != null && (_clubId == null || _name.text.trim().isEmpty) ? null : _add,
+            ),
           ],
         ),
+        if (clubs != null) ...[
+          const SizedBox(height: 10),
+          MabarChipWrap(
+            children: [
+              for (final c in clubs)
+                MabarChip(label: c.name, selected: _clubId == c.id, onTap: () => setState(() => _clubId = c.id)),
+            ],
+          ),
+        ],
         if (_error != null) ...[
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(_error!, style: small.copyWith(color: MabarColors.clay, fontWeight: FontWeight.w600)),
+            child: Text(
+              _error!,
+              style: small.copyWith(color: MabarColors.clay, fontWeight: FontWeight.w600),
+            ),
           ),
         ] else ...[
           const SizedBox(height: 16),
@@ -95,47 +153,63 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
           ),
         ],
         const SizedBox(height: 16),
-        MabarSection(
-          header: MabarGroupLabel(
-            withdrawn.isEmpty ? '$activeCount pemain aktif' : '$activeCount pemain aktif · ${withdrawn.length} keluar',
-          ),
-          child: MabarGroup(
-            color: MabarColors.paper,
-            children: [
-              for (final p in active.config.players)
-                if (withdrawn.contains(p.id))
-                  MabarRow(
-                    padded: true,
-                    titleWidget: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          p.name,
-                          style: MabarType.body.copyWith(color: MabarColors.faint, decoration: TextDecoration.lineThrough),
-                        ),
-                        const Text('Keluar · skornya tetap dihitung', style: MabarType.caption),
-                      ],
+        if (clubs == null)
+          MabarSection(
+            header: MabarGroupLabel(
+              withdrawn.isEmpty
+                  ? '$activeCount pemain aktif'
+                  : '$activeCount pemain aktif · ${withdrawn.length} keluar',
+            ),
+            child: MabarGroup(
+              color: MabarColors.paper,
+              children: [for (final p in active.config.players) _playerRow(active, p)],
+            ),
+          )
+        else
+          for (final club in clubs) ...[
+            Builder(
+              builder: (_) {
+                final members = [
+                  for (final p in active.config.players)
+                    if (p.clubId == club.id) p,
+                ];
+                final out = members.where((p) => withdrawn.contains(p.id)).length;
+                final activeInClub = members.length - out;
+                // Keluarkan mati karena klub (bukan karena total 4): alasannya di bawah daftar klub itu.
+                final clubBlocked = activeCount > 4 && activeInClub <= 2;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MabarSection(
+                      header: MabarGroupLabel(
+                        out == 0
+                            ? '${club.name} · $activeInClub aktif'
+                            : '${club.name} · $activeInClub aktif · $out keluar',
+                      ),
+                      child: MabarGroup(
+                        color: MabarColors.paper,
+                        children: [for (final p in members) _playerRow(active, p)],
+                      ),
                     ),
-                    trailing: MabarRowAction(
-                      label: 'Kembalikan',
-                      restore: true,
-                      onPressed: () => setState(() => _error = _controller.reinstatePlayer(p.id)),
-                    ),
-                  )
-                else
-                  MabarRow(
-                    title: p.name,
-                    trailing: MabarRowAction(
-                      label: 'Keluarkan',
-                      onPressed: canWithdraw ? () => _controller.withdrawPlayer(p.id) : null,
-                    ),
-                  ),
-            ],
-          ),
-        ),
-        if (!canWithdraw) ...[
+                    if (clubBlocked) ...[
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text('Butuh minimal 2 pemain per klub', style: small),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
+          ],
+        if (activeCount <= 4) ...[
           const SizedBox(height: 16),
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Text('Butuh minimal 4 pemain', style: small)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text('Butuh minimal 4 pemain', style: small),
+          ),
         ],
       ],
     );
