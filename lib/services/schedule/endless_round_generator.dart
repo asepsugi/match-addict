@@ -153,8 +153,8 @@ class EndlessRoundGenerator {
     return [...players]..sort((a, b) {
       final byRank = RankingCalculator.compare(standing[a.id]!, standing[b.id]!, RankingMethod.totalGames);
       if (byRank != 0) return byRank;
-      // Undian yang tidak memuat id (pemanggil keliru) jatuh ke pemisah id, bukan melempar.
-      final byDraw = (draw[a.id] ?? 0).compareTo(draw[b.id] ?? 0);
+      // Undian wajib memuat semua pemain aktif (jebakan 1); id yang hilang = pemanggil keliru, gagal keras.
+      final byDraw = draw[a.id]!.compareTo(draw[b.id]!);
       if (byDraw != 0) return byDraw;
       return a.id.compareTo(b.id);
     });

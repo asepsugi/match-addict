@@ -132,14 +132,29 @@ void main() {
     );
 
     test('AC-M20 aturan baca: mexicano + clubs → null, dan canEncode false', () {
-      final clubs = [const Club(id: 'k1', name: 'A'), const Club(id: 'k2', name: 'B')];
-      final active = _mexicano(clubs: clubs);
+      // Simpanan sparing yang sah (penanda, klub, Americano 21) dengan mode saja yang diganti: yang menolak hanya
+      // aturan Mexicano, bukan aturan sparing.
+      final sparing = TournamentCodec.decode(_sparing33)!;
+      expect(TournamentCodec.canEncode(sparing), isTrue);
+      final c = sparing.config;
+      final active = sparing.copyWith(
+        tournament: sparing.tournament.copyWith(
+          config: TournamentConfig(
+            sport: c.sport,
+            mode: PartnerMode.mexicano,
+            matchDurationMinutes: c.matchDurationMinutes,
+            courts: c.courts,
+            players: c.players,
+            format: c.format,
+            clubs: c.clubs,
+            name: c.name,
+          ),
+        ),
+      );
       expect(TournamentCodec.canEncode(active), isFalse);
       expect(() => TournamentCodec.encode(active), throwsA(isA<UnreadableTournamentError>()));
-      // Payload yang ditulis tangan (penulis mana pun tidak bisa menghasilkannya).
-      final raw = TournamentCodec.encode(
-        _mexicano(),
-      ).replaceFirst('"courts":', '"clubs":[{"id":"k1","name":"A"},{"id":"k2","name":"B"}],"courts":');
+      final raw = _sparing33.replaceFirst('"mode":"mixed"', '"mode":"mexicano"');
+      expect(raw, isNot(_sparing33));
       expect(TournamentCodec.decode(raw), isNull);
     });
 

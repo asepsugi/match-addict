@@ -81,7 +81,7 @@ class LastSettings {
     if (raw == null || raw.length > _maxJsonLength) return null;
     try {
       final j = jsonDecode(raw);
-      if (j is! Map || j['v'] != _version) return null;
+      if (j is! Map || j['v'] is! int || j['v'] != _version) return null;
       final mode = PartnerMode.values.byName(j['mode'] as String);
       final format = ScoreFormat(ScoringMethod.values.byName(j['scoring'] as String), j['target'] as int);
       final duration = j['duration'] as int;

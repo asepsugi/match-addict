@@ -47,8 +47,11 @@ class TournamentStore {
 
   /// Kegagalan tulis (disk penuh) ditelan: turnamen tetap jalan, hanya pengaturan tidak tersimpan.
   Future<void> saveLastSettings(SportType sport, LastSettings settings) async {
+    final json = settings.toJson();
+    // Entri yang tidak akan terbaca (nama court raksasa) tidak ditulis: yang lama tetap berlaku.
+    if (LastSettings.read(json) == null) return;
     try {
-      await _write(_settingsKey(sport), settings.toJson());
+      await _write(_settingsKey(sport), json);
     } catch (_) {}
   }
 

@@ -26,6 +26,8 @@ class ModePicker extends StatelessWidget {
   static IconData _link(PartnerMode mode) => switch (mode) {
     PartnerMode.fixed => MabarIcons.equals,
     PartnerMode.mixed => MabarIcons.shuffle,
+    // Mexicano: ikon yang sama dengan Klasemen (03-konfigurasi.md); kartunya baru ditawarkan di KF-1 bagian 2.
+    PartnerMode.mexicano => MabarIcons.ranking,
   };
 
   @override
