@@ -92,16 +92,34 @@ void main() {
   });
 
   testWidgets('15w: skor di samping Round tidak menambah tinggi info round', (tester) async {
+    await loadHifiFonts();
+    await tester.pumpWidget(screen(mixedSparing15b().active));
+    await tester.pump();
+    // Pembanding: 15b = data yang sama tanpa nama (skor di baris kecil, tanpa blok samping).
+    final unnamedContinue = tester.getRect(find.text('Lanjutkan')).top;
+    // Lepas ProviderScope lama supaya turnamen 15w dimuat dari awal.
+    await tester.pumpWidget(const SizedBox());
+
     await tester.pumpWidget(screen(mixedSparing15w().active));
     await tester.pump();
     final round = tester.getRect(find.text('Round 4'));
     final progress = tester.getRect(find.text('6 dari 8 match'));
     final first = tester.getRect(find.text('PB Garuda'));
     final second = tester.getRect(find.text('Matcha Club'));
-    expect(first.top, greaterThanOrEqualTo(round.top - 6));
-    expect(second.bottom, lessThanOrEqualTo(round.bottom + 6));
+    final score = tester.getRect(find.text('2'));
+    // Blok skor di dalam tinggi "Round 4", rata bawah dengannya (CSS 15w `align-items: flex-end`).
+    expect(first.top, greaterThanOrEqualTo(round.top));
+    expect(score.bottom, lessThanOrEqualTo(round.bottom));
     expect(first.top, lessThan(second.top));
     expect(progress.top, greaterThan(round.bottom));
+    expect(tester.getRect(find.text('Lanjutkan')).top, unnamedContinue);
+
+    // Ukuran ikut CSS 15w: angka 19, nama 14/600.
+    final number = tester.widget<Text>(find.text('4')).style!;
+    final name = tester.widget<Text>(find.text('PB Garuda')).style!;
+    expect(number.fontSize, 19);
+    expect(name.fontSize, 14);
+    expect(name.fontWeight, FontWeight.w600);
   });
 
   testWidgets('15y dialog mulai baru saat sparing bernama berjalan menyebut nama turnamen', (tester) async {

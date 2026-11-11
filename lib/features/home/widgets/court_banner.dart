@@ -234,9 +234,10 @@ class _LiveBlock extends StatelessWidget {
             Text(live.subtitle, style: text, maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 10),
           if (live.clubsAside case final aside?)
-            // Tinggi baris = tinggi "Round n" (54 × 0,88): dua baris skor tidak menambah tinggi info round.
+            // 15w: baris rata bawah (`align-items: flex-end`); dua baris skor (2 × 19 × 1,1 + 2) lebih pendek dari
+            // "Round n" (54 × 0,88), jadi tinggi info round tidak bertambah.
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(live.title, style: MabarType.scoreL.copyWith(color: Colors.white)),
                 const SizedBox(width: 12),
@@ -352,22 +353,26 @@ class _ClubsAside extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = style.copyWith(fontWeight: FontWeight.w600);
-    final number = MabarType.numM.copyWith(color: Colors.white, height: 1);
+    // Ukuran ikut CSS 15w: nama 14/600, angka 19, line-height 1,1, antarbaris 2.
+    final name = style.copyWith(fontSize: 14, fontWeight: FontWeight.w600, height: 1.1);
+    final number = MabarType.numM.copyWith(color: Colors.white, fontSize: 19, height: 1.1);
     Widget line(String club, String score) => Row(
       mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
         Flexible(
           child: Text(club, style: name, maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
-        const SizedBox(width: 10),
+        // Spasi di HTML sebelum `<b>` (±3,5) + margin-left 5.
+        const SizedBox(width: 8.5),
         Text(score, style: number),
       ],
     );
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [line(aside.club1, aside.score1), const SizedBox(height: 4), line(aside.club2, aside.score2)],
+      children: [line(aside.club1, aside.score1), const SizedBox(height: 2), line(aside.club2, aside.score2)],
     );
   }
 }
