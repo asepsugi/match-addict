@@ -525,6 +525,15 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 31. Urutan Mexicano **selalu Total Point → selisih**, apa pun tab Klasemen yang dipilih (14.3, U1, 2026-11-11).
 32. Koreksi skor di Mexicano **tidak membuat ulang round yang sudah dibuat**; host memakai Batalkan round lalu Buat
     (14.7, U6, 2026-11-11).
+33. **Konfigurasi diringkas** (usulan Arah A, `design/proposals/konfigurasi-mexicano.html`): tetap satu layar (Nama,
+    Pasangan, Skor, Court); grup Skor dan Court masing-masing menjadi satu baris berisi nilainya, rinciannya di sheet.
+    Tidak ada field yang hilang (5.3, 2026-11-11).
+34. Memilih Mexicano saat format Race to/Best of → **Americano 21**; Americano yang sudah ada tetap N-nya; kembali ke
+    Fixed/Mixed **tidak mengembalikan** format sebelumnya (14.2, U9, 2026-11-11).
+35. Kartu mode (Fixed / Mixed / Mexicano) **tanpa teks deskripsi**: hanya gambar dan nama mode (2026-11-11).
+36. Konfigurasi dibuka dengan **pengaturan turnamen terakhir di HP itu** (mode, format, durasi, court), bukan default
+    tetap; dikerjakan setelah Arah A masuk hi-fi (2026-11-11).
+37. Baris Skor di Konfigurasi menulis **"menit"**, tidak disingkat "mnt" (mis. "Race to 6 · 20 menit") (2026-11-11).
 
 ---
 
@@ -933,7 +942,8 @@ dibuat (termasuk match WO).
   dan Mixed.
 - Konfigurasi: Mode **Fixed / Mixed / Mexicano**. Memilih Mexicano saat format Race to atau Best of → format menjadi
   **Americano 21**; kalau sudah Americano, N-nya tetap (mis. Americano 24 tetap 24). Kembali ke Fixed/Mixed tidak
-  mengubah format. Tampilan format yang tidak bisa dipilih: designer (U9).
+  mengubah format (keputusan 34). Saat Mexicano, pilihan Race to/Best of tidak ditampilkan dan formatnya tertulis
+  "Americano".
 - Estimasi di tombol sama dengan Mixed (Max Round · Match/Pemain · Court Aktif · Total Match).
 - Mexicano → langsung Jadwal + R1 (tanpa layar Pasangan), seperti Mixed. Jadwal Mexicano memakai kontrol Jadwal Mixed:
   Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen, daftar "Istirahat · Prioritas main di
@@ -1169,8 +1179,7 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 ### 14.11 Keputusan & usulan
 
 Keputusan host 2026-11-11: 23–32 di §10 (jangan dibuka ulang). U2, U5, U1, U6 sudah menjadi keputusan 30, 29, 31, 32.
-U9 (format skor saat Mexicano dipilih) diserahkan host ke designer: Konfigurasi dirancang ulang supaya lebih sederhana
-dan host tidak kewalahan saat memulai turnamen; aturan U9 mengikuti hasil desain yang disetujui host.
+U9 disetujui apa adanya (keputusan 34). Konfigurasi diringkas mengikuti keputusan 33, 35–37.
 
 **Usulan PM — belum dikonfirmasi host** (aturan di atas memakai usulan ini sampai host menjawab):
 
