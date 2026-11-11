@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../../models/models.dart';
+import '../ranking/ranking_calculator.dart';
 
 /// Kapan court yang baru ditambah atau diubah jamnya dipakai ([EndlessRoundGenerator.courtUse]).
 enum CourtUse { now, nextRound, unused }
@@ -77,6 +78,108 @@ class EndlessRoundGenerator {
     }
 
     return EndlessRound(matches: matches, resting: resting);
+  }
+
+  /// Undian terkunci round [roundNumber]: `Random(seed + roundNumber)` dibagikan ke [playerIds] urut id. Satu undian
+  /// untuk prioritas main ([priorityOrder]) dan pemisah pemain bernomor sama di urutan Mexicano ([mexicanoOrder]), jadi
+  /// selalu dibagikan ke **semua pemain aktif**: membagikannya ke sebagian pemain memberi nilai lain (logic.md §14.2).
+  static Map<String, int> lockedDraw(Iterable<String> playerIds, {required int seed, required int roundNumber}) {
+    final ids = playerIds.toList()..sort();
+    final rng = Random(seed + roundNumber);
+    return {for (final id in ids) id: rng.nextInt(1 << 30)};
+  }
+
+  /// Mexicano (logic.md §14.3, PRD 14.4): siapa main sama dengan Mixed ([priorityOrder], tanpa pemain telat), lalu
+  /// yang main diurut [mexicanoOrder] dan kelompok ke-i (posisi 4i..4i+3) main di `courts[i]` dengan susunan
+  /// [mexicanoArrangement]. [players] = pemain aktif, [courts] = court yang muat (urut nomor). Tanpa `Random` sama
+  /// sekali: input sama → round sama (Batalkan lalu Buat, kill app, HP lain). [draw] null = [lockedDraw] dari [players].
+  static EndlessRound? generateMexicanoRound({
+    required List<Player> players,
+    required List<Court> courts,
+    required List<MatchGame> history,
+    required int roundNumber,
+    required int seed,
+    required ScoreFormat format,
+    Map<String, int>? draw,
+  }) {
+    final slots = slotsFor(players: players.length, courts: courts.length);
+    if (slots < 4) return null;
+    final lots = draw ?? lockedDraw(players.map((p) => p.id), seed: seed, roundNumber: roundNumber);
+    final order = priorityOrder(
+      players: players,
+      history: history,
+      roundNumber: roundNumber,
+      seed: seed,
+      slots: slots,
+      draw: lots,
+    );
+    final ranked = mexicanoOrder(order.take(slots).toList(), history, format, lots);
+    final stats = _History(history);
+    return EndlessRound(
+      matches: [
+        for (var i = 0; i < slots ~/ 4; i++)
+          if (_mexicanoArrangement(ranked.sublist(4 * i, 4 * i + 4), stats) case (final pair1, final pair2))
+            MatchGame(
+              id: 'm-r$roundNumber-${i + 1}',
+              roundNumber: roundNumber,
+              matchNumberInRound: i + 1,
+              courtId: courts[i].id,
+              pair1: pair1,
+              pair2: pair2,
+            ),
+      ],
+      resting: order.skip(slots).toList(),
+    );
+  }
+
+  /// Urutan Mexicano (PRD 14.3): Total Point turun → selisih turun ([RankingCalculator.compare] Total Point, apa pun
+  /// tab Klasemen) → [draw] naik → id. Sengaja bukan urutan [RankingCalculator.rank] (pemisah nama) atau nomor
+  /// Klasemen (null untuk yang belum main): pemain belum main ikut diurut dengan 0 / 0.
+  static List<Player> mexicanoOrder(
+    List<Player> players,
+    List<MatchGame> history,
+    ScoreFormat format,
+    Map<String, int> draw,
+  ) {
+    final standing = {
+      for (final s in RankingCalculator.rank(
+        players: players,
+        matches: history,
+        method: RankingMethod.totalGames,
+        format: format,
+      ))
+        s.player.id: s,
+    };
+    return [...players]..sort((a, b) {
+      final byRank = RankingCalculator.compare(standing[a.id]!, standing[b.id]!, RankingMethod.totalGames);
+      if (byRank != 0) return byRank;
+      // Undian yang tidak memuat id (pemanggil keliru) jatuh ke pemisah id, bukan melempar.
+      final byDraw = (draw[a.id] ?? 0).compareTo(draw[b.id] ?? 0);
+      if (byDraw != 0) return byDraw;
+      return a.id.compareTo(b.id);
+    });
+  }
+
+  /// Susunan satu court Mexicano (PRD 14.5) dari empat pemain posisi 1–4 [ranked]: A = 1+3 vs 2+4, B = 1+4 vs 2+3,
+  /// C = 1+2 vs 3+4; beban = berapa kali dua pasangannya pernah berpasangan (match `cancelled` tidak dihitung). Beban
+  /// terkecil, seri → A, B, C. `pair1` = tim berisi posisi 1; di dalam tim posisi lebih kecil jadi `player1Id`.
+  static (Pair, Pair) mexicanoArrangement(List<Player> ranked, List<MatchGame> history) =>
+      _mexicanoArrangement(ranked, _History(history));
+
+  static (Pair, Pair) _mexicanoArrangement(List<Player> p, _History stats) {
+    assert(p.length == 4);
+    final options = [(0, 2, 1, 3), (0, 3, 1, 2), (0, 1, 2, 3)];
+    (Pair, Pair)? best;
+    var bestLoad = 1 << 30;
+    for (final (a, b, c, d) in options) {
+      final load = stats.partnerCount(p[a].id, p[b].id) + stats.partnerCount(p[c].id, p[d].id);
+      // `<` (bukan `<=`): seri tetap memakai susunan yang lebih dulu.
+      if (load < bestLoad) {
+        best = (_pairOf(p[a], p[b]), _pairOf(p[c], p[d]));
+        bestLoad = load;
+      }
+    }
+    return best!;
   }
 
   /// Pemain yang main di satu round: 4 per court, dibatasi jumlah pemain, selalu kelipatan 4.
@@ -166,6 +269,8 @@ class EndlessRoundGenerator {
   /// istirahat) kalau 2 belum lebih sering dari mereka: 12 pemain / 2 court → 3. Main k dari k + 1 round selalu lebih
   /// sering dari bagian pemain lain, jadi dia menyusul tanpa main terus. Pemain yang hadir sejak awal tidak kena jeda:
   /// undian seri kadang memberi mereka k round beruntun, dan memotongnya bisa membuat selisih main jadi 2.
+  ///
+  /// [draw] = undian yang sudah dihitung ([lockedDraw]); null = undian dari [players] sendiri. Test menyuntiknya.
   static List<Player> priorityOrder({
     required List<Player> players,
     required List<MatchGame> history,
@@ -173,18 +278,17 @@ class EndlessRoundGenerator {
     required int seed,
     required int slots,
     Set<String> latePlayerIds = const {},
+    Map<String, int>? draw,
   }) {
     final stats = _History(history);
-    final ids = players.map((p) => p.id).toList()..sort();
-    final rng = Random(seed + roundNumber);
-    final draw = {for (final id in ids) id: rng.nextInt(1 << 30)};
+    final lots = draw ?? lockedDraw(players.map((p) => p.id), seed: seed, roundNumber: roundNumber);
 
     final order = [...players]..sort((a, b) {
       final byMatches = stats.matchCount(a.id).compareTo(stats.matchCount(b.id));
       if (byMatches != 0) return byMatches;
       final byRest = stats.lastRound(a.id).compareTo(stats.lastRound(b.id));
       if (byRest != 0) return byRest;
-      final byDraw = draw[a.id]!.compareTo(draw[b.id]!);
+      final byDraw = lots[a.id]!.compareTo(lots[b.id]!);
       if (byDraw != 0) return byDraw;
       return a.id.compareTo(b.id);
     });
@@ -395,6 +499,8 @@ class EndlessRoundGenerator {
   ///
   /// Sparing: [players] = 2 pemain klub pertama lalu 2 klub kedua ([courtUse]); pasangan sesama klub, `pair1` klub
   /// pertama.
+  ///
+  /// Mexicano: pemainnya tetap dari [courtUse]; susunannya [mexicanoArrangement] dari [mexicanoOrder] keempatnya.
   static MatchGame courtMatch(ActiveTournament active, String courtId, List<Player> players, {Random? random}) {
     assert(players.length == 4);
     final n = active.roundCount;
@@ -404,10 +510,26 @@ class EndlessRoundGenerator {
               players.skip(2).every((p) => p.clubId == active.config.clubs![1].id)),
       'Sparing: 2 pemain klub pertama lalu 2 klub kedua (S2, S4).',
     );
-    final rng = random ?? Random();
-    final (pair1, pair2) = active.config.isSparing
-        ? _bestSparingArrangement(players.sublist(0, 2), players.sublist(2), _History(active.matches), rng).single
-        : _bestArrangement(players, _History(active.matches), rng).single;
+    final (pair1, pair2) = switch (active.config) {
+      // Mexicano: tanpa `Random` (AC-M12, M14). Urutan dari skor yang sudah masuk termasuk round n, undian round n
+      // (round tempat match ini dibuat; logic.md §14.3, asumsi tech-lead).
+      TournamentConfig(mode: PartnerMode.mexicano) => _mexicanoArrangement(
+        mexicanoOrder(
+          players,
+          active.matches,
+          active.config.format,
+          lockedDraw(active.activePlayers.map((p) => p.id), seed: active.drawSeed, roundNumber: n),
+        ),
+        _History(active.matches),
+      ),
+      TournamentConfig(isSparing: true) => _bestSparingArrangement(
+        players.sublist(0, 2),
+        players.sublist(2),
+        _History(active.matches),
+        random ?? Random(),
+      ).single,
+      _ => _bestArrangement(players, _History(active.matches), random ?? Random()).single,
+    };
     final number = active.matchesOfRound(n).fold(0, (top, m) => max(top, m.matchNumberInRound)) + 1;
     return MatchGame(
       id: 'm-r$n-$number',

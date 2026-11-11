@@ -23,18 +23,18 @@ extension SportTypeX on SportType {
   };
 }
 
-enum PartnerMode { fixed, mixed }
+// Nilai baru selalu di akhir: codec menyimpan `name`, dan versi lama menolak nama yang tidak dikenalnya (logic.md §14.6).
+enum PartnerMode { fixed, mixed, mexicano }
 
 extension PartnerModeX on PartnerMode {
   String get label => switch (this) {
     PartnerMode.fixed => 'Fixed',
     PartnerMode.mixed => 'Mixed',
+    PartnerMode.mexicano => 'Mexicano',
   };
 
-  String get assetPath => switch (this) {
-    PartnerMode.fixed => 'assets/images/mode_fixed.png',
-    PartnerMode.mixed => 'assets/images/mode_mixed.png',
-  };
+  /// Round dibuat satu per satu (Mixed dan Mexicano), bukan jadwal penuh di awal seperti Fixed (logic.md §14.1).
+  bool get isEndless => this != PartnerMode.fixed;
 }
 
 /// Format skor satu match, dipilih host di Konfigurasi (`design/spec/logic.md` §1).
@@ -133,6 +133,11 @@ class ScoreFormat {
   };
 
   ScoreFormat withTarget(int target) => ScoreFormat(method, method.clampTarget(target));
+
+  /// Format saat kartu Mexicano dipilih (keputusan 34, AC-M1): Mexicano hanya Americano, jadi Americano N tetap dan
+  /// Race to / Best of menjadi Americano 21.
+  ScoreFormat get forMexicano =>
+      method == ScoringMethod.americano ? this : const ScoreFormat(ScoringMethod.americano, 21);
 
   @override
   bool operator ==(Object other) => other is ScoreFormat && other.method == method && other.target == target;
@@ -579,6 +584,21 @@ class ActiveTournament {
     return clubId != null && activePlayersOfClub(clubId).length > 2;
   }
 
+  /// Kelola pemain: Kembalikan untuk pemain yang keluar. Mexicano hanya kalau dia hadir (main atau tercatat istirahat)
+  /// di setiap round yang sudah dibuat — tidak ada pemain telat di Mexicano (keputusan 39, U5). Dihitung dari kehadiran,
+  /// bukan dari kapan dikeluarkan, jadi Batalkan round yang dibuat tanpa dia menghidupkan Kembalikan lagi (16g).
+  bool canReinstate(String playerId) {
+    if (!withdrawnPlayerIds.contains(playerId)) return false;
+    if (config.mode != PartnerMode.mexicano) return true;
+    for (var r = 1; r <= roundCount; r++) {
+      final present =
+          (restingPlayerIdsByRound[r]?.contains(playerId) ?? false) ||
+          matchesOfRound(r).any((m) => m.pair1.contains(playerId) || m.pair2.contains(playerId));
+      if (!present) return false;
+    }
+    return true;
+  }
+
   /// Sparing: klub pasangan ber-id [pairId], juga pasangan lama yang sudah diatur ulang ([pairById]).
   Club? clubOfPairId(String pairId) {
     final pair = pairById(pairId);
@@ -630,10 +650,9 @@ class ActiveTournament {
   bool isFinal(DateTime now) {
     if (tournament.isFinished) return true;
     if (matches.isEmpty) return false;
-    return switch (config.mode) {
-      PartnerMode.fixed => matches.every((m) => m.status != MatchStatus.pending),
-      PartnerMode.mixed => courtsAvailableAt(now).isEmpty && isRoundComplete(roundCount),
-    };
+    return config.mode.isEndless
+        ? courtsAvailableAt(now).isEmpty && isRoundComplete(roundCount)
+        : matches.every((m) => m.status != MatchStatus.pending);
   }
 
   /// Seed undian pemain seri di generator Mixed. Diturunkan dari id turnamen (UUID acak yang memang
@@ -701,11 +720,11 @@ class ActiveTournament {
   /// Mixed round terakhir, Fixed round yang sedang dibuka. Null setelah diakhiri.
   int? get runningRound {
     if (tournament.isFinished || matches.isEmpty) return null;
-    return config.mode == PartnerMode.mixed ? roundCount : currentRound;
+    return config.mode.isEndless ? roundCount : currentRound;
   }
 
-  /// Mixed: Kelola court (menu ⋯) ada selama turnamen belum diakhiri.
-  bool get canManageCourts => config.mode == PartnerMode.mixed && !tournament.isFinished;
+  /// Mixed dan Mexicano: Kelola court (menu ⋯) ada selama turnamen belum diakhiri.
+  bool get canManageCourts => config.mode.isEndless && !tournament.isFinished;
 
   /// Hapus court (detail court, 08h): hanya court bernomor terakhir — nomor court = urutannya, menghapus court di
   /// tengah menggeser nomor court lain, termasuk di match lama — yang belum punya match selesai/WO, dan bukan
@@ -825,16 +844,15 @@ class ActiveTournament {
       matches.isNotEmpty &&
       matches.every((m) => m.status != MatchStatus.pending);
 
-  /// Mode Mixed: turnamen yang sudah diakhiri atau kehabisan waktu booking
+  /// Mixed dan Mexicano: turnamen yang sudah diakhiri atau kehabisan waktu booking
   /// bisa dilanjutkan dengan menambah jam court.
-  bool canResume(DateTime now) =>
-      config.mode == PartnerMode.mixed && (tournament.isFinished || courtsAvailableAt(now).isEmpty);
+  bool canResume(DateTime now) => config.mode.isEndless && (tournament.isFinished || courtsAvailableAt(now).isEmpty);
 
-  /// Mode Mixed: round terakhir boleh dibatalkan (dihapus) selama belum ada
+  /// Mixed dan Mexicano: round terakhir boleh dibatalkan (dihapus) selama belum ada
   /// satu skor pun, mis. pemain baru datang dan ingin langsung main. R1 tidak
   /// pernah — turnamen tanpa round tidak punya layar jadwal.
   bool get canCancelLastRound =>
-      config.mode == PartnerMode.mixed &&
+      config.mode.isEndless &&
       !tournament.isFinished &&
       roundCount > 1 &&
       matchesOfRound(roundCount).every((m) => m.status == MatchStatus.pending);

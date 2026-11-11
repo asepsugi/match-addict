@@ -77,18 +77,28 @@ class TournamentController extends Notifier<ActiveTournament?> {
       restingPairIdsByRound: sparing?.restingPairIdsByRound ?? const {},
     );
 
-    // Mode Mixed tidak punya jadwal di awal — round 1 langsung digenerate.
-    if (config.mode == PartnerMode.mixed) generateNextRound();
+    // Mixed dan Mexicano tidak punya jadwal di awal — round 1 langsung digenerate.
+    if (config.mode.isEndless) generateNextRound();
   }
 
-  /// Mode Mixed: buat round berikutnya dari history yang sudah ada.
+  /// Mixed dan Mexicano: buat round berikutnya dari history yang sudah ada.
   void generateNextRound() {
     final current = state;
     final now = ref.read(clockProvider)();
     if (current == null || !current.canGenerateNextRound(now)) return;
 
     final roundNumber = current.roundCount + 1;
-    final round = current.config.isSparing
+    // Mexicano: pasangan dari Klasemen Total Point, bukan `rankingMethodProvider` (AC-M10); tanpa pemain telat.
+    final round = current.config.mode == PartnerMode.mexicano
+        ? EndlessRoundGenerator.generateMexicanoRound(
+            players: current.activePlayers,
+            courts: current.courtsAvailableAt(now),
+            history: current.matches,
+            roundNumber: roundNumber,
+            seed: current.drawSeed,
+            format: current.config.format,
+          )
+        : current.config.isSparing
         ? EndlessRoundGenerator.generateSparingRound(
             club1: current.activePlayersByClub.$1,
             club2: current.activePlayersByClub.$2,
@@ -185,7 +195,8 @@ class TournamentController extends Notifier<ActiveTournament?> {
   /// berubah (K8) — tidak ada yang perlu diubah di sini.
   String? reinstatePlayer(String playerId) {
     final current = state;
-    if (current == null || !current.withdrawnPlayerIds.contains(playerId)) return null;
+    // Mexicano: hanya pemain yang tidak absen di round mana pun ([ActiveTournament.canReinstate]); state tidak berubah.
+    if (current == null || !current.canReinstate(playerId)) return null;
     // Sparing: dia kembali ke klubnya sendiri; tanpa klub yang dikenal simpanannya akan ditolak saat dibaca.
     final validClub = !current.config.isSparing || current.config.clubOfPlayer(playerId) != null;
     assert(validClub, 'Pemain sparing yang dikembalikan wajib punya klub turnamen (K8, S1).');
@@ -317,7 +328,7 @@ class TournamentController extends Notifier<ActiveTournament?> {
     await _store.archiveActive(current);
   }
 
-  /// Mode Mixed: lanjutkan turnamen yang sudah diakhiri / kehabisan waktu,
+  /// Mixed dan Mexicano: lanjutkan turnamen yang sudah diakhiri / kehabisan waktu,
   /// tanpa mengulang. [from] diisi kalau turnamennya sudah ditutup (slot
   /// "turnamen terakhir"); kosong berarti turnamen aktif.
   ///
@@ -326,7 +337,7 @@ class TournamentController extends Notifier<ActiveTournament?> {
   /// habis tetap dapat jam penuh. Match yang dibatalkan saat "Akhiri" kembali menunggu skor.
   void resume(Map<String, int> extraMinutes, {ActiveTournament? from}) {
     final current = from ?? state;
-    if (current == null || current.config.mode != PartnerMode.mixed) return;
+    if (current == null || !current.config.mode.isEndless) return;
     // Turnamen yang sudah ditutup selalu boleh dibuka lagi, meski waktunya
     // masih ada (host bisa menekan "Selesai" tanpa "Akhiri" dulu).
     final now = ref.read(clockProvider)();

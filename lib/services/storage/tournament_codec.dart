@@ -36,7 +36,14 @@ class TournamentCodec {
   /// bug mutator gagal keras di test walau [TournamentStore] melewati tulisannya.
   static bool canEncode(ActiveTournament active) =>
       active.matches.every((m) => m.roundNumber >= 1 && m.roundNumber <= maxRoundNumber) &&
+      _isValidMexicano(active.config) &&
       (!active.config.isSparing || (active.extraPutaran >= 0 && _isValidSparing(active.tournament)));
+
+  /// Mexicano tanpa klub dan hanya Americano (keputusan 27, logic.md §14.6): payload lain tidak bisa ditulis penulis
+  /// mana pun, jadi rusak. Mode tidak dikenal sudah ditolak `byName` — jangan diberi fallback (versi lama menolak
+  /// Mexicano dengan cara yang sama).
+  static bool _isValidMexicano(TournamentConfig config) =>
+      config.mode != PartnerMode.mexicano || (config.clubs == null && config.format.method == ScoringMethod.americano);
 
   /// Melempar [UnreadableTournamentError] kalau bentuknya akan ditolak decode: pemanggil jangan menimpa simpanan/kiriman
   /// sah terakhir dengannya (docs/security.md #1).
@@ -71,6 +78,7 @@ class TournamentCodec {
       final tournament = _readTournament(json['tournament'] as Map<String, dynamic>);
       if (tournament.matches.any((m) => m.roundNumber < 1 || m.roundNumber > maxRoundNumber)) return null;
       final config = tournament.config;
+      if (!_isValidMexicano(config)) return null;
       // Penanda dibuang sebelum nomor round dibaca; kunci non-angka lain tetap membuat payload rusak.
       final bye = Map<String, dynamic>.of(json['bye'] as Map<String, dynamic>);
       final hasMarker = bye.containsKey(_sparingKey);
