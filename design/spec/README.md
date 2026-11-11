@@ -52,6 +52,15 @@ Kalau hi-fi berubah: jalankan `python3 tool/hifi_extract.py` (butuh Google Chrom
    app, angka skor klub, hitung mundur). Semua golden turnamen biasa harus tetap lolos tanpa diubah (AC-S19), kecuali
    frame yang memang diubah hi-fi 3.2.0 (01a–01i versi app, 02a–02c pilihan Mabar / Sparing).
 
+7. **Mexicano + Konfigurasi diringkas 3.4.0** — PRD §14 + keputusan 23–40, `logic.md` §14, frame 03a–03q, 13h–13j,
+   14f–14g, 16a–16g. Task MX-n / KF-n, dependensi, model, dan urutan merge: `docs/tasks.md`. Urutan: data (MX-0 dba) ∥
+   fondasi Mexicano (MX-1: model, codec, generator, controller) ∥ Konfigurasi (KF-1, bagian Mexicano setelah MX-1) →
+   layar Mexicano (MX-2) → rilis (MX-3). Verifikasi: data `logic.md` §14.4 di `test/services/mexicano_*_test.dart`;
+   golden per frame di `test/hifi/screens/konfigurasi_test.dart`, `sparing_konfigurasi_test.dart`,
+   `mexicano_test.dart`. Golden Konfigurasi lama (03a–03e, 13h–13j, 14f–14g, komponen `config_test.dart`) merah di
+   branch `mexicano` sejak frame-nya digambar ulang (ec1943c) — KF-1 yang menghijaukannya; golden lain harus tetap
+   lolos tanpa diubah.
+
 Langkah 1–4 paling berisiko (logika + terjemahan CSS→Flutter) dan sebaiknya dikerjakan model yang lebih kuat.
 Langkah 5 bisa dikerjakan model yang lebih murah karena tinggal merakit komponen jadi dan dicek golden.
 

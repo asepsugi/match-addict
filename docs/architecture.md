@@ -126,6 +126,29 @@ cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). S
 - **Provider** (`features/schedule/sparing_providers.dart`): `clubScoreProvider`, `clubStandingEntriesProvider`,
   `playerClubPositionProvider` ("Peringkat n · {klub}" di Detail); null/kosong untuk turnamen biasa.
 
+## Mexicano (3.4.0, spec — belum diimplementasi)
+
+Mode ketiga: siapa main = prioritas main Mixed apa adanya, yang main dikelompokkan berempat per court menurut Total
+Point → selisih → undian (PRD §14, aturan + data test `design/spec/logic.md` §14, task `docs/tasks.md`). Mesin Mixed
+dipakai ulang; tidak ada generator atau layar kedua.
+- **Model**: `PartnerMode.mexicano`; `PartnerModeX.isEndless` (Mixed + Mexicano) menggantikan `== PartnerMode.mixed`
+  di semua turunan round-per-round (`isFinal`, `runningRound`, `canManageCourts`, `canResume`, `canCancelLastRound`,
+  `startIfNeeded`, `resume`), **kecuali** `addPlayer` (Mexicano tanpa tambah pemain). `ScoreFormat.forMexicano`
+  (Konfigurasi), `ActiveTournament.canReinstate` (Mexicano: hadir di setiap round yang sudah dibuat).
+- **Generator** (`EndlessRoundGenerator`, file yang sama dengan Mixed): `lockedDraw` (diekstrak dari `priorityOrder`,
+  nilai identik), `generateMexicanoRound`, `mexicanoOrder` (`RankingCalculator.compare` Total Point + undian + id),
+  `mexicanoArrangement` (A/B/C, beban = `_History.partnerCount`). `courtMatch` bercabang Mexicano tanpa `Random`.
+  `restingAfterLastRound` dan `courtUse` tidak berubah. Jadwal = `schedule_mixed_screen.dart` (router memilih Fixed vs
+  lainnya).
+- **Invariant:** selisih main antar pemain aktif ≤ 1 setelah setiap round; kelompok court ke-i = pemain ke-4i..4i+3
+  urutan Mexicano yang main, di court muat ke-i; susunan beban terkecil, seri A → B → C; hasil Buat pasti untuk input
+  yang sama (tidak ada `Random()` selain undian terkunci); urutan tidak pernah tergantung tab Klasemen;
+  `latePlayerIds` selalu kosong; Mexicano tidak pernah sparing dan selalu Americano.
+- **Simpanan**: hanya nilai `mode` baru, `schemaVersion` tetap 2; versi ≤ 3.3.x menolaknya karena
+  `PartnerMode.values.byName` melempar di dalam `try` decode (bukti baris di `logic.md` §14.6, rinci `docs/data.md`).
+- **Konfigurasi** (keputusan 33–38): satu layar baris Skor/Court + sheet; pengaturan terakhir per olahraga di
+  `services/storage/last_settings.dart` (kunci Hive sendiri, di luar `TournamentCodec`), ditulis saat turnamen dimulai.
+
 ## Ranking & klasemen
 
 - `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang

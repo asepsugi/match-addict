@@ -4,7 +4,8 @@ Ditulis tangan (bukan hasil `tool/hifi_extract.py`). Setiap butir mengubah `lib/
 **wajib test** sesuai aturan `CLAUDE.md`. Angka di "data test" sama dengan angka di frame hi-fi, jadi test dan golden
 saling menguatkan.
 
-**Status: §1–§13 sudah diimplementasi di model/service dan ter-test** (§13 Sparing = 3.2.0).
+**Status: §1–§13 sudah diimplementasi di model/service dan ter-test** (§13 Sparing = 3.2.0). **§14 Mexicano +
+Konfigurasi diringkas (3.4.0) = spec, belum diimplementasi** (task MX-n / KF-n di `docs/tasks.md`).
 Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor
@@ -574,3 +575,176 @@ M3 Maya · Nanda. Padel, Race to 6, 15 mnt, 2 court × 2 jam.
   dilewati `flutter test` biasa lewat `skip:` di `dart_test.yaml` — CI deploy tidak menjalankannya. Jalankan sebelum
   rilis (SP-19): `flutter test --tags slow --run-skipped` (tanpa `--run-skipped` tidak ada yang jalan). Waktu ±11–17
   menit tergantung beban mesin (di prototipe dulu ±86 detik).
+
+## 14. Mexicano + Konfigurasi diringkas (3.4.0)
+
+Keputusan host 23–40 (PRD §10, §14, 2026-11-11); frame 03a–03q, 13h–13j, 14f–14g (Konfigurasi), 16a–16g (Mexicano).
+Fixed, Mixed, dan Sparing tidak berubah sedikit pun: setiap cabang Mexicano dimulai dari `config.mode`. Angka di bagian
+ini dicek tech-lead 2026-11-11 dengan skrip + hitung tangan; semuanya cocok dengan PRD 14.6 dan catatan 16a/16b/16g.
+
+### 14.1 Model
+
+- `enum PartnerMode { fixed, mixed, mexicano }` (nilai baru di **akhir**). Label "Mexicano". Getter baru
+  `PartnerModeX.isEndless` = `this != PartnerMode.fixed` (round dibuat satu per satu: Mixed dan Mexicano).
+  `PartnerModeX.assetPath` tidak dipakai di mana pun → hapus, jangan menambah aset.
+- Semua turunan yang sekarang memeriksa `mode == PartnerMode.mixed` (atau `switch` per mode) berlaku juga untuk
+  Mexicano → pakai `isEndless`: `isFinal`, `runningRound`, `canManageCourts`, `canResume`, `canCancelLastRound`,
+  `TournamentController.startIfNeeded` (R1 langsung dibuat), `resume`, Beranda baris turnamen terakhir → Lanjutkan
+  (`home_screen.dart`), `shareRowNoun` ("pemain"), label tombol Konfigurasi "Mulai Round 1". **Kecuali**
+  `TournamentController.addPlayer`: tetap hanya Mixed (keputusan 27).
+- `ScoreFormat.forMexicano` (model, ter-test): Americano N → tetap; Race to / Best of → `Americano 21`. Dipakai
+  Konfigurasi saat kartu Mexicano diketuk; kembali ke Fixed/Mixed tidak mengubah format (keputusan 34).
+- `ActiveTournament.canReinstate(playerId)`: pemain yang keluar boleh dikembalikan kalau Mixed (seperti sekarang), atau
+  Mexicano **dan dia hadir di setiap round 1..`roundCount`** (ada di match round itu atau di
+  `restingPlayerIdsByRound[r]`). Tidak ada stempel waktu "dikeluarkan kapan": kehadiran dihitung dari match + daftar
+  istirahat, jadi Batalkan round yang dibuat tanpa dia otomatis menghidupkan Kembalikan lagi (keputusan 39, 16g).
+  `reinstatePlayer` menolak (null, tanpa mengubah state) kalau `canReinstate` false; sheet menyembunyikan aksinya.
+- Invariant Mexicano: `latePlayerIds` selalu kosong (tidak ada tambah pemain, Kembalikan hanya kalau tidak absen).
+  `config.clubs == null` dan `config.format.method == americano` selalu.
+
+### 14.2 Undian terkunci (satu undian untuk prioritas main dan urutan Mexicano)
+
+- `EndlessRoundGenerator.lockedDraw(playerIds, seed:, roundNumber:)` → `Map<String, int>`: diekstrak apa adanya dari
+  `priorityOrder` (`Random(seed + roundNumber)`, `nextInt(1 << 30)` dibagikan ke id **urut id**). Nilai harus identik
+  dengan sekarang: `mixed_priority_test.dart` dan semua golden Mixed lolos tanpa diubah.
+- `priorityOrder(..., Map<String, int>? draw)`: parameter opsional; null = `lockedDraw(players, seed, roundNumber)`.
+- Undian dibagikan ke **semua pemain aktif** (`activePlayers`), sama dengan prioritas main, lalu dipakai juga untuk
+  memisahkan pemain bernomor sama di urutan Mexicano. Membagikannya hanya ke pemain yang main menghasilkan undian lain
+  (nilai `Random` ke-k jatuh ke pemain lain) → "undian R2" di PRD 14B tidak berlaku lagi.
+- **Cara menyuntik di test:** `draw: drawOf(['Budi', 'Gita', …])` dengan helper test
+  `Map<String, int> drawOf(List<String> ids) => {for (final (i, id) in ids.indexed) id: i}` (id pemain di fixture =
+  nama). Test determinisme (AC-M12, AC-M14) memakai undian asli dari `ActiveTournament.drawSeed`.
+
+### 14.3 Generator (`EndlessRoundGenerator.generateMexicanoRound`, `services/schedule/endless_round_generator.dart`)
+
+Di kelas yang sama dengan Mixed supaya `_History`, `priorityOrder`, `slotsFor`, `_pairOf` dipakai ulang, bukan disalin.
+
+```
+generateMexicanoRound(players = aktif, courts = courtsAvailableAt(now), history, roundNumber, seed, format, draw?):
+  slots   = slotsFor(players, courts)                 // < 4 → null, sama dengan Mixed
+  draw  ??= lockedDraw(players, seed, roundNumber)
+  order   = priorityOrder(players, history, roundNumber, slots, draw: draw)   // latePlayerIds kosong
+  playing = order.take(slots); resting = order.skip(slots)
+  ranked  = mexicanoOrder(playing, history, format, draw)
+  match i = mexicanoArrangement(ranked[4i..4i+3], history) di courts[i]; id 'm-r{n}-{i+1}', matchNumberInRound i+1
+```
+
+- `mexicanoOrder(players, history, format, draw)`: `standing` = `RankingCalculator.rank(players, history,
+  RankingMethod.totalGames, format)` dijadikan peta per id; urut `RankingCalculator.compare(a, b, totalGames)` (Total
+  Point turun → selisih turun) → `draw` naik → id. Pemain belum main = 0 / 0 dan ikut diurut dengan angka itu (U8).
+  Match `pending`/`cancelled` tidak dihitung (aturan `RankingCalculator`); WO ikut lewat `woPoints`.
+- `mexicanoArrangement(p[0..3], history)`: A = p0+p2 vs p1+p3, B = p0+p3 vs p1+p2, C = p0+p1 vs p2+p3. Beban = jumlah
+  `_History.partnerCount` kedua tim (match WO dan `pending` dihitung, `cancelled` tidak — sama dengan `_History`).
+  Beban terkecil; seri → A, lalu B, lalu C. Tim = `_pairOf(posisi kecil, posisi besar)` (jadi `player1Id` = posisi
+  lebih kecil, nama itu ditulis dulu); `pair1` = tim berisi p0.
+- Court: `courts[i]` dari `courtsAvailableAt(now)` = urut nomor court, jadi kelompok teratas di court bernomor
+  terkecil **yang dipakai** (Court 1 habis → Court 2). Court lebih banyak dari slot ÷ 4 → court terakhir kosong.
+- **Kelola court (langsung main, `courtMatch`)**: pemainnya tetap dari `courtUse` (4 teratas prioritas R(n+1) di
+  antara yang istirahat, tidak berubah). Cabang Mexicano: susun dengan `mexicanoArrangement(mexicanoOrder(empat,
+  matches, format, lockedDraw(aktif, seed, n)))`, tanpa `Random`. Undian = round **n** (round tempat match itu
+  dibuat; asumsi tech-lead, PRD tidak menyebut, keduanya pasti). Skor round n yang sudah masuk ikut dihitung.
+- Controller `generateNextRound`: cabang `mode == mexicano` memanggil generator ini dengan `activePlayers`,
+  `courtsAvailableAt(now)`, `matches`, `drawSeed`, `config.format`. `restingAfterLastRound` **tidak berubah**: siapa
+  istirahat tidak tergantung skor, jadi daftar Prioritas main = hasil Buat (AC-M11) dengan sendirinya.
+
+**Invariant** (test properti AC-M8, `test/services/mexicano_property_test.dart`, di suite biasa — tanpa 400 percobaan
+acak, cepat):
+1. Selisih jumlah main antar pemain aktif ≤ 1 setelah setiap round (tidak ada pemain telat di Mexicano).
+2. Tiap pemain paling banyak satu kali per round; tiap match 4 pemain berbeda.
+3. Kelompok court ke-i = pemain ke-4i..4i+3 dari urutan Mexicano yang main (oracle di test dihitung ulang dari
+   `RankingCalculator.compare` + undian, bukan memanggil `mexicanoOrder`); court ke-i = court muat ke-i.
+4. Susunan terpilih beban terkecil dari A/B/C, seri → yang lebih dulu.
+5. Pasti: input sama (match, pemain aktif, court muat, seed) → round sama persis.
+
+### 14.4 Data test (= PRD 14.6 = frame; Padel, Americano 21, 15 menit, court 2 jam; id pemain = nama)
+
+| Kasus | Undian disuntik | Hasil yang diharapkan |
+|---|---|---|
+| AC-M4 14A R1 | Andi, Budi, Citra, Dewi, Eko, Fajar, Gita, Hadi | C1 Andi·Citra vs Budi·Dewi (A, 0/0/0) · C2 Eko·Gita vs Fajar·Hadi. Skor 15–6, 9–12 |
+| AC-M4 14A R2 | Citra, Andi, Fajar, Hadi, Gita, Eko, Budi, Dewi | beban 0/0/2 dua court → A: Citra·Fajar vs Andi·Hadi · Gita·Budi vs Eko·Dewi. Skor 11–10, 8–13 |
+| AC-M5 setelah R2 | — | Citra 26 (+10) #1 · Andi 25 (+8) #2 · Fajar 23 (+4) #3 · Hadi 22 (+2), Eko 22 (+2) #4 · Dewi 19 (−4) #5 · Gita 17 (−8) #6 · Budi 14 (−14) #7; jumlah 168 |
+| AC-M4 14A R3 (a) | …, Hadi, Eko, … (Hadi lebih dulu) | C1 Citra, Andi, Fajar, Hadi beban 2/0/2 → B Citra·Hadi vs Andi·Fajar · C2 Eko, Dewi, Gita, Budi 2/0/2 → B Eko·Budi vs Dewi·Gita |
+| AC-M4 14A R3 (b) | …, Eko, Hadi, … | C1 Citra, Andi, Fajar, Eko 1/0/1 → B Citra·Eko vs Andi·Fajar · C2 Hadi, Dewi, Gita, Budi 1/0/1 → B Hadi·Budi vs Dewi·Gita |
+| AC-M15 WO | R2 C2 WO, Gita·Budi absen | Eko 20 (−3), Dewi 17 (−9), Gita 9 (−3), Budi 6 (−9); R3 tanpa seri, undian apa pun: = R3 (a) |
+| AC-M6 14B R1 | Andi … Joko | Indra, Joko istirahat; match = 14A R1 |
+| AC-M6 14B R2 | Budi, Gita, Andi, Eko, Indra, Dewi, Fajar, Joko, Citra, Hadi | Citra, Hadi istirahat; urutan Andi, Fajar, Gita, Eko \| Budi, Dewi, Indra, Joko; A: Andi·Gita vs Fajar·Eko · Budi·Indra vs Dewi·Joko (beban 0/0/1) |
+| AC-M6 14B R3–R5 | undian asli, skor sah apa pun | R3 Citra, Hadi, Indra, Joko main; setelah R5 semua 4 match |
+| 16g (fixture) | R2 skor 12–9, 10–11; Gita keluar; R3 Citra, Hadi, Indra, Joko, Andi, Dewi, Eko, Fajar, Budi | setelah R2 Andi 27 (+12), Gita 21 (0), Fajar 21 (0), Eko 18 (−6), Dewi 17 (−8), Budi 16 (−10), Citra 15 (+9), Hadi 12 (+3), Joko 11 (+1), Indra 10 (−1), jumlah 168; R3 Budi istirahat, A Andi·Eko vs Fajar·Dewi · Citra·Joko vs Hadi·Indra |
+| AC-M7 14C | R1 Andi, Budi, Citra, Dewi · R2 Andi, Citra, Budi, Dewi | R1 A Andi·Citra vs Budi·Dewi 12–9 · R2 0/0/2 A Andi·Budi vs Citra·Dewi 10–11 · R3 Citra 23 (+4), Andi 22 (+2), Dewi 20 (−2), Budi 19 (−4) 2/0/2 B Citra·Budi vs Andi·Dewi 14–7 · R4 Citra 37 (+11), Budi 33 (+3), Andi 29 (−5), Dewi 27 (−9) 2/2/2 A Citra·Andi vs Budi·Dewi |
+
+- AC-M9 ukuran: 4/1 tanpa istirahat; 5/1 satu istirahat per round, setelah R5 semua 4 match; 7/2 hanya Court 1, 3
+  istirahat; 30/10 Court 1–7 dipakai, Court 8–10 kosong, 2 istirahat.
+- AC-M8 ukuran 4/1, 5/1, 7/2, 8/2, 9/2, 10/2, 12/3, 16/4, 30/10 × 30 round, skor Americano 21 acak berseed yang sah
+  (`ScoreRules.judge` menerima) + ±10% WO; booking cukup panjang (pakai `now` tetap).
+- AC-M10: dua `ActiveTournament` sama, Buat R(n+1) setelah `rankingMethodProvider` = Win % vs Total Point → match sama.
+- AC-M12: undian asli; Batalkan R3 lalu Buat R3 → identik; Batalkan R3, keluarkan Gita, Buat R3 → tanpa Gita.
+- AC-M13: koreksi skor R2 setelah R3 dibuat → match R3 tidak berubah, Klasemen berubah, R4 dari angka baru.
+- AC-M14: `encode` → `decode` (kill + buka lagi) setelah skor R2 lengkap → Buat R3 identik dengan tanpa kill.
+- AC-M16 (`canReinstate`): Gita keluar setelah R2 dibuat → true; R3 dibuat tanpa dia → false; Batalkan R3 → true lagi
+  (16g); Keluarkan mati saat aktif 4; `addPlayer` di Mexicano tidak mengubah state.
+- AC-M17: 12 pemain / 2 court, R1 berjalan, tambah Court 3 → match baru = 4 yang istirahat, susunan dari
+  `mexicanoOrder` dengan `lockedDraw(aktif, seed, 1)` (semua 0 / 0 → urutan = undian R1, susunan A); R2 tiga court,
+  kelompok teratas di Court 1.
+- AC-M18: 8 pemain, 3 court (Court 1 1 jam, Court 2–3 2 jam), 15 menit; R1–R4 di Court 1–2; pada menit 60 Court 1
+  habis → R5 kelompok teratas di Court 2, berikutnya di Court 3.
+
+### 14.5 Konfigurasi diringkas + pengaturan terakhir (keputusan 33–38)
+
+- Satu layar: Nama, Pasangan (kartu tanpa deskripsi), baris Skor `"{format.label} · {durasi} menit"` (durasi kosong
+  → "– menit" clay), baris Court `"{n} court · {j} jam"` atau `"{terpendek}–{terpanjang} jam"`; rincian di sheet
+  (03d–03g, 03i–03p). Aturan teks dan tata letak: `screens/03-konfigurasi.md`. Rangkai teks di satu fungsi murni yang
+  di-test (tidak ada aturan domain baru).
+- Kartu: biasa `[fixed, mixed, mexicano]`; sparing `[fixed, mixed]` (AC-M2). Mexicano → `format.forMexicano` (AC-M1);
+  sheet Skor Mexicano tanpa segmented (03e). Estimasi dan tombol Mexicano = Mixed ("Mulai Round 1 · ±n round", AC-M3).
+- **Pengaturan terakhir per olahraga** (`services/storage/last_settings.dart`, bentuk final: dba, MX-0):
+  `LastSettings {mode, format, matchDurationMinutes, courts: [{name?, colorIndex, bookingMinutes}]}` dibuat dari
+  config saat turnamen **dimulai** (`startIfNeeded` membuat state baru; resume tidak). Nama court = null kalau sama
+  dengan "Court n" (nama default ditulis ke config saat kosong, jadi bandingkan dengan label default, bukan kosong).
+  Tidak ikut: nama turnamen, pemain, klub, pasangan.
+- Konfigurasi dibuka: ada simpanan olahraga itu → isi semua nilai (court mendapat **id baru**); tidak ada / tak terbaca
+  → default 03a (Fixed, Race to 6, durasi olahraga, 2 × 2 jam). Sparing + simpanan Mexicano → mode Mixed, format dan
+  court tetap (`LastSettings.forSparing`). Tennis dan padel terpisah.
+- Data test: Padel Mexicano Americano 24, 15 menit, 3 court × 2 jam (03q) disimpan → Padel dibuka = 03q; Tennis dibuka
+  = 03a dengan 20 menit; Sparing Padel → Mixed, Americano 24, 3 court; nama "Mabar Jumat" tidak terbawa; JSON rusak →
+  default tanpa melempar.
+
+### 14.6 Data (draf tech-lead; final oleh dba di MX-0, `docs/data.md` → Mexicano)
+
+- Simpanan turnamen: hanya `config.mode = "mexicano"`. Tidak ada kunci baru; `schemaVersion` tetap 2; Fixed, Mixed,
+  dan Sparing ter-encode byte-sama.
+- **Versi ≤ 3.3.x menolak tanpa penanda tambahan** (AC-M20, U7). Bukti: `_readConfig` memakai
+  `PartnerMode.values.byName(j['mode'] as String)` (`tournament_codec.dart:200`; sama sejak commit pertama bc38717:111,
+  3.1.0 10817f4:122, 3.2.0 564ea67:186, 3.3.2 di `main`), di dalam `try … catch (_) { return null; }`
+  (`tournament_codec.dart:68,106-110`). `byName("mexicano")` di enum `{fixed, mixed}` melempar `ArgumentError` →
+  `decode` null. Akibatnya: penonton web lama → "Live tidak bisa dibuka" (`live_view_controller.dart:83-85`); host
+  versi lama → `loadActive` null, `listenSelf` mengabaikan null (`tournament_controller.dart:34`) jadi simpanan tidak
+  ditimpa sampai host memulai turnamen baru (sama dengan risiko yang diterima di K13). Jadi tidak perlu penanda di `bye`
+  dan tidak perlu menaikkan `schemaVersion` → **MINOR**.
+- Aturan baca baru (usulan; payload yang tidak bisa ditulis penulis mana pun = rusak): `mode` mexicano + `config.clubs`
+  → null; `mode` mexicano + `scoring` ≠ americano → null. `canEncode` memakai aturan yang sama.
+- Pengaturan terakhir: kunci baru di box Hive `tournament` (usulan `settings.tennis` / `settings.padel`, JSON
+  `{"v":1,"mode","scoring","target","duration","courts":[{"name","colorIndex","bookingMinutes"}]}`), di luar
+  `TournamentCodec`, tidak pernah lewat relay. Nilai di luar batas (format `isValid`, durasi kelipatan 5 dalam 5–180,
+  court 1–10, warna 0–9, booking kelipatan 60 dalam 60–720, mode tak dikenal) → abaikan entri itu (default). Versi lama
+  tidak membaca kunci ini.
+
+### 14.7 Jebakan untuk engineer dan reviewer
+
+1. Undian dibagikan ke semua pemain aktif, bukan hanya yang main (14.2) — kalau salah, 14B R2 dengan undian asli
+   tetap "lolos" di test yang menyuntik undian; hanya test determinisme yang membandingkan dengan `priorityOrder` yang
+   menangkapnya. Wajib ada test: undian yang dipakai urutan Mexicano = `lockedDraw(aktif, seed, n)`.
+2. Jangan memakai urutan `RankingCalculator.rank` (pemisah nama) atau `StandingEntry.position` (null untuk belum main)
+   sebagai urutan Mexicano. Pakai `compare` + undian + id.
+3. Generator tidak boleh membaca `rankingMethodProvider` / `standingsProvider` (ikut tab Klasemen, AC-M10).
+4. Tidak ada `Random()` di jalur Mexicano, termasuk `courtMatch`; `_bestArrangement` hanya untuk Mixed (AC-M12, M14).
+5. Ganti `== PartnerMode.mixed` dengan `isEndless` di semua turunan 14.1, **kecuali** `addPlayer`. `switch` per mode
+   yang exhaustive akan gagal kompilasi; `==`/`!=` tidak — cari semuanya (`grep -rn "PartnerMode\." lib`).
+6. Codec: jangan pernah mengganti `byName` dengan fallback (`orElse: mixed`): itu yang membuat versi lama menolak dan
+   versi baru menolak mode masa depan. Test: payload `mode: "zzz"` → null.
+7. Kembalikan Mexicano dihitung dari kehadiran per round (14.1), bukan dari "round terakhir sebelum dikeluarkan".
+8. `removeCourt` mengembalikan pemain ke `restingPlayerIdsByRound[n]` dan Kelola court mengambil dari sana: keduanya
+   menjaga "hadir di round n", jadi `canReinstate` dan `latePlayerIds` tetap benar — jangan mengubahnya.
+9. Pengaturan terakhir: id court baru per turnamen; "Court n" default disimpan null; disimpan saat turnamen dimulai,
+   bukan saat Konfigurasi ditinggalkan (Fixed bisa batal di Pasangan).
+10. Sheet Skor Mexicano tanpa segmented: mengetuk Mixed/Fixed sesudahnya menampilkan segmented lagi dengan Americano
+    terpilih (format tidak kembali).

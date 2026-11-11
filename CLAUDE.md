@@ -10,8 +10,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 
 **Sumber kebenaran, baca sebelum mengubah UI/logika:**
 - `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22); §13
-  Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y.
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 170 frame layar 390×844 +
+  Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y; §14
+  Mexicano (keputusan 23–41, 2026-11-11), hi-fi 03a–03q, 16a–16g.
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 209 frame layar 390×844 +
   12 lembar gambar (per 2026-11-08) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±320 KB tanpa
   base64 besar, aman dibaca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar lebih ringkas
   baca `design/spec/screens/<alur>.md` + PNG frame-nya.
@@ -97,8 +98,10 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Live score (relay tanpa database) — `docs/live.md`.
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - Sparing 3.2.0 (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, `docs/architecture.md` →
-  Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). Branch `default-metode-ikut-format`
-  (3.3.0–3.3.2, belum di `main`): siap push ke `main` sekaligus (keputusan host).
+  Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). 3.3.0–3.3.2 sudah di `main` dan live (8af509b).
+- Mexicano + Konfigurasi diringkas (rencana 3.4.0, MINOR; branch `mexicano`): PRD §14 + keputusan 23–41, hi-fi 03a–03q
+  dan 16a–16g disetujui host 2026-11-11; spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode belum
+  mulai, 13 golden Konfigurasi merah sampai KF-1 selesai.
 
 ## Area docs
 
@@ -110,7 +113,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
 | `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
-| `docs/tasks.md` | mengerjakan atau mereview task fitur (terakhir: Sparing SP-n, selesai) | tech-lead |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: Mexicano MX-n + Konfigurasi KF-n) | tech-lead |
 
 ## Pitfalls (lintas area)
 

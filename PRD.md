@@ -542,6 +542,10 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 40. Teks sheet **"Cara kerja Mexicano"** (hi-fi 16c) disetujui apa adanya. Dialog Batalkan round Mexicano (16e):
     "Jadwal R2 dihapus. Keluarkan pemain atau ubah skor R1, lalu tekan "Buat R2" lagi." — tanpa kata "pulang", karena
     pemain yang keluar tidak selalu pulang (2026-11-11).
+41. Disetujui dari usulan designer (hi-fi → Cakupan, 2026-11-11): catatan "Bisa berakhir seri", error durasi, dan
+    "Isi durasi match" tampil di dalam sheet dan di bawah baris Skor di layar; action bar Konfigurasi ikut naik di atas
+    keyboard dan durasi kosong ditulis "– menit" clay; data contoh R2–R3 di 16g menjadi data test; subjudul Jadwal
+    Mexicano tidak menyebut nama mode.
 
 ---
 
@@ -1167,7 +1171,8 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 - **AC-M19** Beranda "Padel · Mexicano · 8 pemain"; turnamen terakhir Mexicano → Lanjutkan; poster "Padel · Mexicano ·
   tanggal"; Klasemen, Detail, Bagikan, caption, dan Live memakai nomor yang sama, default Total Point.
 - **AC-M20** Simpanan 3.3.x Fixed/Mixed/Sparing dimuat tanpa perubahan; semua test dan golden yang ada lulus tanpa
-  diubah. Simpanan atau payload Mexicano dibuka versi ≤ 3.3.x → ditolak, tidak tampil sebagai Mixed, dan HP host versi
+  diubah, kecuali golden frame yang digambar ulang di hi-fi (03a–03e, 13h–13j, 14f, 14g, komponen kartu mode), yang
+  mengikuti frame baru. Simpanan atau payload Mexicano dibuka versi ≤ 3.3.x → ditolak, tidak tampil sebagai Mixed, dan HP host versi
   lama tidak menimpanya.
 - **AC-M21** Semua kriteria di atas jalan offline (kecuali Live).
 
