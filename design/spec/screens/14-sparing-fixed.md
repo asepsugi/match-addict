@@ -55,20 +55,20 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![14f](../../frames/14f.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `ModePicker`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `ModePicker`
 
-- 16 / 14 pemain = 8 × 7 pasangan = 56 match, court aktif min(4, 8, 7) = 4, round = ⌈56 ÷ 4⌉ = 14 (generator). 14 round × 15 mnt = 3 j 30 m, booking terpendek 2 jam → lewat 01:30.
+- 16 / 14 pemain = 8 × 7 pasangan = 56 match, court aktif min(4, 8, 7) = 4, round = ⌈56 ÷ 4⌉ = 14 (generator). 14 round × 15 menit = 3 j 30 m, booking terpendek 2 jam → lewat 01:30.
 - Tidak mematikan tombol: jadwal Fixed sparing dibuat utuh dan host menghentikannya lewat Akhiri (match sisa "Tidak dimainkan"), sama dengan round tambahan yang lewat booking (06y). Format lewat booking jam:menit seperti 06y.
-- Empat court: isi lebih panjang dari layar, frame digulir sampai bawah (seperti 03b).
+- Empat court tetap satu baris "4 court · 2 jam"; layar tidak digulir lagi (dulu digulir sampai bawah).
 - Kalau lewat booking, tombol hanya menulis round + kelebihannya: "Lanjut · 14 round · lewat booking 01:30" (284 pt, muat juga di HP 360 dp). Jumlah match dan court tidak ditulis; keduanya terlihat di Jadwal (keputusan host 2026-11-04, PRD K10). "Booking terpendek" = di antara court aktif; court yang tidak dapat match tidak membatasi jadwal.
 
 ## 14g · Atur turnamen · Fixed sparing · court lebih dari yang terpakai
 
 ![14g](../../frames/14g.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `ModePicker`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `ModePicker`
 
-- 8 / 4 pemain = 4 × 2 pasangan: court aktif min(3, 4, 2) = 2, 8 match, 4 round (AC-S6). Court 3 tidak pernah dapat match; tombol menulis "· 2 court", tanpa catatan di grup Court (sama dengan 13j).
+- 8 / 4 pemain = 4 × 2 pasangan: court aktif min(3, 4, 2) = 2, 8 match, 4 round (AC-S6). Court 3 tidak pernah dapat match; tombol menulis "· 2 court", tanpa catatan di baris Court (sama dengan 13j).
 - Court 3 tetap boleh dipesan (dan tetap ada di Tambah round), hanya tidak tampil di Jadwal (14m).
 
 ## 14h · Jadwal Fixed sparing · membuka round yang belum terbuka

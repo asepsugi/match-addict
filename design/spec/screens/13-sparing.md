@@ -79,32 +79,32 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 ![13h](../../frames/13h.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `ModePicker`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `ModePicker`
 
-- Layar sama dengan 03a; hanya subjudul dan estimasi yang ikut sparing. Mode, format skor, durasi, court, dan nama turnamen tetap dipilih di sini; nama turnamen terpisah dari nama klub (K8).
+- Layar sama dengan 03a, tapi kartu mode hanya Fixed dan Mixed (`.modes` dua kolom, kartu yang sama dengan 03a): Sparing tidak menawarkan Mexicano (keputusan host 27). Subjudul dan estimasi ikut sparing. Format, durasi, court, dan nama turnamen tetap dipilih di sini (sheet 03d, 03g); nama turnamen terpisah dari nama klub (K8).
 - Subjudul: olahraga · klub pertama + jumlah pemainnya · klub kedua + jumlahnya.
 - Estimasi Fixed sparing dihitung dari jadwal, bukan dari jam booking: 4 × 3 pasangan = 12 match, court aktif min(2, 4, 3) = 2, round = ⌈12 ÷ 2⌉ = 6 (contoh 13A). Karena jadwalnya pasti, tombol tanpa "±" (Fixed biasa 03a tetap "±6 round · 12 match" dari booking).
-- Court aktif lebih sedikit dari jumlah court → tombol ditambah "· n court", sama dengan 13j. Contoh 8 / 4 pemain di 3 court: "Lanjut · 4 round · 8 match · 2 court" (Court 3 tidak pernah dapat match, AC-S6).
-- Jadwal lebih panjang dari booking terpendek (mis. 16 / 14 pemain di 4 court × 2 jam: 14 round = 3 j 30 m): 14f.
+- Court aktif lebih sedikit dari jumlah court → tombol ditambah "· n court" (14g, 13j). Jadwal lebih panjang dari booking terpendek: 14f.
+- Pengaturan terakhir di HP (03q) juga berlaku di sini; kalau terakhir Mexicano, mode terisi Mixed (asumsi, menunggu host).
 - Lanjut → Pasangan per klub (14a–14e).
 
 ## 13i · Atur turnamen · Mixed sparing
 
 ![13i](../../frames/13i.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `ModePicker`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `ModePicker`
 
-- Mixed: estimasi sama dengan 03b (booking terpendek ÷ durasi = 2 jam ÷ 15 mnt = ±8 round). Court aktif min(2, ⌊8 ÷ 2⌋, ⌊6 ÷ 2⌋) = 2 = semua court, jadi tanpa tambahan (contoh 13B).
-- Mulai Round 1 → Jadwal Mixed + R1, lalu sheet Cara kerja Mixed versi sparing (Match/Pemain per klub; tahap 2).
+- Mixed: estimasi sama dengan 03b (booking terpendek ÷ durasi = 2 jam ÷ 15 menit = ±8 round). Court aktif min(2, ⌊8 ÷ 2⌋, ⌊6 ÷ 2⌋) = 2 = semua court, jadi tanpa tambahan (contoh 13B).
+- Mulai Round 1 → Jadwal Mixed + R1, lalu sheet Cara kerja Mixed versi sparing (15k).
 
 ## 13j · Atur turnamen · Mixed sparing · court lebih dari yang terpakai
 
 ![13j](../../frames/13j.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `ModePicker`, `CourtColorPicker`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `ModePicker`
 
 - Matcha 3 pemain: court aktif min(2, 4, ⌊3 ÷ 2⌋) = 1 (AC-S10). Tombol menulis jumlah court yang terpakai; court yang tidak aktif = court bernomor terakhir (Court 2), tetap boleh dipesan dan dipakai begitu pemainnya cukup (Kelola pemain).
-- Tidak ada peringatan atau catatan di grup Court: akibatnya cukup terbaca dari tombol.
+- Tidak ada peringatan atau catatan di baris Court: akibatnya cukup terbaca dari tombol.
 
 ## 13k · Jadwal Fixed sparing · round berjalan
 

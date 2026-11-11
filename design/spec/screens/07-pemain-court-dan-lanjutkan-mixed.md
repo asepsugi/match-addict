@@ -58,11 +58,11 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Judul "Kelola court". Label daftar = jumlah court ("1 court", "2 court · 1 habis"), seperti "10 pemain aktif · 1 keluar" di Kelola pemain. Isinya semua court beserta jendela jam dan sisanya, termasuk yang habis atau belum terpakai; ketuk satu → detail court (08h–08k). Hanya di sini waktu court tanpa match terlihat.
 - Beda urutan dengan Kelola pemain (tambah di atas): menambah court punya akibat langsung (match baru), jadi pakai tombol di bawah, dan daftar court ditaruh di atas supaya tombol menempel ke Court baru.
-- Court baru = baris court Konfigurasi: warna (ketuk → 03e), nama (kosong = "Court n"), booking 1–12 jam, default warna berikutnya dan 2 jam. Jam dihitung dari saat ditambah; di bawahnya hanya fakta "Sampai 22.02", ikut stepper, supaya host bisa mencocokkan dengan booking-nya.
+- Court baru = baris court Konfigurasi: warna (ketuk → sheet warna seperti 03k), nama (kosong = "Court n"), booking 1–12 jam, default warna berikutnya dan 2 jam. Jam dihitung dari saat ditambah; di bawahnya hanya fakta "Sampai 22.02", ikut stepper, supaya host bisa mencocokkan dengan booking-nya.
 - Tanpa kalimat penjelas (Penulisan, Fondasi): kapan court dipakai ditulis di tombol, seperti "Buat R4 · tunggu 1 match". Di sini nama yang langsung main sudah tertulis, jadi tombolnya polos.
 - Round berjalan dan yang istirahat minimal 4: court langsung dipakai di round itu (keputusan host). Satu match baru untuk 4 teratas urutan prioritas R6 (paling jarang main → paling lama istirahat → undian terkunci); di contoh ini persis 4 nama "Prioritas main di R6". Pasangannya disusun dengan penalti yang sama dengan Buat round.
 - Selisih match antar pemain tetap ≤ 1, dan pemain yang sedang main tidak pernah diambil.
-- Booking lebih pendek dari durasi match: angka clay, catatan error, tombol mati (seperti 03d). Varian: 08f round lengkap, 08g pemain tidak cukup.
+- Booking lebih pendek dari durasi match: angka clay, catatan error, tombol mati (seperti 03l). Varian: 08f round lengkap, 08g pemain tidak cukup.
 
 ## 08f · Kelola court · round lengkap
 

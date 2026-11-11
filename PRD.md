@@ -534,6 +534,14 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 36. Konfigurasi dibuka dengan **pengaturan turnamen terakhir di HP itu** (mode, format, durasi, court), bukan default
     tetap; dikerjakan setelah Arah A masuk hi-fi (2026-11-11).
 37. Baris Skor di Konfigurasi menulis **"menit"**, tidak disingkat "mnt" (mis. "Race to 6 · 20 menit") (2026-11-11).
+38. Pengaturan terakhir (keputusan 36) diingat **per olahraga** (tennis dan padel terpisah): mode, format + N, durasi,
+    dan court (jumlah, nama, warna, booking). Nama turnamen tidak ikut. Terakhir Mexicano lalu host memilih Sparing →
+    mode terisi Mixed, format dan court tetap (hi-fi 03q, 13h; 2026-11-11).
+39. Round Mexicano yang dibuat tanpa pemain yang dikeluarkan lalu **dibatalkan** → pemain itu belum melewatkan round,
+    jadi "Kembalikan" muncul lagi (14.7, hi-fi 16g; 2026-11-11).
+40. Teks sheet **"Cara kerja Mexicano"** (hi-fi 16c) disetujui apa adanya. Dialog Batalkan round Mexicano (16e):
+    "Jadwal R2 dihapus. Keluarkan pemain atau ubah skor R1, lalu tekan "Buat R2" lagi." — tanpa kata "pulang", karena
+    pemain yang keluar tidak selalu pulang (2026-11-11).
 
 ---
 
