@@ -15,7 +15,7 @@ const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 
 /// Kata untuk baris klasemen: "pasangan" (Fixed), "pemain" (Mixed), atau null kalau Klasemen Fixed campuran karena
 /// pasangan diatur ulang sebelum round tambahan (09g) — "+5 lainnya", "Semua 10".
 String? shareRowNoun(ActiveTournament active, List<StandingEntry> entries) {
-  if (active.config.mode == PartnerMode.mixed) return 'pemain';
+  if (active.config.mode.isEndless) return 'pemain';
   return entries.every((e) => e.players.length == 2) ? 'pasangan' : null;
 }
 

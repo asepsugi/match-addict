@@ -166,7 +166,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onSport: (s) => setState(() => _picked = s),
         onStart: () => _start(sport, active),
         rows: [
-          if (active == null && last != null && last.config.mode == PartnerMode.mixed)
+          if (active == null && last != null && last.config.mode.isEndless)
             MabarRow(
               padded: true,
               leading: const MabarRowIcon(MabarIcons.clockCounterClockwise),

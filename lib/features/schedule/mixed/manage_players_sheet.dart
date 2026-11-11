@@ -63,11 +63,15 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
             const Text('Keluar · skornya tetap dihitung', style: MabarType.caption),
           ],
         ),
-        trailing: MabarRowAction(
-          label: 'Kembalikan',
-          restore: true,
-          onPressed: () => setState(() => _error = _controller.reinstatePlayer(p.id)),
-        ),
+        // Mexicano: sudah melewatkan round → tanpa aksi (keputusan 29, 16g). Disembunyikan, bukan dicegat lewat nilai
+        // balik `reinstatePlayer`, karena null berarti sukses maupun ditolak.
+        trailing: active.canReinstate(p.id)
+            ? MabarRowAction(
+                label: 'Kembalikan',
+                restore: true,
+                onPressed: () => setState(() => _error = _controller.reinstatePlayer(p.id)),
+              )
+            : null,
       );
     }
     return MabarRow(
@@ -95,64 +99,68 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
     final activeCount = active.activePlayers.length;
     final withdrawn = active.withdrawnPlayerIds;
     final small = MabarType.caption.copyWith(color: MabarColors.ink3);
+    // Mexicano: pemain tidak bisa ditambah (keputusan 27, 16f), jadi tanpa kotak nama, Tambah, dan catatan di bawahnya.
+    final canAdd = active.config.mode == PartnerMode.mixed;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: MabarField(
-                controller: _name,
-                hint: 'Nama pemain baru',
-                error: _error != null,
-                textCapitalization: TextCapitalization.words,
-                textInputAction: TextInputAction.done,
-                // Enter = Tambah; isian tetap fokus untuk nama berikutnya.
-                onSubmitted: (_) => _add(),
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Sama tinggi dengan kolom nama di sebelahnya.
-            MabarButton(
-              label: 'Tambah',
-              expand: false,
-              height: 48,
-              onPressed: clubs != null && (_clubId == null || _name.text.trim().isEmpty) ? null : _add,
-            ),
-          ],
-        ),
-        if (clubs != null) ...[
-          const SizedBox(height: 10),
-          MabarChipWrap(
+        if (canAdd) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final c in clubs)
-                MabarChip(label: c.name, selected: _clubId == c.id, onTap: () => setState(() => _clubId = c.id)),
+              Expanded(
+                child: MabarField(
+                  controller: _name,
+                  hint: 'Nama pemain baru',
+                  error: _error != null,
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.done,
+                  // Enter = Tambah; isian tetap fokus untuk nama berikutnya.
+                  onSubmitted: (_) => _add(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Sama tinggi dengan kolom nama di sebelahnya.
+              MabarButton(
+                label: 'Tambah',
+                expand: false,
+                height: 48,
+                onPressed: clubs != null && (_clubId == null || _name.text.trim().isEmpty) ? null : _add,
+              ),
             ],
           ),
-        ],
-        if (_error != null) ...[
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              _error!,
-              style: small.copyWith(color: MabarColors.clay, fontWeight: FontWeight.w600),
+          if (clubs != null) ...[
+            const SizedBox(height: 10),
+            MabarChipWrap(
+              children: [
+                for (final c in clubs)
+                  MabarChip(label: c.name, selected: _clubId == c.id, onTap: () => setState(() => _clubId = c.id)),
+              ],
             ),
-          ),
-        ] else ...[
+          ],
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                _error!,
+                style: small.copyWith(color: MabarColors.clay, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'Pemain baru langsung ikut main dan diprioritaskan sampai jumlah match-nya menyusul, dengan jeda '
+                'istirahat 1 round. Total Point tertinggal; Win % lebih adil untuk pemain baru.',
+                style: small,
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              'Pemain baru langsung ikut main dan diprioritaskan sampai jumlah match-nya menyusul, dengan jeda '
-              'istirahat 1 round. Total Point tertinggal; Win % lebih adil untuk pemain baru.',
-              style: small,
-            ),
-          ),
         ],
-        const SizedBox(height: 16),
         if (clubs == null)
           MabarSection(
             header: MabarGroupLabel(

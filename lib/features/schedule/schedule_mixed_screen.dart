@@ -14,6 +14,7 @@ import '../live/live_view_controller.dart';
 import 'club_score_view.dart';
 import 'mixed/manage_courts_sheet.dart';
 import 'mixed/manage_players_sheet.dart';
+import 'mixed/mexicano_guide_sheet.dart';
 import 'mixed/mixed_guide_sheet.dart';
 import 'mixed/resume_tournament_sheet.dart';
 import 'schedule_widgets.dart';
@@ -50,8 +51,8 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
       final before = ref.read(tournamentProvider);
       ref.read(tournamentProvider.notifier).startIfNeeded(widget.config);
       final after = ref.read(tournamentProvider);
-      // Cara kerja Mixed muncul sendiri sekali, saat R1 baru saja dibuat dari Konfigurasi.
-      if (after != null && !identical(before, after) && after.roundCount == 1) showMixedGuideSheet(context, after);
+      // Cara kerja muncul sendiri sekali, saat R1 baru saja dibuat dari Konfigurasi.
+      if (after != null && !identical(before, after) && after.roundCount == 1) _showGuide(after);
     });
     // Kotak jam di strip court, daftar Prioritas, dan "Waktu habis" mengikuti jam sungguhan: ditik di setiap
     // pergantian menit sejak turnamen dimulai.
@@ -77,7 +78,11 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
         liveScoreMenuItem(ref, _MenuAction.live),
         if (active.canManageCourts)
           const MabarMenuItem(icon: MabarIcons.squareSplitHorizontal, label: 'Kelola court', value: _MenuAction.courts),
-        const MabarMenuItem(icon: MabarIcons.info, label: 'Cara kerja Mixed', value: _MenuAction.guide),
+        MabarMenuItem(
+          icon: MabarIcons.info,
+          label: active.config.mode == PartnerMode.mexicano ? 'Cara kerja Mexicano' : 'Cara kerja Mixed',
+          value: _MenuAction.guide,
+        ),
         if (!active.tournament.isFinished)
           const MabarMenuItem(
             icon: MabarIcons.flag,
@@ -95,7 +100,7 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
       case _MenuAction.courts:
         await showManageCourtsSheet(context);
       case _MenuAction.guide:
-        await showMixedGuideSheet(context, active);
+        await _showGuide(active);
       case _MenuAction.finish:
         if (!await confirmFinishTournament(context)) return;
         ref.read(tournamentProvider.notifier).finishNow();
@@ -104,16 +109,24 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
     }
   }
 
+  Future<void> _showGuide(ActiveTournament active) => active.config.mode == PartnerMode.mexicano
+      ? showMexicanoGuideSheet(context, active)
+      : showMixedGuideSheet(context, active);
+
   void _generateNext() {
     ref.read(tournamentProvider.notifier).generateNextRound();
     setState(() => _selectedRound = null);
   }
 
   Future<void> _cancelLastRound(int round) async {
+    // Mexicano tidak bisa menambah pemain (keputusan 27): dialognya menyebut keluarkan pemain atau ubah skor (16e).
+    final mexicano = widget.config.mode == PartnerMode.mexicano;
     final ok = await showMabarConfirm(
       context,
       title: 'Batalkan R$round?',
-      message: 'Jadwal R$round dihapus. Tambahkan pemain yang baru datang lewat Kelola pemain, lalu tekan "Buat R$round" lagi.',
+      message: mexicano
+          ? 'Jadwal R$round dihapus. Keluarkan pemain atau ubah skor R${round - 1}, lalu tekan "Buat R$round" lagi.'
+          : 'Jadwal R$round dihapus. Tambahkan pemain yang baru datang lewat Kelola pemain, lalu tekan "Buat R$round" lagi.',
       confirmLabel: 'Batalkan R$round',
       destructive: true,
     );
