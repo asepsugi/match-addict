@@ -39,7 +39,7 @@ void main() {
 
   /// Isi poster lewat provider yang sama dengan layar (nomor per klub = Klasemen).
   SharePosterData posterOf(ActiveTournament active, ShareFormat format, [DateTime? at]) {
-    final container = ProviderContainer(overrides: overrides(active, at));
+    final container = ProviderContainer(overrides: [...overrides(active, at), hifiTotalPoint]);
     addTearDown(container.dispose);
     return sharePosterData(
       active: active,

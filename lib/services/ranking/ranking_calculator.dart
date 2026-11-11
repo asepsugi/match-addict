@@ -85,6 +85,14 @@ class RankingCalculator {
     return sorted;
   }
 
+  /// Metode yang dipakai Klasemen sebelum host memilih sendiri (PRD 4.2, keputusan host 2026-11-11). Race to dan
+  /// Best of dimenangkan per match, jadi jumlah menang dulu, seperti klasemen round-robin resmi tennis/padel;
+  /// di Americano tiap poin memang tujuannya, jadi Total Point.
+  static RankingMethod defaultMethod(ScoreFormat format) => switch (format.method) {
+    ScoringMethod.raceTo || ScoringMethod.bestOf => RankingMethod.winPercent,
+    ScoringMethod.americano => RankingMethod.totalGames,
+  };
+
   /// Nilai metode (Total Point atau Win %) → selisih: dua angka yang tampil di setiap baris Klasemen dan
   /// poster. 0 = nomor peringkat sama. Keputusan host 2026-11-02: alasan urutan harus terbaca dari angka
   /// yang tampil, jadi head-to-head (dan Total Point sebagai pemisah Win %) tidak dipakai lagi — di Mixed

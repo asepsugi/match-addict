@@ -28,7 +28,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Kolom Main, W–L–D, dan +/− tetap di kedua metode: ganti metode hanya mengubah urutan dan kolom terakhir. W–L–D juga yang menjelaskan Win %: seri dihitung setengah menang (1–1–1 → 50%).
 - Win % dibulatkan tanpa desimal di tabel (Detail tetap 1 desimal). Win % sama dipisah selisih, sama dengan Total Point: Citra +4 di atas Hana 0 dan Joko −2. Total Point tidak lagi jadi pemisah karena tidak tampil di tabel Win %.
-- Pilihan metode tidak disimpan; setelah resume kembali ke Total Point.
+- Metode saat Klasemen dibuka mengikuti format skor: Race to dan Best of → Win %, Americano → Total Point (keputusan host 2026-11-11). Pilihan host bertahan selama turnamen itu, tidak disimpan; turnamen berganti atau resume → kembali ke default formatnya.
 
 ## 09c · Fixed · final
 

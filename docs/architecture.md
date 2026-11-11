@@ -129,8 +129,10 @@ cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). S
 ## Ranking & klasemen
 
 - `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang
-  dimenangkan lintas match: 6-5, 4-6, 3-6 → 13). Default app = Total Point, sesuai keputusan host bahwa total point
-  dihitung lebih dulu; metode "Kombinasi" sudah dihapus karena isinya identik dengan Win %.
+  dimenangkan lintas match: 6-5, 4-6, 3-6 → 13). Default mengikuti format skor (`RankingCalculator.defaultMethod`, keputusan host
+  2026-11-11): Race to dan Best of → Win %, Americano → Total Point. `rankingMethodProvider` menonton id + format
+  turnamen, jadi pilihan host bertahan selama turnamen dan kembali ke default saat turnamen berganti; test yang
+  menggambar frame Total Point untuk Race to wajib menyetel metodenya. Metode "Kombinasi" sudah dihapus karena isinya identik dengan Win %.
 - Urutan = `RankingCalculator.compare`: nilai metode → selisih (`gameDiff`), lalu nama hanya untuk mengurutkan yang
   nomornya sama. Keputusan host 2026-11-02: hanya angka yang tampil di Klasemen/poster yang menentukan nomor, jadi
   head-to-head (di Mixed bisa berputar A > B > C > A) dan Total Point sebagai pemisah Win % dihapus.

@@ -76,7 +76,8 @@ redesain + format skor + data app lama tidak dimuat); 2.2.0 Kelola court; 2.3.0 
 2.5.0 live score; 2.6.0 nama lengkap di baris match, Akhiri di Beranda, back PWA; 2.7.0 pemain telat Mixed menyusul
 (kredit dihapus); 2.8.0 Best of/Americano berhenti lebih awal (semuanya MINOR); 3.0.0 (MAJOR) = nama Match Addict +
 pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda); 3.1.0 (MINOR) = round tambahan Fixed
-+ atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda.
++ atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
+Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point).
 
 ## Status
 
@@ -86,7 +87,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Redesain v2: langkah 1–5 (fondasi, logika, komponen, painter lapangan, semua layar 01–11) selesai, golden per frame
   di `test/hifi/` — `docs/ui-v2.md`.
 - Format skor Race to / Best of / Americano + berhenti lebih awal, WO per format — `docs/architecture.md`.
-- Klasemen Win % / Total Point, nomor rapat dari nilai metode + selisih — `docs/architecture.md`.
+- Klasemen Win % / Total Point (default ikut format skor, keputusan 21), nomor rapat dari nilai metode + selisih —
+  `docs/architecture.md`.
 - Mixed: prioritas main, pemain telat menyusul, Kelola pemain, Batalkan round, Kelola court — `docs/architecture.md`.
 - Fixed: round tambahan + atur ulang pasangan — `docs/architecture.md`.
 - Nama turnamen, Bagikan (poster gambar + caption) — `docs/architecture.md`, `docs/ui-v2.md`.

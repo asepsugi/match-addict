@@ -444,7 +444,12 @@ final tournamentProvider = NotifierProvider<TournamentController, ActiveTourname
 
 /// Metode peringkat yang sedang dipilih host di layar Peringkat. Dipakai
 /// bersama layar Detail Pemain dan Share supaya urutannya tidak berbeda-beda.
-final rankingMethodProvider = StateProvider<RankingMethod>((ref) => RankingMethod.totalGames);
+/// Awalnya mengikuti format skor ([RankingCalculator.defaultMethod]); karena hanya id + format yang ditonton,
+/// pilihan host bertahan selama turnamen dan kembali ke default saat turnamen berganti atau app dibuka ulang.
+final rankingMethodProvider = StateProvider<RankingMethod>((ref) {
+  final (_, format) = ref.watch(tournamentProvider.select((a) => (a?.tournament.id, a?.config.format)));
+  return format == null ? RankingMethod.totalGames : RankingCalculator.defaultMethod(format);
+});
 
 /// Baris peringkat siap tampil: per pemain di mode Mixed, per pasangan di mode
 /// Fixed. Dibaca layar Peringkat, Detail Pemain, dan Share supaya nomor urut

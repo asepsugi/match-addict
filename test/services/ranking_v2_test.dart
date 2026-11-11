@@ -210,6 +210,30 @@ void main() {
     expect((citraDewant.totalPoint, citraDewant.woLosses), (0, 1));
   });
 
+  test('metode default ikut format skor: Race to dan Best of → Win %, Americano → Total Point (PRD 4.2)', () {
+    expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.raceTo, 6)), RankingMethod.winPercent);
+    expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.bestOf, 5)), RankingMethod.winPercent);
+    expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.americano, 24)), RankingMethod.totalGames);
+  });
+
+  // "Sparing Senin" (Race to 6): dua kali menang tipis di atas satu kali menang telak — Win % 67% vs 33%;
+  // Total Point membaliknya (16, +2 di atas 16, +1), alasan default Race to diganti.
+  test('Race to 6: 2W-1L di atas 1W-2L pada metode default, walau Total Point sama dan selisih lebih kecil', () {
+    PlayerStanding s(String id, {required int w, required int l, required int won, required int lost}) =>
+        PlayerStanding(
+          player: Player(id: id, name: id),
+          wins: w,
+          losses: l,
+          gamesWon: won,
+          gamesLost: lost,
+        );
+    final gita = s('Gita', w: 2, l: 1, won: 16, lost: 15);
+    final dewi = s('Dewi', w: 1, l: 2, won: 16, lost: 14);
+    final method = RankingCalculator.defaultMethod(ScoreFormat.standard);
+    expect(RankingCalculator.compare(gita, dewi, method), isNegative);
+    expect(RankingCalculator.compare(gita, dewi, RankingMethod.totalGames), isPositive);
+  });
+
   group('status & hitungan', () {
     ActiveTournament mixed(List<MatchGame> matches, {int booking = 120, bool finished = false}) => ActiveTournament(
       tournament: Tournament(

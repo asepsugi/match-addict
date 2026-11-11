@@ -1,6 +1,6 @@
 # PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
-**Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
+**Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
 ada di hi-fi
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
@@ -204,11 +204,20 @@ untuk tennis maupun padel.
 
 | Metode | Cara hitung |
 |--------|-------------|
-| **Total Point** (default) | Jumlah game/poin yang dimenangkan lintas match (+ nilai WO, lihat 4.4) |
+| **Total Point** | Jumlah game/poin yang dimenangkan lintas match (+ nilai WO, lihat 4.4) |
 | **Win %** | Menang = 1, seri = 0,5, kalah = 0, dibagi jumlah match |
 
-Metode dipilih di layar Klasemen (tidak di setup) dan dipakai juga oleh Detail & Bagikan. Tidak disimpan: setelah
-app dibuka ulang kembali ke Total Point.
+**Default mengikuti format skor** (keputusan 21): Race to dan Best of → **Win %**; Americano → **Total Point**.
+- Race to dan Best of dimenangkan per match, jadi jumlah menang dulu, seperti klasemen round-robin resmi tennis,
+  padel, pickleball, dan badminton (menang dulu, baru selisih). Di Americano tiap poin memang tujuannya.
+- Contoh Race to 6, tiga match: Gita · Andi 2W–1L, 16 game, +1; Dewi · Citra 1W–2L, 16 game, +2. Win %: Gita · Andi
+  67% di atas Dewi · Citra 33%. Total Point: 16 sama, selisih +2 menaruh Dewi · Citra di atas.
+- Contoh kedua: A kalah 5–6, kalah 5–6, menang 6–0 (16 game, 1W–2L); B menang 6–5, menang 6–5, kalah 0–6 (12 game,
+  2W–1L). Win %: B di atas A. Total Point: A di atas B.
+
+Metode dipilih di layar Klasemen (tidak di setup) dan dipakai juga oleh Detail & Bagikan; urutan tab tetap
+Total Point · Win %. Pilihan host bertahan selama turnamen itu, tidak disimpan: turnamen berganti atau app dibuka
+ulang → kembali ke default formatnya. Berlaku sama untuk Fixed, Mixed, Sparing (klasemen per klub), dan penonton live.
 
 ### 4.3 Tie-Breaker & Nomor Peringkat
 
@@ -485,6 +494,11 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     Membatalkan sebagian keputusan hi-fi v2 yang menghapus footer "Skor tersimpan otomatis · v1.0" (Cakupan →
     Dihapus); teks "Skor tersimpan otomatis" tetap dihapus. Letak dan gaya oleh designer, ikut rilis 3.2.0
     (2026-11-04).
+21. **Default metode Klasemen mengikuti format skor** (4.2): Race to dan Best of → Win %, Americano → Total Point;
+    tab dan aturan urutan (nilai metode → selisih, 4.3) tidak berubah. Dipicu room live RM5HP5 "Sparing Senin"
+    (Race to 6): Dewi · Citra 1W–2L (16, +2) di atas Gita · Andi 2W–1L (16, +1). Riset aturan resmi: skor
+    menang/kalah selalu memakai jumlah menang dulu; total poin dulu hanya lazim di Americano. Rilis 3.3.0 MINOR
+    (2026-11-11).
 
 ---
 
