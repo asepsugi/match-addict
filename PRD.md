@@ -536,7 +536,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 37. Baris Skor di Konfigurasi menulis **"menit"**, tidak disingkat "mnt" (mis. "Race to 6 · 20 menit") (2026-11-11).
 38. Pengaturan terakhir (keputusan 36) diingat **per olahraga** (tennis dan padel terpisah): mode, format + N, durasi,
     dan court (jumlah, nama, warna, booking). Nama turnamen tidak ikut. Terakhir Mexicano lalu host memilih Sparing →
-    mode terisi Mixed, format dan court tetap (hi-fi 03q, 13h; 2026-11-11).
+    mode terisi Mixed, format dan court tetap (hi-fi 03q, 13h; 2026-11-11, bagian Sparing disetujui 2026-11-12).
 39. Round Mexicano yang dibuat tanpa pemain yang dikeluarkan lalu **dibatalkan** → pemain itu belum melewatkan round,
     jadi "Kembalikan" muncul lagi (14.7, hi-fi 16g; 2026-11-11).
 40. Teks sheet **"Cara kerja Mexicano"** (hi-fi 16c) disetujui apa adanya. Dialog Batalkan round Mexicano (16e):
@@ -546,6 +546,10 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     "Isi durasi match" tampil di dalam sheet dan di bawah baris Skor di layar; action bar Konfigurasi ikut naik di atas
     keyboard dan durasi kosong ditulis "– menit" clay; data contoh R2–R3 di 16g menjadi data test; subjudul Jadwal
     Mexicano tidak menyebut nama mode.
+42. Judul sheet warna court di Konfigurasi memakai **nama court**: "Warna Court VIP"; nama kosong = "Warna Court 2"
+    (hi-fi 03k dibetulkan; 2026-11-12).
+43. Subjudul sheet "Cara kerja Mexicano": **"R1 diundi." hanya selama R1**. Dibuka dari menu di round lanjut:
+    "Isi semua skor, lalu tekan Buat R5." (hi-fi 16c; 2026-11-12).
 
 ---
 

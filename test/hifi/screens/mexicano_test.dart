@@ -90,6 +90,16 @@ void main() {
     expect(find.text('8'), findsOneWidget);
   });
 
+  testWidgets('keputusan 43: Cara kerja dibuka di R2 → subjudul tanpa "R1 diundi."', (tester) async {
+    await pumpLive(tester, r2, 18);
+    await tester.tap(find.bySemanticsLabel('Menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cara kerja Mexicano'));
+    await tester.pumpAndSettle();
+    expect(find.text('Isi semua skor, lalu tekan Buat R3.'), findsOneWidget);
+    expect(find.textContaining('R1 diundi'), findsNothing);
+  });
+
   testWidgets('16d menu ⋯ Mexicano', (tester) async {
     await expectMatchesHifi(tester, screen(r2, 18), '16d', act: (tester) => tester.tap(find.bySemanticsLabel('Menu')));
     expect(find.text('Cara kerja Mexicano'), findsOneWidget);

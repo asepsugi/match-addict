@@ -283,7 +283,7 @@ void main() {
         await tester.pumpAndSettle();
       },
     );
-    expect(find.text('Warna Court 2'), findsOneWidget);
+    expect(find.text('Warna Court VIP'), findsOneWidget);
   });
 
   testWidgets('03l durasi tidak muat · tombol mati', (tester) async {

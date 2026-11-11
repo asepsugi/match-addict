@@ -110,8 +110,8 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
     final court = _courts[index];
     final picked = await showMabarSheet<int>(
       sheetContext,
-      // 03k: judulnya nomor court walau namanya custom ("Court VIP" tetap "Warna Court 2").
-      title: 'Warna Court ${index + 1}',
+      // 03k, keputusan 42: judul memakai nama court ("Warna Court VIP"); nama kosong = "Court n".
+      title: 'Warna ${court.label(index)}',
       builder: (context) => CourtColorGrid(selected: court.colorIndex, onSelect: (i) => Navigator.pop(context, i)),
     );
     if (picked != null && mounted) _change(() => court.colorIndex = picked);

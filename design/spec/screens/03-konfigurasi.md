@@ -114,6 +114,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Ketuk lingkaran warna Court 2 di sheet Court (03i) → sheet warna di atasnya, dengan scrim kedua. Ketuk satu warna → terpilih, sheet warna tertutup, kembali ke sheet Court. Tutup juga dengan ketuk di luar atau geser turun.
 - Isi sama dengan sebelumnya: 10 warna, warna sama di dua court boleh. Kalimat "Ketuk warna untuk ganti" tetap tidak ada.
+- Judul = "Warna" + nama court: "Warna Court VIP"; nama kosong = "Warna Court 2" (keputusan host 42).
 - Di 2 court sheet Court lebih pendek, jadi hampir seluruhnya tertutup sheet warna.
 
 ## 03l · Durasi tidak muat · tombol mati
@@ -169,4 +170,4 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Nama turnamen tidak ikut diingat: hampir selalu beda tiap turnamen, dan nama lama yang terbawa akan tercetak di poster.
 - Tanpa penanda "pengaturan terakhir": layarnya sama dengan Konfigurasi biasa. Turnamen pertama di HP = default 03a.
 - Estimasi dari nilai yang terisi: 2 jam ÷ 15 menit = ±8 round.
-- Turnamen terakhir Mexicano lalu host memilih Sparing: kartu Mexicano tidak ada, jadi mode terisi Mixed dengan format dan court yang sama (asumsi designer, menunggu host).
+- Turnamen terakhir Mexicano lalu host memilih Sparing: kartu Mexicano tidak ada, jadi mode terisi Mixed dengan format dan court yang sama (keputusan host 38, disetujui 2026-11-12).

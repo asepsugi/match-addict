@@ -11,7 +11,7 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 **Sumber kebenaran, baca sebelum mengubah UI/logika:**
 - `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22); §13
   Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y; §14
-  Mexicano (keputusan 23–41, 2026-11-11), hi-fi 03a–03q, 16a–16g.
+  Mexicano (keputusan 23–43, 2026-11-11…12), hi-fi 03a–03q, 16a–16g.
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 209 frame layar 390×844 +
   12 lembar gambar (per 2026-11-08) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±320 KB tanpa
   base64 besar, aman dibaca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar lebih ringkas
@@ -99,9 +99,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - Sparing 3.2.0 (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, `docs/architecture.md` →
   Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). 3.3.0–3.3.2 sudah di `main` dan live (8af509b).
-- Mexicano + Konfigurasi diringkas (rencana 3.4.0, MINOR; branch `mexicano`): PRD §14 + keputusan 23–41, hi-fi 03a–03q
-  dan 16a–16g disetujui host 2026-11-11; spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode belum
-  mulai, 13 golden Konfigurasi merah sampai KF-1 selesai.
+- Mexicano + Konfigurasi diringkas (rencana 3.4.0, MINOR; branch `mexicano`): PRD §14 + keputusan 23–43, hi-fi 03a–03q
+  dan 16a–16g disetujui host 2026-11-11; spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode
+  MX-0…MX-2 + KF-1 selesai di branch (golden 03a–03q, 16a–16g hijau), tinggal MX-3 rilis.
 
 ## Area docs
 

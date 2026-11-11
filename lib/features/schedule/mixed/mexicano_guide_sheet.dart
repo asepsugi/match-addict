@@ -28,7 +28,9 @@ Future<void> showMexicanoGuideSheet(BuildContext context, ActiveTournament activ
   return showMabarSheet<void>(
     context,
     title: 'Cara kerja Mexicano',
-    subtitle: 'R1 diundi. Isi semua skor, lalu tekan Buat R${active.roundCount + 1}.',
+    // Keputusan 43: "R1 diundi." hanya selama R1; di round lanjut tinggal langkah berikutnya.
+    subtitle:
+        '${active.roundCount == 1 ? 'R1 diundi. ' : ''}Isi semua skor, lalu tekan Buat R${active.roundCount + 1}.',
     footer: (context) => MabarButton(label: 'Mengerti', onPressed: () => Navigator.pop(context)),
     builder: (context) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
