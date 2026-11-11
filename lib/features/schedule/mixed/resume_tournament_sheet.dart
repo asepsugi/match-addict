@@ -52,10 +52,15 @@ class _ResumeTournamentState extends ConsumerState<_ResumeTournament> {
     final n = _source.roundCount;
     final unplayed = _source.matches.where((m) => m.status == MatchStatus.cancelled).length;
 
+    // Sparing: klub yang membatasi disebut namanya (15j); turnamen biasa menyebut jumlah pemain.
+    final limiting = _source.sparingLimitingClub;
+    final limitedBy = limiting == null
+        ? '${_source.activePlayers.length} pemain'
+        : '${limiting.name} ${_source.activePlayersOfClub(limiting.id).length} pemain';
     final facts = [
       if (ahead.rounds == 1) '1 round (R${n + 1})' else '${ahead.rounds} round (R${n + 1}–R${n + ahead.rounds})',
       if (ahead.matchesPerRound < ahead.courts)
-        'maks ${ahead.matchesPerRound} match per round (${_source.activePlayers.length} pemain)'
+        'maks ${ahead.matchesPerRound} match per round ($limitedBy)'
       else if (ahead.fewerCourtsFrom != null)
         '${ahead.courts} court, berkurang mulai R${n + ahead.fewerCourtsFrom!}'
       else

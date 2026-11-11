@@ -42,6 +42,21 @@ String _windowLeft(ActiveTournament active, Court court, DateTime now) {
 
 const _maxBookingHours = 12;
 
+/// "Langsung main di R4": satu daftar nama; sparing memakai kolom klub seperti Istirahat (15o), pemainnya
+/// dikelompokkan lewat klubnya, bukan indeks.
+Widget _landing(ActiveTournament active, List<Player> players) {
+  final title = 'Langsung main di R${active.roundCount}';
+  final clubs = active.config.clubs;
+  if (clubs == null) return RestingList(title: title, names: [for (final p in players) p.name]);
+  return RestingList.clubs(
+    title: title,
+    clubs: [
+      for (final c in clubs)
+        RestingClub(club: c.name, names: [for (final p in players) if (p.clubId == c.id) p.name]),
+    ],
+  );
+}
+
 class _ManageCourts extends ConsumerStatefulWidget {
   const _ManageCourts();
 
@@ -182,10 +197,7 @@ class _ManageCourtsState extends ConsumerState<_ManageCourts> {
             ),
             if (!tooShort && use.use == CourtUse.now) ...[
               const SizedBox(height: 16),
-              RestingList(
-                title: 'Langsung main di R${active.roundCount}',
-                names: [for (final p in use.players) p.name],
-              ),
+              _landing(active, use.players),
             ],
           ],
         ],
@@ -327,7 +339,7 @@ class _CourtDetailState extends ConsumerState<_CourtDetail> {
           ),
           if (!tooShort && use.use == CourtUse.now) ...[
             const SizedBox(height: 16),
-            RestingList(title: 'Langsung main di R${active.roundCount}', names: [for (final p in use.players) p.name]),
+            _landing(active, use.players),
           ],
         ],
       ),
