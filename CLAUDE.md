@@ -104,7 +104,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Mexicano + Konfigurasi diringkas 3.4.0 (MINOR): rilis 3.4.0+18 live 2026-11-12 (61bbaba): PRD §14 + keputusan 23–47, hi-fi
   03a–03q dan 16a–16g (artifact v77), spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode selesai. Semua usulan PM disetujui (keputusan 44–47).
 - Tukar pemain Mixed 3.5.0 (MINOR): PRD §15 + keputusan 48–59, hi-fi 17a–17r (ikon di kolom bola baris match), spec
-  `logic.md` §15, task TP-n; kode selesai 2026-11-12, belum di-push (tunggu go host).
+  `logic.md` §15, task TP-n; rilis 3.5.0+19 live 2026-11-12 (dcff87f).
 
 ## Area docs
 
