@@ -8,12 +8,14 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:match_addict/core/theme/mabar_theme.dart';
 import 'package:match_addict/features/schedule/sparing_providers.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
+import 'package:match_addict/features/share/podium_theme.dart';
 import 'package:match_addict/features/share/share_content.dart';
 import 'package:match_addict/features/share/share_result_screen.dart';
 import 'package:match_addict/features/share/share_theme.dart';
+import 'package:match_addict/features/share/widgets/podium_poster.dart';
 import 'package:match_addict/features/share/widgets/share_poster.dart';
 import 'package:match_addict/models/models.dart';
-import 'package:match_addict/services/share/result_text_builder.dart';
 
 import '../hifi_golden.dart';
 import 'schedule_fixture.dart';
@@ -38,14 +40,31 @@ void main() {
   Future<void> lengkap(WidgetTester tester) => tester.tap(find.text('Lengkap'));
 
   /// Isi poster lewat provider yang sama dengan layar (nomor per klub = Klasemen).
-  SharePosterData posterOf(ActiveTournament active, ShareFormat format, [DateTime? at]) {
+  ProviderContainer containerOf(ActiveTournament active, [DateTime? at]) {
     final container = ProviderContainer(overrides: [...overrides(active, at), hifiTotalPoint]);
     addTearDown(container.dispose);
+    return container;
+  }
+
+  SharePosterData posterOf(ActiveTournament active, [DateTime? at]) {
+    final container = containerOf(active, at);
     return sharePosterData(
       active: active,
       entries: container.read(standingEntriesProvider),
       method: container.read(rankingMethodProvider),
-      format: format,
+      isFinal: active.isFinal(at ?? now),
+      clubResult: container.read(clubScoreProvider),
+      clubEntries: container.read(clubStandingEntriesProvider),
+    );
+  }
+
+  /// Poster podium Ringkas lewat provider yang sama dengan layar.
+  PodiumPosterData podiumOf(ActiveTournament active, [DateTime? at]) {
+    final container = containerOf(active, at);
+    return podiumPosterData(
+      active: active,
+      entries: container.read(standingEntriesProvider),
+      method: container.read(rankingMethodProvider),
       isFinal: active.isFinal(at ?? now),
       clubResult: container.read(clubScoreProvider),
       clubEntries: container.read(clubStandingEntriesProvider),
@@ -65,26 +84,33 @@ void main() {
     expect(find.text('6 round · 12 match · 1 WO'), findsOneWidget);
   }
 
-  testWidgets('13q Ringkas: skor klub, 3 teratas tiap klub, +1 di label Garuda (K7)', (tester) async {
+  testWidgets('13q Ringkas: podium skor klub 7 – 5, tanpa daftar pemain per klub', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     await expectMatchesHifi(tester, screen(sparingFull()), '13q');
-    expectClubScore();
-    expect(find.text('+1 pasangan lainnya'), findsOneWidget);
-    expect(find.text('Citra + Dewi'), findsNothing);
-    expect(find.text('3 teratas tiap klub · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
+    // Teks kecil lolos toleransi golden walau salah, jadi dicek juga lewat teks.
+    expect(find.text('PB Garuda'), findsOneWidget);
+    expect(find.text('Matcha Club'), findsOneWidget);
+    expect(find.text('56'), findsOneWidget);
+    expect(find.text('game · +13'), findsOneWidget);
+    expect(find.text('49'), findsOneWidget);
+    expect(find.text('game · −13'), findsOneWidget);
+    expect(find.text('7 pasangan · 6 round · 12 match · 1 WO'), findsOneWidget);
+    expect(find.text('Klasemen akhir'), findsOneWidget);
+    expect(find.text('Padel · Fixed · 4 Nov 2026'), findsOneWidget);
+    expect(find.text('Eko + Fajar'), findsNothing);
+    expect(find.text('Podium · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
   });
 
   testWidgets('13s Lengkap: semua 7 pasangan, label tanpa +n, ×8/9', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     await expectMatchesHifi(tester, screen(sparingFull()), '13s', act: lengkap);
     expectClubScore();
-    expect(find.text('+1 pasangan lainnya'), findsNothing);
     expect(find.text('Citra + Dewi'), findsOneWidget);
     expect(find.text('Semua 7 pasangan · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
   });
 
   testWidgets('AC-S17 nomor poster = Klasemen per klub (Garuda #1–#4, Matcha #1–#3)', (tester) async {
-    final data = posterOf(sparingFull(), ShareFormat.lengkap);
+    final data = posterOf(sparingFull());
     expect(
       [
         for (final c in data.clubs!)
@@ -96,40 +122,70 @@ void main() {
       ],
     );
     expect(data.more, isNull);
-    final ringkas = posterOf(sparingFull(), ShareFormat.ringkas);
-    expect([for (final c in ringkas.clubs!) c.more], ['+1 pasangan lainnya', null]);
-    expect([for (final c in ringkas.clubs!) c.rows.length], [3, 3]);
   });
 
   const feedAt = Rect.fromLTWH(0, 0, 360, 360), storyAt = Rect.fromLTWH(374, 0, 203, 360);
   const previewAt = Rect.fromLTWH(591, 0, 358, 372);
-  for (final (frame, format) in [('13r', ShareFormat.ringkas), ('13t', ShareFormat.lengkap)]) {
-    for (final (target, at) in [(SharePosterTarget.feed, feedAt), (SharePosterTarget.story, storyAt)]) {
-      testWidgets('$frame gambar ${format.label} ${target.name}', (tester) async {
-        await precacheHifiAssets(tester, [SportType.padel.assetPath]);
-        await expectRegionMatchesHifi(
-          tester,
-          hifiStage(
-            theme: MabarTheme.light(),
-            at: at,
-            height: at.height,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: SharePoster(data: posterOf(sparingFull(), format), theme: ShareTheme.biru, target: target),
+  // 13r: Feed 360 × 360 di x 0 dan Story 360 × 640 di x 374 (podium); 13t: Lengkap, Story 203 × 360.
+  final podiumStoryAt = Rect.fromLTWH(374, 0, 360, 640);
+  for (final (target, at) in [(PodiumPosterTarget.feed, feedAt), (PodiumPosterTarget.story, podiumStoryAt)]) {
+    testWidgets('13r gambar Ringkas podium ${target.name}', (tester) async {
+      await expectRegionMatchesHifi(
+        tester,
+        hifiStage(
+          theme: MabarTheme.light(),
+          at: at,
+          height: at.height,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: PodiumPoster(
+              data: podiumOf(sparingFull()),
+              theme: PodiumTheme.court(SportType.padel),
+              target: target,
             ),
           ),
-          frame,
-          at,
-          label: target.name,
-        );
-        expect(find.text('56 game · +13'), findsOneWidget);
-        expect(find.text('PB GARUDA'), findsOneWidget);
-        // Kaki gambar hanya ringkasan; "+1 pasangan lainnya" di label klub (13r).
-        expect(find.text('6 round · 12 match · 1 WO'), findsOneWidget);
-        expect(find.text('+1 pasangan lainnya'), format == ShareFormat.ringkas ? findsOneWidget : findsNothing);
-      });
-    }
+        ),
+        '13r',
+        at,
+        label: target.name,
+      );
+      expect(find.text('PB Garuda'), findsOneWidget);
+      expect(find.text('game · +13'), findsOneWidget);
+      expect(find.text('7 pasangan · 6 round · 12 match · 1 WO'), findsOneWidget);
+    });
   }
+
+  for (final (target, at) in [(SharePosterTarget.feed, feedAt), (SharePosterTarget.story, storyAt)]) {
+    testWidgets('13t gambar Lengkap ${target.name}', (tester) async {
+      await precacheHifiAssets(tester, [SportType.padel.assetPath]);
+      await expectRegionMatchesHifi(
+        tester,
+        hifiStage(
+          theme: MabarTheme.light(),
+          at: at,
+          height: at.height,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: SharePoster(data: posterOf(sparingFull()), theme: ShareTheme.biru, target: target),
+          ),
+        ),
+        '13t',
+        at,
+        label: target.name,
+      );
+      expect(find.text('56 game · +13'), findsOneWidget);
+      expect(find.text('PB GARUDA'), findsOneWidget);
+      expect(find.text('6 round · 12 match · 1 WO'), findsOneWidget);
+    });
+  }
+
+  testWidgets('Sparing belum ada match selesai: lapangan kosong, tombol Bagikan aktif (keputusan 72)', (tester) async {
+    final data = podiumOf(sparingSchedule());
+    expect(data.blocks, isEmpty);
+    expect(data.rows, isEmpty);
+    await tester.pumpWidget(screen(sparingSchedule()));
+    expect(tester.widget<MabarButton>(find.widgetWithText(MabarButton, 'Bagikan hasil')).onPressed, isNotNull);
+  });
 
   testWidgets('13q caption = teks frame persis (nomor per klub dari provider)', (tester) async {
     String? copied;
@@ -232,7 +288,7 @@ void main() {
   });
 
   testWidgets('13u nomor per klub = Klasemen 15s (AC-S17)', (tester) async {
-    final data = posterOf(mixed8v6, ShareFormat.lengkap, mixedEnd);
+    final data = posterOf(mixed8v6, mixedEnd);
     expect(
       [
         for (final c in data.clubs!) [for (final r in c.rows) '${r.position} ${r.names.single} ${r.value} ${r.diff}'],
@@ -265,7 +321,7 @@ void main() {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: SharePoster(
-              data: posterOf(mixed8v6, ShareFormat.lengkap, mixedEnd),
+              data: posterOf(mixed8v6, mixedEnd),
               theme: ShareTheme.peach,
               target: target,
             ),
@@ -296,7 +352,7 @@ void main() {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(target == SharePosterTarget.preview ? MabarRadius.poster : 4),
             child: SharePoster(
-              data: posterOf(mixed16v14, ShareFormat.lengkap, mixedEnd),
+              data: posterOf(mixed16v14, mixedEnd),
               theme: ShareTheme.biru,
               target: target,
             ),
@@ -317,7 +373,7 @@ void main() {
   testWidgets('13w nomor sama untuk poin dan selisih sama (Rizky, Sari #2 · Citra, Gita #3 · Tari, Zaki #13)', (
     tester,
   ) async {
-    final data = posterOf(mixed16v14, ShareFormat.lengkap, mixedEnd);
+    final data = posterOf(mixed16v14, mixedEnd);
     int? position(String name) => [
       for (final c in data.clubs!)
         for (final r in c.rows)

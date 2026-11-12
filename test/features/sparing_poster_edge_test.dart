@@ -10,7 +10,6 @@ import 'package:match_addict/features/share/share_content.dart';
 import 'package:match_addict/features/share/share_theme.dart';
 import 'package:match_addict/features/share/widgets/share_poster.dart';
 import 'package:match_addict/models/models.dart';
-import 'package:match_addict/services/share/result_text_builder.dart';
 
 import '../hifi/hifi_golden.dart';
 import '../hifi/screens/schedule_fixture.dart';
@@ -23,7 +22,7 @@ void main() {
 
   final now = sparingAt(6);
 
-  SharePosterData posterOf(ActiveTournament active, ShareFormat format) {
+  SharePosterData posterOf(ActiveTournament active) {
     final container = ProviderContainer(
       overrides: [
         tournamentProvider.overrideWith(() => LoadedTournament(active)),
@@ -35,7 +34,6 @@ void main() {
       active: active,
       entries: container.read(standingEntriesProvider),
       method: container.read(rankingMethodProvider),
-      format: format,
       isFinal: active.isFinal(now),
       clubResult: container.read(clubScoreProvider),
       clubEntries: container.read(clubStandingEntriesProvider),
@@ -98,7 +96,7 @@ void main() {
     testWidgets('nama klub panjang ${target.name}: elipsis, skor dan detail tetap utuh, tanpa overflow', (
       tester,
     ) async {
-      final data = withClubNames(posterOf(sparingFull(), ShareFormat.ringkas), longA, longB);
+      final data = withClubNames(posterOf(sparingFull()), longA, longB);
       await pump(tester, data, target);
       expect(tester.takeException(), isNull);
 
@@ -115,14 +113,11 @@ void main() {
       final labelA = find.text(longA.toUpperCase());
       expect(labelA, findsOneWidget);
       expect(paragraph(tester, labelA).maxLines, 1);
-      // "+1 pasangan lainnya" di ujung kanan label klub 1 tidak ikut terpotong.
-      expect(find.text('+1 pasangan lainnya'), findsOneWidget);
-      expectFits(tester, find.text('+1 pasangan lainnya'));
     });
   }
 
   testWidgets('sparing tanpa hasil: skor klub "0 – 0" (selisih 0 tanpa tanda), tanpa bola', (tester) async {
-    final data = posterOf(sparingSchedule(), ShareFormat.ringkas);
+    final data = posterOf(sparingSchedule());
     expect([for (final s in data.clubScore!) s.score], ['0', '0']);
     expect([for (final s in data.clubScore!) s.detail], ['0 game · 0', '0 game · 0']);
     await pump(tester, data, SharePosterTarget.feed);
@@ -134,7 +129,7 @@ void main() {
 
   for (final target in SharePosterTarget.values) {
     testWidgets('skor klub ½ (Seri Americano 20): "6½" dan "5½" muat di kolom skor ${target.name}', (tester) async {
-      final data = posterOf(sparing14u(), ShareFormat.ringkas);
+      final data = posterOf(sparing14u());
       expect([for (final s in data.clubScore!) s.score], ['6½', '5½']);
       await pump(tester, data, target);
       expect(tester.takeException(), isNull);
@@ -146,7 +141,7 @@ void main() {
   }
 
   testWidgets('klub imbang penuh (6 – 6 dan Total Point sama) menulis "6" dan "6" untuk Seri', (tester) async {
-    final data = posterOf(sparing14t(), ShareFormat.ringkas);
+    final data = posterOf(sparing14t());
     await pump(tester, data, SharePosterTarget.preview);
     expect(tester.takeException(), isNull);
     expect(find.text('6'), findsWidgets);

@@ -7,7 +7,6 @@ import 'package:match_addict/features/share/share_content.dart';
 import 'package:match_addict/features/share/widgets/share_poster.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/ranking/ranking_calculator.dart';
-import 'package:match_addict/services/share/result_text_builder.dart';
 import 'package:match_addict/features/share/share_theme.dart';
 
 /// Turnamen dengan [count] pemain, satu round yang seluruh match-nya selesai.
@@ -72,36 +71,40 @@ List<StandingEntry> _fixedStandings(ActiveTournament active, List<Pair> pairs) =
 
 void main() {
   group('sharePosterData', () {
-    test('Ringkas: 5 teratas + "+n pemain lainnya"; nilai Total Point + satuan + selisih', () {
+    test('Ringkas = podium: kepala, nilai Total Point + satuan + selisih, fakta tanpa tanggal', () {
       final active = _active(8);
-      final data = sharePosterData(
+      final entries = _standings(active);
+      final data = podiumPosterData(
         active: active,
-        entries: _standings(active),
+        entries: entries,
         method: RankingMethod.totalGames,
-        format: ShareFormat.ringkas,
         isFinal: false,
       );
-      expect(data.rows, hasLength(shareSummaryCount));
-      expect(data.more, '+3 pemain lainnya');
-      expect(data.complete, isFalse);
-      // Total Point: satuan + selisih pemimpin klasemen, bukan Win % (keputusan host 2026-11-02).
+      expect(data.title, 'Klasemen sementara');
+      expect(data.subtitle, 'Padel · Mixed · 16 Sep 2026');
+      // Empat pemenang 6–3 senomor #1: empat blok emas, satu bola tiap blok.
+      expect(data.rows, hasLength(4));
+      expect([for (final b in data.blocks) (b.level, b.face, b.balls)], List.filled(4, (1, '1', 1)));
       final top = data.rows.first;
-      expect((top.value, top.detail, top.diff), ('6', 'game', _standings(active).first.standing.diffLabel));
-      expect(data.eyebrow, 'Padel · Mixed · 16 Sep 2026');
-      expect(data.summary, '1 round · 2 match');
+      expect((top.badge, top.gold, top.value), ('1', true, '6'));
+      expect(top.detail, 'game · ${entries.first.standing.diffLabel}');
+      expect(data.facts, startsWith('8 pemain · R'));
+      expect(data.facts, isNot(contains('16 Sep')));
     });
 
-    test('Turnamen bernama: nama di baris kecil, tanggal pindah ke ringkasan', () {
+    test('Turnamen bernama: nama jadi judul, tanggal di baris kecil, olahraga di fakta', () {
       final active = _active(8, name: 'PB Garuda x Matcha Club');
-      final data = sharePosterData(
+      final data = podiumPosterData(
         active: active,
         entries: _standings(active),
-        method: RankingMethod.totalGames,
-        format: ShareFormat.ringkas,
-        isFinal: false,
+        method: RankingMethod.winPercent,
+        isFinal: true,
       );
-      expect(data.eyebrow, 'PB Garuda x Matcha Club');
-      expect(data.summary, '1 round · 2 match · 16 Sep 2026');
+      expect(data.title, 'PB Garuda x Matcha Club');
+      expect(data.subtitle, 'Klasemen akhir · 16 Sep 2026');
+      expect(data.facts, 'Padel · 8 pemain · 1 round · 2 match');
+      expect(data.rows.first.value, '100%');
+      expect(data.rows.first.detail, '· +3');
     });
 
     test('Lengkap: semua yang bernomor, tanpa "+n"; Win % "100%" + selisih', () {
@@ -110,7 +113,6 @@ void main() {
         active: active,
         entries: _standings(active),
         method: RankingMethod.winPercent,
-        format: ShareFormat.lengkap,
         isFinal: false,
       );
       expect(data.rows, hasLength(8));
@@ -119,7 +121,7 @@ void main() {
       expect((data.rows.first.value, data.rows.first.detail, data.rows.first.diff), ('100%', null, '+3'));
     });
 
-    test('Fixed menghitung pasangan dan menulis nilai + satuan saja', () {
+    test('Fixed: ukuran pasangan, dua nama per baris, fakta menghitung pasangan', () {
       final base = _active(12);
       final pairs = [
         for (var i = 0; i < 12; i += 2) Pair(id: 'pair$i', player1Id: 'p$i', player2Id: 'p${i + 1}'),
@@ -136,16 +138,16 @@ void main() {
           ),
         ),
       );
-      final data = sharePosterData(
+      final data = podiumPosterData(
         active: active,
         entries: _fixedStandings(active, pairs),
         method: RankingMethod.totalGames,
-        format: ShareFormat.ringkas,
         isFinal: false,
       );
-      expect(data.more, '+1 pasangan lainnya');
+      expect(data.pairSize, isTrue);
       expect(data.rows.first.names, hasLength(2));
-      expect(data.rows.first.detail, 'game');
+      expect(data.rows.first.detail, startsWith('game · '));
+      expect(data.facts, contains('6 pasangan'));
     });
   });
 
@@ -172,8 +174,7 @@ void main() {
                         active: active,
                         entries: _standings(active),
                         method: RankingMethod.totalGames,
-                        format: ShareFormat.lengkap,
-                        isFinal: false,
+                                        isFinal: false,
                       ),
                       theme: ShareTheme.hijau,
                       target: target,

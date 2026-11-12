@@ -11,7 +11,7 @@ import 'package:match_addict/features/schedule/schedule_mixed_screen.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/features/share/share_content.dart';
 import 'package:match_addict/models/models.dart';
-import 'package:match_addict/services/share/result_text_builder.dart';
+import 'package:match_addict/services/share/podium.dart';
 import 'package:match_addict/services/storage/tournament_store.dart';
 
 import '../hifi_golden.dart';
@@ -216,16 +216,15 @@ void main() {
 
       final active = container.read(tournamentProvider)!;
       final entries = container.read(standingEntriesProvider);
-      expect(shareRowNoun(active, entries), 'pemain');
-      final poster = sharePosterData(
+      expect(rowNoun(active, entries), 'pemain');
+      final poster = podiumPosterData(
         active: active,
         entries: entries,
         method: container.read(rankingMethodProvider),
-        format: ShareFormat.ringkas,
         isFinal: false,
       );
-      expect(poster.eyebrow, 'Padel · Mexicano · 11 Nov 2026');
-      expect(poster.more, '+5 pemain lainnya');
+      expect(poster.subtitle, 'Padel · Mexicano · 11 Nov 2026');
+      expect(poster.facts, contains('10 pemain'));
     });
   });
 }
