@@ -868,7 +868,7 @@ istirahat Indra, Joko · R2 C1 Andi·Gita vs Fajar·Eko, C2 Budi·Indra vs Dewi�
 Citra·Indra vs Hadi·Joko, C2 Dewi·Eko vs Fajar·Gita, istirahat Andi, Budi. R1–R2 terisi (skor sah apa pun), R3: 15A
 C1 12–9 & C2 Belum (17a), 15B keduanya Belum (17f). Jam 17a: sisa 01:20 → 40 menit sejak mulai.
 
-**Undian.** Daftar istirahat yang tampil (Andi, Budi / Andi, Dewi / Citra, Andi) tidak bergantung undian, jadi golden
+**Undian.** Daftar istirahat yang tampil (Andi, Budi / Andi, Dewi / Andi, Citra) tidak bergantung undian, jadi golden
 cukup fixture di atas. Yang bergantung undian hanya "Buat R3/R4". Test level controller memakai undian terkunci asli,
 jadi **id turnamen fixture dicari sekali** (pola `t-court-329705`, tulis alasannya di komentar) supaya:
 - R3: `lockedDraw(10 id, seed, 3)` menaruh Andi dan Budi di dua nilai terbesar di antara Andi, Budi, Dewi, Eko, Fajar,
@@ -883,7 +883,7 @@ Peluang ±1/450 per id; skrip pencari dibuang setelah id ketemu. Test level serv
 | AC-T2 | 15A: `swapPlayer(m-r3-2, Dewi → Budi)` | R3 C2 Budi·Eko vs Fajar·Gita, Budi = `pair1.player1Id`; id `m-r3-2`, court, nomor sama; `pair1.id` = `pairId(Budi, Eko)`; C1 tidak berubah dan `isSwappable(C1)` false (skor) |
 | AC-T3 | lanjutan | `resting[3]` = [Andi, Dewi]; Jadwal: Prioritas main di R4 = Andi, Dewi, `later` kosong; jumlah main Andi 2, Budi 3, Dewi 2; Buat R4 → istirahat {Eko, Budi}, Andi dan Dewi main |
 | AC-T5 | lanjutan: `swapPlayer(m-r3-2, Budi → Dewi)` | encode byte-sama dengan sebelum tukar pertama; Buat R4 → istirahat {Eko, Dewi} |
-| AC-T7 | 15B: `swapPlayer(m-r3-1, Citra → Budi)` | C1 Budi·Indra vs Hadi·Joko (Budi·Indra pernah partner di R2, tetap sah); Prioritas main di R4 = {Citra, Andi} (himpunan; urutan tampil lihat 15.7), main: Citra 1; Andi, Hadi, Indra, Joko 2; Budi, Dewi, Eko, Fajar, Gita 3; Buat R4 → istirahat {Budi, Dewi}; lalu R5, R6 (skor apa pun, undian apa pun): min/maks/selisih = R4 2/4/2, R5 3/5/2, R6 4/5/1 (tabel 15B) |
+| AC-T7 | 15B: `swapPlayer(m-r3-1, Citra → Budi)` | C1 Budi·Indra vs Hadi·Joko (Budi·Indra pernah partner di R2, tetap sah); Prioritas main di R4 = {Citra, Andi} (himpunan; tampil "Andi, Citra", 15.7), main: Citra 1; Andi, Hadi, Indra, Joko 2; Budi, Dewi, Eko, Fajar, Gita 3; Buat R4 → istirahat {Budi, Dewi}; lalu R5, R6 (skor apa pun, undian apa pun): min/maks/selisih = R4 2/4/2, R5 3/5/2, R6 4/5/1 (tabel 15B) |
 | AC-T9 | 15A sebelum skor C1: tukar Dewi → Budi, `cancelLastRound`, `generateNextRound` | `resting[3]` = {Andi, Budi}, Dewi main; pasangan **tidak** di-assert (acak, lihat 15.6) |
 | AC-T6 | 15A dan 15B setelah tukar | `latePlayerIds` kosong. Juga: 10 pemain / 2 court, R1, tukar P keluar, Buat R2 → P main di R2 (0 main, prioritas teratas) dan `latePlayerIds` kosong setelah R2 |
 
@@ -961,13 +961,8 @@ sparing 8/6 dan 4/6 di 2 court; 12 round; tiap round Random berseed memilih 0–
     boleh berikon (atau sebaliknya), berhenti dan laporkan (aturan `CLAUDE.md`: frame vs catatan → tanya host), jangan
     mengubah fixture supaya cocok.
 
-### 15.7 Pertanyaan terbuka (ditemukan tech-lead 2026-11-12, belum dijawab host)
+### 15.7 Urutan nama daftar Istirahat 17h (dijawab host 2026-11-12)
 
-- **Urutan nama di daftar Istirahat 17h.** Frame 17h, catatannya, dan PRD 15B menulis "Prioritas main di R4: Citra,
-  Andi (Citra lebih dulu, 1 main)" = urutan prioritas. Aturan yang sudah disetujui (`screens/06-jadwal-mixed.md`
-  baris 112 "urut seperti daftar pemain", catatan 15a/17m) dan kode (`restingAfterLastRound`, urut `activePlayers`)
-  menghasilkan "Andi, Citra". Frame lain di §15 tidak terpengaruh (17a/17e/17p sama di kedua aturan).
-  **Asumsi sementara:** aturan lama tetap (tidak ada perubahan perilaku Jadwal); test logika meng-assert himpunan;
-  golden 17h ditahan (`skip` dengan alasan) sampai host menjawab. **Rekomendasi:** tetap urut daftar pemain, 17h +
-  catatannya + kalimat PRD 15B dibetulkan designer/PM jadi "Andi, Citra" (tanpa keputusan baru, hanya koreksi data
-  contoh).
+Host setuju rekomendasi: daftar Istirahat tetap urut daftar pemain (aturan lama, `screens/06-jadwal-mixed.md`). 17h,
+17i, catatannya, dan PRD 15B sudah dikoreksi jadi "Andi, Citra" (koreksi data contoh, tanpa perubahan perilaku);
+golden 17h tidak lagi di-skip.

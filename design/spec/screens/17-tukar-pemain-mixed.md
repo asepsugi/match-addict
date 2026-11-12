@@ -78,7 +78,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
 
-- Hasil 15B: Court 1 Budi · Indra vs Hadi · Joko. Istirahat · Prioritas main di R4 = Citra, Andi (Citra lebih dulu, 1 main).
+- Hasil 15B: Court 1 Budi · Indra vs Hadi · Joko. Istirahat · Prioritas main di R4 = Andi, Citra (urut daftar pemain, seperti 06f).
 - Selisih jumlah main jadi 2 (Citra 1; Budi, Dewi, Eko, Fajar, Gita 3). Tidak ada peringatan di sheet atau di sini (T7); prioritas main memulihkan sendiri sampai R6 (tabel 15B).
 - "Batalkan R3" tetap ada (R3 tanpa skor, bukan R1) → 17i.
 

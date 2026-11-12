@@ -1357,7 +1357,7 @@ host menukar **Citra ↔ Budi** di R3 Court 1 → **Budi** · Indra vs Hadi · J
 
 - Budi · Indra pernah berpasangan di R2. Tukar tetap boleh (T8); R4 dan seterusnya menghitung pasangan itu dua kali.
 - Jumlah main setelah tukar: Citra 1; Andi, Hadi, Indra, Joko 2; Budi, Dewi, Eko, Fajar, Gita 3 → **selisih 2**.
-- Istirahat R3: Andi, Citra → "Istirahat · Prioritas main di R4": Citra, Andi (Citra lebih dulu karena 1 main).
+- Istirahat R3: Andi, Citra → "Istirahat · Prioritas main di R4": Andi, Citra (keduanya pasti main di R4; nama urut daftar pemain).
 - Buat R4 (undian R4 di atas): main Citra, Andi, Joko, Hadi, Indra, Gita, Fajar, Eko; **istirahat Budi, Dewi**.
 
 | Setelah | Paling sedikit | Paling banyak | Selisih |

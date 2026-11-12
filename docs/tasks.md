@@ -37,8 +37,7 @@ Tidak ada yang paralel: TP-2 butuh `PlayerSwap` dan `swapPlayer` untuk ikon dan 
 keduanya kecil. Berkas bersama TP-1 ↔ TP-2: tidak ada (TP-2 hanya memanggil API TP-1; fixture service TP-1 dipakai
 ulang oleh fixture golden TP-2).
 
-Sebelum TP-2 sampai di 17h, main session menanyakan `logic.md` §15.7 ke host (urutan nama "Citra, Andi" vs
-"Andi, Citra"). Sampai dijawab, golden 17h `skip` dengan alasan; task lain tidak tertahan.
+Urutan nama 17h dijawab host 2026-11-12 (`logic.md` §15.7): "Andi, Citra", golden 17h tidak di-skip.
 
 ---
 
