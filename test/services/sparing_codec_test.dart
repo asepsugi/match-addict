@@ -512,6 +512,19 @@ void main() {
       );
     });
 
+    test('id pemain duplikat lintas klub (docs/security.md #2)', () {
+      for (final base in [_fixed13a(filled: 3), _mixed13b()]) {
+        expect(
+          _decodeMutated(base, (j) {
+            final players = _players(j);
+            final other = players.firstWhere((p) => p['club'] != players.first['club']);
+            other['id'] = players.first['id'];
+          }),
+          isNull,
+        );
+      }
+    });
+
     test('tanpa clubs tapi ada bye.sparing', () {
       expect(_decodeMutated(_fixed310, (j) => j['bye']['sparing'] = '1'), isNull);
     });

@@ -81,7 +81,8 @@ pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda
 + atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
 Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
-Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas.
+Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
+sparing menolak id pemain duplikat.
 
 ## Status
 

@@ -624,6 +624,8 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     ukuran pasangan (2026-11-13).
 74. Kasus 73 pada Fixed yang bercampur pasangan dan pemain tunggal: nama baris hanya angka "{n}" tanpa kata, mengikuti
     71/09g (2026-11-13).
+75. Tema Bagikan hijau, jingga, teal: warna ujung gradien digelapkan satu tingkat (#15803D, #C2410C, #0F766E) supaya
+    teks putih di baris bawah poster Lengkap ≥ 4,5 : 1; teks kecil 70% transparan dibiarkan (2026-11-13, PATCH 3.6.1).
 
 ---
 

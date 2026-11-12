@@ -130,6 +130,9 @@ class TournamentCodec {
     if (first.id.isEmpty || second.id.isEmpty || first.id == second.id) return false;
     if (first.name.isEmpty || second.name.isEmpty) return false;
     if (config.players.any((p) => config.clubById(p.clubId) == null)) return false;
+    // Id pemain dari uuid v4, jadi duplikat hanya ada di payload buatan: tanpa ini pemain yang sama tampil di tabel kedua
+    // klub (docs/security.md #2).
+    if (config.players.map((p) => p.id).toSet().length != config.players.length) return false;
     if ((config.fixedPairs ?? const <Pair>[]).any((pair) => config.clubOfPair(pair) == null)) return false;
     return t.matches.every(
       (m) => config.clubOfPair(m.pair1)?.id == first.id && config.clubOfPair(m.pair2)?.id == second.id,
