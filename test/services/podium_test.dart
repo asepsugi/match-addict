@@ -165,7 +165,7 @@ void main() {
       expect(Podium.of(entries: rowsOf([1, 1, 1, 1, 1])), isA<PodiumCrowd>());
     });
 
-    test('K74 Kerumunan Fixed: bukan ukuran pasangan (tanpa bola, tanpa pairSize)', () {
+    test('K73 Kerumunan Fixed: bukan ukuran pasangan (tanpa bola, tanpa pairSize)', () {
       final p = Podium.of(entries: rowsOf([1, 1, 1, 1, 1, 1, 2], pairs: true)) as PodiumCrowd;
       expect(p.block.balls, 0);
     });
@@ -266,6 +266,9 @@ void main() {
             final rows = rowsOf(positions, pairs: pairs);
             final p = Podium.of(entries: rows);
             final tag = '$positions pairs=$pairs';
+            final ones = positions.where((x) => x == 1).length;
+            // I6: Kerumunan ⇔ #1 lebih dari empat.
+            expect(p is PodiumCrowd, ones > 4, reason: tag);
             if (p is PodiumCrowd) {
               expect(p.rows.length, greaterThan(4), reason: tag);
               expect(p.rows.every((e) => e.position == 1), isTrue, reason: tag);
@@ -284,6 +287,15 @@ void main() {
                 reason: tag,
               );
             }
+            // I6: maksimal — minimal min(3, |R|) baris, atau satu kelompok nomor berikutnya membuat > 4 baris.
+            final nextGroup = s.rows.length < rows.length
+                ? positions.where((x) => x == positions[s.rows.length]).length
+                : 0;
+            expect(
+              s.rows.length >= (rows.length < 3 ? rows.length : 3) || s.rows.length + nextGroup > 4,
+              isTrue,
+              reason: tag,
+            );
             // I2: nomor sama → level sama; nomor beda → level beda.
             final byPos = <int, Set<int>>{};
             for (final b in s.blocks) {

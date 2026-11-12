@@ -1016,6 +1016,8 @@ Invariant (wajib di test):
 - I2. Dua baris dengan nomor sama → level, tinggi, warna sama; nomor beda → level beda.
 - I3. Emas ⇔ level 1. Selalu ada minimal satu blok emas kecuali Kosong.
 - I4. Jumlah bola = jumlah nama di baris yang naik (Kerumunan/Sparing 0).
+- I6. Podium maksimal: Anak tangga berisi minimal min(3, |R|) baris, atau satu kelompok nomor utuh berikutnya akan
+  membuatnya > 4 baris; Kerumunan terjadi ⇔ jumlah baris #1 > 4.
 - I5. Hasil hanya bergantung pada `entries` (atau `ClubResult`); tidak membaca jam, provider, atau metode Klasemen
   langsung (metode sudah tercermin di `position`).
 

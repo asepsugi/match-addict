@@ -47,7 +47,7 @@ final class PodiumSteps extends Podium {
   /// Baris yang naik, urut Klasemen (baris atas panel = baris pertama).
   final List<StandingEntry> rows;
 
-  /// Blok kiri → kanan. Tinggi/emas ikut nomor, urutan slot ikut indeks baris (64): #1 #1 #2 → slot 1 · 1 · 2.
+  /// Blok kiri → kanan. Tinggi/emas ikut nomor, urutan slot ikut indeks baris (64): #1 #1 #2 → level kiri → kanan 1 · 1 · 2 (baris 2 · 1 · 3).
   final List<PodiumBlock> blocks;
 
   PodiumSteps(this.rows)
@@ -97,7 +97,7 @@ class PodiumBlock {
 
   final int balls;
 
-  const PodiumBlock({required this.level, required this.face, required this.balls});
+  const PodiumBlock({required this.level, required this.face, required this.balls}) : assert(level >= 1 && level <= 3);
 
   bool get gold => level == 1;
 }
