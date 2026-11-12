@@ -1,8 +1,7 @@
 # PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
 **Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
-ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–43; U3, U4, U7, U8
-menunggu konfirmasi), app 3.4.0, hi-fi 03a–03q dan 16a–16g
+ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–47), app 3.4.0, hi-fi 03a–03q dan 16a–16g
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -550,6 +549,11 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     (hi-fi 03k dibetulkan; 2026-11-12).
 43. Subjudul sheet "Cara kerja Mexicano": **"R1 diundi." hanya selama R1**. Dibuka dari menu di round lanjut:
     "Isi semua skor, lalu tekan Buat R5." (hi-fi 16c; 2026-11-12).
+44. Susunan Mexicano dengan **beban ulang terkecil** (jumlah kali berpasangan); seri → A, lalu B, lalu C (14.5, U3,
+    2026-11-12).
+45. Kelompok teratas Mexicano main di **court bernomor terkecil** yang dipakai (14.4, U4, 2026-11-12).
+46. Versi lama (≤ 3.3.x) **menolak** simpanan dan payload live Mexicano, seperti K13 Sparing (14.8, U7, 2026-11-12).
+47. Pemain yang belum main dihitung **0 / 0** di urutan Mexicano (14.3, U8, 2026-11-12).
 
 ---
 
@@ -913,7 +917,7 @@ Jawaban host berikutnya (2026-11-04):
 ## 14. Mexicano — Pasangan dari Klasemen
 
 > **Diputuskan host 2026-11-11** (keputusan 23–27, §10), rencana rilis **3.4.0 (MINOR)**. Aturan rinci di bagian ini
-> yang tidak tertulis di keputusan itu adalah **usulan PM** (14.11); yang masih menunggu konfirmasi host: U3, U4, U7, U8.
+> yang tidak tertulis di keputusan itu adalah **usulan PM** (14.11), semuanya disetujui host (U3, U4, U7, U8 = keputusan 44–47).
 > Hi-fi 03a–03q, 16a–16g (keputusan 28–43). Fixed, Mixed, dan Sparing tidak berubah.
 
 Mexicano adalah **cara memasangkan pemain**, bukan format skor. Round 1 diundi; round berikutnya pemain diurutkan
@@ -1196,9 +1200,10 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 ### 14.11 Keputusan & usulan
 
 Keputusan host 2026-11-11: 23–32 di §10 (jangan dibuka ulang). U2, U5, U1, U6 sudah menjadi keputusan 30, 29, 31, 32.
-U9 disetujui apa adanya (keputusan 34). Konfigurasi diringkas mengikuti keputusan 33, 35–37.
+U9 disetujui apa adanya (keputusan 34). Konfigurasi diringkas mengikuti keputusan 33, 35–37. U3, U4, U7, U8 disetujui
+host 2026-11-12 (keputusan 44–47). Semua usulan di bawah sudah menjadi keputusan.
 
-**Usulan PM — belum dikonfirmasi host** (aturan di atas memakai usulan ini sampai host menjawab):
+**Usulan PM (semuanya disetujui host):**
 
 - **U1.** Urutan Mexicano selalu Total Point → selisih, apa pun tab Klasemen (14.3).
 - **U2.** Seri di urutan Mexicano diundi terkunci per round, bukan diurut nama (14.3).
