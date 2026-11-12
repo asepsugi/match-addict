@@ -1174,7 +1174,11 @@ token `posterPodium`; turunan yang dicek dari SVG frame:
 - Kedalaman (dx, dy) Feed (16, −10), Story (22, −13). Muka atas blok yang bersebelahan dan sama tinggi menyatu (satu
   poligon, 18g/18q). Muka samping hanya di kanan blok yang tetangga kanannya **lebih rendah atau tidak ada** (18n).
 - Angka muka: ukuran = round(0,656 × tinggi), Archivo 800 wdth 72, dipusatkan dengan cap-height (garis dasar ≈
-  tengah blok + 0,344 × ukuran); lebih dari satu karakter dikecilkan sampai ±70% lebar blok (18p).
+  tengah blok + 0,344 × ukuran); lebih dari satu karakter dikecilkan sampai ±70% lebar blok (18p). Rumus yang cocok
+  dengan frame (PP-2, diukur di 18p, satu-satunya frame dua karakter): ukuran = round(min(0,656 × tinggi, 0,7 × lebar
+  ÷ (0,54 × jumlah karakter))), perkiraan 0,54 em per karakter, bukan lebar terukur font (Feed 63, Story 80).
+- Judul: coba 22 (Story 27) terhadap W − 44; tidak muat → 18,5 (Story 23), jumlah baris (1–2) dari layout sebenarnya.
+  Nama panel mengecil per 0,5 dari ukuran dasar sampai 11,5; fakta per 0,1 dari 10,5 (cocok 18m Story 11,5, 11d 9,3).
 - Bola (`MabarBall`, jangan menyalin painternya): Feed 22 / pasangan 19, Story 30 / 26, jarak pasangan 2; pusat
   horizontal = tengah blok + dx/2; bawah bola = atas blok + dy/2 + 2; bayangan elips rx 0,41 × ukuran, warna
   `ball.shadow`. Tinggi bola di atas blok (rise) = ukuran + |dy|/2 − 2 (Feed 25, pasangan 22; Story 34,5, pasangan 30,5).
