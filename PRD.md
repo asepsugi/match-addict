@@ -2,7 +2,7 @@
 
 **Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
 ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–47), app 3.4.0, hi-fi 03a–03q dan 16a–16g;
-Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–57), rencana app 3.5.0, belum ada di hi-fi
+Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–59), rencana app 3.5.0, hi-fi 17a–17r
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -318,7 +318,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   Fixed yang sudah diakhiri tidak punya item menu lagi: ikon ⋯ tampil pudar dan tidak bisa diketuk.
 - Mixed: Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen.
 - Mixed (bukan Mexicano/Fixed): tukar pemain di match round terakhir yang belum diisi dengan pemain yang istirahat
-  (§15, keputusan 48–57; rencana 3.5.0, belum ada di hi-fi).
+  (§15, keputusan 48–59; rencana 3.5.0, hi-fi 17a–17r: ikon di baris match).
 - Fixed setelah semua match terisi: ikon Klasemen + "Tambah round" → sheet jam booking per court, baris Pasangan,
   "n match lagi tiap pasangan" dan "Buat R15–R16" (3.3a).
 - Back (tombol ‹, back HP, back browser) selalu ke Beranda, bukan ke Atur turnamen/Pasangan: dari sana "Buat jadwal"
@@ -577,6 +577,15 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     sejak awal, bukan pemain telat (TU2, 2026-11-12).
 56. Kandidat yang masuk = **seluruh daftar Istirahat** round terakhir, termasuk "Istirahat lagi" (TU3, 2026-11-12).
 57. **Batalkan Rn menghapus tukar** bersama round-nya, tanpa teks tambahan di dialog Batalkan (TU4, 2026-11-12).
+58. **Titik masuk tukar = ikon di baris match Jadwal**, di kolom bola pemenang, satu per tim, hanya di baris yang bisa
+    ditukar (hi-fi 17a–17r). Menu ⋯ dan layar Input Skor ditolak: host berniat mengganti pemain "sejak pertandingan belum
+    dimulai", sedangkan Input Skor berarti "pertandingan sudah dimulai". Ikon panah dua arah dipilih designer (host
+    menyerahkan pilihan panah / panah melingkar / gerigi) (2026-11-12).
+59. Sheet tukar satu langkah: judul "Tukar pemain", subjudul "Round n · Court c" (Sparing + nama klub), grup "Diganti"
+    (dua pemain tim itu, bukan "Keluar" yang sudah berarti dikeluarkan), kandidat dengan label Istirahat Jadwal, tombol
+    "Tukar" mati tanpa alasan sampai dua pilihan terisi (pola Simpan skor). Tanpa dialog konfirmasi dan tanpa toast.
+    Area ketuk ikon 44 pt (boleh menutupi awal nama). Ikon juga di Jadwal host saat live aktif; halaman penonton tidak
+    berubah (2026-11-12).
 
 ---
 
@@ -1258,7 +1267,8 @@ Q1–Q3 disetujui host 2026-11-11 sesuai rekomendasi (keputusan 28–30).
 ## 15. Tukar Pemain (Mixed)
 
 > **Diputuskan host 2026-11-12** ("setuju semua", keputusan 48–57, §10, termasuk usulan PM TU1–TU4), rencana rilis
-> **3.5.0 (MINOR)**. Belum ada di hi-fi: titik masuk, label, dan tampilan oleh designer. Fixed dan Mexicano tidak berubah.
+> **3.5.0 (MINOR)**. Tampilan disetujui host 2026-11-12 (keputusan 58–59): ikon di kolom bola baris match → sheet "Tukar
+> pemain", hi-fi 17a–17r. Fixed dan Mexicano tidak berubah.
 
 Tukar pemain = host mengganti satu pemain di match round terakhir yang belum diisi dengan satu pemain yang sedang
 istirahat, tanpa membuat ulang round.
@@ -1299,7 +1309,7 @@ istirahat, tanpa membuat ulang round.
 - **T9.** Tukar bisa diulang di match yang sama, termasuk menukar balik (Q ↔ P); hasilnya sama dengan sebelum tukar
   pertama. Tidak ada Urungkan khusus.
 - **T10.** Wording ikut `CLAUDE.md`: pemain, court, round, match; tanpa kalimat penjelas di layar (Prinsip "Tanpa
-  Petunjuk", 7). Kata "tukar" dipakai di PRD; label akhirnya oleh designer, disetujui host.
+  Petunjuk", 7). Kata "tukar" dipakai di PRD; label di layar "Tukar pemain" / "Tukar" (keputusan 59).
 
 ### 15.2 Perilaku minimal (bukan desain layar)
 
@@ -1307,7 +1317,7 @@ istirahat, tanpa membuat ulang round.
   keluar dan siapa masuk, dan bisa membatalkan pilihan tanpa perubahan apa pun.
 - Menyimpan = satu perubahan turnamen; simpanan lokal dan live ikut otomatis (tanpa panggilan simpan/kirim manual).
 - App ditutup sebelum menyimpan → tidak ada yang berubah. Setelah menyimpan → tukar tetap ada saat dibuka lagi.
-- Penonton live tidak bisa menukar. Titik masuk, urutan kandidat, dan teks oleh designer.
+- Penonton live tidak bisa menukar. Titik masuk dan teks: keputusan 58–59, hi-fi 17a–17r.
 
 ### 15.3 Contoh hitung
 
@@ -1360,10 +1370,12 @@ host menukar **Citra ↔ Budi** di R3 Court 1 → **Budi** · Indra vs Hadi · J
 - Baris R5–R6 tidak tergantung undian (yang tergantung undian hanya siapa di antara yang jumlahnya sama). Citra main
   R4–R6 beruntun; dia bukan pemain telat, jadi tanpa jeda (3.4).
 
-**Contoh 15C — Sparing Mixed** (pemain 13.2, Contoh 13B: Garuda 8, Matcha 6, 2 court). R4 Court 1 Belum: Andi · Citra
-(Garuda) vs Indra · Kiki (Matcha). Istirahat R4: Garuda Budi, Dewi, Gita, Hadi; Matcha Maya, Nanda.
-- Kiki hanya bisa ditukar dengan **Maya atau Nanda**; Andi hanya dengan **Budi, Dewi, Gita, atau Hadi**.
-- Kiki ↔ Nanda → Andi · Citra vs Indra · Nanda; Kiki masuk daftar Istirahat Matcha, daftar Garuda tidak berubah.
+**Contoh 15C — Sparing Mixed** (pemain 13.2, Contoh 13B: Garuda 8, Matcha 6, 2 court; susunan generator, hi-fi
+15a/15b/17k). R4 Belum: Court 1 Budi · Hadi (Garuda) vs Lina · Nanda (Matcha), Court 2 Andi · Dewi vs Indra · Kiki.
+Istirahat R4: Garuda Citra, Eko, Fajar, Gita; Matcha Joko, Maya.
+- Kiki hanya bisa ditukar dengan **Joko atau Maya**; Andi hanya dengan **Citra, Eko, Fajar, atau Gita**.
+- Kiki ↔ Maya → Andi · Dewi vs Indra · Maya; Kiki masuk daftar Istirahat Matcha (Joko, Kiki), daftar Garuda tidak
+  berubah.
 - Garuda 4 / Matcha 6 di 2 court: court aktif `min(2, 2, 3) = 2`, semua pemain Garuda main tiap round → pemain Garuda
   tidak pernah bisa ditukar; pemain Matcha bisa.
 
@@ -1417,7 +1429,7 @@ host menukar **Citra ↔ Budi** di R3 Court 1 → **Budi** · Indra vs Hadi · J
   tidak kena jeda pemain telat.
 - **AC-T7** Contoh 15B: jumlah main dan selisih setelah R3–R6 sama dengan tabel 15B; istirahat R4 = Budi, Dewi;
   selisih ≤ 1 lagi setelah R6.
-- **AC-T8** Contoh 15C: kandidat untuk Kiki hanya Maya dan Nanda; untuk Andi hanya Budi, Dewi, Gita, Hadi. Garuda 4 /
+- **AC-T8** Contoh 15C: kandidat untuk Kiki hanya Joko dan Maya; untuk Andi hanya Citra, Eko, Fajar, Gita. Garuda 4 /
   Matcha 6, 2 court → pemain Garuda tidak bisa ditukar.
 - **AC-T9** Batalkan R3 setelah tukar 15A (sebelum skor Court 1) lalu Buat R3 → istirahat R3 = Andi, Budi, Dewi main;
   tukar hilang.
@@ -1435,7 +1447,8 @@ host menukar **Citra ↔ Budi** di R3 Court 1 → **Budi** · Indra vs Hadi · J
 - **AC-T15** Match hasil tukar diisi → Klasemen, Detail, Bagikan menghitungnya untuk Q, tidak untuk P; tidak ada tanda
   "ditukar" di mana pun.
 - **AC-T16** Simpanan 3.4.x dimuat tanpa perubahan; simpanan 3.5.0 dengan tukar dibuka 3.4.x → tampil benar. Semua test
-  dan golden yang ada lulus tanpa diubah.
+  dan golden yang ada lulus tanpa diubah, kecuali golden frame Jadwal yang digambar ulang dengan ikon tukar (keputusan
+  58; 06f–06u, 08e–08k, 12a–12g, 13m, 15b–15p, daftar persis di hi-fi → Cakupan).
 - **AC-T17** Semua kriteria di atas jalan offline (kecuali Live).
 
 ### 15.7 Belum sekarang

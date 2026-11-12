@@ -21,6 +21,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Hasil Buat R4 (generator) persis daftar prioritas 15a: Budi · Hadi vs Lina · Nanda, Andi · Dewi vs Indra · Kiki (AC-S11). Partner sesama klub, klub pertama baris atas.
 - Batalkan R4 sama dengan 06h (round terakhir tanpa skor, bukan R1). Prioritas R5: Citra, Eko, Fajar, Gita · Joko, Maya.
+- Ikon tukar di keempat tim (17k): kedua klub punya pemain istirahat. Klub tanpa pemain istirahat: tim klub itu tanpa ikon (15p, 17n).
 
 ## 15c · Dialog · batalkan round sparing
 
@@ -152,6 +153,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Setelah Tambah court (15o): Court 3 berisi Gita · Fajar vs Maya · Joko (generator), hitung mundur 02:00 dari saat ditambah. Semua 6 pemain Matcha main di R4, jadi kolomnya "–".
 - R5 court aktif min(3, 4, 3) = 3: 3 match, semua 6 Matcha main; Garuda Citra dan Eko diprioritaskan (AC-S13).
+- Ikon tukar (17a) hanya di tim PB Garuda: Matcha tidak punya pemain istirahat, jadi tim Matcha tanpa ikon (17n).
 
 ## 15q · Input Skor · Mixed sparing
 

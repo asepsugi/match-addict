@@ -14,6 +14,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Badge LIVE dihapus. Istirahat: label lalu nama lengkap dalam dua kolom rata (banyak nama: 06o); judulnya "Istirahat · Prioritas main di R4" (bagian prioritas bertinta gelap, bukan biru court supaya tidak terbaca sebagai tautan), hanya saat melihat round terakhir. Nama seukuran judul (13). Kalau tidak semua kebagian slot R4, daftar dibagi dua (06o).
 - Round terakhir: daftar dihitung dari pemain aktif sekarang (yang keluar tidak tampil, yang baru ditambahkan langsung masuk). Round yang sudah lewat: catatan saat round itu dibuat (06n).
 - Action bar: Klasemen (ikon), Pemain (ikon + jumlah aktif → sheet 08a), Buat R4. Tombol akhiri pindah ke menu ⋯.
+- Ikon tukar di kolom bola Court 2 (17a): match Belum di round terakhir, Indra W dan Joko S istirahat. Court 1 sudah ada skor, jadi tanpa ikon.
 
 ## 06g · Round lengkap · siap buat berikutnya
 
@@ -169,4 +170,4 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Nama di baris match ditulis lengkap, juga di Input Skor, sheet WO, riwayat Detail, Istirahat Fixed, dan caption: dua pemain bernama depan sama (Lia Ibun, Lia Ncii) tetap terbedakan.
 - Tim tidak muat: tiap nama dipotong elipsis sendiri. Nama yang muat di separuh lebar tetap utuh dan nama lain mengisi sisanya (Court 1); dua-duanya lebih panjang → dibagi rata (Court 2 bawah). Memotong hanya ujung baris bisa menghilangkan nama kedua seluruhnya ("Muhammad Rizky Pratama · Li…").
-- Selalu satu baris, jadi tinggi baris dan tombol Isi skor tidak bergeser.
+- Selalu satu baris, jadi tinggi baris dan tombol Isi skor tidak bergeser. Ikon tukar Court 1 (usulan, 17a) berpusat di titik bola dan tidak mengambil lebar nama.

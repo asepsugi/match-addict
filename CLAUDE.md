@@ -11,8 +11,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 **Sumber kebenaran, baca sebelum mengubah UI/logika:**
 - `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22); §13
   Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y; §14
-  Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g.
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 209 frame layar 390×844 +
+  Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
+  2026-11-12), hi-fi 17a–17r.
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 227 frame layar 390×844 +
   12 lembar gambar (per 2026-11-08) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±320 KB tanpa
   base64 besar, aman dibaca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar lebih ringkas
   baca `design/spec/screens/<alur>.md` + PNG frame-nya.
@@ -80,7 +81,7 @@ pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda
 + atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
 Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
-Konfigurasi diringkas (pengaturan terakhir per olahraga).
+Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR, rencana) = tukar pemain Mixed.
 
 ## Status
 
@@ -102,6 +103,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). 3.3.0–3.3.2 sudah di `main` dan live (8af509b).
 - Mexicano + Konfigurasi diringkas 3.4.0 (MINOR): rilis 3.4.0+18 live 2026-11-12 (61bbaba): PRD §14 + keputusan 23–47, hi-fi
   03a–03q dan 16a–16g (artifact v77), spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode selesai. Semua usulan PM disetujui (keputusan 44–47).
+- Tukar pemain Mixed 3.5.0 (MINOR, berjalan): PRD §15 + keputusan 48–59, hi-fi 17a–17r (ikon di kolom bola baris
+  match) disetujui 2026-11-12; berikutnya spec + task tech-lead.
 
 ## Area docs
 
