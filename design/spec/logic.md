@@ -5,8 +5,8 @@ Ditulis tangan (bukan hasil `tool/hifi_extract.py`). Setiap butir mengubah `lib/
 saling menguatkan.
 
 **Status: §1–§14 sudah diimplementasi di model/service dan ter-test** (§13 Sparing = 3.2.0; §14 Mexicano +
-Konfigurasi diringkas = 3.4.0, task MX-n / KF-n di riwayat git `docs/tasks.md`). **§15 Tukar pemain (3.5.0) = spec,
-belum diimplementasi** (task TP-n di `docs/tasks.md`).
+Konfigurasi diringkas = 3.4.0, task MX-n / KF-n di riwayat git `docs/tasks.md`). **§15 Tukar pemain (3.5.0) sudah
+diimplementasi** (task TP-n di `docs/tasks.md`).
 Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor

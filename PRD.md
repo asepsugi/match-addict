@@ -1267,7 +1267,7 @@ Q1–Q3 disetujui host 2026-11-11 sesuai rekomendasi (keputusan 28–30).
 ## 15. Tukar Pemain (Mixed)
 
 > **Diputuskan host 2026-11-12** ("setuju semua", keputusan 48–57, §10, termasuk usulan PM TU1–TU4), rencana rilis
-> **3.5.0 (MINOR)**. Tampilan disetujui host 2026-11-12 (keputusan 58–59): ikon di kolom bola baris match → sheet "Tukar
+> **3.5.0 (MINOR)**, diimplementasi 2026-11-12. Tampilan disetujui host 2026-11-12 (keputusan 58–59): ikon di kolom bola baris match → sheet "Tukar
 > pemain", hi-fi 17a–17r. Fixed dan Mexicano tidak berubah.
 
 Tukar pemain = host mengganti satu pemain di match round terakhir yang belum diisi dengan satu pemain yang sedang

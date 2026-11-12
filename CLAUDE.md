@@ -81,7 +81,7 @@ pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda
 + atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
 Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
-Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR, rencana) = tukar pemain Mixed.
+Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match).
 
 ## Status
 
@@ -103,8 +103,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). 3.3.0–3.3.2 sudah di `main` dan live (8af509b).
 - Mexicano + Konfigurasi diringkas 3.4.0 (MINOR): rilis 3.4.0+18 live 2026-11-12 (61bbaba): PRD §14 + keputusan 23–47, hi-fi
   03a–03q dan 16a–16g (artifact v77), spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode selesai. Semua usulan PM disetujui (keputusan 44–47).
-- Tukar pemain Mixed 3.5.0 (MINOR, berjalan): PRD §15 + keputusan 48–59, hi-fi 17a–17r (ikon di kolom bola baris
-  match) disetujui 2026-11-12; berikutnya spec + task tech-lead.
+- Tukar pemain Mixed 3.5.0 (MINOR): PRD §15 + keputusan 48–59, hi-fi 17a–17r (ikon di kolom bola baris match), spec
+  `logic.md` §15, task TP-n; kode selesai 2026-11-12, belum di-push (tunggu go host).
 
 ## Area docs
 
@@ -116,7 +116,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
 | `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
-| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: Mexicano MX-n + Konfigurasi KF-n) | tech-lead |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: Tukar pemain TP-n) | tech-lead |
 
 ## Pitfalls (lintas area)
 

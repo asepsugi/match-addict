@@ -37,6 +37,7 @@ tanpa migrasi. Fixture literal tiap bentuk ada di test (SP-1 menambahkan yang be
 | sparing: `config.clubs`, `players[].club`, `restingPairs`, penanda di `bye` | 3.2.0 | opsional, satu paket | tanpa `config.clubs` = turnamen biasa (lihat di bawah) |
 | `mode: "mexicano"` | 3.4.0 | nilai baru, tanpa kunci baru | ditolak kalau bersama `clubs` atau bukan Americano (lihat "Mexicano"); pembaca ≤ 3.3.x menolaknya (null) |
 | `settings.<olahraga>` (pengaturan terakhir) | 3.4.0 | kunci Hive terpisah, bukan bagian payload turnamen | tak terbaca = default; ≤ 3.3.x tidak membacanya |
+| tukar pemain | 3.5.0 | tanpa kunci baru | `resting[n]` round terakhir bisa berubah oleh tukar dan boleh berisi pemain yang dikeluarkan; codec tidak berubah, 3.4.x membacanya apa adanya (`logic.md` §15.1) |
 
 ## Sparing (3.2.0, MINOR)
 

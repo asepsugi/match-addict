@@ -84,6 +84,13 @@ service/model.
 - `ActiveTournament.capacityAhead` (sheet Lanjutkan) mengembalikan `fewerCourtsFrom` = round tambahan saat court yang
   main di round pertamanya habis; court yang sejak awal tidak dapat tambahan bukan "berkurang" (bug lama).
 - Lanjutkan Turnamen (resume, `extendedBy`): lihat `docs/data.md`.
+- Tukar pemain (3.5.0, PRD §15, `logic.md` §15): `lib/services/schedule/player_swap.dart` (`PlayerSwap`:
+  `isSwappable`, `canSwapTeam`, `candidates`, `swapped`, `apply`) + `TournamentController.swapPlayer` (berakhir di
+  `state =`). Hanya round terakhir, match Belum, `mode == mixed` (Mexicano dan Fixed ditolak), turnamen belum diakhiri.
+  Q mengambil slot P persis (id pasangan dihitung ulang tanpa mengurutkan slot → tukar balik byte-sama); P masuk
+  `resting[n]` di indeks Q, Q keluar darinya; `latePlayerIds` turunan dari absen, jadi Q keluar dari telat hanya kalau
+  Rn satu-satunya round yang dia lewatkan. Kandidat = daftar Istirahat round terakhir (sparing: klub tim itu). Tanpa
+  generator/`Random`. Ikon tukar = `MatchScoreSide.onSwap` (komponen tidak tahu aturannya).
 
 ## Sparing (3.2.0)
 
