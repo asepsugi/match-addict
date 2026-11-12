@@ -81,7 +81,7 @@ pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda
 + atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
 Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
-Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match).
+Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas.
 
 ## Status
 
@@ -105,9 +105,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   03a–03q dan 16a–16g (artifact v77), spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode selesai. Semua usulan PM disetujui (keputusan 44–47).
 - Tukar pemain Mixed 3.5.0 (MINOR): PRD §15 + keputusan 48–59, hi-fi 17a–17r (ikon di kolom bola baris match), spec
   `logic.md` §15, task TP-n; rilis 3.5.0+19 live 2026-11-12 (dcff87f).
-- Poster podium Bagikan (rencana 3.6.0, MINOR), branch `poster-podium`: Ringkas = ilustrasi podium sudut lapangan,
-  PRD §5.9 + keputusan 60–74, hi-fi 11a/11c/11d/13q/13r + 18a–18t (artifact v85). Spec `logic.md` §16 + task PP-1…4
-  selesai, kode belum; golden 11a, 11c, 11d, 13q, 13r gagal sampai kode podium ada. Eksplorasi A/B/C: `design/explore/`.
+- Poster podium Bagikan 3.6.0 (MINOR), branch `poster-podium`: Ringkas = ilustrasi podium sudut lapangan, PRD §5.9 +
+  keputusan 60–74, hi-fi 11a/11c/11d/13q/13r + 18a–18t (artifact v85), spec `logic.md` §16, task PP-n. Kode + golden
+  selesai (3.6.0+20), belum di-merge ke `main`; sisa QA Chrome + uji share di HP. Eksplorasi A/B/C: `design/explore/`.
 
 ## Area docs
 
@@ -119,7 +119,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
 | `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
-| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: Tukar pemain TP-n) | tech-lead |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: Poster podium PP-n) | tech-lead |
 
 ## Pitfalls (lintas area)
 

@@ -152,8 +152,15 @@ booking 1–12 jam per court.
   `SharePosterTarget.exportPixelRatio`) di-render lewat `screenshot` lalu dibagikan dengan `Share.shareXFiles` lewat
   share sheet sistem, teks hasil (`ResultTextBuilder`) jadi caption. Gagal share → caption disalin + toast "Hasil
   disalin" (selalu 19 pt di atas action bar: `showMabarToast(bottom:)` diisi tinggi action bar dua tombol).
-- Isi poster dari `sharePosterData()` (`share_content.dart`): Ringkas = 5 teratas + "+n pemain/pasangan lainnya",
-  Lengkap = semua yang bernomor. Tiap baris = nilai metode + selisih (`SharePosterRow.detail` satuan, `.diff` selisih):
+- **Ringkas = poster podium** (3.6.0, PRD §5.9, keputusan 60–74): `PodiumPoster` (`widgets/podium_poster.dart`,
+  target card 358×372 / Feed 360×360 / Story 360×640, ekspor ×3 lewat `share_exports.dart` `podiumImages`) +
+  `PodiumScenePainter` (lapangan, anak tangga, bola via `MabarBall.paint`) + panel nama 86%. Isi dari
+  `podiumPosterData()` yang hanya memetakan `Podium.of` + `podiumFacts` (`services/share/podium.dart`). Tema
+  `PodiumTheme.court(sport)` (bawaan, tema ke-11) atau `.gradient(ShareTheme)`; di layar `ShareTheme?` null = lapangan,
+  deret Ringkas 11 × 27 pt, Lengkap 10 × 30 pt (lapangan tampil sebagai biru). Aturan ukuran (angka muka, judul, panel,
+  batas tinggi) di `logic.md` §16.6. Golden gambar 11d, 13r, 18c–18t (`test/hifi/components/podium_poster_test.dart`),
+  layar 11a, 11c, 13q, 18a, 18b. Bola podium digambar painter: hitung dari `layout.balls`, bukan `find.byType(MabarBall)`.
+- Isi poster Lengkap dari `sharePosterData()` (`share_content.dart`): semua yang bernomor. Tiap baris = nilai metode + selisih (`SharePosterRow.detail` satuan, `.diff` selisih):
   "42 poin · +12" / "100% · +12", dua kolom dan Story tanpa satuan "42 · +12".
 - Lengkap: Mixed > 10 baris di pratinjau/Feed jadi dua kolom, pasangan dan Story selalu satu kolom; lebih padat dari
   frame terpadat yang disetujui (10 baris satu kolom, 15 per kolom, 20 baris nama di Story) semua huruf baris

@@ -208,6 +208,11 @@ dipakai ulang; tidak ada generator atau layar kedua.
   "olahraga · mode · n pemain" di Beranda (`MabarRow.titleOneLine`, banner satu baris) dan baris kecil poster
   (`SharePosterData.eyebrow`, maks dua baris; tanggal pindah ke `summary`); caption "🏆 {nama} · Padel". Tanpa nama
   semua tampilan tetap. Golden bernama: 01a/01e/01h, 03c, 11a/11d/11f.
+- `share/podium.dart` (3.6.0, `logic.md` §16) — siapa naik poster podium: `Podium.of` → `PodiumEmpty` (belum ada
+  match selesai, termasuk Sparing 0 – 0) / `PodiumSteps` / `PodiumCrowd` (#1 > 4) / `PodiumClubs` (Sparing). Calon =
+  baris dengan `position` ≤ nomor baris ke-min(3, |R|), maks 4 anak tangga, dipangkas per kelompok nomor utuh. Level
+  dan tinggi dari `position` (kembar = sama tinggi), urutan slot dari indeks; emas ⇔ level 1. `podiumFacts` = baris
+  fakta, `rowNoun` = kata pemain/pasangan (kosong untuk Fixed campuran; selalu dari semua baris Klasemen).
 - `share/result_text_builder.dart` — teks share ringkas/lengkap (tiap baris memuat total point, satuan ikut format,
   "Peringkat Akhir"/"Sementara" dari `isFinal`).
 
