@@ -46,3 +46,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# PNG eksplorasi desain (besar, bisa dirender ulang dari HTML-nya)
+design/explore/frames/

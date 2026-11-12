@@ -340,7 +340,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   di atas (Mixed menampilkan partner; menang WO menulis "+N"). Fixed menampilkan "Beda partner" hanya kalau
   pasangannya pernah diatur ulang (10d).
 
-### 5.9 Bagikan (11a–11l)
+### 5.9 Bagikan (11a–11l, 18a–18t)
 - Kartu pratinjau + 10 tema (default biru) + Ringkas (5 teratas + "+n lainnya") / Lengkap (semua; Feed > 10 pemain
   Mixed dibagi dua kolom rata, pasangan Fixed dan Story selalu satu kolom; lebih padat dari 10 baris satu kolom atau
   20 baris nama di Story → semua huruf baris dikecilkan sebanding). Nomor "#n"; peringkat 1 lencana emas, digantung ke kiri supaya "#1" sejajar dengan nomor di bawahnya.
@@ -351,6 +351,11 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Turnamen bernama: nama menggantikan baris kecil "olahraga · mode · tanggal" di atas judul poster (maks dua baris) dan
   tanggalnya pindah ke ringkasan bawah ("4 round · 8 match · 21 Okt 2026"); caption dibuka "🏆 {nama} · Padel"
   (tanpa nama "🏆 Match Addict · Padel").
+- **Sejak 3.6.0 (keputusan 60–71, hi-fi 11a, 11c, 11d, 13q, 13r, 18a–18t): Ringkas = poster podium**, bukan daftar 5 teratas. Ilustrasi sudut lapangan + podium
+  (angka di muka blok, satu bola per pemain) dan panel nama sedikit transparan berisi baris yang naik podium (nomor,
+  nama, nilai metode + selisih dengan satuan di Feed dan Story) + wordmark + baris fakta turnamen. Nomor sama → tinggi
+  sama; maksimal 4 anak tangga (keputusan 65). Sparing: dua blok skor klub. Tema bawaan = palet lapangan ikut olahraga,
+  10 gradien tetap bisa dipilih. Aturan baris, kolom, dan kepadatan di atas kini hanya berlaku untuk Lengkap.
 - "Selesai" memindahkan turnamen ke slot terakhir lalu kembali ke Beranda.
 
 ### 5.10 Penyimpanan Data
@@ -587,6 +592,32 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     "Tukar" mati tanpa alasan sampai dua pilihan terisi (pola Simpan skor). Tanpa dialog konfirmasi dan tanpa toast.
     Area ketuk ikon 44 pt (boleh menutupi awal nama). Ikon juga di Jadwal host saat live aktif; halaman penonton tidak
     berubah (2026-11-12).
+60. **Poster Ringkas diganti poster podium** (arah "Sudut lapangan": sudut lapangan, podium tiga dimensi, bola per
+    pemain, panel nama di bawahnya), Feed 1080×1080 dan Story 1080×1920. Host: gambar lama "padat dengan text", diganti
+    "ilustrasi podium nya saja dengan sedikit detail statistik". Poster Lengkap tetap ada sebagai pilihan kedua dan
+    tidak berubah (2026-11-12).
+61. Podium Fixed: satu anak tangga = satu pasangan (dua nama, dua bola). Mixed / Mexicano: satu pemain (2026-11-12).
+62. Podium Sparing: dua blok skor klub, tanpa bola dan tanpa pemain terbaik tiap klub; perorangan hanya di poster
+    Lengkap. Menggantikan "poster Ringkas = 3 teratas tiap klub" (K7) untuk Ringkas (2026-11-12).
+63. Statistik podium: nilai metode + selisih untuk yang naik podium, plus satu baris fakta turnamen ("Padel · 12
+    pemain · 6 round · 18 match"). Satuan ditulis di Feed dan Story ("80 poin · +34"). Judul tetap "Klasemen akhir" /
+    "Klasemen sementara"; tanpa statistik tambahan (W–L) (2026-11-12).
+64. **Peringkat kembar: tinggi podium harus sama.** Tinggi anak tangga ditentukan nomor, bukan urutan baris (#1, #2,
+    #2 → dua anak tangga #2 sama tinggi; #1, #1, #2 → dua emas sama tinggi) (2026-11-12).
+65. Yang naik podium = tiga baris teratas Klasemen. Kembar yang melewati tiga tempat: semua yang senomor dengan baris
+    ketiga ikut naik, maksimal 4 anak tangga; lebih dari itu podium dipangkas ke kelompok nomor yang utuh (#1, #2, #3,
+    #3, #3 → hanya #1 dan #2). Hanya dua baris bernomor → dua anak tangga, tanpa tempat kosong (2026-11-12).
+66. Tema poster podium: palet lapangan ikut olahraga (padel terracotta, tennis biru court) jadi bawaan; sepuluh gradien
+    lama tetap bisa dipilih (2026-11-12).
+67. Panel nama di poster podium sedikit transparan (warna panel 86%, lantai/latar tembus), kontras teks tetap ≥ 4,5 : 1 (2026-11-12).
+68. Lebih dari empat pemain di #1 (aturan pangkas 65 tidak menyisakan kelompok utuh): satu blok emas lebar tanpa bola
+    dan satu baris panel "#1 · 6 pemain · 12 poin · +3" (Fixed: "6 pasangan") (hi-fi 18s, 2026-11-12).
+69. Belum ada match selesai (tidak ada yang bernomor): poster podium = lapangan kosong tanpa blok, panel hanya wordmark
+    + baris fakta "R1 · 0 dari 3 match". Tombol Bagikan tidak dimatikan (hi-fi 18t, 2026-11-12).
+70. Deret tema di tab Ringkas = 11 lingkaran 27 pt (lapangan + 10 gradien); di tab Lengkap tetap 10 lingkaran 30 pt dan
+    pilihan lapangan dipakai sebagai biru. Berlaku sampai Lengkap dirombak (2026-11-12).
+71. Baris fakta saat Sementara: "R3 · 7 dari 9 match" (pola subjudul Klasemen). Podium Fixed yang bercampur pasangan
+    dan pemain tunggal setelah atur ulang (hi-fi 18l): baris fakta tanpa hitungan pasangan/pemain (2026-11-12).
 
 ---
 
