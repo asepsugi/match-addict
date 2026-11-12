@@ -351,7 +351,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Turnamen bernama: nama menggantikan baris kecil "olahraga · mode · tanggal" di atas judul poster (maks dua baris) dan
   tanggalnya pindah ke ringkasan bawah ("4 round · 8 match · 21 Okt 2026"); caption dibuka "🏆 {nama} · Padel"
   (tanpa nama "🏆 Match Addict · Padel").
-- **Sejak 3.6.0 (keputusan 60–71, hi-fi 11a, 11c, 11d, 13q, 13r, 18a–18t): Ringkas = poster podium**, bukan daftar 5 teratas. Ilustrasi sudut lapangan + podium
+- **Sejak 3.6.0 (keputusan 60–74, hi-fi 11a, 11c, 11d, 13q, 13r, 18a–18t): Ringkas = poster podium**, bukan daftar 5 teratas. Ilustrasi sudut lapangan + podium
   (angka di muka blok, satu bola per pemain) dan panel nama sedikit transparan berisi baris yang naik podium (nomor,
   nama, nilai metode + selisih dengan satuan di Feed dan Story) + wordmark + baris fakta turnamen. Nomor sama → tinggi
   sama; maksimal 4 anak tangga (keputusan 65). Sparing: dua blok skor klub. Tema bawaan = palet lapangan ikut olahraga,
@@ -618,6 +618,12 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     pilihan lapangan dipakai sebagai biru. Berlaku sampai Lengkap dirombak (2026-11-12).
 71. Baris fakta saat Sementara: "R3 · 7 dari 9 match" (pola subjudul Klasemen). Podium Fixed yang bercampur pasangan
     dan pemain tunggal setelah atur ulang (hi-fi 18l): baris fakta tanpa hitungan pasangan/pemain (2026-11-12).
+72. Sparing yang belum punya match selesai (skor klub 0 – 0): ikut keputusan 69, poster podium = lapangan kosong, bukan
+    dua blok "0" (2026-11-13).
+73. Lebih dari empat di #1 (keputusan 68) pada Fixed: baris dan blok ukuran tunggal, teks "6 pasangan" tanpa bola, bukan
+    ukuran pasangan (2026-11-13).
+74. Kasus 73 pada Fixed yang bercampur pasangan dan pemain tunggal: nama baris hanya angka "{n}" tanpa kata, mengikuti
+    71/09g (2026-11-13).
 
 ---
 

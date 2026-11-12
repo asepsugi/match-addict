@@ -1,6 +1,6 @@
 # Task — Poster podium Bagikan (rencana 3.6.0)
 
-Pemilik: tech-lead. Sumber: PRD §5.9 + keputusan 60–71 (§10), `design/spec/logic.md` §16 (siapa naik, panel, fakta,
+Pemilik: tech-lead. Sumber: PRD §5.9 + keputusan 60–74 (§10), `design/spec/logic.md` §16 (siapa naik, panel, fakta,
 tema, API, data test, tata letak, jebakan, pertanyaan terbuka 16.8), `design/spec/screens/18-poster-podium.md` + frame
 18a–18t, `screens/11-bagikan.md` (11a, 11c, 11d), `screens/13-sparing.md` (13q, 13r), `components.md` →
 `PodiumPoster (PodiumScenePainter)` dan `SharePoster` (`.themes.fit`), `tokens.json` → `posterPodium`.

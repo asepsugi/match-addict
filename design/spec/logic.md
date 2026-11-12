@@ -970,7 +970,7 @@ golden 17h tidak lagi di-skip.
 
 ## 16. Poster podium · Bagikan Ringkas (rencana 3.6.0)
 
-PRD §5.9 + keputusan 60–71 (§10), frame 11a, 11c, 11d, 13q, 13r (`screens/11-bagikan.md`, `screens/13-sparing.md`) dan
+PRD §5.9 + keputusan 60–74 (§10), frame 11a, 11c, 11d, 13q, 13r (`screens/11-bagikan.md`, `screens/13-sparing.md`) dan
 18a–18t (`screens/18-poster-podium.md`), Komponen `PodiumPoster (PodiumScenePainter)` + token `posterPodium`. Poster
 Lengkap, caption (`ResultTextBuilder`), Klasemen, dan simpanan **tidak berubah** → MINOR, tanpa `schemaVersion`, tanpa
 DBA. Angka di bagian ini dicek tech-lead 2026-11-13 terhadap teks dan geometri SVG frame di `design/hifi.html`
@@ -1212,7 +1212,7 @@ token `posterPodium`; turunan yang dicek dari SVG frame:
     dan teks lencana per frame (18c 3, 18e 6, 18l 5, 18n 0, 18s 0, 18t 0).
 13. **Caption tidak berubah** (`ResultTextBuilder`): tes caption 13q dan 11a yang lama lolos tanpa diubah.
 
-### 16.8 Pertanyaan terbuka (asumsi dipakai sampai host menjawab)
+### 16.8 Pertanyaan terbuka — dijawab host 2026-11-13: ketiga asumsi disetujui (keputusan 72–74 di PRD)
 
 1. Sparing yang belum punya match selesai (skor klub 0 – 0): tidak ada frame. Asumsi: ikut keputusan 69 → Kosong
    (lapangan kosong, fakta "7 pasangan · R1 · 0 dari 6 match"), bukan dua blok emas "0". Rekomendasi: setujui asumsi.

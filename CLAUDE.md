@@ -12,7 +12,7 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 - `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22); §13
   Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y; §14
   Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
-  2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–71, 2026-11-12), hi-fi 18a–18t.
+  2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t.
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 247 frame layar 390×844 +
   12 lembar gambar (per 2026-11-12) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±1,1 MB (per
   2026-11-12): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
@@ -106,8 +106,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Tukar pemain Mixed 3.5.0 (MINOR): PRD §15 + keputusan 48–59, hi-fi 17a–17r (ikon di kolom bola baris match), spec
   `logic.md` §15, task TP-n; rilis 3.5.0+19 live 2026-11-12 (dcff87f).
 - Poster podium Bagikan (rencana 3.6.0, MINOR), branch `poster-podium`: Ringkas = ilustrasi podium sudut lapangan,
-  PRD §5.9 + keputusan 60–71, hi-fi 11a/11c/11d/13q/13r + 18a–18t (artifact v84). **Baru dokumen**: spec, task, dan
-  kode belum; golden 11a, 11c, 11d, 13q, 13r gagal sampai kode podium ada. Eksplorasi A/B/C: `design/explore/`.
+  PRD §5.9 + keputusan 60–74, hi-fi 11a/11c/11d/13q/13r + 18a–18t (artifact v85). Spec `logic.md` §16 + task PP-1…4
+  selesai, kode belum; golden 11a, 11c, 11d, 13q, 13r gagal sampai kode podium ada. Eksplorasi A/B/C: `design/explore/`.
 
 ## Area docs
 
