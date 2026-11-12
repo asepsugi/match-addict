@@ -43,24 +43,31 @@ class RestingList extends StatelessWidget {
   /// Hanya diisi oleh [RestingList.clubs].
   final List<RestingClub>? clubs;
 
+  /// Judul daftar; dipakai juga sheet Tukar pemain supaya label kandidat persis sama dengan Jadwal.
+  static Widget headerLabel({String? title, bool later = false, int? priorityRound}) =>
+      title != null
+          ? Text(title, style: MabarType.label)
+          : later
+          ? Text('Istirahat lagi di R$priorityRound', style: MabarType.label)
+          : Text.rich(
+              TextSpan(
+                text: 'Istirahat',
+                children: [
+                  if (priorityRound != null) ...[
+                    const TextSpan(text: ' · '),
+                    TextSpan(
+                      text: 'Prioritas main di R$priorityRound',
+                      style: MabarType.label.copyWith(color: MabarColors.ink),
+                    ),
+                  ],
+                ],
+              ),
+              style: MabarType.label,
+            );
+
   @override
   Widget build(BuildContext context) {
-    final label = title != null
-        ? Text(title!, style: MabarType.label)
-        : later
-        ? Text('Istirahat lagi di R$priorityRound', style: MabarType.label)
-        : Text.rich(
-            TextSpan(
-              text: 'Istirahat',
-              children: [
-                if (priorityRound != null) ...[
-                  const TextSpan(text: ' · '),
-                  TextSpan(text: 'Prioritas main di R$priorityRound', style: MabarType.label.copyWith(color: MabarColors.ink)),
-                ],
-              ],
-            ),
-            style: MabarType.label,
-          );
+    final label = headerLabel(title: title, later: later, priorityRound: priorityRound);
     final style = MabarType.label.copyWith(
       height: 22 / 13,
       color: later ? MabarColors.ink3 : MabarColors.ink2,

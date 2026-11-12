@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/core/theme/mabar_icons.dart';
+import 'package:match_addict/core/widgets/match_score_row.dart';
 
 /// Pembanding layar Flutter dengan frame hi-fi (`design/frames/<id>.png`).
 ///
@@ -171,6 +173,19 @@ Future<HifiDiff> compareWithHifi(
   }))!;
 }
 
+/// Jumlah ikon tukar pemain (`.w.swap`) di baris match tiap frame Jadwal yang tampil berikon atau yang wajib tanpa ikon
+/// (06a Fixed, 06m diakhiri, 06t round lewat, 16b Mexicano, 12h penonton, 17r tidak ada yang istirahat). Golden 2%
+/// bisa lolos tanpa ikon (16 pt x beberapa baris), jadi [expectMatchesHifi] menghitungnya dengan finder. Angkanya dari
+/// `design/hifi.html` (kelas `w swap` per frame).
+const hifiSwapIcons = {
+  '06a': 0, '06f': 2, '06h': 4, '06i': 4, '06j': 4, '06k': 4, '06m': 0, '06o': 2, '06p': 2, '06q': 4,
+  '06s': 2, '06t': 0, '06u': 2, '08a': 2, '08e': 2, '08g': 4, '08h': 4, '08i': 4, '08j': 2, '08k': 2,
+  '12a': 4, '12b': 4, '12c': 4, '12d': 4, '12e': 4, '12g': 4, '12h': 0, '13m': 2, '15b': 4, '15c': 4,
+  '15d': 2, '15e': 2, '15g': 4, '15h': 4, '15k': 4, '15l': 2, '15m': 2, '15n': 4, '15o': 4, '15p': 3,
+  '16b': 0, '17a': 2, '17b': 2, '17c': 2, '17d': 2, '17e': 2, '17f': 4, '17g': 4, '17h': 4, '17i': 4,
+  '17j': 2, '17k': 4, '17l': 4, '17m': 4, '17n': 2, '17o': 4, '17p': 4, '17q': 4, '17r': 0,
+};
+
 /// [compareWithHifi] + `expect`. Toleransi bawaan 2% piksel: cukup untuk perbedaan anti-alias, tapi
 /// pergeseran 4 pt atau warna yang salah di satu komponen sudah melewatinya.
 Future<void> expectMatchesHifi(
@@ -183,6 +198,15 @@ Future<void> expectMatchesHifi(
   final diff = await compareWithHifi(tester, screen, frameId, act: act);
   expect(diff.ratio, lessThanOrEqualTo(maxDiffRatio),
       reason: '$diff — lihat build/hifi_diff/$frameId.png (merah = beda) dan ${frameId}_flutter.png');
+  final icons = hifiSwapIcons[frameId];
+  if (icons != null) {
+    // Hanya ikon di baris match: tombol "Tukar" di sheet memakai ikon yang sama.
+    final inRows = find.descendant(
+      of: find.byType(MatchScoreRow),
+      matching: find.byIcon(MabarIcons.arrowsLeftRight),
+    );
+    expect(inRows, findsNWidgets(icons), reason: '$frameId: jumlah ikon tukar di baris match');
+  }
 }
 
 /// Golden per komponen: [stage] (biasanya [hifiStage]) dibandingkan dengan frame hanya di [region].

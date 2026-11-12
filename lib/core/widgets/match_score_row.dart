@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../theme/mabar_icons.dart';
 import '../theme/mabar_theme.dart';
 
 enum MatchScoreTone {
@@ -17,6 +18,7 @@ enum MatchScoreTone {
 
 /// Satu tim di [MatchScoreRow]: nama lengkap pemainnya (ditulis "Andi P · Budi S", [prefix] "vs " di riwayat
 /// Detail), skor per kolom (satu angka; format lama per set), penanda menang, dan tag clay ("WO · Absen").
+/// [onSwap] non-null = ikon tukar pemain (`.team .w.swap`) menggantikan titik bola; komponen tidak tahu aturannya.
 class MatchScoreSide {
   final List<String> names;
   final String prefix;
@@ -24,6 +26,7 @@ class MatchScoreSide {
   final MatchScoreTone tone;
   final bool win;
   final String? tag;
+  final VoidCallback? onSwap;
 
   const MatchScoreSide({
     required this.names,
@@ -32,6 +35,7 @@ class MatchScoreSide {
     this.tone = MatchScoreTone.normal,
     this.win = false,
     this.tag,
+    this.onSwap,
   });
 }
 
@@ -62,6 +66,9 @@ class MatchScoreRow extends StatelessWidget {
   final bool compact;
   final VoidCallback? onTap;
 
+  /// Latar baris; kartu putih, atau paper untuk pratinjau di dalam sheet (17b).
+  final Color fill;
+
   const MatchScoreRow({
     super.key,
     required this.badge,
@@ -76,7 +83,11 @@ class MatchScoreRow extends StatelessWidget {
     this.cancelled = false,
     this.compact = false,
     this.onTap,
+    this.fill = MabarColors.card,
   });
+
+  /// Area ketuk ikon tukar per tim: 44 × 42 dari tepi strip court, separuh tinggi baris minimal (84).
+  static const _swapTapWidth = 44.0, _swapTapHeight = 42.0;
 
   /// Tinta 22% di atas warna court: teks putih 13 pt ≥ 5:1 di kesepuluh warna (langsung di warna court, 4 warna
   /// gagal 4,5:1).
@@ -135,11 +146,33 @@ class MatchScoreRow extends StatelessWidget {
         ),
       ),
     );
+    // Area ketuk tukar ditumpuk di atas baris: ketukan di sana tidak sampai ke InkWell, sisa baris tetap Input Skor.
+    Widget swapArea(MatchScoreSide side, {required bool top}) => Positioned(
+      left: badgeWidth,
+      top: top ? 0 : null,
+      bottom: top ? null : 0,
+      width: _swapTapWidth,
+      height: _swapTapHeight,
+      child: Semantics(
+        button: true,
+        label: 'Tukar pemain ${side.names.join(' · ')}',
+        child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: side.onSwap),
+      ),
+    );
     return Material(
-      color: MabarColors.card,
+      color: fill,
       borderRadius: BorderRadius.circular(MabarRadius.group),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(onTap: onTap, child: row),
+      child: InkWell(
+        onTap: onTap,
+        child: Stack(
+          children: [
+            row,
+            if (top.onSwap != null) swapArea(top, top: true),
+            if (bottom.onSwap != null) swapArea(bottom, top: false),
+          ],
+        ),
+      ),
     );
   }
 
@@ -158,17 +191,29 @@ class MatchScoreRow extends StatelessWidget {
       decorationColor: MabarColors.faint,
     );
     final items = <Widget>[
-      Container(
-        width: 7,
-        height: 7,
-        decoration: side.win && !cancelled
-            ? BoxDecoration(
-                color: MabarColors.ball,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0x660F1E2C), strokeAlign: BorderSide.strokeAlignOutside),
-              )
-            : null,
-      ),
+      if (side.onSwap != null)
+        // `.w.swap`: kolom tetap 7 pt dan ikon berpusat di titik bola, jadi nama tidak bergeser.
+        SizedBox(
+          width: 7,
+          height: 7,
+          child: OverflowBox(
+            maxWidth: 16,
+            maxHeight: 16,
+            child: ExcludeSemantics(child: Icon(MabarIcons.arrowsLeftRight, size: 16, color: MabarColors.court)),
+          ),
+        )
+      else
+        Container(
+          width: 7,
+          height: 7,
+          decoration: side.win && !cancelled
+              ? BoxDecoration(
+                  color: MabarColors.ball,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0x660F1E2C), strokeAlign: BorderSide.strokeAlignOutside),
+                )
+              : null,
+        ),
       Expanded(child: _TeamNames(side, name)),
       if (side.scores.isNotEmpty)
         Row(

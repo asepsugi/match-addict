@@ -9,6 +9,7 @@ import '../../core/widgets/mabar_controls.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../../services/schedule/endless_round_generator.dart';
+import '../../services/schedule/player_swap.dart';
 import '../live/live_score.dart';
 import '../live/live_view_controller.dart';
 import 'club_score_view.dart';
@@ -17,6 +18,7 @@ import 'mixed/manage_players_sheet.dart';
 import 'mixed/mexicano_guide_sheet.dart';
 import 'mixed/mixed_guide_sheet.dart';
 import 'mixed/resume_tournament_sheet.dart';
+import 'mixed/swap_player_sheet.dart';
 import 'schedule_widgets.dart';
 import 'sparing_providers.dart';
 import 'tournament_controller.dart';
@@ -155,6 +157,11 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
 
     void openScore(MatchGame m) => context.push('/score-input', extra: m.id);
 
+    // Ikon tukar: hanya di HP host dan hanya di tim yang punya kandidat (penonton tanpa aksi, AC-T14).
+    VoidCallback? swapAction(MatchGame m, Pair team) => !watching && PlayerSwap.canSwapTeam(active, m, team)
+        ? () => showSwapPlayerSheet(context, active: active, match: m, team: team, now: now)
+        : null;
+
     // Round terakhir: dari pemain aktif sekarang, dibagi menurut slot R(n+1). Round lewat: catatan saat
     // round itu dibuat.
     final List<Widget> resting;
@@ -268,6 +275,8 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
                       now: now,
                       onTap: watching ? null : () => openScore(m),
                       onFill: !watching && m.status == MatchStatus.pending ? () => openScore(m) : null,
+                      onSwapTop: swapAction(m, m.pair1),
+                      onSwapBottom: swapAction(m, m.pair2),
                     ),
                   ],
                   for (final list in resting) ...[const SizedBox(height: 16), list],

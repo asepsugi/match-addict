@@ -22,13 +22,17 @@ List<String> pairNames(ActiveTournament active, Pair pair) => [for (final id in 
 /// Satu match di Jadwal sebagai [MatchScoreRow]: strip court bernomor (42 pt), nama pasangan "Andi P · Budi S",
 /// skor / WO / Seri / "Tidak dimainkan". [onTap] null = tidak bisa diketuk (round terkunci, dibatalkan).
 /// [onFill] = tombol "Isi skor" untuk match yang belum diisi. Di round yang sedang berjalan strip-nya membawa sisa
-/// booking court itu pada [now].
+/// booking court itu pada [now]. [onSwapTop] / [onSwapBottom] = ikon tukar pemain di tim atas / bawah (null = tanpa
+/// ikon). [preview] = pratinjau di sheet Tukar pemain: tanpa hitung mundur, latar paper.
 class ScheduleMatchRow extends StatelessWidget {
   final ActiveTournament active;
   final MatchGame match;
   final DateTime now;
   final VoidCallback? onTap;
   final VoidCallback? onFill;
+  final VoidCallback? onSwapTop;
+  final VoidCallback? onSwapBottom;
+  final bool preview;
 
   const ScheduleMatchRow({
     super.key,
@@ -37,6 +41,9 @@ class ScheduleMatchRow extends StatelessWidget {
     required this.now,
     this.onTap,
     this.onFill,
+    this.onSwapTop,
+    this.onSwapBottom,
+    this.preview = false,
   });
 
   @override
@@ -45,7 +52,7 @@ class ScheduleMatchRow extends StatelessWidget {
     final court = active.courtById(match.courtId);
 
     final winner = match.winnerPairId;
-    MatchScoreSide side(Pair pair, int score) {
+    MatchScoreSide side(Pair pair, int score, VoidCallback? onSwap) {
       final names = pairNames(active, pair);
       return switch (match.status) {
         MatchStatus.done => MatchScoreSide(
@@ -59,7 +66,7 @@ class ScheduleMatchRow extends StatelessWidget {
           tag: match.woReason == null ? 'WO' : 'WO · ${match.woReason!.label}',
         ),
         MatchStatus.wo => MatchScoreSide(names: names, win: true),
-        _ => MatchScoreSide(names: names),
+        _ => MatchScoreSide(names: names, onSwap: onSwap),
       };
     }
 
@@ -69,11 +76,12 @@ class ScheduleMatchRow extends StatelessWidget {
       badge: '${courts.indexOf(court) + 1}',
       badgeColor: MabarColors.courtPalette[court.colorIndex],
       badgeWidth: 42,
-      countdown: match.roundNumber == active.runningRound
+      fill: preview ? MabarColors.paper : MabarColors.card,
+      countdown: !preview && match.roundNumber == active.runningRound
           ? countdownText(active.remainingBookingMinutes(court, now))
           : null,
-      top: side(match.pair1, match.pair1TotalGames),
-      bottom: side(match.pair2, match.pair2TotalGames),
+      top: side(match.pair1, match.pair1TotalGames, onSwapTop),
+      bottom: side(match.pair2, match.pair2TotalGames, onSwapBottom),
       cancelled: cancelled,
       note: cancelled ? 'Tidak dimainkan' : (draw ? 'Seri' : null),
       trailing: onFill == null ? null : MabarButton(label: 'Isi skor', small: true, onPressed: onFill),

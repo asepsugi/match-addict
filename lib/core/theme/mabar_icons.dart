@@ -116,6 +116,9 @@ class MabarIcons {
   /// `link` — link live di sheet Live score.
   static const link = IconData(0xe2e2, fontFamily: _family);
 
+  /// `arrows-left-right` — Tukar pemain (baris match Mixed).
+  static const arrowsLeftRight = IconData(0xe0a0, fontFamily: _family);
+
   /// `wifi-slash` — toast "Tidak ada internet".
   static const wifiSlash = IconData(0xe4f2, fontFamily: _family);
 }
