@@ -11,6 +11,31 @@ class MabarBall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => CustomPaint(size: Size.square(size), painter: const _BallPainter());
+
+  /// Menggambar bola yang sama langsung di [canvas] mengisi [rect] (persegi): untuk painter lain, mis. bola di atas
+  /// blok podium, supaya tidak ada salinan kedua dari gambar bola.
+  static void paint(Canvas canvas, Rect rect) {
+    canvas.save();
+    canvas.translate(rect.left, rect.top);
+    canvas.scale(rect.width / 48);
+    canvas.drawCircle(const Offset(24, 24), 21, Paint()..color = MabarColors.ball);
+    canvas.drawCircle(
+      const Offset(24, 24),
+      21,
+      Paint()
+        ..color = MabarColors.ballEdge
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+    final seam = Paint()
+      ..color = const Color(0xFFFFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(Path()..moveTo(6, 15)..cubicTo(14, 20, 20, 26, 20, 42), seam);
+    canvas.drawPath(Path()..moveTo(42, 33)..cubicTo(34, 28, 28, 22, 28, 6), seam);
+    canvas.restore();
+  }
 }
 
 /// `.live` — titik bola 7 pt bertepi 1 pt di luar: round yang sedang berjalan (tab), live score yang aktif
@@ -36,25 +61,7 @@ class _BallPainter extends CustomPainter {
   const _BallPainter();
 
   @override
-  void paint(Canvas canvas, Size size) {
-    canvas.scale(size.width / 48);
-    canvas.drawCircle(const Offset(24, 24), 21, Paint()..color = MabarColors.ball);
-    canvas.drawCircle(
-      const Offset(24, 24),
-      21,
-      Paint()
-        ..color = MabarColors.ballEdge
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
-    );
-    final seam = Paint()
-      ..color = const Color(0xFFFFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-    canvas.drawPath(Path()..moveTo(6, 15)..cubicTo(14, 20, 20, 26, 20, 42), seam);
-    canvas.drawPath(Path()..moveTo(42, 33)..cubicTo(34, 28, 28, 22, 28, 6), seam);
-  }
+  void paint(Canvas canvas, Size size) => MabarBall.paint(canvas, Offset.zero & size);
 
   @override
   bool shouldRepaint(_BallPainter oldDelegate) => false;
