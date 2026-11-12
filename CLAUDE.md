@@ -105,9 +105,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   03a–03q dan 16a–16g (artifact v77), spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode selesai. Semua usulan PM disetujui (keputusan 44–47).
 - Tukar pemain Mixed 3.5.0 (MINOR): PRD §15 + keputusan 48–59, hi-fi 17a–17r (ikon di kolom bola baris match), spec
   `logic.md` §15, task TP-n; rilis 3.5.0+19 live 2026-11-12 (dcff87f).
-- Poster podium Bagikan 3.6.0 (MINOR), branch `poster-podium`: Ringkas = ilustrasi podium sudut lapangan, PRD §5.9 +
-  keputusan 60–74, hi-fi 11a/11c/11d/13q/13r + 18a–18t (artifact v85), spec `logic.md` §16, task PP-n. Kode + golden
-  selesai (3.6.0+20), belum di-merge ke `main`; sisa QA Chrome + uji share di HP. Eksplorasi A/B/C: `design/explore/`.
+- Poster podium Bagikan 3.6.0 (MINOR): Ringkas = ilustrasi podium sudut lapangan, PRD §5.9 + keputusan 60–74, hi-fi
+  11a/11c/11d/13q/13r + 18a–18t (artifact v85), spec `logic.md` §16, task PP-n; rilis 3.6.0+20 live 2026-11-13
+  (8cbdfed). Sisa: uji share di HP (host). Eksplorasi A/B/C: `design/explore/`.
 
 ## Area docs
 
