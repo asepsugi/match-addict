@@ -63,6 +63,7 @@ COMPONENTS = [
     ('ModePicker', ['.modes', '.mode', '.modeart'], 'Kartu Fixed / Mixed.'),
     ('CourtColorPicker', ['.swatches', '.swatch', '.dot'], 'Lingkaran warna court.'),
     ('SharePoster', ['.poster', '.themes', '.theme', '.poster-pair'], 'Kartu/gambar Bagikan dan pemilih tema.'),
+    ('PodiumPoster (PodiumScenePainter)', ['.podium'], 'Poster Ringkas: ilustrasi podium sudut lapangan (Feed · Story · kartu) + panel nama.'),
     ('InstallStep', ['.install-step'], 'Langkah pasang di iPhone.'),
     ('ClubScore', ['.clubscore'], 'Skor klub Sparing: dua baris (bola · nama · Total Point · selisih · match menang), klub pertama di atas.'),
     ('LiveTag', ['.livetag'], 'Tag "Live" / "Offline" pengganti ⋯ di Jadwal penonton.'),

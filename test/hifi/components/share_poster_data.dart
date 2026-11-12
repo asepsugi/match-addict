@@ -6,13 +6,6 @@ import 'package:match_addict/features/share/widgets/share_poster.dart';
 
 /// (frame, urutan poster di frame) → baris poster.
 const posterRows = <(String, int), List<SharePosterRow>>{
-  ('11a', 0): [
-    SharePosterRow(position: 1, names: ['Andi Pratama'], value: '42', detail: 'poin', diff: '+12'),
-    SharePosterRow(position: 1, names: ['Dewant Rahman'], value: '42', detail: 'poin', diff: '+12'),
-    SharePosterRow(position: 2, names: ['Hana Taslim'], value: '36', detail: 'poin', diff: '0'),
-    SharePosterRow(position: 3, names: ['Fajar Kurnia'], value: '30', detail: 'poin', diff: '−12'),
-    SharePosterRow(position: 4, names: ['Gina Rosalia'], value: '27', detail: 'poin', diff: '+6'),
-  ],
   ('11b', 0): [
     SharePosterRow(position: 1, names: ['Indra Wijaya', 'Joko Susilo'], value: '52', detail: 'game', diff: '+18'),
     SharePosterRow(position: 2, names: ['Kiki Amalia', 'Lina Marlina'], value: '49', detail: 'game', diff: '+16'),
@@ -24,20 +17,6 @@ const posterRows = <(String, int), List<SharePosterRow>>{
     SharePosterRow(position: 8, names: ['Rizky Hidayat', 'Sari Dewi'], value: '34', detail: 'game', diff: '−10'),
     SharePosterRow(position: 9, names: ['Tono Basuki', 'Umar Faruq'], value: '33', detail: 'game', diff: '−14'),
     SharePosterRow(position: 10, names: ['Gina Rosalia', 'Hana Taslim'], value: '24', detail: 'game', diff: '−30'),
-  ],
-  ('11d', 0): [
-    SharePosterRow(position: 1, names: ['Andi Pratama'], value: '52', detail: 'poin', diff: '+10'),
-    SharePosterRow(position: 2, names: ['Dewant Rahman'], value: '47', detail: 'poin', diff: '+3'),
-    SharePosterRow(position: 3, names: ['Hana Taslim'], value: '45', detail: 'poin', diff: '0'),
-    SharePosterRow(position: 4, names: ['Gina Rosalia'], value: '41', detail: 'poin', diff: '−6'),
-    SharePosterRow(position: 5, names: ['Citra Lestari'], value: '38', detail: 'poin', diff: '−10'),
-  ],
-  ('11d', 1): [
-    SharePosterRow(position: 1, names: ['Andi Pratama'], value: '52', diff: '+10'),
-    SharePosterRow(position: 2, names: ['Dewant Rahman'], value: '47', diff: '+3'),
-    SharePosterRow(position: 3, names: ['Hana Taslim'], value: '45', diff: '0'),
-    SharePosterRow(position: 4, names: ['Gina Rosalia'], value: '41', diff: '−6'),
-    SharePosterRow(position: 5, names: ['Citra Lestari'], value: '38', diff: '−10'),
   ],
   ('11e', 0): [
     SharePosterRow(position: 1, names: ['Andi Pratama'], value: '81', diff: '+22'),

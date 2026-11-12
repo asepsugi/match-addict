@@ -8,7 +8,7 @@
 Judul rata kiri + subjudul fakta, tombol kembali, aksi kanan.
 
 Kelas hi-fi: `.appbar`, `.large-title`  
-Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07a, 07b, 07c, 07d, 07e, 07f, 07g, 07h, 07i, 07j, 07k, 07l, 07m, 07n, 07o, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 10a, 10b, 10c, 10d, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12j, 12k, 12l, 12m, 12n, 12o, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14q, 14r, 14v, 14w, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15q, 15r, 15s, 15t, 15u, 15v, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r
+Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07a, 07b, 07c, 07d, 07e, 07f, 07g, 07h, 07i, 07j, 07k, 07l, 07m, 07n, 07o, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 10a, 10b, 10c, 10d, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12j, 12k, 12l, 12m, 12n, 12o, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14q, 14r, 14v, 14w, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15q, 15r, 15s, 15t, 15u, 15v, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r, 18a, 18b
 
 ```css
 .appbar { display: flex; align-items: center; gap: 6px; padding: 54px 12px 12px 6px; }
@@ -26,7 +26,7 @@ Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03
 Varian primary · ball · secondary · danger · ghost · wait · off · sm.
 
 Kelas hi-fi: `.btn`  
-Dipakai di frame: 01a, 01b, 01c, 01d, 01e, 01f, 01h, 01i, 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07a, 07b, 07c, 07d, 07e, 07f, 07g, 07h, 07i, 07j, 07k, 07l, 07m, 07n, 07o, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12l, 12m, 12n, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14q, 14r, 14x, 14y, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15q, 15r, 15s, 15t, 15w, 15x, 15y, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r
+Dipakai di frame: 01a, 01b, 01c, 01d, 01e, 01f, 01h, 01i, 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07a, 07b, 07c, 07d, 07e, 07f, 07g, 07h, 07i, 07j, 07k, 07l, 07m, 07n, 07o, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12l, 12m, 12n, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14q, 14r, 14x, 14y, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15q, 15r, 15s, 15t, 15w, 15x, 15y, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r, 18a, 18b
 
 ```css
 .btn { height: 52px; min-height: 52px; border-radius: 12px; padding: 0 20px; font: 700 16px/1 var(--f); display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; flex: 1; min-width: 0; white-space: nowrap; }
@@ -64,7 +64,7 @@ Dipakai di frame: 01h, 02a, 02b, 02c, 02d, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 06
 Tombol ikon 44 pt (52 di action bar), opsional angka kecil.
 
 Kelas hi-fi: `.icbtn`  
-Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07a, 07b, 07c, 07d, 07e, 07f, 07g, 07h, 07i, 07j, 07k, 07l, 07m, 07n, 07o, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 10a, 10b, 10c, 10d, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12j, 12k, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14q, 14r, 14v, 14w, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15q, 15r, 15s, 15t, 15u, 15v, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r
+Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07a, 07b, 07c, 07d, 07e, 07f, 07g, 07h, 07i, 07j, 07k, 07l, 07m, 07n, 07o, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 10a, 10b, 10c, 10d, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12j, 12k, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14q, 14r, 14v, 14w, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15q, 15r, 15s, 15t, 15u, 15v, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r, 18a, 18b
 
 ```css
 .icbtn { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--ink-2); background: transparent; border: 0; padding: 0; position: relative; flex: none; }
@@ -90,7 +90,7 @@ Dipakai di frame: 04f, 04g, 08a, 08b, 14o, 15l, 15m, 16f, 16g
 Bilah tombol menempel di bawah, garis tipis di atas, safe area 34.
 
 Kelas hi-fi: `.actionbar`  
-Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12l, 12m, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15s, 15t, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r
+Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06v, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12l, 12m, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15s, 15t, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 17r, 18a, 18b
 
 ```css
 .actionbar { margin-top: auto; padding: 12px 16px 34px; display: flex; gap: 10px; background: var(--paper); border-top: 1px solid var(--line); flex: none; }
@@ -104,7 +104,7 @@ Dipakai di frame: 02a, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03
 Daftar bergaya pengaturan + label dan catatan grup.
 
 Kelas hi-fi: `.group`, `.row`, `.glabel`, `.gnote`  
-Dipakai di frame: 01a, 01b, 01c, 01i, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07j, 10a, 10b, 10c, 10d, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12k, 12l, 12m, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14r, 14v, 14w, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15r, 15s, 15t, 15u, 15v, 15x, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q
+Dipakai di frame: 01a, 01b, 01c, 01i, 02b, 02c, 02d, 03a, 03b, 03c, 03d, 03e, 03f, 03g, 03h, 03i, 03j, 03k, 03l, 03m, 03n, 03o, 03p, 03q, 04a, 04b, 04c, 04d, 04e, 04f, 04g, 04h, 06a, 06b, 06c, 06d, 06e, 06w, 06x, 06y, 06z, 06f, 06g, 06h, 06i, 06j, 06k, 06l, 06m, 06n, 06o, 06p, 06q, 06r, 06s, 06t, 06u, 08a, 08b, 08c, 08d, 08e, 08f, 08g, 08h, 08i, 08j, 08k, 07j, 10a, 10b, 10c, 10d, 11a, 11b, 11c, 11e, 11h, 11i, 12a, 12b, 12c, 12d, 12e, 12f, 12g, 12h, 12i, 12k, 12l, 12m, 13b, 13c, 13d, 13e, 13f, 13g, 13h, 13i, 13j, 13k, 13l, 13m, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14f, 14g, 14h, 14i, 14j, 14k, 14l, 14m, 14n, 14o, 14p, 14s, 14t, 14u, 14r, 14v, 14w, 15a, 15b, 15c, 15d, 15e, 15f, 15g, 15h, 15i, 15j, 15k, 15l, 15m, 15n, 15o, 15p, 15r, 15s, 15t, 15u, 15v, 15x, 16a, 16b, 16c, 16d, 16e, 16f, 16g, 17a, 17b, 17c, 17d, 17e, 17f, 17g, 17h, 17i, 17j, 17k, 17l, 17m, 17n, 17o, 17p, 17q, 18a, 18b
 
 ```css
 .glabel { font-size: 13px; font-weight: 700; color: var(--ink-3); padding: 0 4px; margin-bottom: -8px; }
@@ -148,7 +148,7 @@ Dipakai di frame: 04a, 04b, 04c, 04d, 04e, 04f, 04g, 06a, 06b, 06c, 06d, 06e, 06
 Pilihan segmented.
 
 Kelas hi-fi: `.seg`, `.seg-wrap`  
-Dipakai di frame: 02a, 02b, 02c, 02d, 03d, 03f, 03m, 03p, 04a, 04b, 04c, 04d, 04e, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 11a, 11b, 11c, 11e, 11h, 11i, 12j, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14p, 14s, 14t, 14u, 15s, 15t
+Dipakai di frame: 02a, 02b, 02c, 02d, 03d, 03f, 03m, 03p, 04a, 04b, 04c, 04d, 04e, 09a, 09b, 09c, 09d, 09e, 09f, 09g, 11a, 11b, 11c, 11e, 11h, 11i, 12j, 13a, 13b, 13c, 13d, 13e, 13f, 13g, 13n, 13o, 13p, 13q, 13s, 13u, 14a, 14b, 14c, 14d, 14e, 14p, 14s, 14t, 14u, 15s, 15t, 18a, 18b
 
 ```css
 .seg { display: flex; background: var(--fill); border-radius: 10px; padding: 3px; gap: 2px; }
@@ -559,7 +559,7 @@ Dipakai di frame: 03g, 03i, 03j, 03k, 03n, 04h, 06w, 06x, 06y, 06z, 08c, 08d, 08
 Kartu/gambar Bagikan dan pemilih tema.
 
 Kelas hi-fi: `.poster`, `.themes`, `.theme`, `.poster-pair`  
-Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 13q, 13r, 13s, 13t, 13u, 13v, 13w
+Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 13q, 13r, 13s, 13t, 13u, 13v, 13w, 18a, 18b, 18c, 18d, 18e, 18f, 18g, 18h, 18i, 18j, 18k, 18l, 18m, 18n, 18o, 18p, 18q, 18r, 18s, 18t
 
 ```css
 .poster { position: relative; overflow: hidden; color: var(--pink, #fff); font-family: var(--f); border-radius: 14px; flex: none; }
@@ -590,6 +590,9 @@ Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 13
 .theme { width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); display: grid; place-items: center; }
 .theme.on { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); }
 .poster-pair { display: flex; gap: 14px; align-items: flex-start; line-height: 1.4; }
+.poster-pair.wrap { flex-wrap: wrap; max-width: 1108px; }
+.themes.fit { flex-wrap: nowrap; align-items: center; min-height: 30px; }
+.themes.fit .theme { width: 27px; height: 27px; flex: none; }
 .poster .pscore { margin-top: 8px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
 .poster .pscore .ps { display: grid; grid-template-columns: minmax(0, 1fr) auto 30px; gap: 8px; align-items: center; height: 26px; border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
 .poster .pscore .ps .nm { font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -601,6 +604,62 @@ Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 13
 .poster .pclub + .prow { border-top: 0; }
 .poster .cols.clubs { grid-auto-flow: row; grid-template-rows: minmax(0, 1fr); }
 .poster .cols.clubs > div { display: grid; grid-template-rows: auto repeat(var(--k), minmax(0, 1fr)); min-width: 0; min-height: 0; }
+```
+
+## `PodiumPoster (PodiumScenePainter)`
+
+Poster Ringkas: ilustrasi podium sudut lapangan (Feed · Story · kartu) + panel nama.
+
+Kelas hi-fi: `.podium`  
+Dipakai di frame: 11a, 11c, 11d, 13q, 13r, 18a, 18b, 18c, 18d, 18e, 18f, 18g, 18h, 18i, 18j, 18k, 18l, 18m, 18n, 18o, 18p, 18q, 18r, 18s, 18t
+
+```css
+.podium { position: relative; overflow: hidden; width: 360px; flex: none; border-radius: 4px; font-family: var(--f); color: var(--hfg, #fff); line-height: 1.2; font-variant-numeric: tabular-nums; text-align: left; }
+.podium.feed { height: 360px; }
+.podium.story { height: 640px; }
+.podium.card { width: 358px; height: 372px; border-radius: 14px; }
+.podium.card .ppanel { left: 13px; right: 13px; }
+.podium .scene { position: absolute; inset: 0; display: block; }
+.podium .phead { position: absolute; left: 22px; right: 22px; top: 22px; }
+.podium .ptitle { font-size: 22px; font-weight: 800; font-stretch: 95%; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.podium .ptitle.two { font-size: 18.5px; }
+.podium .psub { margin-top: 4px; font-size: 12.5px; font-weight: 700; }
+.podium .ppanel { position: absolute; left: 14px; right: 14px; bottom: 14px; background: rgba(var(--panel, 15,30,44), .86); color: var(--pfg, #fff); border-radius: 14px; padding: 6px 12px 0; }
+.podium .prank { height: 26px; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; border-bottom: 1px solid var(--pline); }
+.podium.duo .prank { height: 36px; }
+.podium .pos { font-size: 16px; line-height: 1; justify-self: start; }
+.podium .pos::before { content: "#"; color: var(--psub); }
+.podium .pos.sc::before { content: none; }
+.podium .prank.gold .pos { background: #E3B341; color: #0F1E2C; padding: .08em .3em; margin-left: -.3em; border-radius: .35em; }
+.podium .prank.gold .pos::before { color: inherit; opacity: .75; }
+.podium .who { font-size: var(--nm, 14px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium .who2 { font-size: var(--nm, 13px); font-weight: 600; line-height: 1.18; min-width: 0; }
+.podium .who2 span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium .prank.gold .who, .podium .prank.gold .who2 { font-weight: 800; }
+.podium .val { white-space: nowrap; display: flex; align-items: baseline; gap: 4px; }
+.podium .val b { font-size: 18px; line-height: 1; }
+.podium .val small { font-size: 10.5px; font-weight: 600; color: var(--psub); }
+.podium .psig { height: 26px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.podium .wmk { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; font-stretch: 125%; line-height: 1; white-space: nowrap; }
+.podium .wmk svg { width: 13px; height: 13px; display: block; flex: none; }
+.podium .facts { min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--psub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium.story .phead { top: 98px; }
+.podium.story .ptitle { font-size: 27px; }
+.podium.story .ptitle.two { font-size: 23px; }
+.podium.story .psub { margin-top: 6px; font-size: 15px; }
+.podium.story .ppanel { bottom: 84px; }
+.podium.story .prank { height: 42px; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; }
+.podium.story.duo .prank { height: 54px; }
+.podium.story .pos { font-size: 21px; }
+.podium.story .who { font-size: var(--nm, 18px); }
+.podium.story .who2 { font-size: var(--nm, 17px); }
+.podium.story .val b { font-size: 24px; }
+.podium.story .val small { font-size: 12.5px; }
+.podium.story .psig { height: 34px; }
+.podium .safe { display: none; }
+.doc .podium .safe { display: block; position: absolute; left: 0; right: 0; height: 84px; pointer-events: none; background: repeating-linear-gradient(135deg, transparent 0 7px, rgba(127,127,127,.32) 7px 8px); }
+.doc .podium .safe.t { top: 0; border-bottom: 1px dashed var(--hfg, #fff); }
+.doc .podium .safe.b { bottom: 0; border-top: 1px dashed var(--hfg, #fff); }
 ```
 
 ## `InstallStep`

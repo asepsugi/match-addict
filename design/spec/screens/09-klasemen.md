@@ -81,4 +81,4 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Data 04f–04h: R1–R14 round-robin, lalu R15–R16 dengan Andi P + Rizky H; Budi S pulang setelah R14.
 - Pasangan yang selalu main bersama tetap satu baris (dua nama ditumpuk). Pemain yang pasangannya berubah, pemain yang tidak ikut lagi, dan pemain pengganti tampil sendiri dengan angkanya masing-masing (keputusan host 2026-11-03). Semua baris memakai nilai per pemain yang sama, jadi urutannya tetap sebanding.
 - Budi S main 7 (tertinggal satu match) dan Rizky H baru 1: Total Point mereka tertinggal, Win % lebih adil. Itu konsekuensi yang sudah diterima host.
-- Sama di Detail (10d), poster Bagikan (pasangan tetap satu baris; kalau barisnya campuran "+n lainnya" di Ringkas dan "Semua n" di catatan Lengkap, tanpa kata pasangan/pemain), caption, dan halaman live.
+- Sama di Detail (10d), poster Bagikan (pasangan tetap satu baris; kalau barisnya campuran "Semua n" di catatan Lengkap dan baris fakta podium tanpa hitungan pasangan/pemain, 18l), caption, dan halaman live.

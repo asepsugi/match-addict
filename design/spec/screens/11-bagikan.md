@@ -4,19 +4,20 @@
 
 Kartu pratinjau, pilihan tema dan format, lalu dua gambar (Feed 1:1 dan Story 9:16) dibagikan lewat share sheet sistem dengan teks hasil sebagai caption.
 
-## 11a · Ringkas · tema biru · bernama
+## 11a · Ringkas · podium · tema lapangan · bernama
 
 ![11a](../../frames/11a.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Baru: subjudul dan judul kartu mengikuti status sebenarnya ("sementara" / "akhir"). Sekarang badge FINAL di-hardcode.
-- Wordmark + bola menggantikan "MABAR TURNAMEN · PADEL". Piala tetap (ikon, bukan emoji) berwarna bola di tema gelap, tinta tema di tema lembut. Watermark raket mengikuti olahraga (padel diputar 20°).
-- Nilai per baris = nilai metode + selisih, sama dengan dua kolom terakhir Klasemen: Total Point → "42 poin · +12"; Win % → "100% · +12". Gambar dua kolom dan Story tanpa satuan: "42 · +12". Selisih menjelaskan kenapa poin yang sama bernomor beda (Hana 36 · 0); poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan (#1, #1, #2). Nama lengkap, terpotong elipsis.
-- 10 tema; default biru (dulu hijau). Pilihan tema & format tidak disimpan.
-- "Selesai" memindahkan turnamen ke slot terakhir lalu ke Beranda (stack di-reset), tanpa konfirmasi. Footer "Hasil turnamen tersimpan otomatis" dihapus.
-- Turnamen bernama: nama menggantikan "PADEL · MIXED · 21 OKT 2026" di baris kecil di atas judul (kapital, gaya sama, maks dua baris) dan tanggal pindah ke ringkasan bawah, sama dengan baris akhir caption. Olahraga terbaca dari watermark, Fixed/Mixed dari isi daftar. Tanpa nama: baris kecil tetap "olahraga · mode · tanggal" (11b, 11e).
-- Caption: baris pertama "🏆 {nama} · Padel"; tanpa nama "🏆 Match Addict · Padel".
+- Ringkas = poster podium (keputusan host 60, 2026-11-12), menggantikan daftar 5 teratas + "+n pemain lainnya". Kartu pratinjau memakai ukuran gambar Feed di 358 × 372; rincian komponen di Komponen → `.podium`, semua varian di 18a–18t.
+- Yang naik = tiga baris teratas Klasemen (keputusan 65). Data frame ini tetap (Americano 24, 11 pemain, R3 lengkap): Andi dan Dewant sama-sama #1 (42 · +12) → dua blok emas sama tinggi, dua lencana emas (keputusan 64); Hana #2. Fajar (#3) tidak naik karena nomornya beda dengan baris ketiga.
+- Turnamen bernama: nama jadi judul, "Klasemen sementara · tanggal" di bawahnya, olahraga di depan baris fakta. Tanpa nama: 11c. Piala dan watermark raket tidak dipakai di podium; olahraga terbaca dari warna lantai.
+- Nilai per baris = nilai metode + selisih dengan satuan: Total Point "42 poin · +12", Win % "100% · +19" (keputusan 63). Fakta Sementara "R3 · 6 dari 6 match" (pola subjudul Klasemen), Final "4 round · 8 match" (11d); Fixed menulis "pasangan"; WO ikut kalau ada.
+- Deret tema di Ringkas: lapangan (bawaan, lantai ikut olahraga turnamen) + 10 gradien = 11 pilihan dalam satu baris, lingkaran 27 pt (keputusan 66). Lapangan hanya untuk podium: di Lengkap deret tetap 10 gradien, dan selama pilihannya lapangan Lengkap memakai biru (11b, 11e). Memilih gradien berlaku untuk kedua format (18b). Pilihan tema & format tidak disimpan.
+- Keterangan di bawah tab: "Podium · gambar Feed 1:1 & Story 9:16".
+- "Selesai" memindahkan turnamen ke slot terakhir lalu ke Beranda (stack di-reset), tanpa konfirmasi.
+- Caption tidak berubah: baris pertama "🏆 {nama} · Padel"; tanpa nama "🏆 Match Addict · Padel".
 
 ## 11b · Lengkap · Fixed 20 pemain (10 pasangan) · tema peach
 
@@ -33,23 +34,27 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 ![11c](../../frames/11c.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarToast`, `SharePoster`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarToast`, `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
 - Saat merender dua poster, tombol mati dengan teks "Menyiapkan gambar…" (ketukan ganda diabaikan). Frame ini menggambar momen sesudahnya: tombol aktif lagi dan toast tampil (keputusan host 2026-10-22).
 - Toast selalu 19 pt di atas action bar, seperti posisi bawaannya. Di sini action bar berisi dua tombol (161 pt), jadi bawah toast di 180 pt; posisi bawaan 118 pt untuk action bar satu tombol akan menutupi "Bagikan hasil" (keputusan host 2026-10-22).
 - Kalau share sheet gagal (desktop/web tertentu), caption disalin ke clipboard dan muncul toast "Hasil disalin". Tidak ada tombol salin terpisah.
 - Caption: semua baris peringkat; format Lengkap menambah "Hasil per Round". Baru: satuan "game"/"poin" mengikuti metode skor.
+- Tanpa nama turnamen (data 11a): judul "Klasemen sementara", baris kecil "olahraga · mode · tanggal", baris fakta tanpa olahraga.
 
-## 11d · Gambar yang dibagikan · Feed 1080×1080 dan Story 1080×1920 (skala 1:3) · nama 40 karakter
+## 11d · Gambar Ringkas (podium) · Feed 1080×1080 dan Story 1080×1920 (skala 1:3) · nama 40 karakter
 
 ![11d](../../frames/11d.png)
 
-Komponen: `SharePoster`
+Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Baris membagi tinggi yang tersisa sama rata, jadi daftar selalu mengisi poster; baris mengecil kalau banyak (format Lengkap). Ukuran huruf dan margin per gambar ada di preset komponen `SharePoster` (`SharePosterTarget` pratinjau / Feed / Story).
+- Feed 360 × 360 dan Story 360 × 640, keduanya diekspor ×3. Story podium tidak memakai kanvas 203 × 360 poster Lengkap (11f); ukuran per target ada di Komponen → `.podium`.
+- Nama terpanjang (40 karakter): dua baris dengan huruf 18,5 di Feed dan 23 di Story. Di Story blok turun dari 178 / 128 / 86 ke 160 / 115 / 77 supaya bola #1 berjarak 12 dari baris kecil (aturan batas tinggi); di Feed tinggi blok tetap.
+- Satuan ditulis di Feed dan Story: "52 poin · +10" (keputusan 63); aturan lama "Story tanpa satuan" hanya untuk Lengkap.
+- Baris fakta "Padel · 10 pemain · 4 round · 8 match · 1 WO" lebih lebar dari sisa baris kaki, jadi hurufnya dikecilkan dari 10,5 ke 9,3 sampai muat; fakta tidak pernah terpotong.
+- Story: semua teks di antara 250 px atas dan bawah (arsiran = zona UI Instagram, tidak ikut ke gambar). Lantai menerus sampai tepi bawah.
 - File: `match-addict-feed-1080x1080.png`, `match-addict-story-1080x1920.png`, dibagikan bersamaan lewat `Share.shareXFiles`.
 - Render poster di test wajib memuat font Archivo (`loadHifiFonts()`), jangan percaya font Ahem.
-- Nama terpanjang (40 karakter): Feed satu baris, Story dua baris; daftar di bawahnya berbagi tinggi yang tersisa.
 
 ## 11e · Lengkap · Mixed 20 pemain · tema biru
 

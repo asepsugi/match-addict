@@ -173,30 +173,30 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Win % data 13C: PB Garuda #1 Eko · Fajar 100 · #2 Andi · Budi 67 · #3 Citra · Dewi 33 (+3) · #4 Gita · Hadi 33 (−2); Matcha Club #1 Maya · Nanda 75 · #2 Kiki · Lina 50 · #3 Indra · Joko 0 (AC-S17).
 - Posisi gulir paling atas (tabel Matcha berlanjut di bawah action bar).
 
-## 13q · Bagikan sparing · Ringkas · tema biru
+## 13q · Bagikan sparing · Ringkas · podium skor klub
 
 ![13q](../../frames/13q.png)
 
-Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Poster dibuka dengan skor klub (K7): di bawah judul "Klasemen akhir", dua baris klub (klub pertama di atas) dengan Total Point klub · selisih dan jumlah match menang. Tanpa bola: warna bola tidak terbaca di tema lembut; yang unggul terbaca dari angkanya.
-- Ringkas = 3 teratas tiap klub (dikonfirmasi host). Tiap klub diawali label klub gaya baris kecil poster; "+n pasangan lainnya" di ujung label klub yang terpotong (Garuda 4 pasangan → +1), klub yang tampil semua tanpa tambahan. Tiap klub punya #1 sendiri, jadi dua lencana emas.
-- Baris memakai ukuran huruf poster Lengkap (11b) dan berbagi tinggi yang tersisa; nilai = metode + selisih seperti 11a. Pasangan ditulis "Eko + Fajar".
-- Tanpa nama turnamen: baris kecil "olahraga · mode · tanggal" seperti 11c; dengan nama: nama di baris kecil, tanggal pindah ke kaki (11a). Ringkasan kaki menulis WO seperti 11d.
+- Ringkas sparing = podium skor klub (keputusan host 62, 2026-11-12): dua blok, angka di muka blok = skor klub (match menang, seri ½). Tanpa bola dan tanpa daftar pemain; perorangan hanya di Lengkap (13s). Menggantikan "3 teratas tiap klub".
+- Klub pertama selalu blok kiri dan baris atas panel (S4). Klub yang unggul (K2: match menang → Total Point klub) emas dan setinggi #1, klub lain setinggi #2. Klub kedua unggul: 18n; Seri: 18o; skor ½: 18p.
+- Panel: lencana kiri menulis skor klub tanpa "#", lalu nama klub dan Total Point klub · selisih ("56 game · +13"). Fakta "7 pasangan · 6 round · 12 match · 1 WO"; Mixed sparing menulis "14 pemain".
+- Sama untuk Fixed dan Mixed sparing. Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "olahraga · mode · tanggal"; bernama: seperti 11a. Deret tema dan keterangan seperti 11a.
 - Caption (Ringkas; Lengkap menambah "Hasil per Round"): `🏆 PB Garuda 7–5 Matcha Club · Padel` `4 November 2026` `Klasemen Akhir · PB Garuda` `1. Eko + Fajar — 18 game · 100.0% (3-0, +11 game)` `2. Andi + Budi — 14 game · 66.7% (2-1, +1 game)` `3. Gita + Hadi — 14 game · 33.3% (1-2, -2 game)` `4. Citra + Dewi — 10 game · 33.3% (1-2, +3 game)` `Klasemen Akhir · Matcha Club` `1. Maya + Nanda — 23 game · 75.0% (3-1, +4 game)` `2. Kiki + Lina — 16 game · 50.0% (2-2, -3 game)` `3. Indra + Joko — 10 game · 0.0% (0-4, -14 game)` `6 round · 12 match · 1 WO · 4 Nov 2026`
 - Caption: baris pertama skor klub menggantikan "🏆 {nama} · Padel"; turnamen bernama → nama di baris kedua sebelum tanggal ("Mabar Jumat"). Seri: "🏆 PB Garuda 6½–5½ Matcha Club" atau "… 6–6 … · Seri" kalau Total Point juga sama.
 
-## 13r · Gambar Ringkas · Fixed sparing · Feed dan Story (skala 1:3)
+## 13r · Gambar Ringkas (podium) · Fixed sparing · Feed dan Story (skala 1:3)
 
 ![13r](../../frames/13r.png)
 
-Komponen: `SharePoster`
+Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Isi sama dengan 13q (data 13C Final, tema biru, tanpa nama): skor klub, lalu 3 teratas tiap klub. "+1 pasangan lainnya" ada di ujung label PB Garuda, jadi kaki hanya menulis ringkasan (di 11d "+n lainnya" ada di kaki).
-- Skor klub (`.pscore`) di Feed sama dengan pratinjau: baris 26, nama klub 16/800, Total Point · selisih 11/600, skor 24, kolom skor 30, jarak 8. Story ×0,75: baris 20, nama 12, Total Point 8,5, skor 18, kolom 22, jarak 6. Skor klub termasuk bagian kepala seperti judul, jadi tidak pernah ikut dikecilkan.
-- Label klub (`.pclub`) di Feed sama dengan pratinjau: tinggi 18 (padding bawah 2), nama klub 10,5/700 kapital, "+n" 11,5/500. Story: tinggi 14, nama 8, "+n" 8,5 (sama dengan kaki Story). Nama klub panjang terpotong elipsis, "+n" tidak pernah terpotong.
-- Baris memakai ukuran Lengkap satu kolom target itu, sama seperti 13q memakai ukuran 11b: Feed 12/14/14 (11g) dengan satuan ("18 game · +11"); Story nama pasangan ditumpuk 9,5/11/11 (11g), tanpa satuan. Ringkas tidak pernah dikecilkan (maks 3 per klub).
-- Wordmark, baris kecil, judul, dan kaki per target sama dengan 11d (Ringkas: bola Feed jarak 8, bola Story 15 jarak 6). Jarak sesudah skor klub 2, kaki 8, di semua target.
+- Isi sama dengan 13q (data 13C Final, tema lapangan, tanpa nama): PB Garuda 7 – 5 Matcha Club.
+- Blok memakai tinggi tunggal dan lebar dua anak tangga: Feed 96 dan 68, lebar 101; Story 178 dan 128, lebar 124. Angka di muka blok 0,656 × tinggi blok.
+- Baris panel tunggal (Feed 26, Story 42); lencana skor klub seukuran nomor (16, Story 21).
+- Ukuran skor klub dan label klub poster Lengkap (`.pscore`, `.pclub`) tidak berubah: 13t dan Cakupan → "Gambar poster sparing".
+- File dan cara berbagi sama dengan 11d.
 
 ## 13s · Bagikan sparing · Lengkap · Fixed 4 + 3 pasangan
 
