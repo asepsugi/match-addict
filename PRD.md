@@ -446,6 +446,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 | 2.0 | Redesain v2 + format skor Race to/Best of/Americano + WO per format + perbaikan logika (`logic.md`) | Sedang dikerjakan |
 | Berikutnya | Rilis Play Store (keystore sendiri), history banyak turnamen, multi-device | Belum |
 | Backlog | Turnamen grup + babak gugur (Fixed): pasangan dibagi n grup, tiap grup di court sendiri saling bertemu, top-n tiap grup lanjut ke perempat final / semifinal / final (host memilih babak awal). Diusulkan host 2026-11-12, ditunda | Belum |
+| Backlog | Monetisasi: buka ke publik, login Google (hanya untuk membuka fitur berbayar; app tetap jalan offline tanpa login), langganan per host, histori pertandingan milik host. Web/PWA dulu → Play Store → iOS kalau Android ramai. Usulan fitur terkunci: tambah pemain/jam/court setelah turnamen mulai, Sparing, Live Score, pilihan Total Point. Arah teknis: Firebase (Auth + Firestore + Functions), pembayaran Midtrans QRIS bayar di muka per periode. Dibahas host 2026-11-12, belum diputuskan | Belum |
 
 ---
 
