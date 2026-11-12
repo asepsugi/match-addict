@@ -79,7 +79,8 @@ redesain + format skor + data app lama tidak dimuat); 2.2.0 Kelola court; 2.3.0 
 pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda); 3.1.0 (MINOR) = round tambahan Fixed
 + atur ulang pasangan; 3.2.0 (MINOR) = Sparing (dua klub, Fixed & Mixed) + versi app di Beranda; 3.3.0 (MINOR) = default metode
 Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
-3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`).
+3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
+Konfigurasi diringkas (pengaturan terakhir per olahraga).
 
 ## Status
 
@@ -99,9 +100,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Android/iOS/web, PWA offline, deploy GitHub Pages — `docs/infra.md`. Release Android masih debug key.
 - Sparing 3.2.0 (2 klub, partner sesama klub, lawan klub lain; Fixed & Mixed) — PRD §13, `docs/architecture.md` →
   Sparing, `docs/data.md` → Sparing. Rilis 3.2.0+14 live 2026-11-11 (564ea67). 3.3.0–3.3.2 sudah di `main` dan live (8af509b).
-- Mexicano + Konfigurasi diringkas (rencana 3.4.0, MINOR; branch `mexicano`): PRD §14 + keputusan 23–43, hi-fi 03a–03q
-  dan 16a–16g disetujui host 2026-11-11; spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode
-  MX-0…MX-2 + KF-1 selesai di branch (golden 03a–03q, 16a–16g hijau), tinggal MX-3 rilis.
+- Mexicano + Konfigurasi diringkas 3.4.0 (MINOR; branch `mexicano`, belum di-merge): PRD §14 + keputusan 23–43, hi-fi
+  03a–03q dan 16a–16g (artifact v77), spec `design/spec/logic.md` §14, task MX-n/KF-n di `docs/tasks.md`; kode selesai,
+  merge ke `main` atas perintah host. Usulan PM U3, U4, U7, U8 (PRD 14.11) masih menunggu konfirmasi host.
 
 ## Area docs
 

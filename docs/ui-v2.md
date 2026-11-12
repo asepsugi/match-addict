@@ -51,7 +51,8 @@ hi-fi baru, bukan teks versi lama.
 
 - Layar: `expectMatchesHifi(tester, layar, '<id frame>')` di `test/hifi/hifi_golden.dart` membandingkan render Flutter
   dengan `design/frames/<id>.png` (2x, Archivo dimuat; gagal → `build/hifi_diff/`). Golden semua frame + perilaku per
-  alur di `test/hifi/screens/<alur>_test.dart`.
+  alur di `test/hifi/screens/<alur>_test.dart` (Konfigurasi 03a–03q di `konfigurasi_test.dart`, Mexicano 16a–16g di
+  `mexicano_test.dart`).
 - Pembungkus layar `hifiScreen(...)` di `test/hifi/screens/screen_harness.dart` (tema, safe area 47/34, override
   provider). Golden dialog/sheet/ketikan/gulir memakai `expectMatchesHifi(..., act: (tester) async {...})`.
 - Golden yang butuh turnamen berjalan meng-override `tournamentProvider` dengan controller yang `build()`-nya

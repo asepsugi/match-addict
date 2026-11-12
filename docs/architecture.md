@@ -126,7 +126,7 @@ cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). S
 - **Provider** (`features/schedule/sparing_providers.dart`): `clubScoreProvider`, `clubStandingEntriesProvider`,
   `playerClubPositionProvider` ("Peringkat n · {klub}" di Detail); null/kosong untuk turnamen biasa.
 
-## Mexicano (3.4.0, spec — belum diimplementasi)
+## Mexicano (3.4.0)
 
 Mode ketiga: siapa main = prioritas main Mixed apa adanya, yang main dikelompokkan berempat per court menurut Total
 Point → selisih → undian (PRD §14, aturan + data test `design/spec/logic.md` §14, task `docs/tasks.md`). Mesin Mixed

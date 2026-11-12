@@ -1,8 +1,8 @@
 # PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
 **Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
-ada di hi-fi; Mexicano (§14) diputuskan host 2026-11-11 (keputusan 23–27, aturan rinci usulan PM menunggu konfirmasi),
-rencana app 3.4.0, belum ada di hi-fi
+ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–43; U3, U4, U7, U8
+menunggu konfirmasi), app 3.4.0, hi-fi 03a–03q dan 16a–16g
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -292,7 +292,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Toolbar: Tempel, Contoh (hanya saat kosong), Hapus semua. Hasil = daftar bernomor dua kolom.
 - Lanjut aktif untuk 4–30 pemain (Fixed dan Mixed).
 
-### 5.3 Konfigurasi (03a–03e)
+### 5.3 Konfigurasi (03a–03q)
 - Nama turnamen opsional paling atas (maks 40 karakter, dipangkas; kosong = tanpa nama). Hanya diisi di sini, tidak
   bisa diubah setelah turnamen dibuat.
 - Mode Fixed/Mixed (Mexicano: 14.2), format skor (4.1), durasi match (stepper ±5), jumlah court 1–10, per court nama/warna (10 warna
@@ -913,8 +913,8 @@ Jawaban host berikutnya (2026-11-04):
 ## 14. Mexicano — Pasangan dari Klasemen
 
 > **Diputuskan host 2026-11-11** (keputusan 23–27, §10), rencana rilis **3.4.0 (MINOR)**. Aturan rinci di bagian ini
-> yang tidak tertulis di keputusan itu adalah **usulan PM** (14.11, U1–U9) dan menunggu konfirmasi host. Belum ada di
-> hi-fi. Fixed, Mixed, dan Sparing tidak berubah.
+> yang tidak tertulis di keputusan itu adalah **usulan PM** (14.11); yang masih menunggu konfirmasi host: U3, U4, U7, U8.
+> Hi-fi 03a–03q, 16a–16g (keputusan 28–43). Fixed, Mixed, dan Sparing tidak berubah.
 
 Mexicano adalah **cara memasangkan pemain**, bukan format skor. Round 1 diundi; round berikutnya pemain diurutkan
 menurut klasemen saat itu dan dikelompokkan berempat per court menurut peringkat yang berdekatan, jadi pemain kuat
