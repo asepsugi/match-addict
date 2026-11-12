@@ -5,7 +5,8 @@ Ditulis tangan (bukan hasil `tool/hifi_extract.py`). Setiap butir mengubah `lib/
 saling menguatkan.
 
 **Status: §1–§14 sudah diimplementasi di model/service dan ter-test** (§13 Sparing = 3.2.0; §14 Mexicano +
-Konfigurasi diringkas = 3.4.0, task MX-n / KF-n di `docs/tasks.md`).
+Konfigurasi diringkas = 3.4.0, task MX-n / KF-n di riwayat git `docs/tasks.md`). **§15 Tukar pemain (3.5.0) = spec,
+belum diimplementasi** (task TP-n di `docs/tasks.md`).
 Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor
@@ -752,3 +753,220 @@ acak, cepat):
    bukan saat Konfigurasi ditinggalkan (Fixed bisa batal di Pasangan).
 10. Sheet Skor Mexicano tanpa segmented: mengetuk Mixed/Fixed sesudahnya menampilkan segmented lagi dengan Americano
     terpilih (format tidak kembali).
+
+## 15. Tukar pemain · Mixed (3.5.0)
+
+PRD §15 (aturan T1–T10, contoh 15A/15B/15C, tabel 15.4, AC-T1…T17), keputusan 48–59 (§10), frame 17a–17r
+(`screens/17-tukar-pemain-mixed.md`) + ikon di frame Jadwal lama (daftar di TP-2). Fixed, Mexicano, dan turnamen tanpa
+tukar tidak berubah sedikit pun. Angka di bagian ini dicek tech-lead 2026-11-12 dengan hitung tangan dari aturan
+`priorityOrder` (§5): semuanya cocok dengan PRD 15A/15B/15C dan catatan 17a–17r.
+
+### 15.1 Bentuk perubahan (tanpa model, kunci, atau `schemaVersion` baru)
+
+Tukar = satu `ActiveTournament` baru yang hanya berbeda di dua tempat:
+1. **Satu match** M (round terakhir n, `pending`): pemain keluar P diganti pemain masuk Q **di slot yang sama**
+   (`pair1`/`pair2` dan `player1Id`/`player2Id` tetap posisinya). Id pasangan yang berubah dihitung ulang dari
+   pemainnya (`EndlessRoundGenerator.pairId(player1Id, player2Id)`, kunci yang sama dengan `_pairOf`), supaya tukar
+   balik menghasilkan match yang identik. `id`, `roundNumber`, `matchNumberInRound`, `courtId`, `status`, `sets`
+   tetap; pasangan lawan objek yang sama.
+2. **`restingPlayerIdsByRound[n]`**: Q diganti P **di indeks Q** (urutan daftar tetap, tukar balik identik); Q tidak
+   ada di daftar (pemain baru setelah Rn dibuat, pemain yang dikembalikan) → P ditambahkan di akhir. Round lain tidak
+   disentuh.
+
+Tidak berubah: `config` (pemain, court, klub), `withdrawnPlayerIds`, `extraPutaran`, `byePairIdByRound`,
+`restingPairIdsByRound`, match lain, `tournament.id`/`createdAt`/`isFinished`. `TournamentCodec` **tidak diubah**:
+`resting` dibaca tanpa memeriksa isinya (`tournament_codec.dart:97-100`), dan cek sparing hanya klub pasangan
+(`:125-137`), yang tetap benar karena Q sesama klub P. Jadi simpanan/payload 3.5.0 berisi tukar terbaca 3.4.x apa
+adanya (kodenya sama), simpanan 3.4.x terbaca 3.5.0 apa adanya → **MINOR**, `schemaVersion` tetap 2, tanpa penanda.
+Relay tidak diubah. DBA tidak perlu task; baris riwayat di `docs/data.md` ditulis saat rilis (TP-3).
+
+### 15.2 Service (`lib/services/schedule/player_swap.dart`, baru, Dart murni)
+
+```dart
+/// Tukar pemain Mixed (PRD §15). Semua fungsi total: input tidak sah → false / kosong / null, tidak melempar.
+abstract final class PlayerSwap {
+  /// T1 + T2: [match] bisa ditukar. `config.mode == PartnerMode.mixed` (BUKAN `isEndless`: Mexicano dikunci,
+  /// keputusan 52; Fixed tidak berlaku, 53), `!tournament.isFinished`, `match.roundNumber == roundCount`,
+  /// `match.status == MatchStatus.pending`. Tidak melihat waktu booking (15.4: waktu habis tetap boleh).
+  static bool isSwappable(ActiveTournament active, MatchGame match);
+
+  /// T4: [inId] boleh masuk menggantikan pemain tim [team]: pemain aktif (bukan `withdrawnPlayerIds`), tidak main
+  /// di round n, dan di sparing klubnya = klub [team] (keputusan 51). Tidak bergantung jam.
+  static bool isCandidate(ActiveTournament active, Pair team, String inId);
+
+  /// Ikon tim: `isSwappable(match) && team ∈ {match.pair1, match.pair2} && ada ≥ 1 kandidat`. Tidak butuh jam.
+  static bool canSwapTeam(ActiveTournament active, MatchGame match, Pair team);
+
+  /// Kandidat untuk sheet, dibagi dan diurut **sama persis** dengan daftar Istirahat Jadwal pada [now]:
+  /// biasa = `EndlessRoundGenerator.restingAfterLastRound(active, now)`; sparing = entri klub [team] dari
+  /// `restingByClubAfterLastRound(active, now)`. Kosong kalau `!isSwappable`. Tidak menghitung ulang apa pun.
+  static ({List<Player> priority, List<Player> later}) candidates(
+      ActiveTournament active, MatchGame match, Pair team, DateTime now);
+
+  /// T3: [match] dengan [inId] di slot [outId] (id pasangan dihitung ulang). Dipakai pratinjau sheet DAN [apply],
+  /// supaya pratinjau = hasil. [outId] tidak ada di match → [match] apa adanya.
+  static MatchGame swapped(MatchGame match, {required String outId, required String inId});
+
+  /// T3 + T5: turnamen setelah tukar (15.1), atau null kalau tidak sah: match tidak ada / `!isSwappable`, [outId]
+  /// bukan pemain match itu, `!isCandidate(team berisi outId, inId)`, `outId == inId`.
+  static ActiveTournament? apply(ActiveTournament active,
+      {required String matchId, required String outId, required String inId});
+}
+```
+
+- [outId] **boleh** pemain yang sudah dikeluarkan (keputusan 54): dia tetap dicatat di `resting[n]`, tidak tampil di
+  daftar Istirahat (dihitung dari pemain aktif), tidak menjadi kandidat.
+- [inId] **boleh** pemain yang ditambah setelah Rn dibuat (keputusan 55): dia aktif dan tidak main di round n.
+- `EndlessRoundGenerator.pairId(String a, String b)` = satu baris publik yang meneruskan `_pairKey`; tidak ada
+  perubahan lain di generator.
+
+**Controller** (`TournamentController.swapPlayer`, `features/schedule/tournament_controller.dart`):
+
+```dart
+/// Tukar pemain Mixed (PRD §15). False = tidak sah, state tidak berubah.
+bool swapPlayer({required String matchId, required String outId, required String inId}) {
+  final current = state;
+  final next = current == null ? null : PlayerSwap.apply(current, matchId: matchId, outId: outId, inId: inId);
+  if (next == null) return false;
+  state = next; // simpan lokal + live ikut dari sini
+  return true;
+}
+```
+
+Tanpa `saveActive`, tanpa kirim live, tanpa `clockProvider` (tukar tidak bergantung jam).
+
+### 15.3 Invariant (wajib di test)
+
+Untuk setiap tukar sah dari keadaan A ke B, n = `A.roundCount`:
+1. **Satu match.** Tepat satu match berbeda (id sama, posisi di `matches` sama); match lain identik. Di match itu Q
+   tepat di slot P, tiga pemain lain di slot semula, id/court/nomor/status/sets tetap.
+2. **Satu orang satu tempat per round.** Di round n tiap pemain paling banyak satu kali di semua match + `resting[n]`;
+   `resting[n] ∩ main(n) = ∅`. (Berlaku juga setelah tukar beruntun dan setelah Kelola court.)
+3. **Daftar istirahat.** `B.resting[n]` = `A.resting[n]` dengan Q diganti P di indeks Q, atau + P di akhir.
+4. **Tanpa kehilangan kehadiran.** `B.latePlayerIds ⊆ A.latePlayerIds`; sama persis kecuali Q absen di round n
+   (pemain baru/dikembalikan) — kalau n = 1 dia keluar dari daftar telat (AC-T12). P aktif tidak pernah masuk
+   `latePlayerIds` karena tukar (AC-T6).
+5. **Sparing.** `clubOf(Q) == clubOf(P)`; S2 (partner sesama klub) dan S4 (`pair1` klub pertama) tetap.
+6. **Tukar balik = identik.** `apply(apply(A, M, P→Q), M, Q→P)` ter-encode **byte-sama** dengan A
+   (`TournamentCodec.encode`, T9/AC-T5). Berlaku untuk pasangan buatan generator (id = `pairId`), yaitu semua Mixed.
+7. **Daftar = Buat (T6).** Setelah tukar, himpunan `restingAfterLastRound(B, now).priority` ⊆ pemain yang dipilih
+   `generateRound(n+1)` pada `now` yang sama, dan `.later` ∩ pilihan = ∅ (sama dengan AC-S11 untuk sparing).
+8. **Tidak sah = tidak berubah.** `apply` null dan `swapPlayer` false: match Selesai/WO/Tidak dimainkan, round < n,
+   turnamen diakhiri, Fixed, Mexicano, Q main di round n, Q dikeluarkan, Q klub lain, P bukan di match, P == Q.
+9. **Ikon ⇔ kandidat.** `canSwapTeam` == (`candidates(now)` tidak kosong) untuk `now` apa pun (ikon tidak pernah
+   membuka sheet kosong).
+
+Tidak ada invariant fairness baru (keputusan 50): selisih main boleh jadi 2 karena tukar (T7, 15B). Test properti
+fairness yang ada (`mixed_priority_test`, `sparing_mixed_*`, `mexicano_property_test`) tidak memakai tukar dan harus
+lulus tanpa diubah.
+
+### 15.4 Data test (= PRD 15.3 = frame; Padel, Americano 21, 15 menit, 2 court × 2 jam; id pemain = nama)
+
+**Fixture dasar 15A/15B** (literal, bukan generator): R1 C1 Andi·Citra vs Budi·Dewi, C2 Eko·Gita vs Fajar·Hadi,
+istirahat Indra, Joko · R2 C1 Andi·Gita vs Fajar·Eko, C2 Budi·Indra vs Dewi·Joko, istirahat Citra, Hadi · R3 C1
+Citra·Indra vs Hadi·Joko, C2 Dewi·Eko vs Fajar·Gita, istirahat Andi, Budi. R1–R2 terisi (skor sah apa pun), R3: 15A
+C1 12–9 & C2 Belum (17a), 15B keduanya Belum (17f). Jam 17a: sisa 01:20 → 40 menit sejak mulai.
+
+**Undian.** Daftar istirahat yang tampil (Andi, Budi / Andi, Dewi / Citra, Andi) tidak bergantung undian, jadi golden
+cukup fixture di atas. Yang bergantung undian hanya "Buat R3/R4". Test level controller memakai undian terkunci asli,
+jadi **id turnamen fixture dicari sekali** (pola `t-court-329705`, tulis alasannya di komentar) supaya:
+- R3: `lockedDraw(10 id, seed, 3)` menaruh Andi dan Budi di dua nilai terbesar di antara Andi, Budi, Dewi, Eko, Fajar,
+  Gita (AC-T9: Batalkan R3 → Buat R3 → Andi, Budi istirahat lagi);
+- R4: draw Gita dan Fajar < draw Eko < draw Budi dan Dewi (= undian PRD "Gita, Fajar, Andi, Joko, Eko, Citra, Budi,
+  Hadi, Dewi, Indra" untuk pemain yang seri).
+Peluang ±1/450 per id; skrip pencari dibuang setelah id ketemu. Test level service boleh menyuntik
+`draw: drawOf([...])` ke `priorityOrder` (§14.2).
+
+| AC | Langkah | Hasil yang diharapkan |
+|---|---|---|
+| AC-T2 | 15A: `swapPlayer(m-r3-2, Dewi → Budi)` | R3 C2 Budi·Eko vs Fajar·Gita, Budi = `pair1.player1Id`; id `m-r3-2`, court, nomor sama; `pair1.id` = `pairId(Budi, Eko)`; C1 tidak berubah dan `isSwappable(C1)` false (skor) |
+| AC-T3 | lanjutan | `resting[3]` = [Andi, Dewi]; Jadwal: Prioritas main di R4 = Andi, Dewi, `later` kosong; jumlah main Andi 2, Budi 3, Dewi 2; Buat R4 → istirahat {Eko, Budi}, Andi dan Dewi main |
+| AC-T5 | lanjutan: `swapPlayer(m-r3-2, Budi → Dewi)` | encode byte-sama dengan sebelum tukar pertama; Buat R4 → istirahat {Eko, Dewi} |
+| AC-T7 | 15B: `swapPlayer(m-r3-1, Citra → Budi)` | C1 Budi·Indra vs Hadi·Joko (Budi·Indra pernah partner di R2, tetap sah); Prioritas main di R4 = {Citra, Andi} (himpunan; urutan tampil lihat 15.7), main: Citra 1; Andi, Hadi, Indra, Joko 2; Budi, Dewi, Eko, Fajar, Gita 3; Buat R4 → istirahat {Budi, Dewi}; lalu R5, R6 (skor apa pun, undian apa pun): min/maks/selisih = R4 2/4/2, R5 3/5/2, R6 4/5/1 (tabel 15B) |
+| AC-T9 | 15A sebelum skor C1: tukar Dewi → Budi, `cancelLastRound`, `generateNextRound` | `resting[3]` = {Andi, Budi}, Dewi main; pasangan **tidak** di-assert (acak, lihat 15.6) |
+| AC-T6 | 15A dan 15B setelah tukar | `latePlayerIds` kosong. Juga: 10 pemain / 2 court, R1, tukar P keluar, Buat R2 → P main di R2 (0 main, prioritas teratas) dan `latePlayerIds` kosong setelah R2 |
+
+"Buat R(n+1)" di semua tabel = setelah semua match round n diisi (skor sah apa pun; skor tidak memengaruhi siapa main
+di Mixed) dan dengan `clockProvider` di-override ke jam yang court-nya masih muat.
+
+**15C Sparing** (fixture `sparing_mixed_fixture.dart`, R4 generator 13B = latar 15b/17k): R4 C1 Budi·Hadi vs
+Lina·Nanda, C2 Andi·Dewi vs Indra·Kiki; istirahat Garuda Citra, Eko, Fajar, Gita; Matcha Joko, Maya.
+
+| AC | Langkah | Hasil |
+|---|---|---|
+| AC-T8 | `candidates(C2, Indra·Kiki)` / `(C2, Andi·Dewi)` | {Joko, Maya} / {Citra, Eko, Fajar, Gita}; `isCandidate(Indra·Kiki, Citra)` false, `apply(Kiki → Citra)` null |
+| AC-T8 | `swapPlayer(C2, Kiki → Maya)` | C2 Andi·Dewi vs Indra·Maya; `restingByClubAfterLastRound`: Matcha {Joko, Kiki}, Garuda tidak berubah; S2/S4 lolos `_isValidSparing` (encode → decode tidak null) |
+| AC-T8 | Garuda 4 / Matcha 6, 2 court, R1 (17n) | tim Garuda `canSwapTeam` false, tim Matcha true, kandidat Matcha = 2 yang istirahat |
+
+**Lain-lain**
+
+| AC | Data | Hasil |
+|---|---|---|
+| AC-T1 | 15A C1 (skor), C2 setelah WO, tab R2, `finishNow`, mode Fixed, mode Mexicano (fixture 14B R2), 8 pemain / 2 court R2 | `canSwapTeam` false semua; `swapPlayer` false dan state `identical` |
+| AC-T10 | (a) 12 pemain / 2 court, R2 berjalan (4 istirahat), tukar P → Q di Court 2, `addCourt` Court 3 | match baru Court 3 = 4 yang istirahat **termasuk P**; `resting[2]` kosong |
+| AC-T10 | (b) 14 pemain / 2 court, R2 berjalan (6 istirahat), `addCourt` Court 3 (langsung main, 2 tersisa), tukar P → Q di match Court 3, `removeCourt(Court 3)` | Q dan tiga pemain Court 3 lainnya kembali ke `resting[2]`, P tetap di sana; `resting[2]` 6 orang tanpa duplikat. (Court 2 tidak bisa dihapus: punya match R1 selesai, `canRemoveCourt`) |
+| AC-T11 | 9 pemain / 2 court (Andi…Indra), R1, Hadi di C2 dikeluarkan, tukar Hadi → Indra | Indra main; `resting[1]` berisi Hadi, daftar Istirahat tampil tanpa Hadi; `reinstatePlayer(Hadi)` sebelum Buat R2 → `latePlayerIds` kosong, Hadi tampil di Istirahat |
+| AC-T12 | 9 pemain / 2 court, R1 (Indra istirahat), `addPlayer(Joko)`, tukar Hadi (aktif) → Joko | `latePlayerIds` kosong (sebelum tukar = {Joko}); Prioritas main di R2 = Hadi, Indra; Buat R2 → Hadi dan Indra main |
+| AC-T13 | 15A setelah tukar: encode → decode | match + `resting` sama; Buat R4 → istirahat {Eko, Budi} (sama dengan tanpa kill). `finishNow` → `isSwappable` false; `resume` → C2 `pending` lagi, `canSwapTeam` true |
+| AC-T15 | 15A setelah tukar, isi C2 15–6 | `RankingCalculator.rank`: Budi 3 match, Dewi 2; Total Point Budi +15, Dewi tidak berubah; teks share/caption tanpa kata "tukar"/"ditukar" |
+| AC-T16 | literal 3.4.0 payload (fixture codec yang ada) | decode → encode byte-sama (tes yang ada lulus tanpa diubah); `git diff main -- lib/services/storage/` kosong |
+
+**Properti** (`test/services/player_swap_property_test.dart`, suite biasa, cepat): ukuran 9/2, 10/2, 12/2, 14/3, 30/4,
+sparing 8/6 dan 4/6 di 2 court; 12 round; tiap round Random berseed memilih 0–2 tukar sah acak (dari
+`canSwapTeam` + `candidates`) sebelum skor diisi, kadang tukar balik → invariant 15.3 #1–#5, #7, #9 setelah tiap tukar,
+#6 untuk tukar balik. Tidak meng-assert selisih main.
+
+### 15.5 Layar (ringkas; rincian visual di `screens/17-tukar-pemain-mixed.md`)
+
+- `MatchScoreRow` (`core/widgets/match_score_row.dart`): `MatchScoreSide` mendapat aksi tukar opsional (null = tanpa
+  ikon). Ikon `MabarIcons.arrowsLeftRight` (Phosphor Bold `arrows-left-right`, codepoint dari `style.css`
+  `@phosphor-icons/web@2.1.1`, sama dengan konstanta lain) 16 pt `--court`, berpusat di titik kolom bola 7 pt (nama
+  tidak bergeser); area ketuk 44 × 42 dari tepi strip court, separuh atas/bawah baris; label aksesibilitas
+  "Tukar pemain {nama · nama}". Komponen tidak tahu aturan tukar.
+- `ScheduleMatchRow` meneruskan dua callback; `schedule_mixed_screen.dart` mengisinya hanya kalau `!watching &&
+  PlayerSwap.canSwapTeam(active, m, pair)`. Penonton live (`watching`) tidak pernah dapat ikon; host dengan live aktif
+  dapat.
+- Sheet baru `features/schedule/mixed/swap_player_sheet.dart` (`showMabarSheet`, pola sheet WO): judul "Tukar pemain",
+  subjudul "Round n · Court c" (+ " · {klub}" sparing), pratinjau = `MatchScoreRow` tanpa hitung mundur/ikon/Isi skor
+  dari `PlayerSwap.swapped` setelah dua pilihan (sebelumnya match apa adanya), grup "Diganti" (dua pemain tim, urut
+  baris), grup kandidat dari `PlayerSwap.candidates` dengan label `RestingList` yang sama ("Istirahat · Prioritas main
+  di R(n+1)" / "Istirahat lagi di R(n+1)"), `MabarChip` dua kolom; satu pilihan di Diganti, satu pilihan lintas grup
+  kandidat, ketuk ulang = lepas. "Tukar" (ikon + label) mati sampai dua pilihan → `swapPlayer` → tutup sheet, tanpa
+  dialog/toast. Batal, scrim, geser, back → tanpa perubahan.
+
+### 15.6 Jebakan untuk engineer dan reviewer
+
+1. **Mexicano dikunci**: syaratnya `mode == PartnerMode.mixed`, bukan `isEndless` (kebalikan jebakan §14.7 #5). Test
+   AC-T1 Mexicano wajib.
+2. **Tanpa undi ulang**: `apply` tidak memanggil generator, `_bestArrangement`, atau `Random`; hanya mengganti satu id.
+3. **Id pasangan dihitung ulang** dengan `pairId`, slot pemain tidak diurut ulang (Budi di slot Dewi tetap
+   `player1Id` walau `pairId` mengurutkan nama). Lupa → tukar balik tidak byte-sama (AC-T5); mengurutkan slot → nama
+   di baris berpindah sisi.
+4. **`resting[n]`** diganti di indeks, P tidak pernah dobel, P yang dikeluarkan **tidak** disaring (TU1) — kalau
+   disaring, Kembalikan sebelum Buat R(n+1) membuat P jadi pemain telat (AC-T11 gagal).
+5. **Kandidat hanya dari `restingAfterLastRound` / `restingByClubAfterLastRound`** (label dan urutan = Jadwal). Widget
+   tidak menyaring pemain, tidak menghitung prioritas, tidak menukar pemain sendiri untuk pratinjau (`swapped`).
+6. **Jangan menyentuh** `latePlayerIds`, `withdrawnPlayerIds`, `config`, codec, relay. `git diff` TP-1 di
+   `lib/services/storage/` dan `relay/` harus kosong.
+7. **`Random()` tanpa seed di Mixed**: `generateRound` dan `courtMatch` mengacak pasangan, jadi Batalkan + Buat (AC-T9)
+   dan Buat R4 setelah tukar balik (AC-T5) hanya sama di **siapa main/istirahat**, bukan pasangannya. Test
+   membandingkan himpunan pemain; kesamaan penuh (AC-T5, AC-T13) dibuktikan lewat encode state, bukan lewat round
+   yang dibuat ulang. Jangan menambah parameter `random` ke controller hanya untuk test.
+8. **Status `pending`**, bukan "tanpa skor": WO tidak punya `sets` tapi bukan pending; `finishNow` mengubah pending
+   jadi `cancelled`, `resume` mengembalikannya (AC-T13).
+9. **Golden 2% bisa lolos tanpa ikon** (16 pt × beberapa baris): tiap golden Jadwal yang disentuh TP-2 juga
+   meng-assert jumlah ikon dengan finder (17a 2, 17f 4, 17n 2, 17r 0, 06m 0, 06t 0, 16b 0, 12h 0, 06a 0).
+10. Frame lama yang sekarang berikon digambar ulang oleh designer; kalau fixture golden-nya menurut aturan **tidak**
+    boleh berikon (atau sebaliknya), berhenti dan laporkan (aturan `CLAUDE.md`: frame vs catatan → tanya host), jangan
+    mengubah fixture supaya cocok.
+
+### 15.7 Pertanyaan terbuka (ditemukan tech-lead 2026-11-12, belum dijawab host)
+
+- **Urutan nama di daftar Istirahat 17h.** Frame 17h, catatannya, dan PRD 15B menulis "Prioritas main di R4: Citra,
+  Andi (Citra lebih dulu, 1 main)" = urutan prioritas. Aturan yang sudah disetujui (`screens/06-jadwal-mixed.md`
+  baris 112 "urut seperti daftar pemain", catatan 15a/17m) dan kode (`restingAfterLastRound`, urut `activePlayers`)
+  menghasilkan "Andi, Citra". Frame lain di §15 tidak terpengaruh (17a/17e/17p sama di kedua aturan).
+  **Asumsi sementara:** aturan lama tetap (tidak ada perubahan perilaku Jadwal); test logika meng-assert himpunan;
+  golden 17h ditahan (`skip` dengan alasan) sampai host menjawab. **Rekomendasi:** tetap urut daftar pemain, 17h +
+  catatannya + kalimat PRD 15B dibetulkan designer/PM jadi "Andi, Citra" (tanpa keputusan baru, hanya koreksi data
+  contoh).
