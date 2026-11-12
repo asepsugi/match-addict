@@ -57,7 +57,8 @@ Sebelum TP-2 sampai di 17h, main session menanyakan `logic.md` §15.7 ke host (u
   (`swapPlayer` saja). **Tidak** menyentuh `models.dart`, codec, relay, layar.
 - **Test baru:** `test/services/player_swap_fixture.dart` (fixture 15A/15B literal dengan id turnamen hasil pencarian
   undian §15.4 + komentar alasan; skrip pencari dihapus), `test/services/player_swap_test.dart` (AC-T1, T2, T3, T5,
-  T6, T7, T8, T9, T10 a/b, T11, T12, T13, T15, T16 bagian `git diff`; invariant §15.3 #8 per alasan tolak),
+  T6, T7, T8, T9, T10 a/b, T11, T12, T13, T15; invariant §15.3 #8 per alasan tolak; AC-T16 `git diff` dicek reviewer,
+  bukan di test),
   `test/services/player_swap_property_test.dart` (§15.4 Properti, suite biasa, < 10 detik).
 - **Acceptance:** semua baris tabel §15.4 hijau di level service/controller; Buat setelah Batalkan/tukar balik hanya
   dibandingkan sebagai himpunan pemain (§15.6 #7); kesamaan penuh lewat `TournamentCodec.encode` byte-sama; test lama

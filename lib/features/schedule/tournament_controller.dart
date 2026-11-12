@@ -7,6 +7,7 @@ import '../../models/models.dart';
 import '../../services/pairing/player_name_parser.dart';
 import '../../services/ranking/ranking_calculator.dart';
 import '../../services/schedule/endless_round_generator.dart';
+import '../../services/schedule/player_swap.dart';
 import '../../services/schedule/round_robin_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
 import '../../services/storage/last_settings.dart';
@@ -271,6 +272,15 @@ class TournamentController extends Notifier<ActiveTournament?> {
               n: [...?next.restingPlayerIdsByRound[n], ...freed],
             },
     );
+    return true;
+  }
+
+  /// Tukar pemain Mixed (PRD §15). False = tidak sah, state tidak berubah.
+  bool swapPlayer({required String matchId, required String outId, required String inId}) {
+    final current = state;
+    final next = current == null ? null : PlayerSwap.apply(current, matchId: matchId, outId: outId, inId: inId);
+    if (next == null) return false;
+    state = next; // simpan lokal + live ikut dari sini
     return true;
   }
 

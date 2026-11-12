@@ -843,9 +843,10 @@ Untuk setiap tukar sah dari keadaan A ke B, n = `A.roundCount`:
 2. **Satu orang satu tempat per round.** Di round n tiap pemain paling banyak satu kali di semua match + `resting[n]`;
    `resting[n] ∩ main(n) = ∅`. (Berlaku juga setelah tukar beruntun dan setelah Kelola court.)
 3. **Daftar istirahat.** `B.resting[n]` = `A.resting[n]` dengan Q diganti P di indeks Q, atau + P di akhir.
-4. **Tanpa kehilangan kehadiran.** `B.latePlayerIds ⊆ A.latePlayerIds`; sama persis kecuali Q absen di round n
-   (pemain baru/dikembalikan) — kalau n = 1 dia keluar dari daftar telat (AC-T12). P aktif tidak pernah masuk
-   `latePlayerIds` karena tukar (AC-T6).
+4. **Tanpa kehilangan kehadiran.** `B.latePlayerIds ⊆ A.latePlayerIds`; sama persis kecuali Q keluar dari daftar
+   telat **tepat** kalau round n satu-satunya round yang dia lewatkan (pemain baru setelah R1 dibuat di n = 1, AC-T12;
+   atau dikembalikan setelah hanya Rn dibuat tanpa dia). Q yang juga absen di round sebelumnya tetap telat (definisi
+   `latePlayerIds` = absen di round mana pun). P aktif tidak pernah masuk `latePlayerIds` karena tukar (AC-T6).
 5. **Sparing.** `clubOf(Q) == clubOf(P)`; S2 (partner sesama klub) dan S4 (`pair1` klub pertama) tetap.
 6. **Tukar balik = identik.** `apply(apply(A, M, P→Q), M, Q→P)` ter-encode **byte-sama** dengan A
    (`TournamentCodec.encode`, T9/AC-T5). Berlaku untuk pasangan buatan generator (id = `pairId`), yaitu semua Mixed.
@@ -909,7 +910,7 @@ Lina·Nanda, C2 Andi·Dewi vs Indra·Kiki; istirahat Garuda Citra, Eko, Fajar, G
 | AC-T12 | 9 pemain / 2 court, R1 (Indra istirahat), `addPlayer(Joko)`, tukar Hadi (aktif) → Joko | `latePlayerIds` kosong (sebelum tukar = {Joko}); Prioritas main di R2 = Hadi, Indra; Buat R2 → Hadi dan Indra main |
 | AC-T13 | 15A setelah tukar: encode → decode | match + `resting` sama; Buat R4 → istirahat {Eko, Budi} (sama dengan tanpa kill). `finishNow` → `isSwappable` false; `resume` → C2 `pending` lagi, `canSwapTeam` true |
 | AC-T15 | 15A setelah tukar, isi C2 15–6 | `RankingCalculator.rank`: Budi 3 match, Dewi 2; Total Point Budi +15, Dewi tidak berubah; teks share/caption tanpa kata "tukar"/"ditukar" |
-| AC-T16 | literal 3.4.0 payload (fixture codec yang ada) | decode → encode byte-sama (tes yang ada lulus tanpa diubah); `git diff main -- lib/services/storage/` kosong |
+| AC-T16 | literal 3.4.0 payload (fixture codec yang ada) | decode → encode byte-sama (tes yang ada lulus tanpa diubah). `git diff` kosong di `lib/services/storage/`, `lib/models/`, `relay/` dicek reviewer, **bukan** di unit test (CI checkout tanpa branch `main`; perubahan sah di masa depan akan menggagalkannya) |
 
 **Properti** (`test/services/player_swap_property_test.dart`, suite biasa, cepat): ukuran 9/2, 10/2, 12/2, 14/3, 30/4,
 sparing 8/6 dan 4/6 di 2 court; 12 round; tiap round Random berseed memilih 0–2 tukar sah acak (dari

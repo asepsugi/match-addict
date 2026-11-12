@@ -611,6 +611,10 @@ class EndlessRoundGenerator {
 
   static Pair _pairOf(Player a, Player b) => Pair(id: _pairKey(a.id, b.id), player1Id: a.id, player2Id: b.id);
 
+  /// Id pasangan Mixed dari dua pemainnya (urutan argumen tidak berpengaruh); dipakai tukar pemain untuk menghitung
+  /// ulang id pasangan yang berubah dengan kunci yang sama persis seperti generator.
+  static String pairId(String a, String b) => _pairKey(a, b);
+
   static String _pairKey(String a, String b) => (a.compareTo(b) <= 0) ? '$a+$b' : '$b+$a';
 }
 
