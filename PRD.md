@@ -1,7 +1,8 @@
 # PRD — Match Addict, Aplikasi Mabar Tennis/Padel (Klub/Komunitas)
 
 **Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
-ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–47), app 3.4.0, hi-fi 03a–03q dan 16a–16g
+ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–47), app 3.4.0, hi-fi 03a–03q dan 16a–16g;
+Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–57), rencana app 3.5.0, belum ada di hi-fi
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -148,7 +149,8 @@ function generateNextRound(activePlayers, history, courts, round):
 - `drawSeed` = FNV-1a dari id turnamen. Karena undian dikunci, daftar "Istirahat · Prioritas main di R(n+1)" yang
   tampil di Jadwal selalu sama dengan hasil Buat R(n+1).
 - **Properti fairness:** selisih jumlah main antar pemain yang hadir sejak awal ≤ 1 setiap saat; yang istirahat
-  diprioritaskan di round berikutnya.
+  diprioritaskan di round berikutnya. Tukar pemain oleh host (§15) bisa membuatnya 2 sementara; prioritas yang sama
+  memulihkannya.
 - **Pemain telat menyusul** (keputusan host 2026-10-25): pemain baru/kembali (absen di salah satu round yang sudah
   dibuat) paling sedikit main, jadi diprioritaskan, tapi istirahat 1 round setelah main k round beruntun supaya tidak
   main terus. k = 2, atau satu lebih dari ritme pemain lain kalau 2 belum cukup untuk menyusul (12 pemain / 2 court:
@@ -315,6 +317,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   (dialog).
   Fixed yang sudah diakhiri tidak punya item menu lagi: ikon ⋯ tampil pudar dan tidak bisa diketuk.
 - Mixed: Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen.
+- Mixed (bukan Mexicano/Fixed): tukar pemain di match round terakhir yang belum diisi dengan pemain yang istirahat
+  (§15, keputusan 48–57; rencana 3.5.0, belum ada di hi-fi).
 - Fixed setelah semua match terisi: ikon Klasemen + "Tambah round" → sheet jam booking per court, baris Pasangan,
   "n match lagi tiap pasangan" dan "Buat R15–R16" (3.3a).
 - Back (tombol ‹, back HP, back browser) selalu ke Beranda, bukan ke Atur turnamen/Pasangan: dari sana "Buat jadwal"
@@ -441,6 +445,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 | MVP (1.x) | Setup, pairing, RR & Mixed, input skor, peringkat, share teks+gambar, simpan lokal, PWA | Selesai, live di web |
 | 2.0 | Redesain v2 + format skor Race to/Best of/Americano + WO per format + perbaikan logika (`logic.md`) | Sedang dikerjakan |
 | Berikutnya | Rilis Play Store (keystore sendiri), history banyak turnamen, multi-device | Belum |
+| Backlog | Turnamen grup + babak gugur (Fixed): pasangan dibagi n grup, tiap grup di court sendiri saling bertemu, top-n tiap grup lanjut ke perempat final / semifinal / final (host memilih babak awal). Diusulkan host 2026-11-12, ditunda | Belum |
 
 ---
 
@@ -554,6 +559,24 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 45. Kelompok teratas Mexicano main di **court bernomor terkecil** yang dipakai (14.4, U4, 2026-11-12).
 46. Versi lama (≤ 3.3.x) **menolak** simpanan dan payload live Mexicano, seperti K13 Sparing (14.8, U7, 2026-11-12).
 47. Pemain yang belum main dihitung **0 / 0** di urutan Mexicano (14.3, U8, 2026-11-12).
+48. **Tukar pemain (Mixed)** (§15): host bisa menukar pemain di match **round terakhir** yang skornya belum diisi (juga
+    belum WO) dengan pemain yang sedang istirahat, secara manual. Round lama dan match Selesai/WO tidak bisa diubah,
+    supaya riwayat dan Klasemen utuh. Rencana 3.5.0 MINOR (2026-11-12).
+49. Tukar **satu lawan satu**: pemain yang masuk mengambil posisi persis pemain yang keluar (partner dan lawan tetap),
+    tanpa undi ulang (15.1 T3, 2026-11-12).
+50. **Fairness tanpa aturan baru**: prioritas main tetap dihitung dari riwayat (3.4), jadi pemain yang ditukar keluar
+    otomatis naik prioritasnya dan daftar "Istirahat · Prioritas main di R(n+1)" ikut berubah (15.1 T6, 2026-11-12).
+51. Sparing Mixed: tukar hanya dengan pemain istirahat **sesama klub** (15C, 2026-11-12).
+52. **Mexicano dikunci**, tidak ada tukar pemain. Alasan host: tukar "akan mempengaruhi susunan klasemen" (pasangan
+    Mexicano disusun dari Klasemen) (2026-11-12).
+53. Fixed: tukar pemain tidak berlaku, karena tidak ada pemain istirahat perorangan; mengganti pemain Fixed tetap lewat
+    Atur pasangan (3.3a) (2026-11-12).
+54. Pemain yang sudah **dikeluarkan** tapi masih di match Belum round terakhir **boleh ditukar keluar**; dia dicatat
+    istirahat di round itu (15.1 T5, TU1, 2026-11-12).
+55. Pemain yang **ditambah setelah round terakhir dibuat** boleh ditukar masuk ke round itu; di R1 dia dihitung hadir
+    sejak awal, bukan pemain telat (TU2, 2026-11-12).
+56. Kandidat yang masuk = **seluruh daftar Istirahat** round terakhir, termasuk "Istirahat lagi" (TU3, 2026-11-12).
+57. **Batalkan Rn menghapus tukar** bersama round-nya, tanpa teks tambahan di dialog Batalkan (TU4, 2026-11-12).
 
 ---
 
@@ -571,6 +594,8 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
    (2026-11-04, §13)
 10. Mexicano sebagai mode ketiga, hanya Americano, istirahat ikut prioritas Mixed, partner berulang dihindari per court;
     Sparing dan pemain telat di Mexicano ditunda (2026-11-11, §14)
+11. Tukar pemain manual di Mixed: hanya round terakhir dan match yang belum diisi, satu lawan satu, fairness dari
+    riwayat, Sparing sesama klub, Mexicano dikunci (2026-11-12, §15)
 
 ---
 
@@ -721,7 +746,7 @@ Ukuran lain (estimasi di Konfigurasi = kolom Match, Round, Court aktif):
 - Susunan pasangan: partner dari sesama klub yang terpilih, lawan dari klub lain; penalti tetap (ulang match persis
   1000, ulang partner 10, ulang lawan 3, terbaik dari 400 percobaan).
 - **Fairness per klub:** selisih jumlah main antar pemain **satu klub** yang hadir sejak awal ≤ 1 setiap saat. Antar klub
-  boleh berbeda, mengikuti slot ÷ pemain klub (K1).
+  boleh berbeda, mengikuti slot ÷ pemain klub (K1). Tukar pemain sesama klub (§15) bisa membuatnya 2 sementara.
 - Daftar Istirahat di round terakhir ("Istirahat · Prioritas main di R(n+1)" / "Istirahat lagi di R(n+1)") dipisah per
   klub dan tetap sama persis dengan hasil Buat R(n+1).
 - Estimasi Konfigurasi: Max Round = booking terpendek ÷ durasi; Court Aktif = rumus di atas; Total Match = round × court
@@ -1227,3 +1252,225 @@ Q1–Q3 disetujui host 2026-11-11 sesuai rekomendasi (keputusan 28–30).
 - **Q3.** Pemain bernomor sama di Klasemen (paling sering partner di round sebelumnya) diurutkan dengan undian untuk
   menentukan siapa posisi 1 dan siapa ke court atas, sehingga Jadwal tidak selalu cocok dengan urutan nama di Klasemen
   (U2). Rekomendasi: undian, karena urut nama memberi pemain berawalan "A" partner yang lebih kuat tiap kali seri.
+
+---
+
+## 15. Tukar Pemain (Mixed)
+
+> **Diputuskan host 2026-11-12** ("setuju semua", keputusan 48–57, §10, termasuk usulan PM TU1–TU4), rencana rilis
+> **3.5.0 (MINOR)**. Belum ada di hi-fi: titik masuk, label, dan tampilan oleh designer. Fixed dan Mexicano tidak berubah.
+
+Tukar pemain = host mengganti satu pemain di match round terakhir yang belum diisi dengan satu pemain yang sedang
+istirahat, tanpa membuat ulang round.
+
+### 15.0 Situasi nyata
+
+- Mabar Mixed 8–20 orang di 2–4 court, satu HP host, offline. Round dibuat dari prioritas main (3.4), lalu orang baru
+  bergerak ke court setelah melihat Jadwal.
+- Yang sering terjadi tepat setelah Buat Rn: pemain yang terpilih belum datang, baru selesai main dan minta istirahat,
+  kakinya kram, atau pulang lebih dulu; sementara ada yang istirahat dan siap main. Sekarang host hanya punya WO
+  (match terbuang, partnernya ikut kalah) atau Batalkan Rn + Buat, yang memilih pemain yang sama lagi (prioritas
+  terkunci) dan hanya mengacak ulang pasangan semua court; R1 bahkan tidak bisa dibatalkan.
+- Host butuh satu ketukan yang mengganti orangnya saja, court lain tidak terganggu, dan giliran main tetap adil di round
+  berikutnya tanpa dia menghitung sendiri.
+
+### 15.1 Aturan inti
+
+- **T1.** Hanya turnamen **Mixed** (termasuk Mixed sparing) yang belum diakhiri. Fixed tidak berlaku (keputusan 53);
+  Mexicano tidak punya tukar (keputusan 52).
+- **T2.** Hanya match di **round terakhir** (`roundCount`) yang statusnya **Belum** (keputusan 48). Match Selesai, WO,
+  Tidak dimainkan, dan semua match round sebelumnya tidak bisa ditukar. Round yang sebagian match-nya sudah diisi:
+  match yang masih Belum tetap bisa ditukar.
+- **T3.** Satu lawan satu (keputusan 49): pemain keluar **P** dari match M, pemain masuk **Q**. Q mengambil posisi
+  persis P (sisi yang sama, tempat yang sama di tim); partner, lawan, court, nomor match, dan id match tetap. Tidak ada
+  undi ulang, court lain tidak berubah.
+- **T4.** Q = pemain aktif yang tidak main di round terakhir, yaitu semua nama di daftar Istirahat round terakhir yang
+  tampil di Jadwal ("Istirahat · Prioritas main di R(n+1)" maupun "Istirahat lagi di R(n+1)"). Sparing: Q harus
+  **sesama klub** P (keputusan 51). Tidak ada Q → P tidak bisa ditukar.
+- **T5.** Setelah tukar, P **tercatat istirahat** di round itu (`restingPlayerIdsByRound[n]` ditambah P, Q dihapus
+  kalau ada). P hadir di round itu, jadi tidak pernah menjadi pemain telat karena tukar (3.4).
+- **T6.** Fairness tanpa aturan baru (keputusan 50). Jumlah main dihitung dari match yang terjadwal (termasuk yang
+  Belum), jadi saat tukar disimpan P langsung −1 match dan Q +1. Daftar Istirahat round terakhir dan pembagian
+  "Prioritas main" / "Istirahat lagi" dihitung ulang, dan tetap sama persis dengan hasil Buat R(n+1).
+- **T7.** Tukar bisa membuat selisih jumlah main antar pemain menjadi 2 (pilihan host, 15B). Tidak dicegah, tidak ada
+  peringatan; prioritas main memulihkannya sendiri dalam beberapa round.
+- **T8.** Partner atau lawan berulang hasil tukar tidak menghalangi tukar. Setelah disimpan, match itu masuk riwayat
+  seperti match lain dan ikut penalti pasangan round berikutnya (3.4).
+- **T9.** Tukar bisa diulang di match yang sama, termasuk menukar balik (Q ↔ P); hasilnya sama dengan sebelum tukar
+  pertama. Tidak ada Urungkan khusus.
+- **T10.** Wording ikut `CLAUDE.md`: pemain, court, round, match; tanpa kalimat penjelas di layar (Prinsip "Tanpa
+  Petunjuk", 7). Kata "tukar" dipakai di PRD; label akhirnya oleh designer, disetujui host.
+
+### 15.2 Perilaku minimal (bukan desain layar)
+
+- Host memilih P (dari match Belum di round terakhir) dan Q (kandidat T4). Sebelum menyimpan, host melihat siapa
+  keluar dan siapa masuk, dan bisa membatalkan pilihan tanpa perubahan apa pun.
+- Menyimpan = satu perubahan turnamen; simpanan lokal dan live ikut otomatis (tanpa panggilan simpan/kirim manual).
+- App ditutup sebelum menyimpan → tidak ada yang berubah. Setelah menyimpan → tukar tetap ada saat dibuka lagi.
+- Penonton live tidak bisa menukar. Titik masuk, urutan kandidat, dan teks oleh designer.
+
+### 15.3 Contoh hitung
+
+Data dasar (dipakai 15A dan 15B): Mixed, Padel, Americano 21, 15 menit, 2 court × 2 jam, 10 pemain (Andi, Budi, Citra,
+Dewi, Eko, Fajar, Gita, Hadi, Indra, Joko). Slot 8, 2 istirahat per round. "n main" = jumlah match terjadwal.
+
+| Round | Court 1 | Court 2 | Istirahat |
+|-------|---------|---------|-----------|
+| R1 | Andi · Citra vs Budi · Dewi | Eko · Gita vs Fajar · Hadi | Indra, Joko |
+| R2 | Andi · Gita vs Fajar · Eko | Budi · Indra vs Dewi · Joko | Citra, Hadi |
+| R3 | Citra · Indra vs Hadi · Joko | Dewi · Eko vs Fajar · Gita | Andi, Budi |
+
+R3: Citra, Hadi, Indra, Joko (1 main) pasti main; undian R3 menaruh Andi dan Budi paling bawah dari enam pemain 2 main.
+Undian R4 (fixture): Gita, Fajar, Andi, Joko, Eko, Citra, Budi, Hadi, Dewi, Indra.
+
+**Contoh 15A — tukar biasa, selisih tetap ≤ 1.** R3 Court 1 sudah selesai 12–9, Court 2 Belum. Dewi minta istirahat;
+host menukar **Dewi ↔ Budi** di R3 Court 2. Court 1 tidak bisa ditukar (sudah ada skor).
+
+| | Sebelum tukar | Sesudah tukar |
+|---|---|---|
+| R3 Court 2 | Dewi · Eko vs Fajar · Gita | **Budi** · Eko vs Fajar · Gita |
+| Istirahat R3 | Andi, Budi | Andi, **Dewi** |
+| Jumlah main | Andi 2, Budi 2, Dewi 3; Citra, Hadi, Indra, Joko 2; Eko, Fajar, Gita 3 | Andi 2, **Budi 3, Dewi 2**; lainnya sama |
+| Prioritas R4 (urut) | Andi, Budi · Joko, Citra, Hadi, Indra · Gita, Fajar \| Eko, Dewi | Andi, Dewi · Joko, Citra, Hadi, Indra · Gita, Fajar \| Eko, Budi |
+| Jadwal: Istirahat · Prioritas main di R4 | Andi, Budi | Andi, Dewi |
+| Buat R4 → istirahat | Eko, Dewi | Eko, **Budi** |
+
+- Urutan prioritas: 2 main terakhir R2 (Andi, Dewi) → 2 main terakhir R3 → 3 main; seri diurut undian R4. "\|" = batas
+  slot 8. Semua yang istirahat di R3 masuk slot, jadi daftar "Istirahat lagi di R4" tidak tampil.
+- Setelah R4 (kedua versi): Gita, Fajar 4 main, delapan lainnya 3. Selisih ≤ 1 terus.
+- Dewi tetap tercatat hadir di R3 (istirahat), jadi bukan pemain telat. Budi (main R1–R3) bukan pemain telat, jadi tidak
+  kena jeda.
+- Tukar balik Budi ↔ Dewi sebelum Buat R4 → semua baris kembali ke kolom "Sebelum".
+
+**Contoh 15B — tukar membuat selisih 2.** Data dasar, R3 belum ada skor. Citra baru datang dari parkiran dan belum siap;
+host menukar **Citra ↔ Budi** di R3 Court 1 → **Budi** · Indra vs Hadi · Joko.
+
+- Budi · Indra pernah berpasangan di R2. Tukar tetap boleh (T8); R4 dan seterusnya menghitung pasangan itu dua kali.
+- Jumlah main setelah tukar: Citra 1; Andi, Hadi, Indra, Joko 2; Budi, Dewi, Eko, Fajar, Gita 3 → **selisih 2**.
+- Istirahat R3: Andi, Citra → "Istirahat · Prioritas main di R4": Citra, Andi (Citra lebih dulu karena 1 main).
+- Buat R4 (undian R4 di atas): main Citra, Andi, Joko, Hadi, Indra, Gita, Fajar, Eko; **istirahat Budi, Dewi**.
+
+| Setelah | Paling sedikit | Paling banyak | Selisih |
+|---------|----------------|---------------|---------|
+| R3 (tukar) | Citra 1 | 3 (lima pemain) | 2 |
+| R4 | Citra 2 | 4 (Gita, Fajar, Eko) | 2 |
+| R5 | Citra 3 | 5 (satu pemain) | 2 |
+| R6 | 4 (Citra + satu pemain) | 5 (delapan pemain) | 1 |
+
+- Baris R5–R6 tidak tergantung undian (yang tergantung undian hanya siapa di antara yang jumlahnya sama). Citra main
+  R4–R6 beruntun; dia bukan pemain telat, jadi tanpa jeda (3.4).
+
+**Contoh 15C — Sparing Mixed** (pemain 13.2, Contoh 13B: Garuda 8, Matcha 6, 2 court). R4 Court 1 Belum: Andi · Citra
+(Garuda) vs Indra · Kiki (Matcha). Istirahat R4: Garuda Budi, Dewi, Gita, Hadi; Matcha Maya, Nanda.
+- Kiki hanya bisa ditukar dengan **Maya atau Nanda**; Andi hanya dengan **Budi, Dewi, Gita, atau Hadi**.
+- Kiki ↔ Nanda → Andi · Citra vs Indra · Nanda; Kiki masuk daftar Istirahat Matcha, daftar Garuda tidak berubah.
+- Garuda 4 / Matcha 6 di 2 court: court aktif `min(2, 2, 3) = 2`, semua pemain Garuda main tiap round → pemain Garuda
+  tidak pernah bisa ditukar; pemain Matcha bisa.
+
+### 15.4 Interaksi dengan fitur yang ada
+
+| Fitur | Perilaku dengan tukar pemain |
+|-------|------------------------------|
+| Prioritas main, daftar Istirahat (3.4) | Dihitung ulang dari riwayat setelah tukar (T6). Daftar yang tampil tetap sama persis dengan hasil Buat R(n+1). Undian terkunci tidak berubah (undian dibagikan ke pemain aktif, bukan ke match). |
+| Properti fairness ≤ 1 (3.4, 13.4) | Tetap berlaku untuk round yang dibuat app; tukar oleh host bisa membuatnya 2 sementara (T7, 15B). Test properti fairness yang ada tidak memakai tukar, jadi tetap lulus. |
+| Pemain telat & jeda (`latePlayerIds`, 3.4) | P tercatat istirahat di round n (T5), jadi tidak absen dan tidak masuk `latePlayerIds`. Q yang memang pemain telat tetap telat; match hasil tukar ikut dihitung di "main k round beruntun", jadi jedanya bisa datang satu round lebih cepat. |
+| Batalkan Rn | Tetap boleh selama round itu tanpa skor; tukar ikut terhapus bersama round. Buat Rn lagi memilih pemain dari riwayat R1..R(n−1), jadi siapa main dan istirahat **sama dengan sebelum tukar** (kalau pemain aktif, court, dan jam sama), tapi **pasangan diacak ulang** (Mixed tidak mengunci pasangan). Contoh 15A sebelum skor Court 1: Batalkan R3 → Buat R3 → Andi, Budi istirahat lagi, Dewi main; host menukar lagi kalau perlu. R1 tidak bisa dibatalkan, jadi di R1 tukar adalah satu-satunya cara. |
+| Kelola court — tambah saat round berjalan (`logic.md` §10) | Court baru langsung main kalau istirahat ≥ 4: 4 teratas prioritas di antara yang istirahat, dihitung setelah tukar, jadi P yang baru ditukar keluar biasanya ikut terambil. 15A: istirahat R3 hanya 2 → tidak langsung main, court baru mulai R4. |
+| Kelola court — hapus court | Match Belum di court itu dihapus dan pemainnya kembali ke istirahat round n (aturan sekarang), termasuk Q hasil tukar. P tetap istirahat. |
+| Kelola pemain — Keluarkan | Seperti sekarang: P yang dikeluarkan tetap di match round terakhir sampai host menandai WO, atau menukarnya keluar (keputusan 54). Q yang dikeluarkan hilang dari daftar Istirahat, jadi bukan kandidat. Pemain yang dikeluarkan tidak pernah jadi kandidat Q. |
+| Kelola pemain — Kembalikan / Tambah | P yang dikeluarkan, ditukar keluar, lalu dikembalikan sebelum Buat R(n+1) → tidak telat (hadir di round n sebagai istirahat). Pemain yang baru ditambah setelah Rn dibuat tampil di daftar Istirahat; ditukar masuk (keputusan 55) → hadir di round n; kalau Rn = R1 dia hadir di semua round, jadi bukan pemain telat. |
+| WO (4.4) | Match WO tidak bisa ditukar, dan WO tidak bisa dikembalikan ke Belum (tidak ada aksinya). Tukar dipakai **sebelum** WO: pemain absen ditukar keluar, partnernya tetap main. |
+| Skor sebagian | Skor satu match diisi sekaligus; "sebagian" = sebagian match round terakhir sudah diisi. Match yang sudah diisi terkunci, sisanya bisa ditukar (15A). Begitu semua match round terakhir terisi, tidak ada yang bisa ditukar. |
+| Waktu booking habis, Tambah jam | Match Belum di round terakhir tetap bisa ditukar walau waktu habis. Daftar prioritas memakai slot semua court (3.4). |
+| Akhiri, Lanjutkan turnamen | Setelah diakhiri tidak ada tukar (match Belum jadi Tidak dimainkan). Lanjutkan → match itu kembali Belum dan bisa ditukar lagi. |
+| Klasemen, Detail, Status (4.2–4.6, 5.7, 5.8) | Tidak berubah sampai match hasil tukar diisi; lalu dihitung untuk Q, bukan P. Tidak ada catatan "ditukar" di Jadwal, Detail, poster, atau caption. "Beda partner/lawan" di Detail ikut match apa adanya. |
+| Live score (5.11) | Penonton melihat match hasil tukar dan daftar Istirahat baru lewat pembaruan biasa; bentuk payload tidak berubah, penonton versi ≤ 3.4.x tetap bisa membaca. |
+| Sparing Mixed (13.4) | Hanya sesama klub (keputusan 51, 15C). Daftar Istirahat per klub dihitung ulang; fairness per klub sama dengan T7. |
+| Mexicano (§14) | Tidak ada tukar (keputusan 52): pasangan Mexicano disusun dari Klasemen, tukar akan mengubah susunan itu. Pemain yang belum siap: Batalkan Rn → Keluarkan → Buat (14.7). |
+| Fixed (3.3, 3.3a) | Tidak berlaku (keputusan 53). Mengganti pemain Fixed lewat Atur pasangan sebelum round tambahan. |
+
+### 15.5 Data & versi
+
+- **Tanpa bentuk data baru.** Tukar hanya mengubah dua kunci yang sudah ada: pemain di pasangan match itu, dan
+  `restingPlayerIdsByRound[n]`. Id match, court, nomor match, status tetap. `schemaVersion` tetap 2.
+- Simpanan 3.4.x terbaca apa adanya (belum pernah ada tukar). Simpanan atau payload live 3.5.0 berisi tukar terbaca
+  benar oleh 3.4.x karena bentuknya sama; tidak perlu penanda penolak seperti K13/U7.
+- Perlu dicek tech lead/dba: codec atau invariant yang menganggap daftar istirahat round n = pemain aktif di luar match
+  saat round dibuat, atau yang menolak pemain yang dikeluarkan di daftar istirahat (TU1). Hapus court sudah memindahkan
+  pemain ke daftar istirahat, jadi kemungkinan aman.
+- Kategori: **MINOR → 3.5.0** (perilaku baru, data lama kompatibel, turnamen tanpa tukar persis seperti 3.4.0).
+  Perkiraan brief dikonfirmasi. Relay live tidak perlu diubah.
+
+### 15.6 Kriteria penerimaan
+
+- **AC-T1** Tukar tersedia hanya untuk pemain di match Belum di round terakhir turnamen Mixed (biasa atau sparing) yang
+  belum diakhiri dan punya kandidat. Tidak tersedia untuk: match Selesai/WO, round sebelumnya, turnamen diakhiri,
+  Mexicano, Fixed, penonton live, dan round tanpa pemain istirahat (8 pemain / 2 court).
+- **AC-T2** Contoh 15A: R3 Court 2 menjadi Budi · Eko vs Fajar · Gita dengan Budi di tempat Dewi; id, court, dan nomor
+  match sama; Court 1 tidak berubah dan tidak bisa ditukar.
+- **AC-T3** 15A setelah tukar: Istirahat R3 = Andi, Dewi; "Istirahat · Prioritas main di R4" = Andi, Dewi tanpa
+  "Istirahat lagi"; Buat R4 (undian 15A) → Eko dan Budi istirahat, Andi dan Dewi main.
+- **AC-T4** Pilihan dibatalkan sebelum disimpan → turnamen tidak berubah (match, daftar istirahat, simpanan, live).
+- **AC-T5** 15A tukar balik Budi ↔ Dewi → match R3 dan daftar istirahat R3 sama dengan sebelum tukar pertama, Buat R4
+  sama dengan tanpa tukar (Eko, Dewi istirahat).
+- **AC-T6** Setelah tukar, `latePlayerIds` tidak berubah (15A, 15B: kosong); P yang ditukar keluar di R1 lalu Buat R2 →
+  tidak kena jeda pemain telat.
+- **AC-T7** Contoh 15B: jumlah main dan selisih setelah R3–R6 sama dengan tabel 15B; istirahat R4 = Budi, Dewi;
+  selisih ≤ 1 lagi setelah R6.
+- **AC-T8** Contoh 15C: kandidat untuk Kiki hanya Maya dan Nanda; untuk Andi hanya Budi, Dewi, Gita, Hadi. Garuda 4 /
+  Matcha 6, 2 court → pemain Garuda tidak bisa ditukar.
+- **AC-T9** Batalkan R3 setelah tukar 15A (sebelum skor Court 1) lalu Buat R3 → istirahat R3 = Andi, Budi, Dewi main;
+  tukar hilang.
+- **AC-T10** Kelola court: 12 pemain / 2 court, R2 berjalan, tukar satu pemain keluar, tambah Court 3 → match baru
+  berisi 4 teratas prioritas di antara yang istirahat, dihitung setelah tukar. Hapus court yang match-nya berisi Q →
+  Q kembali ke daftar Istirahat, P tetap di sana.
+- **AC-T11** Pemain di match Belum round terakhir dikeluarkan lalu ditukar keluar → tidak tampil
+  di daftar Istirahat, Q main di tempatnya; dikembalikan sebelum Buat R(n+1) → tidak masuk `latePlayerIds`.
+- **AC-T12** 9 pemain / 2 court, R1 dibuat, pemain ke-10 ditambah lalu ditukar masuk ke R1
+  menggantikan pemain yang belum datang → pemain baru tidak masuk `latePlayerIds`; yang ditukar keluar diprioritaskan di R2.
+- **AC-T13** App di-kill setelah tukar → dibuka lagi → match dan daftar Istirahat hasil tukar; Buat R(n+1) sama dengan
+  tanpa kill. Akhiri lalu Lanjutkan → match R terakhir yang Belum bisa ditukar lagi.
+- **AC-T14** Live: penonton melihat match hasil tukar dan daftar Istirahat baru tanpa membuka ulang; penonton tidak
+  punya aksi tukar.
+- **AC-T15** Match hasil tukar diisi → Klasemen, Detail, Bagikan menghitungnya untuk Q, tidak untuk P; tidak ada tanda
+  "ditukar" di mana pun.
+- **AC-T16** Simpanan 3.4.x dimuat tanpa perubahan; simpanan 3.5.0 dengan tukar dibuka 3.4.x → tampil benar. Semua test
+  dan golden yang ada lulus tanpa diubah.
+- **AC-T17** Semua kriteria di atas jalan offline (kecuali Live).
+
+### 15.7 Belum sekarang
+
+- Tukar di round lama atau di match yang sudah ada skor/WO (keputusan 48); mengosongkan skor/WO kembali ke Belum.
+- Tukar dua pemain yang sama-sama main (pindah match/court, ganti partner di satu match).
+- Tukar beberapa pemain sekaligus, atau undi ulang satu match/court saja.
+- Tukar di Mexicano (keputusan 52) atau di Fixed (keputusan 53).
+- Sparing: tukar dengan pemain klub lain (keputusan 51).
+- Peringatan saat tukar membuat selisih main 2; penanda atau riwayat "ditukar" di Jadwal/Detail/poster; Urungkan khusus.
+- Pemain yang ditukar keluar tidak diprioritaskan di round berikutnya (mis. minta istirahat dua round).
+
+### 15.8 Keputusan & usulan
+
+Keputusan host 2026-11-12: 48–53 di §10 (jangan dibuka ulang). TU1–TU4 dan Q1–Q2 disetujui host 2026-11-12
+("setuju kesemuanya") menjadi keputusan 54–57.
+
+**Usulan PM (semuanya disetujui host):**
+
+- **TU1.** Pemain yang sudah dikeluarkan (Keluarkan) tapi masih di match Belum round terakhir boleh ditukar keluar; dia
+  dicatat istirahat di round itu (T5) dan tidak tampil di daftar Istirahat karena tidak aktif (15.9 Q1).
+- **TU2.** Pemain yang ditambah setelah round terakhir dibuat boleh ditukar masuk ke round itu (15.9 Q2).
+- **TU3.** Kandidat Q = seluruh daftar Istirahat round terakhir, termasuk "Istirahat lagi", tidak dibatasi yang paling
+  sedikit main: keputusan 50 tidak menambah aturan, dan host yang paling tahu siapa siap main.
+- **TU4.** Batalkan Rn menghapus tukar bersama round-nya tanpa teks tambahan di dialog Batalkan (Prinsip "Tanpa
+  Petunjuk"); host menukar lagi setelah Buat.
+
+### 15.9 Pertanyaan terbuka untuk host
+
+Q1–Q2 disetujui sesuai rekomendasi (keputusan 54–55).
+
+- **Q1.** Saya pahami tukar dipakai saat pemain cedera atau pulang setelah round dibuat; pemain itu biasanya juga
+  dikeluarkan lewat Pemain (n), padahal namanya masih di match. Rekomendasi: tetap boleh ditukar keluar walau sudah
+  dikeluarkan (TU1), karena tanpa itu satu-satunya jalan adalah WO dan partnernya ikut kalah.
+- **Q2.** Pemain yang datang setelah round dibuat dan ditambah lewat Pemain (n) langsung tampil di daftar Istirahat,
+  tapi belum jelas apakah dia boleh ditukar masuk ke round yang sedang berjalan. Rekomendasi: boleh (TU2); kalau itu R1,
+  dia dihitung hadir sejak awal (bukan "pemain telat", yaitu pemain yang menyusul dengan jeda istirahat), dan ini satu-satunya
+  cara karena R1 tidak bisa dibatalkan.
