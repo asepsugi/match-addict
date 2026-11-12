@@ -92,6 +92,8 @@ class TournamentController extends Notifier<ActiveTournament?> {
     if (current == null || !current.canGenerateNextRound(now)) return;
 
     final roundNumber = current.roundCount + 1;
+    // Pemain telat tidak ada di Mexicano (keputusan 28), jadi generatornya memang tidak menerima latePlayerIds.
+    assert(current.config.mode != PartnerMode.mexicano || current.latePlayerIds.isEmpty);
     // Mexicano: pasangan dari Klasemen Total Point, bukan `rankingMethodProvider` (AC-M10); tanpa pemain telat.
     final round = current.config.mode == PartnerMode.mexicano
         ? EndlessRoundGenerator.generateMexicanoRound(

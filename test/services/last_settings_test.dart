@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/schedule/config_summary.dart';
 import 'package:match_addict/services/storage/last_settings.dart';
@@ -270,6 +272,22 @@ void main() {
       final padel = store.loadLastSettings(SportType.padel)!;
       expect(padel.format.label, 'Best of 3');
       expect(padel.courts, hasLength(1));
+    });
+
+    test('tulis gagal (box sudah ditutup) ditelan: tidak melempar, turnamen tetap jalan', () async {
+      final dir = await Directory.systemTemp.createTemp('mabar_settings_test');
+      Hive.init(dir.path);
+      final box = await Hive.openBox<String>(TournamentStore.boxName);
+      await box.close();
+      try {
+        await expectLater(
+          TournamentStore(box).saveLastSettings(SportType.padel, LastSettings.fromConfig(config())),
+          completes,
+        );
+      } finally {
+        await Hive.close();
+        dir.deleteSync(recursive: true);
+      }
     });
   });
 

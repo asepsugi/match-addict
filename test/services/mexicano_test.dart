@@ -533,14 +533,30 @@ void main() {
       final r3 = _round(read().matches, 3);
       final standingsBefore = {for (final s in container.read(standingsProvider)) s.player.id: s.totalPoint};
       final r2c2 = read().matchesOfRound(2)[1];
+      final old = r2c2.sets.single;
       controller.submitScore(r2c2.id, const [SetScore(side1: 2, side2: 19)]);
       expect(_round(read().matches, 3), r3);
       final standingsAfter = {for (final s in container.read(standingsProvider)) s.player.id: s.totalPoint};
-      expect(standingsAfter, isNot(standingsBefore));
+      // Hanya keempat pemain match yang dikoreksi yang berubah, sebesar selisih skornya.
+      for (final id in standingsBefore.keys) {
+        final delta = r2c2.pair1.contains(id)
+            ? 2 - old.side1
+            : r2c2.pair2.contains(id)
+            ? 19 - old.side2
+            : 0;
+        expect(standingsAfter[id], standingsBefore[id]! + delta, reason: id);
+      }
       scoreLast();
       final before = read();
       controller.generateNextRound();
       expect(_round(read().matches, 4), expected(before));
+      // R4 memang dari angka baru: dengan skor R2 lama susunannya berbeda.
+      final withOld = before.copyWith(
+        tournament: before.tournament.copyWith(
+          matches: [for (final m in before.matches) m.id == r2c2.id ? r2c2 : m],
+        ),
+      );
+      expect(_round(read().matches, 4), isNot(expected(withOld)));
     });
 
     test('AC-M14 kill setelah skor R2 lengkap → decode → Buat R3 sama persis dengan tanpa kill', () {
