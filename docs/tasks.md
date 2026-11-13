@@ -21,6 +21,18 @@ golden poster **pasti merah** sampai hi-fi menyusul. Host minta push digabung de
   `posterLengkap.density`) → `python3 tool/hifi_extract.py` → frame 11a–11m, 13q–13w, 18a–18t; golden + test
   `test/services/lengkap_test.dart`; satu run penuh; versi 3.7.1 + `appVersion`; publish ulang artifact hi-fi; catat
   di Cakupan. Pratinjau: test sekali pakai seperti `docs/ui-v2.md` (data 14 pemain dari screenshot host).
+- **Digabung (host 2026-11-13): garis lapangan di poster.** Lantai poster hanya garis belakang + satu garis samping →
+  di Story tidak terbaca sebagai lapangan. Tambah garis geometri tennis/padel yang tampak dari sudut itu, sejajar
+  sumbu podium (horizontal + kemiringan depth). Designer boleh Fable **hanya** untuk eksplorasi gambar sudut lapangan
+  (`design/explore/bagikan-garis.html`, lembar `frames/garis-sheet.png`); hi-fi final kembali ke Opus. Pratinjau
+  + render ulang hi-fi ditunda host sampai gabungan ini siap.
+  - Putaran 1 (G0–G4, `bagikan-garis.html`) ditolak host. Putaran 2 disetujui: **L1 + panel tetap 86%** = keputusan
+    91 (ukuran/perataan 3.7.1 jadi keputusan 92). Rumus + aturan garis/dinding: laporan di
+    `design/explore/bagikan-lapangan.html` (mode `?check=1`), ringkas: titik (u, v, t m) → x = ax + S·u − k·g·v,
+    y = ay + g·v − S·t; k = dx ÷ |dy| depth podium poster itu; L1: sudut (cornerX, backLine), sideline kanan
+    memotong tepi bawah di x = W − cornerX, net 10 px di bawah tepi bawah. Net tidak digambar; dinding kanan tidak.
+  - Berikutnya: hi-fi final (Opus, per grup frame, maks 3 paralel) untuk 11a–11m, 13q–13w, 18a–18t → golden →
+    `PodiumScenePainter` (perlu rumus lapangan + kisi kawat padel). Spec `logic.md` §16/§17.6 ikut diperbarui.
 
 ## Serah terima (2026-11-13)
 

@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Garis lapangan poster podium · eksplorasi</title>
+<style>
+/* Eksplorasi untuk dipilih host, BUKAN hi-fi final. Poster dasar (kelas .podium / .poster .lk dan markup di <template>)
+   disalin apa adanya dari design/hifi.html per 2026-11-13: 18e, 18c, 11k, 11f, 13v. Skrip di bawah hanya menambah
+   garis ke <svg class="scene">; teks, panel, blok, dan bola tidak disentuh.
+   ?f=G1-2 = satu poster (ekspor PNG), ?sheet=1 = lembar kontak, ?sheet=1&row=G1&cols=1-4 = potongan lembar. */
+@font-face { font-family: "Archivo"; src: url("../../assets/fonts/Archivo%5Bwdth,wght%5D.ttf") format("truetype"); font-weight: 100 900; font-stretch: 62% 125%; }
+:root {
+  --bg: #E7ECF0; --surface: #FFFFFF; --fg: #13202B; --muted: #4F5D69; --faint: #7A8794; --line: #D3DBE2; --accent: #1E6BB8;
+  --f: "Archivo", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0C141B; --surface: #141F29; --fg: #E3EAF0; --muted: #A3B0BB; --faint: #74838F; --line: #24323D; --accent: #7DB1E6; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f); font-size: 15px; line-height: 1.55; padding: 40px 16px 96px; }
+.doc { max-width: 1720px; margin: 0 auto; display: flex; flex-direction: column; gap: 64px; }
+.doc h1, .doc h2, .doc h3 { margin: 0; text-wrap: balance; line-height: 1.15; }
+.doc-head h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 800; font-stretch: 112%; }
+.doc-head p { max-width: 80ch; color: var(--muted); margin: 12px 0 0; font-size: 16px; }
+.flow { display: flex; flex-direction: column; gap: 24px; }
+.flow-head { display: flex; flex-direction: column; gap: 6px; max-width: 88ch; }
+.flow-head h2 { font-size: 28px; font-weight: 800; font-stretch: 105%; }
+.flow-head p { margin: 0; color: var(--muted); }
+.flow-head ul { margin: 4px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.flow-head b { color: var(--fg); }
+.screens { display: flex; flex-wrap: wrap; gap: 28px 16px; align-items: flex-start; }
+.scr { width: 360px; display: flex; flex-direction: column; gap: 8px; }
+.scr > .cap { display: flex; gap: 8px; align-items: baseline; }
+.scr > .cap b { font-size: 13px; font-weight: 800; font-stretch: 80%; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.scr > .cap span { font-size: 13.5px; font-weight: 600; }
+code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em; }
+.tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table.map { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+.map th { text-align: left; font-size: 12px; font-weight: 700; color: var(--faint); padding: 12px 16px; }
+.map td { padding: 10px 16px; border-top: 1px solid var(--line); vertical-align: top; }
+.map td:first-child { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--accent); color: var(--accent); margin-left: 8px; vertical-align: middle; }
+body.one { padding: 0; background: #fff; } body.one .doc { display: none; }
+body.sheet { padding: 16px; } body.sheet .doc { display: none; }
+#sheet { display: flex; flex-direction: column; gap: 20px; }
+#sheet .srow { display: flex; gap: 16px; align-items: flex-start; }
+#sheet .srow > h3 { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 20px; font-weight: 800; margin: 0; width: 28px; }
+
+/* ---------- poster: disalin dari design/hifi.html ---------- */
+.poster { position: relative; overflow: hidden; color: var(--pink, #fff); font-family: var(--f); border-radius: 14px; flex: none; }
+.poster .pin { position: absolute; inset: 0; padding: 22px; display: flex; flex-direction: column; }
+.poster .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
+.poster h3 { margin: 6px 0 0; font-size: 26px; font-weight: 800; font-stretch: 95%; line-height: 1.05; display: flex; align-items: center; gap: 8px; }
+.poster .prow { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 6px 0; border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent); font-size: 14px; }
+.poster .prow:first-child { border-top: 0; }
+.poster .prow .r { font-size: 18px; }
+.poster .prow .nm { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poster .prow .pt { font-size: 18px; }
+.poster .prow .pt small { font-size: 11px; font-weight: 600; font-stretch: 100%; opacity: .7; margin-left: 3px; }
+.poster .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11.5px; opacity: .8; }
+.poster .wm { position: absolute; right: -18px; bottom: -14px; width: 150px; opacity: .12; }
+.poster .more { font-size: 12.5px; opacity: .75; padding-top: 6px; }
+.poster .rows { margin-top: 12px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.poster .cols { margin-top: 12px; flex: 1; min-height: 0; display: grid; grid-auto-flow: column; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(var(--k), minmax(0, 1fr)); column-gap: 14px; }
+.poster .cols .prow.top { border-top: 0; }
+.poster .rows .prow, .poster .cols .prow { flex: 1; min-height: 0; align-items: center; padding: 0; line-height: 1.1; }
+.poster .cols .prow { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 6px; }
+.poster .prow .r::before { content: "#"; opacity: .55; }
+.poster .prow.gold .r { justify-self: start; background: #E3B341; color: #0F1E2C; padding: 0 .3em; margin-left: -.3em; border-radius: .35em; line-height: 1; }
+.poster .prow.gold .r::before { opacity: .6; }
+.poster .prow.gold .nm, .poster .prow.gold .nm2 { font-weight: 800; }
+.poster .prow .nm2 { font-weight: 600; line-height: 1.15; min-width: 0; }
+.poster .prow .nm2 span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poster-pair { display: flex; gap: 14px; align-items: flex-start; line-height: 1.4; }
+.podium { position: relative; overflow: hidden; width: 360px; flex: none; border-radius: 4px; font-family: var(--f); color: var(--hfg, #fff); line-height: 1.2; font-variant-numeric: tabular-nums; text-align: left; }
+.podium.feed { height: 360px; }
+.podium.story { height: 640px; }
+.podium.card { width: 358px; height: 372px; border-radius: 14px; }
+.podium.card .ppanel { left: 13px; right: 13px; }
+.podium .scene { position: absolute; inset: 0; display: block; }
+.podium .phead { position: absolute; left: 22px; right: 22px; top: 22px; }
+.podium .ptitle { font-size: 22px; font-weight: 800; font-stretch: 95%; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.podium .ptitle.two { font-size: 18.5px; }
+.podium .psub { margin-top: 4px; font-size: 12.5px; font-weight: 700; }
+.podium .ppanel { position: absolute; left: 14px; right: 14px; bottom: 14px; background: rgba(var(--panel, 15,30,44), .86); color: var(--pfg, #fff); border-radius: 14px; padding: 6px 12px 0; }
+.podium .prank { height: 26px; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; border-bottom: 1px solid var(--pline); }
+.podium.duo .prank { height: 36px; }
+.podium .pos { font-size: 16px; line-height: 1; justify-self: start; }
+.podium .pos::before { content: "#"; color: var(--psub); }
+.podium .pos.sc::before { content: none; }
+.podium .prank.gold .pos { background: #E3B341; color: #0F1E2C; padding: .08em .3em; margin-left: -.3em; border-radius: .35em; }
+.podium .prank.gold .pos::before { color: inherit; opacity: .75; }
+.podium .who { font-size: var(--nm, 14px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium .who2 { font-size: var(--nm, 13px); font-weight: 600; line-height: 1.18; min-width: 0; }
+.podium .who2 span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium .prank.gold .who, .podium .prank.gold .who2 { font-weight: 800; }
+.podium .val { white-space: nowrap; display: flex; align-items: baseline; gap: 4px; }
+.podium .val b { font-size: 18px; line-height: 1; }
+.podium .val small { font-size: 10.5px; font-weight: 600; color: var(--psub); }
+.podium .psig, .poster .lk .psig { height: 26px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.podium .wmk, .poster .lk .wmk { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; font-stretch: 125%; line-height: 1; white-space: nowrap; }
+.podium .wmk svg, .poster .lk .wmk svg { width: 13px; height: 13px; display: block; flex: none; }
+.podium .facts, .poster .lk .facts { min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--psub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium.story .phead { top: 98px; }
+.podium.story .ptitle { font-size: 27px; }
+.podium.story .ptitle.two { font-size: 23px; }
+.podium.story .psub { margin-top: 6px; font-size: 15px; }
+.podium.story .ppanel { bottom: 84px; }
+.podium.story .prank { height: 42px; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; }
+.podium.story.duo .prank { height: 54px; }
+.podium.story .pos { font-size: 21px; }
+.podium.story .who { font-size: var(--nm, 18px); }
+.podium.story .who2 { font-size: var(--nm, 17px); }
+.podium.story .val b { font-size: 24px; }
+.podium.story .val small { font-size: 12.5px; }
+.podium.story .psig, .poster .lk.story .psig { height: 34px; }
+.podium .safe, .poster .lk .safe { display: none; }
+.poster-pair.wrap { flex-wrap: wrap; max-width: 1108px; }
+.poster .lk { position: absolute; inset: 0; color: var(--hfg, #fff); line-height: 1.2; font-variant-numeric: tabular-nums; text-align: left; }
+.poster .lk .scene { position: absolute; inset: 0; display: block; }
+.poster .lk .lhead { position: absolute; left: 22px; right: 22px; top: 22px; }
+.poster .lk .ltitle { font-size: 22px; font-weight: 800; font-stretch: 95%; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.poster .lk .ltitle.two { font-size: 18.5px; }
+.poster .lk .lsub { margin-top: 4px; font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poster .lk.story .lhead { top: 98px; }
+.poster .lk.story .ltitle { font-size: 27px; }
+.poster .lk.story .ltitle.two { font-size: 23px; }
+.poster .lk.story .lsub { margin-top: 6px; font-size: 15px; }
+.poster .lk .lpanel { position: absolute; left: 14px; right: 14px; bottom: 14px; background: rgba(var(--panel, 15,30,44), .86); color: var(--pfg, #fff); border-radius: 14px; padding: 6px 12px 0; display: flex; flex-direction: column; --rc: 30px; --cg: 8px; --fr: 15px; --fn: 13.5px; --fv: 16px; --fs: 10.5px; }
+.poster .lk.card .lpanel { left: 13px; right: 13px; }
+.poster .lk.story .lpanel { bottom: 84px; --fr: 14px; --fv: 15px; }
+.poster .lk .lpanel.two { padding: 6px 10px 0; --rc: 22px; --cg: 5px; --fr: 13px; --fn: 12px; --fv: 13.5px; --fs: 10px; }
+.poster .lk .lcols { display: grid; grid-auto-flow: column; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: repeat(var(--k), auto); column-gap: 14px; position: relative; }
+.poster .lk .lclub { height: calc(var(--row) * 2); grid-row: span 2; display: flex; flex-direction: column; justify-content: center; gap: calc(2px * var(--s)); min-width: 0; border-bottom: 1px solid var(--pline); line-height: 1.1; }
+.poster .lk .lclub .cn { font-size: calc(var(--fn) * 1.06 * var(--s)); font-weight: 800; font-stretch: 95%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poster .lk .lclub small { font-size: calc(var(--fs) * var(--s)); font-weight: 600; color: var(--psub); white-space: nowrap; }
+.poster .lk .lcols::after { content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 1px; background: var(--pline); }
+.poster .lk .prow { height: var(--row); display: grid; grid-template-columns: calc(var(--rc) * var(--s, 1)) minmax(0, 1fr) auto; gap: 0 calc(var(--cg) * var(--s, 1)); align-items: center; padding: 0; border-top: 0; border-bottom: 1px solid var(--pline); line-height: 1; }
+.poster .lk .prow.duo { height: calc(var(--row) * 2); }
+.poster .lk .prow .r { font-size: calc(var(--fr) * var(--s, 1)); justify-self: start; white-space: nowrap; }
+.poster .lk .prow .r::before { content: "#"; color: var(--psub); opacity: 1; }
+.poster .lk .prow.gold .r { background: #E3B341; color: #0F1E2C; padding: .08em .3em; margin-left: -.3em; border-radius: .35em; }
+.poster .lk .prow.gold .r::before { color: inherit; opacity: .75; }
+.poster .lk .prow .nm, .poster .lk .prow .nm2 { font-size: calc(var(--fn) * var(--s, 1) * var(--kn, 1)); font-weight: 600; font-stretch: 88%; min-width: 0; }
+.poster .lk .prow .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+.poster .lk .prow .nm2 { line-height: 1.16; }
+.poster .lk .prow .nm2 span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poster .lk .prow.gold .nm, .poster .lk .prow.gold .nm2 { font-weight: 800; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ball" viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#CDE84A" stroke="#A8C233" stroke-width="1.5"/><path d="M6 15C14 20 20 26 20 42M42 33C34 28 28 22 28 6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></symbol></svg>
+<template id="t-tRF"><div class="podium feed duo" style="background:#164E8C;--hfg:#fff;--panel:15,30,44;--pfg:#fff;--psub:#B8C4CF;--pline:rgba(255,255,255,.16)"><svg class="scene" width="360" height="360" viewBox="0 0 360 360" aria-hidden="true"><polygon points="40,152.0 370,152.0 370,370 -10,370 -10,183.2" fill="#1E6BB8"/><path d="M370 152.0H40L-10 183.2" stroke="rgba(255,255,255,.72)" stroke-width="4.5" stroke-linejoin="miter" fill="none"/><polygon points="55.0,140.0 133.0,140.0 149.0,130.0 71.0,130.0" fill="#2B4257"/><polygon points="133.0,118.0 211.0,118.0 227.0,108.0 149.0,108.0" fill="#F1D27C"/><polygon points="211.0,158.0 289.0,158.0 305.0,148.0 227.0,148.0" fill="#2B4257"/><polygon points="211.0,118.0 227.0,108.0 227.0,148.0 211.0,158.0" fill="#B58A26"/><polygon points="289.0,158.0 305.0,148.0 305.0,186.0 289.0,196.0" fill="#08131D"/><rect x="55.0" y="140.0" width="78" height="56" fill="#0F1E2C"/><text x="94.0" y="180.8" text-anchor="middle" font-size="37" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">2</text><rect x="133.0" y="118.0" width="78" height="78" fill="#E3B341"/><text x="172.0" y="174.6" text-anchor="middle" font-size="51" fill="#0F1E2C" font-family="Archivo" font-weight="800" font-stretch="72%">1</text><rect x="211.0" y="158.0" width="78" height="38" fill="#0F1E2C"/><text x="250.0" y="185.6" text-anchor="middle" font-size="25" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">3</text><ellipse cx="91.5" cy="136.5" rx="7.8" ry="2.5" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="82.0" y="118.0" width="19" height="19"/><ellipse cx="112.5" cy="136.5" rx="7.8" ry="2.5" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="103.0" y="118.0" width="19" height="19"/><ellipse cx="169.5" cy="114.5" rx="7.8" ry="2.5" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="160.0" y="96.0" width="19" height="19"/><ellipse cx="190.5" cy="114.5" rx="7.8" ry="2.5" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="181.0" y="96.0" width="19" height="19"/><ellipse cx="247.5" cy="154.5" rx="7.8" ry="2.5" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="238.0" y="136.0" width="19" height="19"/><ellipse cx="268.5" cy="154.5" rx="7.8" ry="2.5" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="259.0" y="136.0" width="19" height="19"/></svg><div class="phead"><div class="ptitle">Klasemen akhir</div><div class="psub">Tennis · Fixed · 30 Okt 2026</div></div><div class="ppanel"><div class="prank gold"><span class="pos n">1</span><span class="who2"><span>Indra Wijaya</span><span>Joko Susilo</span></span><span class="val"><b class="n">100%</b><small>· +19</small></span></div><div class="prank"><span class="pos n">2</span><span class="who2"><span>Eko Mulyadi</span><span>Fajar Kurnia</span></span><span class="val"><b class="n">80%</b><small>· +10</small></span></div><div class="prank"><span class="pos n">3</span><span class="who2"><span>Citra Lestari</span><span>Dewant Rahman</span></span><span class="val"><b class="n">60%</b><small>· +3</small></span></div><div class="psig"><div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"/></svg><span>Match Addict</span></div><span class="facts">6 pasangan · 5 round · 15 match</span></div></div></div></template>
+<template id="t-tRS"><div class="podium story duo" style="background:#164E8C;--hfg:#fff;--panel:15,30,44;--pfg:#fff;--psub:#B8C4CF;--pline:rgba(255,255,255,.16)"><svg class="scene" width="360" height="640" viewBox="0 0 360 640" aria-hidden="true"><polygon points="44,268.0 370,268.0 370,650 -10,650 -10,299.9" fill="#1E6BB8"/><path d="M370 268.0H44L-10 299.9" stroke="rgba(255,255,255,.72)" stroke-width="5.5" stroke-linejoin="miter" fill="none"/><polygon points="25.0,240.0 121.0,240.0 143.0,227.0 47.0,227.0" fill="#2B4257"/><polygon points="121.0,200.0 217.0,200.0 239.0,187.0 143.0,187.0" fill="#F1D27C"/><polygon points="217.0,274.0 313.0,274.0 335.0,261.0 239.0,261.0" fill="#2B4257"/><polygon points="217.0,200.0 239.0,187.0 239.0,261.0 217.0,274.0" fill="#B58A26"/><polygon points="313.0,274.0 335.0,261.0 335.0,331.0 313.0,344.0" fill="#08131D"/><rect x="25.0" y="240.0" width="96" height="104" fill="#0F1E2C"/><text x="73.0" y="315.5" text-anchor="middle" font-size="68" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">2</text><rect x="121.0" y="200.0" width="96" height="144" fill="#E3B341"/><text x="169.0" y="304.4" text-anchor="middle" font-size="94" fill="#0F1E2C" font-family="Archivo" font-weight="800" font-stretch="72%">1</text><rect x="217.0" y="274.0" width="96" height="70" fill="#0F1E2C"/><text x="265.0" y="324.9" text-anchor="middle" font-size="46" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">3</text><ellipse cx="70.0" cy="235.0" rx="10.7" ry="3.4" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="57.0" y="209.5" width="26" height="26"/><ellipse cx="98.0" cy="235.0" rx="10.7" ry="3.4" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="85.0" y="209.5" width="26" height="26"/><ellipse cx="166.0" cy="195.0" rx="10.7" ry="3.4" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="153.0" y="169.5" width="26" height="26"/><ellipse cx="194.0" cy="195.0" rx="10.7" ry="3.4" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="181.0" y="169.5" width="26" height="26"/><ellipse cx="262.0" cy="269.0" rx="10.7" ry="3.4" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="249.0" y="243.5" width="26" height="26"/><ellipse cx="290.0" cy="269.0" rx="10.7" ry="3.4" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="277.0" y="243.5" width="26" height="26"/></svg><div class="phead"><div class="ptitle">Klasemen akhir</div><div class="psub">Tennis · Fixed · 30 Okt 2026</div></div><div class="ppanel"><div class="prank gold"><span class="pos n">1</span><span class="who2"><span>Indra Wijaya</span><span>Joko Susilo</span></span><span class="val"><b class="n">100%</b><small>· +19</small></span></div><div class="prank"><span class="pos n">2</span><span class="who2"><span>Eko Mulyadi</span><span>Fajar Kurnia</span></span><span class="val"><b class="n">80%</b><small>· +10</small></span></div><div class="prank"><span class="pos n">3</span><span class="who2"><span>Citra Lestari</span><span>Dewant Rahman</span></span><span class="val"><b class="n">60%</b><small>· +3</small></span></div><div class="psig"><div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"/></svg><span>Match Addict</span></div><span class="facts">6 pasangan · 5 round · 15 match</span></div></div><i class="safe t"></i><i class="safe b"></i></div></template>
+<template id="t-tLS"><div class="poster" style="width:360px;height:640px;border-radius:4px;background:#164E8C"><div class="lk story" style="--hfg:#fff;--panel:15,30,44;--pfg:#fff;--psub:#B8C4CF;--pline:rgba(255,255,255,.16)"><svg class="scene" width="360" height="640" viewBox="0 0 360 640" aria-hidden="true"><polygon points="44,170 370,170 370,650 -10,650 -10,201.9" fill="#1E6BB8"></polygon><path d="M370 170H44L-10 201.9" stroke="rgba(255,255,255,.72)" stroke-width="5.5" stroke-linejoin="miter" fill="none"></path><polygon points="246,133 274,133 282,128 254,128" fill="#2B4257"></polygon><polygon points="274,118 302,118 310,113 282,113" fill="#F1D27C"></polygon><polygon points="302,145 330,145 338,140 310,140" fill="#2B4257"></polygon><polygon points="302,118 310,113 310,140 302,145" fill="#B58A26"></polygon><polygon points="330,145 338,140 338,165 330,170" fill="#08131D"></polygon><rect x="246" y="133" width="28" height="37" fill="#0F1E2C"></rect><text x="260" y="159.8" text-anchor="middle" font-size="24" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">2</text><rect x="274" y="118" width="28" height="52" fill="#E3B341"></rect><text x="288" y="155.7" text-anchor="middle" font-size="34" fill="#0F1E2C" font-family="Archivo" font-weight="800" font-stretch="72%">1</text><rect x="302" y="145" width="28" height="25" fill="#0F1E2C"></rect><text x="316" y="163" text-anchor="middle" font-size="16" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">3</text><ellipse cx="258.5" cy="131" rx="4.1" ry="1.3" fill="#0F1E2C" fill-opacity=".28"></ellipse><ellipse cx="269.5" cy="131" rx="4.1" ry="1.3" fill="#0F1E2C" fill-opacity=".28"></ellipse><ellipse cx="286.5" cy="116" rx="4.1" ry="1.3" fill="#0F1E2C" fill-opacity=".28"></ellipse><ellipse cx="297.5" cy="116" rx="4.1" ry="1.3" fill="#0F1E2C" fill-opacity=".28"></ellipse><ellipse cx="314.5" cy="143" rx="4.1" ry="1.3" fill="#0F1E2C" fill-opacity=".28"></ellipse><ellipse cx="325.5" cy="143" rx="4.1" ry="1.3" fill="#0F1E2C" fill-opacity=".28"></ellipse><use href="#ball" x="253.5" y="121.5" width="10" height="10"></use><use href="#ball" x="264.5" y="121.5" width="10" height="10"></use><use href="#ball" x="281.5" y="106.5" width="10" height="10"></use><use href="#ball" x="292.5" y="106.5" width="10" height="10"></use><use href="#ball" x="309.5" y="133.5" width="10" height="10"></use><use href="#ball" x="320.5" y="133.5" width="10" height="10"></use></svg><div class="lhead" style="right:126px"><div class="ltitle">Klasemen akhir</div><div class="lsub">Tennis · Fixed · 8 Nov 2026</div></div><div class="lpanel" style="--row:11.2px;--s:0.658"><div class="prow gold duo"><b class="r n">1</b><span class="nm2"><span>Fajar Kurnia</span><span>Rizky Hidayat</span></span><b class="pt n">100%<small>· +20</small></b></div><div class="prow duo"><b class="r n">2</b><span class="nm2"><span>Putri Anggraini</span><span>Nanda Rizki</span></span><b class="pt n">83%<small>· +7</small></b></div><div class="prow duo"><b class="r n">3</b><span class="nm2"><span>Dewant Rahman</span><span>Umar Faruq</span></span><b class="pt n">80%<small>· +9</small></b></div><div class="prow duo"><b class="r n">4</b><span class="nm2"><span>Citra Lestari</span><span>Eko Mulyadi</span></span><b class="pt n">67%<small>· +10</small></b></div><div class="prow duo"><b class="r n">5</b><span class="nm2"><span>Andi Pratama</span><span>Kiki Amalia</span></span><b class="pt n">60%<small>· +4</small></b></div><div class="prow duo"><b class="r n">5</b><span class="nm2"><span>Wulan Sari</span><span>Agus Salim</span></span><b class="pt n">60%<small>· +4</small></b></div><div class="prow duo"><b class="r n">6</b><span class="nm2"><span>Tono Basuki</span><span>Hana Taslim</span></span><b class="pt n">60%<small>· +2</small></b></div><div class="prow duo"><b class="r n">7</b><span class="nm2"><span>Indra Wijaya</span><span>Maya Putri</span></span><b class="pt n">60%<small>· +1</small></b></div><div class="prow duo"><b class="r n">8</b><span class="nm2"><span>Gina Rosalia</span><span>Sari Dewi</span></span><b class="pt n">40%<small>· −1</small></b></div><div class="prow duo"><b class="r n">9</b><span class="nm2"><span>Hendra Gunawan</span><span>Vina Oktaviani</span></span><b class="pt n">40%<small>· −7</small></b></div><div class="prow duo"><b class="r n">10</b><span class="nm2"><span>Lina Marlina</span><span>Oki Setiawan</span></span><b class="pt n">33%<small>· −5</small></b></div><div class="prow duo"><b class="r n">11</b><span class="nm2"><span>Budi Santoso</span><span>Joko Susilo</span></span><b class="pt n">20%<small>· −9</small></b></div><div class="prow duo"><b class="r n">12</b><span class="nm2"><span>Bayu Nugroho</span><span>Dian Permatasari</span></span><b class="pt n">20%<small>· −10</small></b></div><div class="prow duo"><b class="r n">13</b><span class="nm2"><span>Fitri Handayani</span><span>Teguh Wicaksono</span></span><b class="pt n">17%<small>· −8</small></b></div><div class="prow duo"><b class="r n">14</b><span class="nm2"><span>Yoga Prasetyo</span><span>Rina Kartika</span></span><b class="pt n">0%<small>· −17</small></b></div><div class="psig"><div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"></use></svg><span>Match Addict</span></div><span class="facts">15 pasangan · 10 round · 40 match</span></div></div><div class="safe t"></div><div class="safe b"></div></div></div></template>
+<template id="t-pRF"><div class="podium feed" style="background:#164E8C;--hfg:#fff;--panel:15,30,44;--pfg:#fff;--psub:#B8C4CF;--pline:rgba(255,255,255,.16)"><svg class="scene" width="360" height="360" viewBox="0 0 360 360" aria-hidden="true"><polygon points="40,174.0 370,174.0 370,370 -10,370 -10,205.2" fill="#BC5A33"/><path d="M370 174.0H40L-10 205.2" stroke="rgba(255,255,255,.72)" stroke-width="4.5" stroke-linejoin="miter" fill="none"/><polygon points="55.0,158.0 133.0,158.0 149.0,148.0 71.0,148.0" fill="#2B4257"/><polygon points="133.0,130.0 211.0,130.0 227.0,120.0 149.0,120.0" fill="#F1D27C"/><polygon points="211.0,180.0 289.0,180.0 305.0,170.0 227.0,170.0" fill="#2B4257"/><polygon points="211.0,130.0 227.0,120.0 227.0,170.0 211.0,180.0" fill="#B58A26"/><polygon points="289.0,180.0 305.0,170.0 305.0,216.0 289.0,226.0" fill="#08131D"/><rect x="55.0" y="158.0" width="78" height="68" fill="#0F1E2C"/><text x="94.0" y="207.5" text-anchor="middle" font-size="45" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">2</text><rect x="133.0" y="130.0" width="78" height="96" fill="#E3B341"/><text x="172.0" y="199.7" text-anchor="middle" font-size="63" fill="#0F1E2C" font-family="Archivo" font-weight="800" font-stretch="72%">1</text><rect x="211.0" y="180.0" width="78" height="46" fill="#0F1E2C"/><text x="250.0" y="213.3" text-anchor="middle" font-size="30" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">3</text><ellipse cx="102.0" cy="154.5" rx="9.0" ry="2.9" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="91.0" y="133.0" width="22" height="22"/><ellipse cx="180.0" cy="126.5" rx="9.0" ry="2.9" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="169.0" y="105.0" width="22" height="22"/><ellipse cx="258.0" cy="176.5" rx="9.0" ry="2.9" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="247.0" y="155.0" width="22" height="22"/></svg><div class="phead"><div class="ptitle">Mabar Jumat PB Garuda</div><div class="psub">Klasemen akhir · 6 Nov 2026</div></div><div class="ppanel"><div class="prank gold"><span class="pos n">1</span><span class="who">Hana Taslim</span><span class="val"><b class="n">80</b><small>poin · +34</small></span></div><div class="prank"><span class="pos n">2</span><span class="who">Gina Rosalia</span><span class="val"><b class="n">76</b><small>poin · +26</small></span></div><div class="prank"><span class="pos n">3</span><span class="who">Fajar Kurnia</span><span class="val"><b class="n">69</b><small>poin · +12</small></span></div><div class="psig"><div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"/></svg><span>Match Addict</span></div><span class="facts">Padel · 12 pemain · 6 round · 18 match</span></div></div></div></template>
+<template id="t-pRS"><div class="podium story" style="background:#164E8C;--hfg:#fff;--panel:15,30,44;--pfg:#fff;--psub:#B8C4CF;--pline:rgba(255,255,255,.16)"><svg class="scene" width="360" height="640" viewBox="0 0 360 640" aria-hidden="true"><polygon points="44,288.0 370,288.0 370,650 -10,650 -10,319.9" fill="#BC5A33"/><path d="M370 288.0H44L-10 319.9" stroke="rgba(255,255,255,.72)" stroke-width="5.5" stroke-linejoin="miter" fill="none"/><polygon points="25.0,252.0 121.0,252.0 143.0,239.0 47.0,239.0" fill="#2B4257"/><polygon points="121.0,202.0 217.0,202.0 239.0,189.0 143.0,189.0" fill="#F1D27C"/><polygon points="217.0,294.0 313.0,294.0 335.0,281.0 239.0,281.0" fill="#2B4257"/><polygon points="217.0,202.0 239.0,189.0 239.0,281.0 217.0,294.0" fill="#B58A26"/><polygon points="313.0,294.0 335.0,281.0 335.0,367.0 313.0,380.0" fill="#08131D"/><rect x="25.0" y="252.0" width="96" height="128" fill="#0F1E2C"/><text x="73.0" y="345.0" text-anchor="middle" font-size="84" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">2</text><rect x="121.0" y="202.0" width="96" height="178" fill="#E3B341"/><text x="169.0" y="331.4" text-anchor="middle" font-size="117" fill="#0F1E2C" font-family="Archivo" font-weight="800" font-stretch="72%">1</text><rect x="217.0" y="294.0" width="96" height="86" fill="#0F1E2C"/><text x="265.0" y="356.3" text-anchor="middle" font-size="56" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">3</text><ellipse cx="84.0" cy="247.0" rx="12.3" ry="3.9" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="69.0" y="217.5" width="30" height="30"/><ellipse cx="180.0" cy="197.0" rx="12.3" ry="3.9" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="165.0" y="167.5" width="30" height="30"/><ellipse cx="276.0" cy="289.0" rx="12.3" ry="3.9" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="261.0" y="259.5" width="30" height="30"/></svg><div class="phead"><div class="ptitle">Mabar Jumat PB Garuda</div><div class="psub">Klasemen akhir · 6 Nov 2026</div></div><div class="ppanel"><div class="prank gold"><span class="pos n">1</span><span class="who">Hana Taslim</span><span class="val"><b class="n">80</b><small>poin · +34</small></span></div><div class="prank"><span class="pos n">2</span><span class="who">Gina Rosalia</span><span class="val"><b class="n">76</b><small>poin · +26</small></span></div><div class="prank"><span class="pos n">3</span><span class="who">Fajar Kurnia</span><span class="val"><b class="n">69</b><small>poin · +12</small></span></div><div class="psig"><div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"/></svg><span>Match Addict</span></div><span class="facts">Padel · 12 pemain · 6 round · 18 match</span></div></div><i class="safe t"></i><i class="safe b"></i></div></template>
+<template id="t-pLS"><div class="poster" style="width:360px;height:640px;border-radius:4px;background:#164E8C"><div class="lk story" style="--hfg:#fff;--panel:15,30,44;--pfg:#fff;--psub:#B8C4CF;--pline:rgba(255,255,255,.16)"><svg class="scene" width="360" height="640" viewBox="0 0 360 640" aria-hidden="true"><polygon points="44,191 370,191 370,650 -10,650 -10,222.9" fill="#BC5A33"></polygon><path d="M370 191H44L-10 222.9" stroke="rgba(255,255,255,.72)" stroke-width="5.5" stroke-linejoin="miter" fill="none"></path><polygon points="246,154 274,154 282,149 254,149" fill="#2B4257"></polygon><polygon points="274,139 302,139 310,134 282,134" fill="#F1D27C"></polygon><polygon points="302,166 330,166 338,161 310,161" fill="#2B4257"></polygon><polygon points="302,139 310,134 310,161 302,166" fill="#B58A26"></polygon><polygon points="330,166 338,161 338,186 330,191" fill="#08131D"></polygon><rect x="246" y="154" width="28" height="37" fill="#0F1E2C"></rect><text x="260" y="180.8" text-anchor="middle" font-size="24" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">2</text><rect x="274" y="139" width="28" height="52" fill="#E3B341"></rect><text x="288" y="176.7" text-anchor="middle" font-size="34" fill="#0F1E2C" font-family="Archivo" font-weight="800" font-stretch="72%">1</text><rect x="302" y="166" width="28" height="25" fill="#0F1E2C"></rect><text x="316" y="184" text-anchor="middle" font-size="16" fill="#fff" font-family="Archivo" font-weight="800" font-stretch="72%">3</text><ellipse cx="264" cy="152" rx="4.9" ry="1.6" fill="#0F1E2C" fill-opacity=".28"></ellipse><ellipse cx="292" cy="137" rx="4.9" ry="1.6" fill="#0F1E2C" fill-opacity=".28"></ellipse><ellipse cx="320" cy="164" rx="4.9" ry="1.6" fill="#0F1E2C" fill-opacity=".28"></ellipse><use href="#ball" x="258" y="140.5" width="12" height="12"></use><use href="#ball" x="286" y="125.5" width="12" height="12"></use><use href="#ball" x="314" y="152.5" width="12" height="12"></use></svg><div class="lhead" style="right:126px"><div class="ltitle two">Mabar Jumat PB Garuda</div><div class="lsub">Klasemen akhir · 6 Nov 2026</div></div><div class="lpanel" style="--row:15.75px;--s:0.926"><div class="prow gold"><b class="r n">1</b><span class="nm">Citra Lestari</span><b class="pt n">89<small>· +31</small></b></div><div class="prow"><b class="r n">2</b><span class="nm">Eko Mulyadi</span><b class="pt n">87<small>· +48</small></b></div><div class="prow"><b class="r n">3</b><span class="nm">Fajar Kurnia</span><b class="pt n">85<small>· +44</small></b></div><div class="prow"><b class="r n">4</b><span class="nm">Rizky Hidayat</span><b class="pt n">81<small>· +15</small></b></div><div class="prow"><b class="r n">5</b><span class="nm">Andi Pratama</span><b class="pt n">80<small>· +34</small></b></div><div class="prow"><b class="r n">5</b><span class="nm">Kiki Amalia</span><b class="pt n">80<small>· +34</small></b></div><div class="prow"><b class="r n">6</b><span class="nm">Lina Marlina</span><b class="pt n">75<small>· +3</small></b></div><div class="prow"><b class="r n">7</b><span class="nm">Oki Setiawan</span><b class="pt n">70<small>· −7</small></b></div><div class="prow"><b class="r n">8</b><span class="nm">Gina Rosalia</span><b class="pt n">68<small>· +10</small></b></div><div class="prow"><b class="r n">9</b><span class="nm">Sari Dewi</span><b class="pt n">66<small>· +6</small></b></div><div class="prow"><b class="r n">10</b><span class="nm">Dewant Rahman</span><b class="pt n">65<small>· −17</small></b></div><div class="prow"><b class="r n">11</b><span class="nm">Umar Faruq</span><b class="pt n">63<small>· 0</small></b></div><div class="prow"><b class="r n">12</b><span class="nm">Budi Santoso</span><b class="pt n">63<small>· −21</small></b></div><div class="prow"><b class="r n">12</b><span class="nm">Joko Susilo</span><b class="pt n">63<small>· −21</small></b></div><div class="prow"><b class="r n">13</b><span class="nm">Tono Basuki</span><b class="pt n">61<small>· −4</small></b></div><div class="prow"><b class="r n">14</b><span class="nm">Hana Taslim</span><b class="pt n">58<small>· −10</small></b></div><div class="prow"><b class="r n">15</b><span class="nm">Indra Wijaya</span><b class="pt n">55<small>· −16</small></b></div><div class="prow"><b class="r n">16</b><span class="nm">Maya Putri</span><b class="pt n">53<small>· −41</small></b></div><div class="prow"><b class="r n">17</b><span class="nm">Putri Anggraini</span><b class="pt n">44<small>· −38</small></b></div><div class="prow"><b class="r n">18</b><span class="nm">Nanda Rizki</span><b class="pt n">38<small>· −50</small></b></div><div class="psig"><div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"></use></svg><span>Match Addict</span></div><span class="facts">Padel · 20 pemain · 8 round · 32 match</span></div></div><div class="safe t"></div><div class="safe b"></div></div></div></template>
+<template id="t-pLG"><div class="poster" style="width:360px;height:640px;border-radius:4px;background:linear-gradient(135deg,#F6BE9C,#FDE3D0)"><div class="lk story" style="--hfg:#6B3A22;--panel:107,58,34;--pfg:#FDE3D0;--psub:#FDE3D0;--pline:rgba(253,227,208,.2)"><svg class="scene" width="360" height="640" viewBox="0 0 360 640" aria-hidden="true"><polygon points="44,170 370,170 370,650 -10,650 -10,201.9" fill="rgba(107,58,34,.13)"></polygon><path d="M370 170H44L-10 201.9" stroke="rgba(107,58,34,.5)" stroke-width="5.5" stroke-linejoin="miter" fill="none"></path><polygon points="258,118 294,118 302,113 266,113" fill="#F1D27C"></polygon><polygon points="294,133 330,133 338,128 302,128" fill="#91664F"></polygon><polygon points="294,118 302,113 302,128 294,133" fill="#B58A26"></polygon><polygon points="330,133 338,128 338,165 330,170" fill="#462616"></polygon><rect x="258" y="118" width="36" height="52" fill="#E3B341"></rect><text x="276" y="151.9" text-anchor="middle" font-size="23" fill="#0F1E2C" font-family="Archivo" font-weight="800" font-stretch="72%">10</text><rect x="294" y="133" width="36" height="37" fill="#6B3A22"></rect><text x="312" y="159.8" text-anchor="middle" font-size="24" fill="#FDE3D0" font-family="Archivo" font-weight="800" font-stretch="72%">6</text></svg><div class="lhead" style="right:114px"><div class="ltitle">Klasemen akhir</div><div class="lsub">Padel · Mixed · 4 Nov 2026</div></div><div class="lpanel" style="--row:18.67px;--s:1.098"><div class="lclub"><span class="cn">PB Garuda</span><small>83 game · +14</small></div><div class="prow gold"><b class="r n">1</b><span class="nm">Dewi</span><b class="pt n">24<small>· +9</small></b></div><div class="prow"><b class="r n">2</b><span class="nm">Gita</span><b class="pt n">23<small>· +8</small></b></div><div class="prow"><b class="r n">3</b><span class="nm">Andi</span><b class="pt n">22<small>· +9</small></b></div><div class="prow"><b class="r n">4</b><span class="nm">Fajar</span><b class="pt n">21<small>· +7</small></b></div><div class="prow"><b class="r n">5</b><span class="nm">Budi</span><b class="pt n">21<small>· +2</small></b></div><div class="prow"><b class="r n">6</b><span class="nm">Eko</span><b class="pt n">20<small>· +3</small></b></div><div class="prow"><b class="r n">7</b><span class="nm">Hadi</span><b class="pt n">19<small>· −4</small></b></div><div class="prow"><b class="r n">8</b><span class="nm">Citra</span><b class="pt n">16<small>· −6</small></b></div><div class="lclub"><span class="cn">Matcha Club</span><small>69 game · −14</small></div><div class="prow gold"><b class="r n">1</b><span class="nm">Lina</span><b class="pt n">29<small>· −1</small></b></div><div class="prow"><b class="r n">2</b><span class="nm">Joko</span><b class="pt n">26<small>· +5</small></b></div><div class="prow"><b class="r n">3</b><span class="nm">Nanda</span><b class="pt n">26<small>· −4</small></b></div><div class="prow"><b class="r n">4</b><span class="nm">Indra</span><b class="pt n">23<small>· −6</small></b></div><div class="prow"><b class="r n">5</b><span class="nm">Maya</span><b class="pt n">20<small>· −6</small></b></div><div class="prow"><b class="r n">6</b><span class="nm">Kiki</span><b class="pt n">14<small>· −16</small></b></div><div class="psig"><div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"></use></svg><span>Match Addict</span></div><span class="facts">14 pemain · 8 round · 16 match</span></div></div><div class="safe t"></div><div class="safe b"></div></div></div></template>
+
+<div class="doc">
+  <header class="doc-head">
+    <h1>Garis lapangan di poster podium</h1>
+    <p>Eksplorasi, bukan hi-fi final. Poster Ringkas dan podium mini Lengkap sekarang hanya menggambar garis tepi sudut lapangan. Di Story yang tinggi, lantai jadi bidang warna polos. Halaman ini membandingkan empat cara menambah garis lapangan tennis dan padel yang sejajar dengan sumbu podium.</p>
+  </header>
+  
+  <section class="flow">
+    <div class="flow-head"><h2>Dasar yang sama di semua arah</h2>
+      <ul>
+        <li><b>Dua sumbu saja.</b> Garis sejajar garis belakang = horizontal. Garis sejajar garis samping = kemiringan kedalaman podium (Feed 16 : 10, Story 22 : 13), sama dengan garis samping yang sekarang. Dinding dan jaring = bidang tegak, garisnya vertikal atau horizontal.</li>
+        <li><b>Rumus titik.</b> Titik lapangan (u meter dari garis samping kiri, v meter dari garis belakang) digambar di x = cornerX + S·u − K·G·v, y = backLine + G·v. K = (cornerX + 10) ÷ lineDrop (Feed 1,60; Story 1,69). S dan G = skala lebar dan kedalaman, berbeda per arah.</li>
+        <li><b>Warna dan tebal.</b> Garis baru memakai warna garis tema yang sudah ada. Tepi lapangan tetap 4,5 (Story 5,5); garis dalam 3 (Story 3,5).</li>
+        <li><b>Pita tanpa garis.</b> Dari kaki podium (tepi atas panel − 10) sampai tepi bawah panel, selebar kanvas, garis baru tidak digambar. Di Feed pita itu sampai tepi bawah. Akibatnya Lengkap Feed tidak berubah, dan di Lengkap Story garis baru hanya muncul di pita bawah.</li>
+        <li><b>Contoh.</b> Poster disalin apa adanya dari hi-fi: 18e, 18c, 11k, 11f, 13v. Teks, panel, blok, dan bola tidak diubah.</li>
+      </ul>
+    </div>
+    <div class="tablebox"><table class="map">
+      <tr><th>Arah</th><th>Yang digambar</th><th>Skala</th><th>Story: pita bawah</th><th>Catatan</th></tr>
+      <tr><td>G1 · Dua sudut <span class="tag">usulan</span></td><td>Semua garis resmi. Tennis: garis samping tunggal dan ganda, garis servis, garis tengah. Padel: garis servis, garis tengah.</td><td>Feed S 60, G 13. Story: lapangan direntang dari sudut jauh ke titik (W − cornerX, H − 34).</td><td>Tennis: sudut kanan dekat + lorong ganda. Padel: garis servis dekat bertemu kaki dinding kanan.</td><td>Jaring dan T servis jatuh di belakang panel.</td></tr>
+      <tr><td>G2 · T servis</td><td>Sudut jauh: tennis garis samping tunggal, padel garis servis. Story: T servis.</td><td>Sudut jauh Feed S 60, G 13; Story S 74, G 16,4. T dipasang di (150, H − 36).</td><td>Garis servis selebar kanvas + garis tengah naik ke kanan.</td><td>Garis paling sedikit. Tennis dan padel sama di pita bawah.</td></tr>
+      <tr><td>G3 · Jaring di depan</td><td>Sudut jauh seperti G2. Story: jaring melintang, garis tengah menembus jaring.</td><td>Pita jaring H − 62, kaki jaring H − 22, garis tengah di x 236.</td><td>Pita putih 5,5, kotak jaring 8 × 8, tali tengah (tennis).</td><td>Paling cepat terbaca sebagai olahraga raket; paling ramai.</td></tr>
+      <tr><td>G4 · G1 + dinding kaca</td><td>Padel saja: kaca belakang 3 m + kawat 1 m, sambungan tiap 2 m, kaca samping, tiang sudut.</td><td>Tinggi = 3·S dan 4·S dari G1.</td><td>Sama dengan G1.</td><td>Sambungan kaca lewat di belakang judul.</td></tr>
+    </table></div>
+  </section>
+<template id="n-G0"><p>Keadaan sekarang, sebagai pembanding: hanya garis belakang dan garis samping kiri.</p></template>
+<template id="n-G1"><p>Seluruh lapangan digambar dengan satu pemetaan. Di Story lapangan direntang dari sudut jauh (kiri atas) ke titik jangkar di kanan bawah, jadi poster selalu dibingkai dua sudut.</p>
+<ul><li>Tennis: titik jangkar = sudut kanan dekat. Padel: titik jangkar = ujung kanan garis servis dekat; dinding dekat jatuh di luar kanvas.</li>
+<li>Feed: lorong ganda tampak di kiri podium (tennis); garis servis lewat di belakang podium (padel).</li>
+<li>Story: S = (W − 2·cornerX + K·d) ÷ lebar lapangan; G = d ÷ panjang (padel: panjang − 3,05), dengan d = H − 34 − backLine.</li></ul></template>
+<template id="n-G2"><p>Garis paling sedikit. Sudut jauh hanya menambah satu garis; pita bawah Story memuat T servis.</p></template>
+<template id="n-G3"><p>Penonton berdiri di seberang jaring. Jaring hanya ada di Story; Feed sama dengan G2.</p></template>
+<template id="n-G4"><p>Varian padel dari G1 dengan dinding kaca. Tennis tidak punya varian ini.</p></template>
+
+  <div id="flows"></div>
+</div>
+<div id="sheet"></div>
+
+<script>
+/* ---------- kolom contoh ---------- */
+const COLS = [
+  { n: 1, t: "tRF", sport: "tennis", label: "Tennis · Ringkas Feed (18e)" },
+  { n: 2, t: "tRS", sport: "tennis", label: "Tennis · Ringkas Story (18e)" },
+  { n: 3, t: "tLS", sport: "tennis", label: "Tennis · Lengkap Story 15 pasangan (11k)" },
+  { n: 4, t: "pRF", sport: "padel", label: "Padel · Ringkas Feed (18c)" },
+  { n: 5, t: "pRS", sport: "padel", label: "Padel · Ringkas Story (18c)" },
+  { n: 6, t: "pLS", sport: "padel", label: "Padel · Lengkap Story 20 pemain (11f)" },
+  { n: 7, t: "pLG", sport: "padel", label: "Padel · Lengkap Story 14 pemain, tema peach (13v)" },
+];
+const DIRS = [
+  { id: "G0", name: "Sekarang", cols: [1, 2, 3, 4, 5, 6, 7] },
+  { id: "G1", name: "Dua sudut", cols: [1, 2, 3, 4, 5, 6, 7] },
+  { id: "G2", name: "T servis", cols: [1, 2, 3, 4, 5, 6, 7] },
+  { id: "G3", name: "Jaring di depan", cols: [1, 2, 3, 4, 5, 6, 7] },
+  { id: "G4", name: "Dua sudut + dinding kaca (padel)", cols: [4, 5, 6, 7] },
+];
+
+/* ---------- geometri ---------- */
+/* Ukuran resmi (m). u = dari garis samping kiri ke kanan, v = dari garis belakang (jauh) ke arah penonton. */
+const COURT = {
+  tennis: { W: 10.97, L: 23.77, alley: 1.37, sv: 5.485, netH: 0.914 },
+  padel: { W: 10, L: 20, alley: 0, sv: 3.05, netH: 0.88 },
+};
+/* Skala tetap sudut jauh: S = px per meter searah lebar (horizontal), G = px turun per meter kedalaman. */
+const FAR = { feed: { S: 60, G: 13 }, story: { S: 74, G: 16.4 } };
+const NEAR_M = 34;      // G1 Story: tennis garis belakang dekat, padel garis servis dekat, di y = H − 34
+const T_M = 36, T_X = 150; // G2: garis servis dekat = H − 36, titik T di x 150
+const NET_TOP = 62, NET_BASE = 22, NET_X = 236; // G3: pita jaring H − 62, kaki jaring H − 22, garis tengah di x 236
+
+function parseScene(svg) {
+  const poly = svg.querySelector(":scope > polygon"), path = svg.querySelector(":scope > path");
+  const pts = poly.getAttribute("points").trim().split(/\s+/).map(p => p.split(",").map(Number));
+  const cx = pts[0][0], y0 = pts[0][1], drop = pts[4][1] - y0;
+  const H = +svg.getAttribute("height"), W = +svg.getAttribute("width");
+  return { svg, poly, path, cx, y0, K: (cx + 10) / drop, H, W, w0: +path.getAttribute("stroke-width"), ink: path.getAttribute("stroke"), story: H > 400 };
+}
+const r1 = v => Math.round(v * 10) / 10;
+function ln(a, b, w, ink, extra) { return `<line x1="${r1(a[0])}" y1="${r1(a[1])}" x2="${r1(b[0])}" y2="${r1(b[1])}" stroke="${ink}" stroke-width="${w}" ${extra || ""}/>`; }
+function projector(sc, S, G) { return (u, v) => [sc.cx + S * u - sc.K * G * v, sc.y0 + G * v]; }
+function wi(sc) { return sc.story ? 3.5 : 3; }
+
+/* Sudut jauh saja: tennis = garis samping tunggal; padel = garis servis. */
+function farGroup(sc, sport, S, G, full) {
+  const c = COURT[sport], P = projector(sc, S, G), w = wi(sc), o = [];
+  if (sport === "tennis") o.push(ln(P(c.alley, 0), P(c.alley, full ? c.L : 60), w, sc.ink));
+  else o.push(ln(P(0, c.sv), P(c.W, c.sv), w, sc.ink));
+  return o;
+}
+/* Semua garis lapangan (tanpa dua tepi jauh yang sudah ada). */
+function fullCourt(sc, sport, S, G) {
+  const c = COURT[sport], P = projector(sc, S, G), w = wi(sc), o = [];
+  const A = P(0, c.L), B = P(c.W, c.L), C = P(c.W, 0);
+  o.push(`<path d="M${r1(A[0])} ${r1(A[1])}L${r1(B[0])} ${r1(B[1])}L${r1(C[0])} ${r1(C[1])}" stroke="${sc.ink}" stroke-width="${sc.w0}" stroke-linejoin="miter" fill="none"/>`);
+  if (sport === "tennis") {
+    o.push(ln(P(c.alley, 0), P(c.alley, c.L), w, sc.ink), ln(P(c.W - c.alley, 0), P(c.W - c.alley, c.L), w, sc.ink));
+    o.push(ln(P(c.alley, c.sv), P(c.W - c.alley, c.sv), w, sc.ink), ln(P(c.alley, c.L - c.sv), P(c.W - c.alley, c.L - c.sv), w, sc.ink));
+    o.push(ln(P(c.W / 2, c.sv), P(c.W / 2, c.L - c.sv), w, sc.ink));
+  } else {
+    o.push(ln(P(0, c.sv), P(c.W, c.sv), w, sc.ink), ln(P(0, c.L - c.sv), P(c.W, c.L - c.sv), w, sc.ink));
+    o.push(ln(P(c.W / 2, c.sv - 0.2), P(c.W / 2, c.L - c.sv + 0.2), w, sc.ink));
+  }
+  return o;
+}
+function twoCorner(sc, sport) {
+  const c = COURT[sport];
+  if (!sc.story) return FAR.feed;
+  /* Titik jangkar (W − cornerX, H − 34): tennis = sudut kanan dekat; padel = ujung kanan garis servis dekat
+     (dinding dekat jatuh di luar kanvas, supaya garis servis tidak menempel tepi bawah panel). */
+  const dy = sc.H - NEAR_M - sc.y0, depth = sport === "tennis" ? c.L : c.L - c.sv;
+  return { S: (sc.W - 2 * sc.cx + sc.K * dy) / c.W, G: dy / depth };
+}
+function g1(sc, sport) { const k = twoCorner(sc, sport); return { floor: fullCourt(sc, sport, k.S, k.G), k }; }
+function g2(sc, sport) {
+  const f = sc.story ? FAR.story : FAR.feed, o = farGroup(sc, sport, f.S, f.G), w = wi(sc);
+  if (sc.story) {
+    const y = sc.H - T_M;
+    o.push(ln([-10, y], [sc.W + 10, y], w, sc.ink));
+    const nub = sport === "padel" ? 4 : 0;
+    o.push(ln([T_X - sc.K * nub, y + nub], [T_X + sc.K * 140, y - 140], w, sc.ink));
+  }
+  return { floor: o };
+}
+function g3(sc, sport) {
+  const f = sc.story ? FAR.story : FAR.feed, o = farGroup(sc, sport, f.S, f.G), w = wi(sc);
+  if (sc.story) {
+    const yt = sc.H - NET_TOP, yb = sc.H - NET_BASE;
+    o.push(ln([NET_X + sc.K * 150, yb - 150], [NET_X - sc.K * 40, yb + 40], w, sc.ink));
+    let m = "";
+    for (let x = 4; x < sc.W; x += 8) m += `M${x} ${yt}V${yb}`;
+    for (let y = yt + 8; y < yb; y += 8) m += `M-10 ${y}H${sc.W + 10}`;
+    o.push(`<path d="${m}" stroke="${sc.ink}" stroke-width="1" fill="none" opacity=".5"/>`);
+    o.push(ln([-10, yb], [sc.W + 10, yb], 1.5, sc.ink, 'opacity=".7"'));
+    if (sport === "tennis") o.push(ln([NET_X, yt], [NET_X, yb], 3, sc.ink));
+    o.push(ln([-10, yt], [sc.W + 10, yt], 5.5, sc.ink));
+  }
+  return { floor: o };
+}
+/* Dinding kaca padel: belakang 3 m + kawat 1 m, tiang tiap 2 m; samping 3 m (2 m pertama dari sudut). */
+function walls(sc, S) {
+  const o = [], top = sc.y0 - 3 * S, mesh = sc.y0 - 4 * S, R = sc.W + 10, dl = (sc.cx + 10) / sc.K;
+  o.push(`<rect x="${sc.cx}" y="${r1(mesh)}" width="${R - sc.cx}" height="${r1(sc.y0 - mesh)}" fill="${sc.ink}" opacity=".07"/>`);
+  o.push(`<polygon points="${sc.cx},${sc.y0} ${sc.cx},${r1(mesh)} -10,${r1(mesh + dl)} -10,${r1(sc.y0 + dl)}" fill="${sc.ink}" opacity=".14"/>`);
+  let m = "";
+  for (let x = sc.cx + 8; x < R; x += 8) m += `M${x} ${r1(mesh)}V${r1(top)}`;
+  for (let y = top - 8; y > mesh; y -= 8) m += `M${sc.cx} ${r1(y)}H${R}`;
+  o.push(`<path d="${m}" stroke="${sc.ink}" stroke-width="1" fill="none" opacity=".22"/>`);
+  let j = "";
+  for (let x = sc.cx + 2 * S; x < R; x += 2 * S) j += `M${r1(x)} ${sc.y0}V${r1(top)}`;
+  if (j) o.push(`<path d="${j}" stroke="${sc.ink}" stroke-width="1" fill="none" opacity=".3"/>`);
+  const p = `M${sc.cx} ${r1(top)}H${R}M${sc.cx} ${r1(top)}L-10 ${r1(top + dl)}M${sc.cx} ${sc.y0}V${r1(mesh)}`;
+  o.push(`<path d="${p}" stroke="${sc.ink}" stroke-width="2" fill="none" opacity=".5"/>`);
+  return o;
+}
+function g4(sc, sport) { const a = g1(sc, sport); return { floor: a.floor, wall: sport === "padel" ? walls(sc, a.k.S) : [] }; }
+const BUILD = { G0: () => ({ floor: [] }), G1: g1, G2: g2, G3: g3, G4: g4 };
+
+function makePoster(dir, col) {
+  const node = document.getElementById("t-" + col.t).content.firstElementChild.cloneNode(true);
+  const svg = node.querySelector("svg.scene"), sc = parseScene(svg), out = BUILD[dir.id](sc, col.sport);
+  const g = s => { const e = document.createElementNS("http://www.w3.org/2000/svg", "g"); e.innerHTML = s.join(""); return e; };
+  if (out.wall && out.wall.length) svg.insertBefore(g(out.wall), sc.poly);
+  if (out.floor.length) { const e = g(out.floor); e.setAttribute("class", "floorlines"); sc.path.after(e); }
+  node.dataset.id = dir.id + "-" + col.n;
+  return node;
+}
+/* Garis tambahan tidak digambar di pita selebar kanvas dari kaki podium (tepi atas panel − 10) sampai tepi bawah
+   panel; di Feed pita itu sampai tepi bawah kanvas. */
+function clipAll() {
+  for (const node of document.querySelectorAll("[data-id]")) {
+    const fl = node.querySelector(".floorlines"), pn = node.querySelector(".ppanel, .lpanel");
+    if (!fl || !pn) continue;
+    const svg = node.querySelector("svg.scene"), H = +svg.getAttribute("height"), W = +svg.getAttribute("width");
+    const top = pn.offsetTop - 10, bot = pn.offsetTop + pn.offsetHeight, id = "clip-" + node.dataset.id;
+    const cp = document.createElementNS("http://www.w3.org/2000/svg", "clipPath"); cp.id = id;
+    cp.innerHTML = `<rect x="-10" y="-10" width="${W + 20}" height="${top + 10}"/>` + (H > 400 ? `<rect x="-10" y="${bot}" width="${W + 20}" height="${H - bot + 10}"/>` : "");
+    svg.prepend(cp); fl.setAttribute("clip-path", `url(#${id})`);
+    node.dataset.panel = top + "," + bot;
+  }
+}
+function cell(dir, col) {
+  const d = document.createElement("div"); d.className = "scr";
+  d.innerHTML = `<div class="cap"><b>${dir.id}-${col.n}</b><span>${col.label}</span></div>`;
+  d.append(makePoster(dir, col));
+  return d;
+}
+const q = new URLSearchParams(location.search);
+if (q.get("f")) {
+  const [d, n] = q.get("f").split("-");
+  document.body.className = "one";
+  document.body.append(makePoster(DIRS.find(x => x.id === d), COLS.find(c => c.n === +n)));
+} else if (q.get("sheet")) {
+  document.body.className = "sheet";
+  const [c0, c1] = (q.get("cols") || "1-7").split("-").map(Number), row = q.get("row");
+  for (const dir of DIRS) {
+    if (row && row !== dir.id) continue;
+    const r = document.createElement("div"); r.className = "srow";
+    r.innerHTML = `<h3>${dir.id} · ${dir.name}</h3>`;
+    for (const col of COLS) {
+      if (col.n < c0 || col.n > c1) continue;
+      if (dir.cols.includes(col.n)) r.append(cell(dir, col)); else { const e = document.createElement("div"); e.className = "scr"; r.append(e); }
+    }
+    document.getElementById("sheet").append(r);
+  }
+} else {
+  for (const dir of DIRS) {
+    const tpl = document.getElementById("n-" + dir.id), s = document.createElement("section");
+    s.className = "flow"; s.id = dir.id;
+    s.innerHTML = `<div class="flow-head"><h2>${dir.id} · ${dir.name}</h2>${tpl ? tpl.innerHTML : ""}</div><div class="screens"></div>`;
+    for (const col of COLS) if (dir.cols.includes(col.n)) s.lastElementChild.append(cell(dir, col));
+    document.getElementById("flows").append(s);
+  }
+}
+clipAll();
+/* ?check=1: setiap garis tambahan harus horizontal, vertikal (dinding/jaring), atau searah kedalaman podium. */
+if (q.get("check")) {
+  const bad = [], n = { h: 0, d: 0, v: 0 };
+  for (const node of document.querySelectorAll("[data-id]")) {
+    const sc = parseScene(node.querySelector("svg.scene"));
+    for (const l of node.querySelectorAll("svg.scene g line")) {
+      const dx = l.x2.baseVal.value - l.x1.baseVal.value, dy = l.y2.baseVal.value - l.y1.baseVal.value;
+      if (Math.abs(dy) < 0.11) n.h++; else if (Math.abs(dx) < 0.11) n.v++;
+      else if (Math.abs(-dx / dy - sc.K) < 0.02) n.d++; else bad.push(node.dataset.id + " " + dx + "," + dy);
+    }
+  }
+  const pre = document.createElement("pre"); pre.id = "check";
+  pre.textContent = JSON.stringify({ lines: n, bad }); document.body.append(pre);
+}
+</script>
+</body>
+</html>
