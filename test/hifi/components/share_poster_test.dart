@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/core/theme/mabar_theme.dart';
@@ -271,8 +273,8 @@ void main() {
   double nameSize(WidgetTester tester, String name) => tester.widget<Text>(find.text(name)).style!.fontSize!;
 
   for (final (frame, data, target, name, size) in [
-    // feed1 s 1,04 (batas), kn 1: 13,5 × 1,04.
-    ('11b', fixed10, PodiumPosterTarget.card, 'Gina Rosalia + Hana Taslim', 13.5 * 1.04),
+    // feed1 s 1,04 (batas), kn 1: 13,5 × 1,04 = 14,04 dibatasi baris kecil kepala 12,5 (keputusan 92).
+    ('11b', fixed10, PodiumPosterTarget.card, 'Gina Rosalia + Hana Taslim', 12.5),
     // feed2 s 1, kn 0,94 (§17.7).
     ('11e', () => mixed20(-1), PodiumPosterTarget.card, 'Citra Lestari', 12 * 0.94),
     ('11f', () => mixed20(0), PodiumPosterTarget.feed, 'Citra Lestari', 12 * 0.94),
@@ -292,7 +294,7 @@ void main() {
     });
   }
 
-  testWidgets('11j kn: 15 dan 17 pemain 0,94, 19 pemain 0,86, lainnya 1', (tester) async {
+  testWidgets('11j kn: 11, 13, 15, 17 pemain 0,94, 19 pemain 0,86, lainnya 1', (tester) async {
     for (var i = 0; i < facts11j.length; i++) {
       final rows = posterRows[('11j', i)]!;
       await tester.pumpWidget(
@@ -302,9 +304,11 @@ void main() {
           child: poster(mixedPlain('11j', i, facts11j[i]), padel, PodiumPosterTarget.card),
         ),
       );
-      final base = rows.length <= 10 ? 13.5 * 1.04 : 12.0;
+      // Nama paling besar = baris kecil kepala Feed 12,5 (keputusan 92).
+      final base = min(rows.length <= 10 ? 13.5 * 1.04 : 12.0, 12.5);
       final kn = switch (rows.length) {
-        15 || 17 => 0.94,
+        // Kolom nilai selebar nilai terlebar se-poster (keputusan 92) menyempitkan nama mulai 11 pemain.
+        11 || 13 || 15 || 17 => 0.94,
         19 => 0.86,
         _ => 1.0,
       };

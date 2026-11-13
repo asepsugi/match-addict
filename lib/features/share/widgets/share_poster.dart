@@ -164,7 +164,12 @@ class SharePoster extends StatelessWidget {
               children: [
                 Positioned.fill(
                   child: CustomPaint(
-                    painter: PodiumScenePainter(layout: layout, theme: theme),
+                    painter: PodiumScenePainter(
+                      layout: layout,
+                      theme: theme,
+                      sport: data.sport,
+                      headRect: Rect.fromLTRB(22, head.top, 22 + head.width, head.bottom),
+                    ),
                   ),
                 ),
                 Positioned(

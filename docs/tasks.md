@@ -3,7 +3,11 @@
 Pemilik: tech-lead. Daftar task sebelumnya (Poster podium PP-n, selesai, rilis 3.6.0) ada di riwayat git:
 `git show 3a95d55:docs/tasks.md`.
 
-## PATCH 3.7.1 · ukuran & perataan poster (umpan balik host uji HP 2026-11-13) — SEDANG JALAN
+## PATCH 3.7.1 · ukuran & perataan poster (umpan balik host uji HP 2026-11-13) — SELESAI, belum push
+
+Status 2026-11-13: keputusan 91–92 di PRD; hi-fi final 2667bfd + kontras kepala memudar 6 pt 6afbde6 (disetujui host:
+4 ekstrapolasi, kontras ≥ 4,5, 6 pt cukup); painter + `court_floor.dart` + golden; suite penuh lolos (1180); versi
+3.7.1+23. Sisa: push ke `main` setelah host bilang (deploy web), publish artifact hi-fi, uji share di HP.
 
 Branch `poster-patch-3-7-1` (dari `5684c9e`), Level 1 Presentation, PATCH. Kode Flutter **sudah** diubah (commit WIP);
 golden poster **pasti merah** sampai hi-fi menyusul. Host minta push digabung dengan update berikutnya (belum disebut).

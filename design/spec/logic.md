@@ -1187,8 +1187,15 @@ token `posterPodium`; turunan yang dicek dari SVG frame:
   160 / 115 / 77; 18m Story pasangan (dasar 344) → 128 / 92 / 62; Feed di semua frame tetap. bawahKepala dihitung dengan
   line-height CSS (`_CssLines`), bukan metrik font Flutter, supaya pembulatan ke bawah sama.
 - Garis belakang lapangan: y = dasar − (h3' + 6) dengan h3' = tinggi #3 baku varian itu setelah batas tinggi, walau
-  tidak ada blok #3 (Sparing, 2 anak tangga, Kosong); sudut di x 40 (Story 44), garis ke (−10, y + 31,2) (Story
-  y + 31,9), tebal 4,5 (Story 5,5); lantai menerus sampai tepi bawah.
+  tidak ada blok #3 (Sparing, 2 anak tangga, Kosong); sudut di x 40 (Story 44), tebal garis tepi 4,5 (Story 5,5).
+- **Lantai = lapangan utuh** (keputusan 91, generator hi-fi `tool/hifi_court_floor.py`, token
+  `posterPodium.court`): tennis/padel dengan semua garis resmi lalu dipotong kanvas. Titik (u, v, t) m →
+  x = sudut + S·u − k·g·v, y = garis belakang + g·v − S·t; k = dx ÷ |dy| blok podium poster itu (Lengkap: podium
+  mini; tanpa blok tetap k susunannya); S = garis samping kanan memotong tepi bawah di W − sudut; g = net 10 di bawah
+  kanvas. Net tidak digambar. Padel: dinding kaca belakang + kiri dan pagar kawat, tiap lapis satu kelompok
+  ber-opacity; di belakang kepala (kotak `.phead`/`.lhead` + 4, dibulatkan keluar) dinding opacity 0,25, memudar
+  smoothstep 6 pt ke luar. Urutan: dinding (dengan mask), lantai, garis dalam, garis tepi, lalu podium. Geometri =
+  `lib/services/share/court_floor.dart` (diuji), painter hanya menggambar.
 
 ### 16.7 Jebakan untuk engineer dan reviewer
 
@@ -1302,7 +1309,7 @@ bawahPanel: kartu 358, Feed 346, Story 556 (640 − 84); jarakPanel 9 (Story 10)
 | Susunan | acuan | batasBaris | batasSkala | kolom nomor | jarak | nomor / nama / nilai / sisa (× s) | satuan di nilai |
 |---|---|---|---|---|---|---|---|
 | feed1 | 22 | 30 | 1,04 | 30 | 8 | 15 / 13,5 / 16 / 10,5 | ya ("52 game · +18") |
-| feed2 | 18 | 26 | 1,0 | 22 | 5 | 13 / 12 / 13,5 / 10 | tidak ("89 · +31") |
+| feed2 | 18 | 40 (keputusan 92; dulu 26) | 1,0 | 22 | 5 | 13 / 12 / 13,5 / 10 | tidak ("89 · +31") |
 | story1 | 17 | 42 | 1,33 | 30 | 8 | 14 / 13,5 / 15 / 10,5 | tidak |
 | story2 | 18 | 30 | 1,0 | 22 | 5 | 13 / 12 / 13,5 / 10 | tidak |
 
@@ -1335,8 +1342,8 @@ Invariant (wajib di test):
   (84).
 - **bawahKepala** = atasKepala (22; Story 98) + baris × ukuranJudul × 1,1 + jarak + ukuranBarisKecil × 1,2, dengan
   ukuran baris kecil **sesudah** dikecilkan; line-height CSS, bukan metrik font Flutter (pola `_CssLines` 16.6).
-- **garisBelakang** y = round(bawahKepala + 14) (Story + 18). Sudut x 40 (Story 44), tebal 4,5 (5,5), garis samping
-  turun 31,2 (31,9) ke x −10, lantai sampai tepi bawah — sama dengan Ringkas.
+- **garisBelakang** y = round(bawahKepala + 14) (Story + 18). Sudut x 40 (Story 44), tebal 4,5 (5,5); lantai
+  lapangan utuh sama dengan Ringkas (16.6, keputusan 91) dengan k podium mini (Feed 1,5, Story 1,6).
 
 ### 17.6 Geometri podium mini (79, 85; token `posterLengkap.miniPodium`)
 
@@ -1367,8 +1374,9 @@ Invariant (wajib di test):
   story1, story2 "89" + "· +31". **Nilai tidak pernah dipotong.**
 - **Nama dikecilkan bersama** (kn) per poster/target (kartu, Feed, Story dihitung sendiri): dari 1 turun 0,02 sampai
   setiap nama muat di sel namanya (ukur dengan bobot baris itu: #1 800), paling kecil 0,82; sesudah itu elipsis per
-  nama. Nilai di frame: 11e kartu, 11f Feed, 11h, 11j (15, 17) = 0,94; 11j (19), 11l Story = 0,86; lainnya 1.
-- Kaki `.psig` = kaki podium (wordmark + fakta mengecil per 0,1 dari 10,5, tidak pernah terpotong), tinggi 26 (34).
+  nama. Nilai di frame: 11e kartu, 11f Feed, 11h, 11j (11, 13, 15, 17) = 0,94; 11j (19), 11l Story = 0,86; lainnya 1
+  (kolom nilai selebar nilai terlebar se-poster, keputusan 92).
+- Kaki `.psig` = kaki podium (wordmark + fakta mengecil per 0,1 dari 9,5, keputusan 92, tidak pernah terpotong), tinggi 26 (34).
 
 ### 17.8 Tema (76, menggantikan 70)
 
@@ -1436,13 +1444,13 @@ bandingkan dengan toleransi 0,002):
 | 11e | Mixed 20, bernama | kartu | feed2 | 2 (10) | 10 | 242 | 24,2 | 1 |
 | 11f | sama | Feed / Story | feed2 / story1 | 2 (10) / 1 | 10 / 20 | 230 / 315 | 23 / 15,75 | 1 / 0,926 |
 | 11g | Fixed 10 pasangan | Feed / Story | feed1 / story1 | 1 / 1 | 10 / 20 | 226 / 336 | 22,6 / 16,8 | 1,027 / 0,988 |
-| 11h | Mixed 12 | kartu | feed2 | 2 (6) | 6 | 238 | 26 (batas) | 1 |
-| 11i | Mixed 13 | kartu | feed2 | 2 (7) | 7 | 238 | 26 | 1 |
+| 11h | Mixed 12 | kartu | feed2 | 2 (6) | 6 | 238 | 39,67 | 1 |
+| 11i | Mixed 13 | kartu | feed2 | 2 (7) | 7 | 238 | 34 | 1 |
 | 11j | Mixed 5 / 7 / 9 | kartu | feed1 | 1 | 5 / 7 / 9 | 238 | 30 / 30 / 26,44 | 1,04 |
-| 11j | Mixed 11 / 13 / 15 / 17 / 19 | kartu | feed2 | 2 (6/7/8/9/10) | sama | 238 | 26 ×4 / 23,8 | 1 |
+| 11j | Mixed 11 / 13 / 15 / 17 / 19 | kartu | feed2 | 2 (6/7/8/9/10) | sama | 238 | 39,67 / 34 / 29,75 / 26,44 / 23,8 | 1 |
 | 11k K88 | Fixed 15 pasangan | Feed / Story / kartu | feed1 / story1 / feed1 | 1 | 15 / 30 / 15 | 226 / 336 / 238 | 15,07 / 11,2 / 15,87 | 0,685 / 0,659 / 0,721 |
 | 11l K81 | Mixed 30, judul 2 baris | Feed / Story / kartu | feed2 / story2 / feed2 | 2 (15) | 15 | 209 / 315 / 221 | 13,93 / 21 / 14,73 | 0,774 / 1 / 0,818 |
-| 11m | Mixed 12, #1 × 6 | Feed | feed2 | 2 (6) | 6 | 230 | 26 | 1 |
+| 11m | Mixed 12, #1 × 6 | Feed | feed2 | 2 (6) | 6 | 230 | 38,33 | 1 |
 | 11m K87 | belum ada match | Story | story1 | 1 | 0 | — | — | panel = 6 + kaki |
 | 13s | Sparing Fixed 4 + 3 | kartu | feed1 | 1 | 7 + 2×2 = 11 | 238 | 21,64 | 0,983 |
 | 13t | sama | Feed / Story | feed1 / story1 | 1 | 11 / 7×2 + 4 = 18 | 226 / 336 | 20,55 / 18,67 | 0,934 / 1,098 |

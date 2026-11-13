@@ -1,10 +1,12 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/mabar_theme.dart';
 import '../../../core/widgets/mabar_ball.dart';
 import '../../../models/models.dart';
+import '../../../services/share/court_floor.dart';
 import '../podium_theme.dart';
 
 /// Di mana poster podium tampil (tokens.json → posterPodium). Gambar dirancang di [designSize] (skala 1:3 dari
@@ -100,7 +102,7 @@ class _Spec {
   final List<double> heights, heightsPair;
   final Map<int, double> widths;
   final Offset depth;
-  final double ball, ballPair, cornerX, lineWidth, lineDrop;
+  final double ball, ballPair, cornerX, lineWidth;
 
   const _Spec({
     required this.insetX,
@@ -121,7 +123,6 @@ class _Spec {
     required this.ballPair,
     required this.cornerX,
     required this.lineWidth,
-    required this.lineDrop,
   });
 }
 
@@ -144,7 +145,6 @@ const _feedSpec = _Spec(
   ballPair: 19,
   cornerX: 40,
   lineWidth: 4.5,
-  lineDrop: 31.2,
 );
 
 const _storySpec = _Spec(
@@ -166,7 +166,6 @@ const _storySpec = _Spec(
   ballPair: 26,
   cornerX: 44,
   lineWidth: 5.5,
-  lineDrop: 31.9,
 );
 
 /// Bola Ringkas: jarak antarbola pasangan 2, bawah bola 2 di bawah tepi atas blok yang bergeser dy/2.
@@ -289,7 +288,12 @@ class PodiumLayout {
   /// Bawah kepala (judul + baris kecil) menurut line-height CSS.
   final double headBottom;
   final Offset depth;
-  final double cornerX, lineWidth, lineDrop;
+
+  /// Sudut garis belakang (x) dan tebal garis tepi lapangan.
+  final double cornerX, lineWidth;
+
+  /// Target Story: garis dalam dan kisi kawat lapangan lebih besar ([courtFloor]).
+  final bool story;
   final List<PodiumBlockGeom> blocks;
   final List<PodiumBallGeom> balls;
 
@@ -302,7 +306,7 @@ class PodiumLayout {
     required this.depth,
     required this.cornerX,
     required this.lineWidth,
-    required this.lineDrop,
+    required this.story,
     required this.blocks,
     required this.balls,
   });
@@ -366,7 +370,7 @@ PodiumLayout podiumLayout({
     depth: s.depth,
     cornerX: s.cornerX,
     lineWidth: s.lineWidth,
-    lineDrop: s.lineDrop,
+    story: target == PodiumPosterTarget.story,
     blocks: geoms,
     balls: balls,
   );
@@ -407,7 +411,7 @@ PodiumLayout miniPodiumLayout({
     depth: m.depth,
     cornerX: s.cornerX,
     lineWidth: s.lineWidth,
-    lineDrop: s.lineDrop,
+    story: target == PodiumPosterTarget.story,
     blocks: geoms,
     balls: balls,
   );
@@ -462,7 +466,7 @@ double _slotWidth(Map<int, double> widths, int slots) => widths[slots] ?? widths
 /// Bawah kepala menurut line-height CSS (judul 1,1, baris kecil 1,2), bukan metrik font Flutter, supaya pembulatan
 /// garis belakang/batas tinggi sama dengan frame.
 double _headBottom(_Spec s, int titleLines, double titleSize, double subSize) =>
-    s.headTop + titleLines * titleSize * 1.1 + s.subGap + subSize * 1.2;
+    s.headTop + podiumHeadHeight(titleLines: titleLines, titleSize: titleSize, subGap: s.subGap, subSize: subSize);
 
 TextStyle _titleStyle(double size, {Color? color}) =>
     posterStyle(size: size, weight: FontWeight.w800, stretch: 95, height: 1.1, color: color);
@@ -678,35 +682,19 @@ int _lineCount(String text, TextStyle style, {required double maxWidth, required
 class PodiumScenePainter extends CustomPainter {
   final PodiumLayout layout;
   final PodiumTheme theme;
+  final SportType sport;
 
-  const PodiumScenePainter({required this.layout, required this.theme});
+  /// Kotak kepala (`.phead` / `.lhead`, tinggi menurut line-height CSS) untuk mask dinding padel; null = tanpa mask.
+  final Rect? headRect;
+
+  const PodiumScenePainter({required this.layout, required this.theme, required this.sport, this.headRect});
 
   @override
   void paint(Canvas canvas, Size size) {
     final l = layout;
     canvas.drawRect(Offset.zero & size, theme.backgroundPaint(size));
 
-    // Lantai menerus sampai tepi bawah/kanan; garis dari sudut (cornerX) ke kiri-bawah.
-    final y = l.backLine;
-    final floor = Path()
-      ..moveTo(l.cornerX, y)
-      ..lineTo(size.width + 10, y)
-      ..lineTo(size.width + 10, size.height + 10)
-      ..lineTo(-10, size.height + 10)
-      ..lineTo(-10, y + l.lineDrop)
-      ..close();
-    canvas.drawPath(floor, Paint()..color = theme.floor);
-    canvas.drawPath(
-      Path()
-        ..moveTo(size.width + 10, y)
-        ..lineTo(l.cornerX, y)
-        ..lineTo(-10, y + l.lineDrop),
-      Paint()
-        ..color = theme.line
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = l.lineWidth
-        ..strokeJoin = StrokeJoin.miter,
-    );
+    _paintCourt(canvas, size);
 
     final d = l.depth, blocks = l.blocks;
     Color front(PodiumBlockGeom b) => b.gold ? PodiumTheme.goldFront : theme.blockFront;
@@ -760,6 +748,112 @@ class PodiumScenePainter extends CustomPainter {
     }
   }
 
+  /// Lantai lapangan utuh (keputusan 91): urutan sama dengan `<g class="court">` hi-fi — dinding padel (dengan mask
+  /// kepala), poligon lantai, garis dalam, lalu garis tepi. Geometri dari [courtFloor].
+  void _paintCourt(Canvas canvas, Size size) {
+    final l = layout;
+    final court = courtFloor(
+      sport: sport,
+      width: size.width,
+      height: size.height,
+      cornerX: l.cornerX,
+      backLine: l.backLine,
+      k: l.depth.dx / -l.depth.dy,
+      story: l.story,
+    );
+    Offset o(CourtPoint p) => Offset(p.x, p.y);
+    final walls = court.walls;
+    if (walls != null) _paintWalls(canvas, size, walls, o);
+
+    final outline = Path()..addPolygon([for (final p in court.outline) o(p)], true);
+    canvas.drawPath(outline, Paint()..color = theme.floor);
+    // Garis dalam digambar satu per satu seperti `<line>` SVG: persilangan menebal sama dengan frame.
+    final inner = Paint()
+      ..color = theme.line
+      ..strokeWidth = court.lineWidth
+      ..strokeCap = StrokeCap.square;
+    for (final (a, b) in court.lines) {
+      canvas.drawLine(o(a), o(b), inner);
+    }
+    canvas.drawPath(
+      outline,
+      Paint()
+        ..color = theme.line
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = l.lineWidth
+        ..strokeJoin = StrokeJoin.miter,
+    );
+  }
+
+  /// Tiap lapis dinding = satu kelompok ber-opacity (saveLayer), bukan alpha per garis, supaya persilangan kawat sama
+  /// dengan `<g opacity>` SVG. Mask kepala: saveLayer dinding, lalu dstOut berisi gradien horizontal (1 − opacity) ×
+  /// ramp yang dikali gradien vertikal ramp (dstIn) — resep tokens `behindHead`.
+  void _paintWalls(Canvas canvas, Size size, PadelWalls w, Offset Function(CourtPoint) o) {
+    final mask = headRect == null
+        ? null
+        : HeadWallMask.around(
+            left: headRect!.left,
+            top: headRect!.top,
+            right: headRect!.right,
+            bottom: headRect!.bottom,
+          );
+    final ink = theme.line;
+    void group(double opacity, void Function() draw) {
+      canvas.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, opacity));
+      draw();
+      canvas.restore();
+    }
+
+    void lines(Iterable<CourtLine> ls, double width) {
+      final paint = Paint()
+        ..color = ink
+        ..strokeWidth = width;
+      for (final (a, b) in ls) {
+        canvas.drawLine(o(a), o(b), paint);
+      }
+    }
+
+    if (mask != null) canvas.saveLayer(null, Paint());
+    final (gl, gt, gr, gb) = w.backGlass;
+    canvas.drawRect(
+      Rect.fromLTRB(gl, gt, gr, gb),
+      Paint()..color = ink.withValues(alpha: ink.a * PadelWalls.backGlassOpacity),
+    );
+    group(PadelWalls.glassOpacity, () {
+      for (final q in w.glass) {
+        canvas.drawPath(Path()..addPolygon([for (final p in q) o(p)], true), Paint()..color = ink);
+      }
+    });
+    group(PadelWalls.meshOpacity, () => lines(w.mesh, PadelWalls.meshWidth));
+    group(PadelWalls.postOpacity, () => lines(w.posts, PadelWalls.postWidth));
+    group(PadelWalls.cornerOpacity, () => lines([w.corner], PadelWalls.cornerWidth));
+
+    if (mask != null) {
+      final (l, t, r, b) = mask.outer;
+      final rect = Rect.fromLTRB(l, t, r, b);
+      Shader shader(bool horizontal, Color color) {
+        final stops = HeadWallMask.stops(horizontal ? l : t, horizontal ? r : b);
+        return ui.Gradient.linear(
+          horizontal ? Offset(l, 0) : Offset(0, t),
+          horizontal ? Offset(r, 0) : Offset(0, b),
+          [for (final (_, v) in stops) color.withValues(alpha: color.a * v)],
+          [for (final (off, _) in stops) off],
+        );
+      }
+
+      canvas.saveLayer(rect, Paint()..blendMode = BlendMode.dstOut);
+      canvas.drawRect(rect, Paint()..shader = shader(true, const Color.fromRGBO(0, 0, 0, 1 - HeadWallMask.opacity)));
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..shader = shader(false, const Color(0xFF000000))
+          ..blendMode = BlendMode.dstIn,
+      );
+      canvas.restore();
+      canvas.restore();
+    }
+  }
+
   void _paintFace(Canvas canvas, PodiumBlockGeom b) {
     TextPainter at(double size) => _measure(
       b.face,
@@ -781,7 +875,8 @@ class PodiumScenePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PodiumScenePainter old) => old.layout != layout || old.theme != theme;
+  bool shouldRepaint(PodiumScenePainter old) =>
+      old.layout != layout || old.theme != theme || old.sport != sport || old.headRect != headRect;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -818,6 +913,12 @@ class PodiumPoster extends StatelessWidget {
       titleLines: titleLines,
     );
 
+    final headRect = Rect.fromLTWH(
+      _headInset,
+      s.headTop,
+      titleW,
+      podiumHeadHeight(titleLines: titleLines, titleSize: titleSize, subGap: s.subGap, subSize: s.subSize),
+    );
     final head = Positioned(
       left: _headInset,
       top: s.headTop,
@@ -846,7 +947,7 @@ class PodiumPoster extends StatelessWidget {
               children: [
                 Positioned.fill(
                   child: CustomPaint(
-                    painter: PodiumScenePainter(layout: layout, theme: theme),
+                    painter: PodiumScenePainter(layout: layout, theme: theme, sport: data.sport, headRect: headRect),
                   ),
                 ),
                 head,
@@ -977,6 +1078,15 @@ class _Panel extends StatelessWidget {
     );
   }
 }
+
+/// Tinggi kotak [PodiumHead] menurut line-height CSS (judul 1,1, baris kecil 1,2): satu rumus untuk widget kepala dan
+/// kotak mask dinding padel di belakangnya.
+double podiumHeadHeight({
+  required int titleLines,
+  required double titleSize,
+  required double subGap,
+  required double subSize,
+}) => titleLines * titleSize * 1.1 + subGap + subSize * 1.2;
 
 /// Kepala poster (`.phead` Ringkas, `.lhead` Lengkap): judul (1–2 baris, line-height 1,1) + baris kecil satu baris.
 /// Ukuran dan jumlah baris sudah dihitung pemanggil ([lengkapHead] / [PodiumPoster]); di sini hanya menggambar,
