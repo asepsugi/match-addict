@@ -3,14 +3,17 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/features/share/podium_theme.dart';
 import 'package:match_addict/features/share/share_content.dart';
+import 'package:match_addict/features/share/share_exports.dart';
+import 'package:match_addict/features/share/widgets/podium_poster.dart';
 import 'package:match_addict/features/share/widgets/share_poster.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/ranking/ranking_calculator.dart';
-import 'package:match_addict/features/share/share_theme.dart';
+import 'package:match_addict/services/share/lengkap.dart';
 
-/// Turnamen dengan [count] pemain, satu round yang seluruh match-nya selesai.
-ActiveTournament _active(int count, {String? name}) {
+/// Turnamen dengan [count] pemain, satu round; seluruh match-nya selesai, atau belum ada skor ([played] false).
+ActiveTournament _active(int count, {String? name, bool played = true}) {
   final players = [
     for (var i = 0; i < count; i++)
       Player(id: 'p$i', name: 'Pemain Nomor ${i + 1}'),
@@ -24,8 +27,8 @@ ActiveTournament _active(int count, {String? name}) {
         courtId: 'c1',
         pair1: Pair(id: 'x$i', player1Id: 'p$i', player2Id: 'p${i + 1}'),
         pair2: Pair(id: 'y$i', player1Id: 'p${i + 2}', player2Id: 'p${i + 3}'),
-        sets: const [SetScore(side1: 6, side2: 3)],
-        status: MatchStatus.done,
+        sets: played ? const [SetScore(side1: 6, side2: 3)] : const [],
+        status: played ? MatchStatus.done : MatchStatus.pending,
       ),
   ];
 
@@ -107,18 +110,57 @@ void main() {
       expect(data.rows.first.detail, '· +3');
     });
 
-    test('Lengkap: semua yang bernomor, tanpa "+n"; Win % "100%" + selisih', () {
+    test('Lengkap: semua yang bernomor, kepala dan fakta = podium; Win % "100%" + selisih tanpa satuan', () {
       final active = _active(8);
+      final entries = _standings(active);
+      final data = sharePosterData(active: active, entries: entries, method: RankingMethod.winPercent, isFinal: false);
+      final podium = podiumPosterData(
+        active: active,
+        entries: entries,
+        method: RankingMethod.winPercent,
+        isFinal: false,
+      );
+      expect(data.rows, hasLength(8));
+      expect(data.clubs, isNull);
+      expect(data.endless, isTrue);
+      expect((data.title, data.subtitle, data.facts), (podium.title, podium.subtitle, podium.facts));
+      expect(
+        [for (final b in data.blocks) (b.level, b.face, b.balls)],
+        [for (final b in podium.blocks) (b.level, b.face, b.balls)],
+      );
+      expect((data.rows.first.value, data.rows.first.detail, data.rows.first.diff), ('100%', null, '+3'));
+    });
+
+    test('11m Feed K85: lebih dari empat di #1 → satu blok lebar, 12 baris, 6 bernomor #1', () {
+      final active = _active(12, name: 'Mabar Jumat PB Garuda');
       final data = sharePosterData(
         active: active,
         entries: _standings(active),
         method: RankingMethod.winPercent,
         isFinal: false,
       );
-      expect(data.rows, hasLength(8));
-      expect(data.more, isNull);
-      expect(data.complete, isTrue);
-      expect((data.rows.first.value, data.rows.first.detail, data.rows.first.diff), ('100%', null, '+3'));
+      expect(data.wide, isTrue);
+      expect([for (final b in data.blocks) (b.level, b.face, b.balls)], [(1, '1', 0)]);
+      expect(data.rows, hasLength(12));
+      expect(data.rows.where((r) => r.position == 1), hasLength(6));
+      expect(data.title, 'Mabar Jumat PB Garuda');
+      expect(data.subtitle, 'Klasemen sementara · 16 Sep 2026');
+      expect(data.facts, 'Padel · 12 pemain · R1 · 3 dari 3 match');
+    });
+
+    test('11m Story K87: belum ada match → blok kosong, baris kosong, fakta "0 dari 3 match"', () {
+      final active = _active(12, name: 'Mabar Jumat PB Garuda', played: false);
+      final data = sharePosterData(
+        active: active,
+        entries: _standings(active),
+        method: RankingMethod.winPercent,
+        isFinal: false,
+      );
+      expect(data.blocks, isEmpty);
+      expect(data.rows, isEmpty);
+      expect(data.clubs, isNull);
+      expect(data.facts, 'Padel · 12 pemain · R1 · 0 dari 3 match');
+      expect(lengkapGrid(story: true, endless: true, rowCounts: data.rowCounts, pairs: false).units, 0);
     });
 
     test('Fixed: ukuran pasangan, dua nama per baris, fakta menghitung pasangan', () {
@@ -152,12 +194,32 @@ void main() {
   });
 
   group('gambar ekspor', () {
-    for (final target in [SharePosterTarget.feed, SharePosterTarget.story]) {
-      testWidgets('${target.name} lebarnya 1080 px', (tester) async {
-        final size = target.designSize;
-        await tester.binding.setSurfaceSize(size);
+    // lengkapImages: Feed 360 × 360 dan Story 360 × 640 ×3 (§17.9), bukan kanvas Story lama 202,5 × 360.
+    final active = _active(20);
+    final images = lengkapImages(
+      sharePosterData(active: active, entries: _standings(active), method: RankingMethod.totalGames, isFinal: false),
+      PodiumTheme.court(SportType.padel),
+    );
+
+    test('Feed dan Story: ukuran, rasio, nama berkas', () {
+      expect(
+        [for (final i in images) (i.size, i.pixelRatio, i.fileName)],
+        [
+          (const Size(360, 360), 3.0, 'match-addict-feed-1080x1080.png'),
+          (const Size(360, 640), 3.0, 'match-addict-story-1080x1920.png'),
+        ],
+      );
+      expect(
+        [for (final i in images) (i.poster as SharePoster).target],
+        [PodiumPosterTarget.feed, PodiumPosterTarget.story],
+      );
+    });
+
+    for (final (image, size) in [(0, const Size(1080, 1080)), (1, const Size(1080, 1920))]) {
+      testWidgets('${size.width.round()} × ${size.height.round()} px', (tester) async {
+        final shot = images[image];
+        await tester.binding.setSurfaceSize(shot.size);
         addTearDown(() => tester.binding.setSurfaceSize(null));
-        final active = _active(20);
         final key = GlobalKey();
         await tester.pumpWidget(
           MediaQuery(
@@ -165,22 +227,7 @@ void main() {
             child: Directionality(
               textDirection: TextDirection.ltr,
               child: Center(
-                child: RepaintBoundary(
-                  key: key,
-                  child: SizedBox.fromSize(
-                    size: size,
-                    child: SharePoster(
-                      data: sharePosterData(
-                        active: active,
-                        entries: _standings(active),
-                        method: RankingMethod.totalGames,
-                                        isFinal: false,
-                      ),
-                      theme: ShareTheme.hijau,
-                      target: target,
-                    ),
-                  ),
-                ),
+                child: RepaintBoundary(key: key, child: shot.poster),
               ),
             ),
           ),
@@ -190,13 +237,12 @@ void main() {
 
         // Jalur yang sama dipakai ScreenshotController saat share.
         final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-        late ui.Image image;
+        late ui.Image rendered;
         await tester.runAsync(() async {
-          image = await boundary.toImage(pixelRatio: target.exportPixelRatio);
+          rendered = await boundary.toImage(pixelRatio: shot.pixelRatio);
         });
-        addTearDown(image.dispose);
-        expect(image.width, 1080);
-        expect(image.height, (size.height * target.exportPixelRatio).round());
+        addTearDown(rendered.dispose);
+        expect((rendered.width, rendered.height), (size.width.round(), size.height.round()));
       });
     }
   });

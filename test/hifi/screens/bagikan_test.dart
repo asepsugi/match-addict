@@ -105,7 +105,12 @@ void main() {
   /// Mixed yang sudah diakhiri dengan [rounds] × [courts] match (hanya untuk "x round · y match"); barisnya
   /// langsung dari data poster frame (nomor, poin, selisih), karena nomor seri di sana (3, 3 · 10, 10 · 12, 12)
   /// butuh poin dan selisih yang sama persis.
-  (ActiveTournament, List<StandingEntry>) mixedFromPoster(String frame, {required int rounds, required int courts}) {
+  (ActiveTournament, List<StandingEntry>) mixedFromPoster(
+    String frame, {
+    required int rounds,
+    required int courts,
+    String? name,
+  }) {
     final rows = posterRows[(frame, 0)]!;
     final roster = [for (final r in rows) r.names.single];
     final first = [for (final n in roster) n.split(' ').first];
@@ -125,6 +130,7 @@ void main() {
       courtCount: courts,
       createdAt: date,
       finished: true,
+      name: name,
     );
     final entries = [
       for (final (i, r) in rows.indexed)
@@ -174,11 +180,27 @@ void main() {
     );
   });
 
-  for (final (frame, rounds, courts) in [('11e', 8, 4), ('11h', 6, 3), ('11i', 6, 3)]) {
+  // Tema per frame: 11e/11i lapangan (bawaan), 11h biru; 11e bernama.
+  for (final (frame, rounds, courts, name, theme) in [
+    ('11e', 8, 4, 'Mabar Jumat PB Garuda', null),
+    ('11h', 6, 3, null, ShareTheme.biru),
+    ('11i', 6, 3, null, null),
+  ]) {
     testWidgets('$frame Lengkap Mixed dua kolom', (tester) async {
       await precacheHifiAssets(tester, [SportType.padel.assetPath]);
-      final (active, entries) = mixedFromPoster(frame, rounds: rounds, courts: courts);
-      await expectMatchesHifi(tester, screen(active, entries: entries), frame, act: lengkap);
+      final (active, entries) = mixedFromPoster(frame, rounds: rounds, courts: courts, name: name);
+      await expectMatchesHifi(
+        tester,
+        screen(active, entries: entries),
+        frame,
+        act: (tester) async {
+          if (theme != null) {
+            await tester.tap(find.bySemanticsLabel('Tema ${theme.name}'));
+            await tester.pump();
+          }
+          await lengkap(tester);
+        },
+      );
     });
   }
 
@@ -324,25 +346,36 @@ void main() {
     expect(_selected(tester, 'Tema biru'), isFalse);
   });
 
-  testWidgets('Deret tema: Ringkas 11 lingkaran 27 pt dengan lapangan terpilih; Lengkap 10 lingkaran 30 pt', (
+  testWidgets('Deret tema: 11 lingkaran 27 pt dengan lapangan terpilih, sama di Ringkas dan Lengkap (K76)', (
     tester,
   ) async {
     phone(tester);
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     await tester.pumpWidget(screen(set1));
-    final swatches = _swatch();
-    expect(swatches, findsNWidgets(11));
-    expect(tester.getSize(_swatch('Tema lapangan')), const Size.square(27));
-    expect(tester.getSize(_swatch('Tema biru')), const Size.square(27));
-    expect(_selected(tester, 'Tema lapangan'), isTrue);
+    for (final tab in [null, 'Lengkap', 'Ringkas']) {
+      if (tab != null) {
+        await tester.tap(find.text(tab));
+        await tester.pump();
+      }
+      expect(_swatch(), findsNWidgets(11));
+      expect(tester.getSize(_swatch('Tema lapangan')), const Size.square(27));
+      expect(tester.getSize(_swatch('Tema biru')), const Size.square(27));
+      expect(_selected(tester, 'Tema lapangan'), isTrue);
+    }
+  });
 
+  testWidgets('11e K76 lapangan tetap lapangan di Lengkap: biru tidak ikut ditandai', (tester) async {
+    phone(tester);
+    await precacheHifiAssets(tester, [SportType.padel.assetPath]);
+    await tester.pumpWidget(screen(set1));
     await lengkap(tester);
     await tester.pump();
-    expect(swatches, findsNWidgets(10));
-    expect(_swatch('Tema lapangan'), findsNothing);
-    expect(tester.getSize(_swatch('Tema biru')), const Size.square(30));
-    // Pilihan lapangan: Lengkap memakai dan menandai biru (11e).
-    expect(_selected(tester, 'Tema biru'), isTrue);
+    expect(_selected(tester, 'Tema lapangan'), isTrue);
+    expect(_selected(tester, 'Tema biru'), isFalse);
+    expect([
+      for (final t in ShareTheme.values)
+        if (_selected(tester, 'Tema ${t.name}')) t,
+    ], isEmpty);
   });
 
   testWidgets('Gradien dari Lengkap berlaku di Ringkas; kembali ke lapangan lewat deret Ringkas', (tester) async {

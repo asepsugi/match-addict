@@ -8,8 +8,8 @@ import '../../../models/models.dart';
 import '../podium_theme.dart';
 
 /// Di mana poster podium tampil (tokens.json → posterPodium). Gambar dirancang di [designSize] (skala 1:3 dari
-/// 1080 px) lalu dirender ×[exportPixelRatio]; kartu pratinjau memakai ukuran Feed di kanvas 358 × 372. Story podium
-/// 360 × 640 **bukan** kanvas 203 × 360 poster Lengkap ([SharePosterTarget.story]).
+/// 1080 px) lalu dirender ×[exportPixelRatio]; kartu pratinjau memakai ukuran Feed di kanvas 358 × 372. Dipakai
+/// poster Ringkas dan Lengkap (logic.md §17.1).
 enum PodiumPosterTarget {
   card,
   feed,
@@ -169,6 +169,60 @@ const _storySpec = _Spec(
   lineDrop: 31.9,
 );
 
+/// Bola Ringkas: jarak antarbola pasangan 2, bawah bola 2 di bawah tepi atas blok yang bergeser dy/2.
+const _ballGap = 2.0, _ballLift = 2.0;
+
+/// Jarak kiri kepala (`.phead`, `.lhead` left 22); Ringkas juga 22 di kanan.
+const _headInset = 22.0;
+
+/// Konstanta podium mini poster Lengkap satu target (`posterLengkap.miniPodium`, `.court`). Kartu memakai angka
+/// Feed. Sudut, tebal, dan turunan garis lapangan sama dengan Ringkas ([_Spec]).
+class _MiniSpec {
+  final List<double> heights;
+  final Map<int, double> widths;
+  final Offset depth;
+  final double ball, ballPair, backLineBelowHead, panelBelowBackLine;
+
+  const _MiniSpec({
+    required this.heights,
+    required this.widths,
+    required this.depth,
+    required this.ball,
+    required this.ballPair,
+    required this.backLineBelowHead,
+    required this.panelBelowBackLine,
+  });
+}
+
+const _miniFeedSpec = _MiniSpec(
+  heights: [34, 24, 16],
+  widths: {1: 34, 2: 34, 3: 26, 4: 21},
+  depth: Offset(6, -4),
+  ball: 9,
+  ballPair: 8,
+  backLineBelowHead: 14,
+  panelBelowBackLine: 9,
+);
+
+const _miniStorySpec = _MiniSpec(
+  heights: [52, 37, 25],
+  widths: {1: 36, 2: 36, 3: 28, 4: 22},
+  depth: Offset(8, -5),
+  ball: 12,
+  ballPair: 10,
+  backLineBelowHead: 18,
+  panelBelowBackLine: 10,
+);
+
+/// Podium mini: kanan blok + dx = W − 22; kanan kepala = 22 + lebar podium + 12. Bola pasangan berjarak 1 dan
+/// bawahnya +1 (Ringkas 2 / +2), sesuai SVG frame 11b, 11f, 11g.
+const _miniRightInset = 22.0, _headRightGap = 12.0, _miniBallGap = 1.0, _miniBallLift = 1.0;
+
+/// Baris kecil Lengkap mengecil per 0,5 sampai 11 lalu elipsis, tidak pernah dua baris (keputusan 84).
+const _subMin = 11.0, _subStep = 0.5;
+
+_MiniSpec _miniFor(PodiumPosterTarget target) => target == PodiumPosterTarget.story ? _miniStorySpec : _miniFeedSpec;
+
 /// Ukuran angka di muka blok = 0,656 × tinggi blok.
 const _faceRatio = 0.656;
 
@@ -182,6 +236,12 @@ double _faceSizeFor(String face, double height, double blockWidth) {
   if (face.length < 2 || size * _faceCharEm * face.length <= 0.7 * blockWidth) return size;
   return (0.7 * blockWidth / (_faceCharEm * face.length)).roundToDouble();
 }
+
+/// Kartu memakai inset 13 (bukan 14 Feed).
+double _insetX(PodiumPosterTarget target, _Spec s) => target == PodiumPosterTarget.card ? 13.0 : s.insetX;
+
+/// Padding atas panel sebelum baris pertama.
+const _panelPadTop = 6.0;
 
 _Spec _specFor(PodiumPosterTarget target) => target == PodiumPosterTarget.story ? _storySpec : _feedSpec;
 
@@ -216,13 +276,14 @@ class PodiumBallGeom {
 class PodiumLayout {
   final Size size;
 
-  /// Panel nama (kosong tetap punya baris kaki).
-  final Rect panel;
+  /// Panel nama Ringkas (kosong tetap punya baris kaki). Null di podium mini Lengkap: di sana panel ditentukan
+  /// kepadatan (logic.md §17.4) sesudah garis belakang, bukan oleh podium.
+  final Rect? panel;
 
-  /// Dasar blok = atas panel − 10 (Kosong: dihitung seperti panel tiga baris).
+  /// Dasar blok. Ringkas = atas panel − 10 (Kosong: dihitung seperti panel tiga baris); Lengkap = garis belakang.
   final double base;
 
-  /// y garis belakang lapangan = dasar − (tinggi #3 baku + 6).
+  /// y garis belakang lapangan. Ringkas = dasar − (tinggi #3 baku + 6); Lengkap dari kepala ([LengkapHead]).
   final double backLine;
 
   /// Bawah kepala (judul + baris kecil) menurut line-height CSS.
@@ -260,53 +321,41 @@ PodiumLayout podiumLayout({
   final s = _specFor(target);
   final size = target.designSize;
   final rowH = pairSize ? s.rowPair : s.row;
-  final panelH = 6 + panelRows * rowH + s.foot;
+  final panelH = _panelPadTop + panelRows * rowH + s.foot;
   final panelTop = size.height - s.insetBottom - panelH;
-  final insetX = target == PodiumPosterTarget.card ? 13.0 : s.insetX;
+  final insetX = _insetX(target, s);
   final panel = Rect.fromLTWH(insetX, panelTop, size.width - 2 * insetX, panelH);
 
   // Kosong: tidak ada panel nama, tapi garis belakang tetap di tempat poster tiga baris (18t = 18c).
-  final baseH = blocks.isEmpty ? 6 + 3 * s.row + s.foot : panelH;
+  final baseH = blocks.isEmpty ? _panelPadTop + 3 * s.row + s.foot : panelH;
   final base = size.height - s.insetBottom - baseH - 10;
 
-  final headBottom =
-      s.headTop + titleLines * (titleLines == 1 ? s.title : s.titleTwo) * 1.1 + s.subGap + s.subSize * 1.2;
+  // Ringkas sengaja memakai ukuran judul besar untuk judul satu baris (perilaku 3.6.0, dijaga golden).
+  final headBottom = _headBottom(s, titleLines, titleLines == 1 ? s.title : s.titleTwo, s.subSize);
 
   // Batas tinggi (hanya menekan Story): h1' = min(h1, ⌊dasar − bawah kepala − 12 − tinggi bola di atas blok⌋);
   // tinggi lain mengikuti skala yang sama.
   final std = pairSize ? s.heightsPair : s.heights;
   final ballSize = pairSize ? s.ballPair : s.ball;
-  final rise = ballSize + s.depth.dy.abs() / 2 - 2;
+  final rise = ballSize + s.depth.dy.abs() / 2 - _ballLift;
   final h1 = min(std[0], (base - headBottom - 12 - rise).floorToDouble());
   final scale = h1 / std[0];
-  double heightOf(int level) => (std[level - 1] * scale).roundToDouble();
 
   final slots = wide ? 3 : blocks.length;
-  final slotW = s.widths[slots] ?? s.widths[4]!;
+  final slotW = _slotWidth(s.widths, slots);
   final x0 = slots == 0 ? 0.0 : ((size.width - (slots * slotW + s.depth.dx)) / 2).floorToDouble();
-  final geoms = <PodiumBlockGeom>[];
-  final balls = <PodiumBallGeom>[];
-  for (var i = 0; i < blocks.length; i++) {
-    final b = blocks[i];
-    final h = heightOf(b.level);
-    final rect = Rect.fromLTWH(x0 + (wide ? 0 : i * slotW), base - h, wide ? slotW * 3 : slotW, h);
-    geoms.add(PodiumBlockGeom(rect: rect, level: b.level, face: b.face, faceSize: _faceSizeFor(b.face, h, rect.width)));
-    // Bola: tengah blok digeser dx/2 (muka atas), bawah bola 2 pt di bawah tepi atas bergeser; berjajar jarak 2.
-    final bottom = rect.top + s.depth.dy / 2 + 2;
-    final cx = rect.center.dx + s.depth.dx / 2;
-    final total = b.balls * ballSize + (b.balls - 1) * 2;
-    for (var k = 0; k < b.balls; k++) {
-      final bx = cx - total / 2 + ballSize / 2 + k * (ballSize + 2);
-      balls.add(
-        PodiumBallGeom(
-          rect: Rect.fromCenter(center: Offset(bx, bottom - ballSize / 2), width: ballSize, height: ballSize),
-          shadowCenter: Offset(bx, bottom - 0.5),
-          shadowRx: 0.41 * ballSize,
-          shadowRy: 0.13 * ballSize,
-        ),
-      );
-    }
-  }
+  final (geoms, balls) = _placeBlocks(
+    blocks: blocks,
+    wide: wide,
+    x0: x0,
+    base: base,
+    slotW: slotW,
+    heightOf: (level) => (std[level - 1] * scale).roundToDouble(),
+    depth: s.depth,
+    ballSize: ballSize,
+    ballGap: _ballGap,
+    ballLift: _ballLift,
+  );
 
   return PodiumLayout(
     size: size,
@@ -323,11 +372,211 @@ PodiumLayout podiumLayout({
   );
 }
 
+/// Podium mini poster Lengkap (logic.md §17.6): blok berdiri di garis belakang [head], rata kanan (kanan blok + dx
+/// = W − 22), tinggi tetap per nomor (tanpa batas tinggi dan tanpa tinggi pasangan). Penempatan blok/bola, angka
+/// muka, dan painter sama dengan Ringkas; yang beda hanya angkanya. Kosong = tanpa blok, garis belakang tetap.
+PodiumLayout miniPodiumLayout({
+  required PodiumPosterTarget target,
+  required LengkapHead head,
+  required List<PodiumBlockData> blocks,
+  bool wide = false,
+  bool pairSize = false,
+}) {
+  final s = _specFor(target), m = _miniFor(target);
+  final size = target.designSize;
+  final slots = wide ? 3 : blocks.length;
+  final slotW = _slotWidth(m.widths, slots);
+  final (geoms, balls) = _placeBlocks(
+    blocks: blocks,
+    wide: wide,
+    x0: size.width - _miniRightInset - m.depth.dx - slots * slotW,
+    base: head.backLine,
+    slotW: slotW,
+    heightOf: (level) => m.heights[level - 1],
+    depth: m.depth,
+    ballSize: pairSize ? m.ballPair : m.ball,
+    ballGap: _miniBallGap,
+    ballLift: _miniBallLift,
+  );
+  return PodiumLayout(
+    size: size,
+    panel: null,
+    base: head.backLine,
+    backLine: head.backLine,
+    headBottom: head.bottom,
+    depth: m.depth,
+    cornerX: s.cornerX,
+    lineWidth: s.lineWidth,
+    lineDrop: s.lineDrop,
+    blocks: geoms,
+    balls: balls,
+  );
+}
+
+double _slotWidth(Map<int, double> widths, int slots) => widths[slots] ?? widths[4]!;
+
+/// Satu-satunya penempatan blok + bola (Ringkas dan podium mini): blok ke-i di x0 + i × [slotW] berdiri di [base];
+/// Kerumunan ([wide]) satu blok selebar tiga slot. Bola dipusatkan di muka atas (tengah blok + dx/2), bawahnya
+/// [ballLift] di bawah tepi atas yang bergeser dy/2, berjajar dengan jarak [ballGap].
+(List<PodiumBlockGeom>, List<PodiumBallGeom>) _placeBlocks({
+  required List<PodiumBlockData> blocks,
+  required bool wide,
+  required double x0,
+  required double base,
+  required double slotW,
+  required double Function(int level) heightOf,
+  required Offset depth,
+  required double ballSize,
+  required double ballGap,
+  required double ballLift,
+}) {
+  final geoms = <PodiumBlockGeom>[];
+  final balls = <PodiumBallGeom>[];
+  for (var i = 0; i < blocks.length; i++) {
+    final b = blocks[i];
+    final h = heightOf(b.level);
+    final rect = Rect.fromLTWH(x0 + (wide ? 0 : i * slotW), base - h, wide ? slotW * 3 : slotW, h);
+    geoms.add(PodiumBlockGeom(rect: rect, level: b.level, face: b.face, faceSize: _faceSizeFor(b.face, h, rect.width)));
+    final bottom = rect.top + depth.dy / 2 + ballLift;
+    final cx = rect.center.dx + depth.dx / 2;
+    final total = b.balls * ballSize + (b.balls - 1) * ballGap;
+    for (var k = 0; k < b.balls; k++) {
+      final bx = cx - total / 2 + ballSize / 2 + k * (ballSize + ballGap);
+      balls.add(
+        PodiumBallGeom(
+          rect: Rect.fromCenter(center: Offset(bx, bottom - ballSize / 2), width: ballSize, height: ballSize),
+          shadowCenter: Offset(bx, bottom - 0.5),
+          shadowRx: 0.41 * ballSize,
+          shadowRy: 0.13 * ballSize,
+        ),
+      );
+    }
+  }
+  return (geoms, balls);
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Kepala (judul + baris kecil): diukur dengan font, tinggi dari line-height CSS
+// ---------------------------------------------------------------------------------------------------------------
+
+/// Bawah kepala menurut line-height CSS (judul 1,1, baris kecil 1,2), bukan metrik font Flutter, supaya pembulatan
+/// garis belakang/batas tinggi sama dengan frame.
+double _headBottom(_Spec s, int titleLines, double titleSize, double subSize) =>
+    s.headTop + titleLines * titleSize * 1.1 + s.subGap + subSize * 1.2;
+
+TextStyle _titleStyle(double size, {Color? color}) =>
+    posterStyle(size: size, weight: FontWeight.w800, stretch: 95, height: 1.1, color: color);
+
+TextStyle _subStyle(double size, {Color? color}) => posterStyle(size: size, weight: FontWeight.w700, color: color);
+
+/// Judul satu baris di ukuran biasa; tidak muat di [width] → ukuran kecil (`.two`), jumlah baris 1–2 dari layout
+/// sebenarnya (lebih dari dua → elipsis di baris kedua).
+(double, int) _fitTitle(String title, double width, _Spec s) {
+  if (posterWidth(title, _titleStyle(s.title)) <= width) return (s.title, 1);
+  final lines = _lineCount(title, _titleStyle(s.titleTwo), maxWidth: width, maxLines: 2);
+  return (s.titleTwo, lines);
+}
+
+/// Kepala poster Lengkap (`.lhead`, logic.md §17.5) dan garis belakang yang diturunkan darinya. Urutannya terbalik
+/// dari Ringkas: kepala → garis belakang → podium mini dan panel.
+class LengkapHead {
+  /// Atas kepala (22; Story 98) dan lebar kolom judul = W − 22 − [right].
+  final double top, width;
+
+  /// CSS `right` kepala = 22 + lebar podium mini + 12 (kolom judul tidak menabrak podium).
+  final double right;
+  final double titleSize;
+  final int titleLines;
+
+  /// Ukuran baris kecil **sesudah** dikecilkan (12,5 / 15 turun per 0,5 sampai 11).
+  final double subSize;
+  final double subGap;
+
+  /// bawahKepala (line-height CSS).
+  final double bottom;
+
+  /// y garis belakang = round(bawahKepala + 14) (Story + 18) = dasar podium mini.
+  final double backLine;
+
+  const LengkapHead({
+    required this.top,
+    required this.width,
+    required this.right,
+    required this.titleSize,
+    required this.titleLines,
+    required this.subSize,
+    required this.subGap,
+    required this.bottom,
+    required this.backLine,
+  });
+}
+
+/// Mengukur kepala Lengkap tanpa merender poster (butuh font yang sama dengan render: test pakai `loadHifiFonts`).
+/// Lebar kolom judul dari jumlah slot podium, bukan dari blok yang tergambar: Kerumunan dan Kosong = 3 slot, Sparing =
+/// 2 (jebakan §17.12 #4), supaya judul tidak melebar/menyempit tergantung isi podium.
+LengkapHead lengkapHead({
+  required PodiumPosterTarget target,
+  required String title,
+  required String subtitle,
+  required List<PodiumBlockData> blocks,
+  bool wide = false,
+}) {
+  final s = _specFor(target), m = _miniFor(target);
+  final slots = wide || blocks.isEmpty ? 3 : blocks.length;
+  final right = _miniRightInset + slots * _slotWidth(m.widths, slots) + m.depth.dx + _headRightGap;
+  final width = target.designSize.width - _headInset - right;
+  final (titleSize, titleLines) = _fitTitle(title, width, s);
+  var subSize = s.subSize;
+  while (subSize > _subMin && posterWidth(subtitle, _subStyle(subSize)) > width) {
+    subSize = max(_subMin, subSize - _subStep);
+  }
+  final bottom = _headBottom(s, titleLines, titleSize, subSize);
+  return LengkapHead(
+    top: s.headTop,
+    width: width,
+    right: right,
+    titleSize: titleSize,
+    titleLines: titleLines,
+    subSize: subSize,
+    subGap: s.subGap,
+    bottom: bottom,
+    backLine: (bottom + m.backLineBelowHead).roundToDouble(),
+  );
+}
+
+/// Ruang panel Lengkap (§17.4) dan kakinya; [rect] memberi kotak panel untuk tinggi isi tertentu. Membaca [_Spec] yang
+/// sama dengan [podiumLayout], jadi inset, kaki, dan padding atas tidak tertulis dua kali.
+class LengkapPanelBox {
+  /// Ruang untuk baris = bawahPanel − (garis belakang + jarak) − padding atas − kaki.
+  final double space;
+  final double foot;
+  final Rect Function(double contentHeight) _rect;
+
+  const LengkapPanelBox._(this.space, this.foot, this._rect);
+
+  /// Panel menempel ke bawah; [contentHeight] = tinggi seluruh baris (satuan × tinggi baris).
+  Rect rect(double contentHeight) => _rect(contentHeight);
+}
+
+LengkapPanelBox lengkapPanel(PodiumPosterTarget target, LengkapHead head) {
+  final s = _specFor(target), m = _miniFor(target);
+  final size = target.designSize;
+  final bottom = size.height - s.insetBottom;
+  final insetX = _insetX(target, s);
+  return LengkapPanelBox._(
+    bottom - (head.backLine + m.panelBelowBackLine) - _panelPadTop - s.foot,
+    s.foot,
+    (contentHeight) =>
+        Rect.fromLTRB(insetX, bottom - (_panelPadTop + contentHeight + s.foot), size.width - insetX, bottom),
+  );
+}
+
 // ---------------------------------------------------------------------------------------------------------------
 // Painter lapangan + podium
 // ---------------------------------------------------------------------------------------------------------------
 
-TextStyle _style({
+/// Gaya teks poster (satu sumber untuk Ringkas dan Lengkap; pengukur dan penggambar harus memakai gaya yang sama).
+TextStyle posterStyle({
   required double size,
   FontWeight weight = FontWeight.w400,
   double? stretch,
@@ -354,7 +603,20 @@ TextPainter _measure(String text, TextStyle style, {double maxWidth = double.inf
       ellipsis: maxLines > 1 ? '…' : null,
     )..layout(maxWidth: maxWidth);
 
-double _width(String text, TextStyle style) => _measure(text, style).width;
+/// Lebar satu baris. Painter dilepas di sini: pengukuran berulang (ratusan per build) tidak boleh bocor.
+double posterWidth(String text, TextStyle style) {
+  final tp = _measure(text, style);
+  final w = tp.width;
+  tp.dispose();
+  return w;
+}
+
+int _lineCount(String text, TextStyle style, {required double maxWidth, required int maxLines}) {
+  final tp = _measure(text, style, maxWidth: maxWidth, maxLines: maxLines);
+  final n = tp.computeLineMetrics().length;
+  tp.dispose();
+  return n;
+}
 
 /// `.podium .scene` — latar, lantai + garis lapangan, blok (muka atas, samping, depan, angka), lalu bola. Urutan
 /// gambar sama dengan SVG hi-fi: blok yang berdampingan dan sama tinggi berbagi satu muka atas; muka samping hanya di
@@ -447,7 +709,7 @@ class PodiumScenePainter extends CustomPainter {
   void _paintFace(Canvas canvas, PodiumBlockGeom b) {
     TextPainter at(double size) => _measure(
       b.face,
-      _style(
+      posterStyle(
         size: size,
         weight: FontWeight.w800,
         stretch: 72,
@@ -490,14 +752,8 @@ class PodiumPoster extends StatelessWidget {
     final size = target.designSize;
 
     // Judul: satu baris di ukuran biasa; kalau tidak muat → ukuran kecil, maksimal dua baris (`.ptitle.two`).
-    final titleW = size.width - 44;
-    TextStyle titleStyle(double fs) =>
-        _style(size: fs, weight: FontWeight.w800, stretch: 95, height: 1.1, color: theme.headText);
-    final fitsOne = _width(data.title, titleStyle(s.title)) <= titleW;
-    final titleSize = fitsOne ? s.title : s.titleTwo;
-    final titleLines = fitsOne
-        ? 1
-        : _measure(data.title, titleStyle(titleSize), maxWidth: titleW, maxLines: 2).computeLineMetrics().length;
+    final titleW = size.width - 2 * _headInset;
+    final (titleSize, titleLines) = _fitTitle(data.title, titleW, s);
 
     final layout = podiumLayout(
       target: target,
@@ -509,36 +765,21 @@ class PodiumPoster extends StatelessWidget {
     );
 
     final head = Positioned(
-      left: 22,
+      left: _headInset,
       top: s.headTop,
       width: titleW,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: titleLines * titleSize * 1.1,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(data.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: titleStyle(titleSize)),
-            ),
-          ),
-          SizedBox(height: s.subGap),
-          SizedBox(
-            height: s.subSize * 1.2,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                data.subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: _style(size: s.subSize, weight: FontWeight.w700, color: theme.headText),
-              ),
-            ),
-          ),
-        ],
+      child: PodiumHead(
+        title: data.title,
+        subtitle: data.subtitle,
+        titleSize: titleSize,
+        titleLines: titleLines,
+        subSize: s.subSize,
+        subGap: s.subGap,
+        color: theme.headText,
       ),
     );
 
+    final panel = layout.panel!;
     final base = MediaQuery.maybeOf(context) ?? const MediaQueryData();
     return MediaQuery(
       data: base.copyWith(textScaler: TextScaler.noScaling),
@@ -546,7 +787,7 @@ class PodiumPoster extends StatelessWidget {
         size: size,
         child: ClipRect(
           child: DefaultTextStyle(
-            style: _style(color: theme.panelText, size: 14),
+            style: posterStyle(color: theme.panelText, size: 14),
             child: Stack(
               children: [
                 Positioned.fill(
@@ -556,8 +797,8 @@ class PodiumPoster extends StatelessWidget {
                 ),
                 head,
                 Positioned.fromRect(
-                  rect: layout.panel,
-                  child: _Panel(data: data, theme: theme, story: _story, size: layout.panel.size),
+                  rect: panel,
+                  child: _Panel(data: data, theme: theme, story: _story, size: panel.size),
                 ),
               ],
             ),
@@ -585,15 +826,16 @@ class _Panel extends StatelessWidget {
     final footH = story ? 34.0 : 26.0;
     final valB = story ? 24.0 : 18.0, valSmall = story ? 12.5 : 10.5;
 
-    TextStyle bStyle() => _style(size: valB, weight: FontWeight.w800, stretch: 72, height: 1, color: theme.panelText);
-    TextStyle smallStyle() => _style(size: valSmall, weight: FontWeight.w600, color: theme.panelText2);
+    TextStyle bStyle() =>
+        posterStyle(size: valB, weight: FontWeight.w800, stretch: 72, height: 1, color: theme.panelText);
+    TextStyle smallStyle() => posterStyle(size: valSmall, weight: FontWeight.w600, color: theme.panelText2);
     double valWidth(PodiumRowData r) =>
-        _width(r.value, bStyle()) + (r.detail.isEmpty ? 0 : 4 + _width(r.detail, smallStyle()));
+        posterWidth(r.value, bStyle()) + (r.detail.isEmpty ? 0 : 4 + posterWidth(r.detail, smallStyle()));
 
     // Nama mengecil bersama (langkah 0,5) sampai semua muat di kolomnya; batas bawah 11,5, lalu elipsis per nama.
     final duo = data.pairSize;
     final baseName = duo ? (story ? 17.0 : 13.0) : (story ? 18.0 : 14.0);
-    TextStyle nameStyle(double fs, bool gold) => _style(
+    TextStyle nameStyle(double fs, bool gold) => posterStyle(
       size: fs,
       weight: gold ? FontWeight.w800 : FontWeight.w600,
       height: duo ? 1.18 : 1.2,
@@ -601,22 +843,11 @@ class _Panel extends StatelessWidget {
     );
     bool fits(double fs) => data.rows.every((r) {
       final col = inner - posCol - 2 * gap - valWidth(r);
-      return r.names.every((n) => _width(n, nameStyle(fs, r.gold)) <= col);
+      return r.names.every((n) => posterWidth(n, nameStyle(fs, r.gold)) <= col);
     });
     var nameSize = baseName;
     while (nameSize > 11.5 && !fits(nameSize)) {
       nameSize = max(11.5, nameSize - 0.5);
-    }
-
-    // Fakta mengecil dari 10,5 sampai muat, tidak pernah terpotong.
-    const wmkSize = 11.5;
-    final wmkStyle = _style(size: wmkSize, weight: FontWeight.w800, stretch: 125, height: 1, color: theme.panelText);
-    final wmkW = 13 + 5 + _width('Match Addict', wmkStyle);
-    final factsAvail = inner - wmkW - 10;
-    var factsSize = 10.5;
-    TextStyle factsStyle(double fs) => _style(size: fs, weight: FontWeight.w500, color: theme.panelText2);
-    while (factsSize > 6 && _width(data.facts, factsStyle(factsSize)) > factsAvail) {
-      factsSize = ((factsSize - 0.1) * 10).round() / 10;
     }
 
     return DecoratedBox(
@@ -638,7 +869,13 @@ class _Panel extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: posCol,
-                      child: _Badge(row: r, theme: theme, story: story),
+                      child: PodiumRank(
+                        rank: r.badge,
+                        hash: r.hash,
+                        gold: r.gold,
+                        fontSize: story ? 21 : 16,
+                        theme: theme,
+                      ),
                     ),
                     SizedBox(width: gap),
                     Expanded(
@@ -679,29 +916,7 @@ class _Panel extends StatelessWidget {
                   ],
                 ),
               ),
-            SizedBox(
-              height: footH,
-              child: Row(
-                children: [
-                  const MabarBall(size: 13),
-                  const SizedBox(width: 5),
-                  Text('Match Addict', style: wmkStyle, maxLines: 1, softWrap: false),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        data.facts,
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
-                        style: factsStyle(factsSize),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            PodiumSignature(facts: data.facts, theme: theme, height: footH),
           ],
         ),
       ),
@@ -709,30 +924,155 @@ class _Panel extends StatelessWidget {
   }
 }
 
-/// `.pos` — nomor/skor baris: "#" warna teks kedua, lencana emas (tulisan tinta) untuk #1.
-class _Badge extends StatelessWidget {
-  final PodiumRowData row;
-  final PodiumTheme theme;
-  final bool story;
+/// Kepala poster (`.phead` Ringkas, `.lhead` Lengkap): judul (1–2 baris, line-height 1,1) + baris kecil satu baris.
+/// Ukuran dan jumlah baris sudah dihitung pemanggil ([lengkapHead] / [PodiumPoster]); di sini hanya menggambar,
+/// tinggi kotak mengikuti line-height CSS supaya sama dengan hitungan bawah kepala.
+class PodiumHead extends StatelessWidget {
+  final String title, subtitle;
+  final double titleSize;
+  final int titleLines;
+  final double subSize, subGap;
+  final Color color;
 
-  const _Badge({required this.row, required this.theme, required this.story});
+  const PodiumHead({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.titleSize,
+    required this.titleLines,
+    required this.subSize,
+    required this.subGap,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SizedBox(
+        height: titleLines * titleSize * 1.1,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: _titleStyle(titleSize, color: color),
+          ),
+        ),
+      ),
+      SizedBox(height: subGap),
+      SizedBox(
+        height: subSize * 1.2,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _subStyle(subSize, color: color),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+/// `.psig` — kaki panel kedua poster: wordmark (bola 13 + "Match Addict") kiri, fakta kanan. Fakta mengecil per 0,1
+/// dari 10,5 sampai muat di sisa lebar, tidak pernah terpotong; lebar diambil dari tempatnya (panel satu/dua kolom).
+class PodiumSignature extends StatelessWidget {
+  final String facts;
+  final PodiumTheme theme;
+
+  /// 26 (Story 34).
+  final double height;
+
+  const PodiumSignature({super.key, required this.facts, required this.theme, required this.height});
 
   @override
   Widget build(BuildContext context) {
-    final fs = story ? 21.0 : 16.0;
+    const wmkSize = 11.5;
+    final wmkStyle = posterStyle(
+      size: wmkSize,
+      weight: FontWeight.w800,
+      stretch: 125,
+      height: 1,
+      color: theme.panelText,
+    );
+    TextStyle factsStyle(double fs) => posterStyle(size: fs, weight: FontWeight.w500, color: theme.panelText2);
+    return SizedBox(
+      height: height,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final wmkW = 13 + 5 + posterWidth('Match Addict', wmkStyle);
+          final factsAvail = constraints.maxWidth - wmkW - 10;
+          var factsSize = 10.5;
+          while (factsSize > 6 && posterWidth(facts, factsStyle(factsSize)) > factsAvail) {
+            factsSize = ((factsSize - 0.1) * 10).round() / 10;
+          }
+          return Row(
+            children: [
+              const MabarBall(size: 13),
+              const SizedBox(width: 5),
+              Text('Match Addict', style: wmkStyle, maxLines: 1, softWrap: false),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    facts,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: factsStyle(factsSize),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// `.pos` (Ringkas) / `.lk .prow .r` (Lengkap) — nomor/skor baris: "#" warna teks kedua; #1 lencana emas (tulisan
+/// tinta, "#" tinta 75%). Satu widget untuk kedua poster; ukuran dari pemanggil (Ringkas 16/21, Lengkap nomor × s).
+class PodiumRank extends StatelessWidget {
+  /// Nomor/skor tanpa "#" ("1", "6½").
+  final String rank;
+
+  /// Tulis "#" di depannya (tidak untuk skor Sparing).
+  final bool hash;
+  final bool gold;
+  final double fontSize;
+  final PodiumTheme theme;
+
+  const PodiumRank({
+    super.key,
+    required this.rank,
+    this.hash = true,
+    required this.gold,
+    required this.fontSize,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fs = fontSize;
     final ink = PodiumTheme.goldNumber;
-    TextStyle st(Color c) => _style(size: fs, weight: FontWeight.w800, stretch: 72, height: 1, color: c);
+    TextStyle st(Color c) => posterStyle(size: fs, weight: FontWeight.w800, stretch: 72, height: 1, color: c);
     final text = Text.rich(
       TextSpan(
         children: [
-          if (row.hash) TextSpan(text: '#', style: st(row.gold ? ink.withValues(alpha: 0.75) : theme.panelText2)),
-          TextSpan(text: row.badge, style: st(row.gold ? ink : theme.panelText)),
+          if (hash) TextSpan(text: '#', style: st(gold ? ink.withValues(alpha: 0.75) : theme.panelText2)),
+          TextSpan(text: rank, style: st(gold ? ink : theme.panelText)),
         ],
       ),
       maxLines: 1,
       softWrap: false,
     );
-    if (!row.gold) return Align(alignment: Alignment.centerLeft, child: text);
+    if (!gold) return Align(alignment: Alignment.centerLeft, child: text);
     // margin-left −.3em supaya angkanya sejajar dengan baris tanpa lencana.
     return Align(
       alignment: Alignment.centerLeft,

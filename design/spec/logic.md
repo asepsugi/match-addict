@@ -189,9 +189,10 @@ Tidak ada nomor round yang ditulis tetap. Tabel lengkap (n = `roundCount`, c = `
 ## 9. Bagikan
 
 - Nomor "#n". Peringkat 1 (semua yang bernomor 1) diberi lencana emas `#E3B341` bertulisan ink.
-- Lengkap: Feed 1:1 sampai 10 baris satu kolom; 11–20 dua kolom rata, ⌈n/2⌉ kiri, urut ke bawah dulu, baris kiri-kanan
-  sejajar (grid ⌈n/2⌉ baris tetap). Dua kolom: baris hanya nama + nilai. Story 9:16 satu kolom sampai 20 baris.
-- Fixed menghitung "pasangan" ("Semua 10 pasangan", "+n pasangan lainnya").
+- Ringkas = poster podium (§16). Lengkap = arah B "Podium mini" sejak rencana 3.7.0 (§17): kolom (Mixed/Mexicano > 10
+  baris di Feed, > 20 di Story → dua kolom rata; pasangan Fixed selalu satu kolom) dan kepadatan satu rumus dari tinggi
+  baris (keputusan 80, 81). Ambang lama (Story selalu satu kolom, 20 baris) tidak berlaku lagi.
+- Fixed menghitung "pasangan" ("Semua 10 pasangan").
 
 ## 10. Court di tengah turnamen (Mixed) · sisa booking per court
 
@@ -474,16 +475,14 @@ caption, Live — tidak dihitung ulang di widget.
   baris kecil, skor klub di baris sendiri — frame 15w/15y (alur Mixed, disetujui host 2026-11-07).
 - Versi app (keputusan 20): "v{appVersion}" di kanan atas banner di semua kondisi Beranda (01a–01f, 01h, 01i). Golden
   2% tidak menangkap teks sekecil ini → test wajib `find.text('v$appVersion')`.
-- Poster Ringkas (13q): `.pscore` (dua baris klub, klub pertama atas, Total Point · selisih + match menang, tanpa bola)
-  di bawah judul; lalu per klub label `.pclub` (+ "+n pasangan/pemain lainnya" kalau terpotong) dan 3 teratas klub itu.
+- Poster Ringkas (13q, sejak 3.6.0): podium dua blok skor klub (§16, keputusan 62, 72). `.pscore`/`.pclub` tidak
+  dipakai lagi.
 - Caption: baris pertama "🏆 {klub1} {menang}–{menang} {klub2} · {olahraga}" (seri skor + Total Point sama: "… · Seri ·
   Padel"), nama turnamen di baris kedua kalau ada, lalu blok "Klasemen Akhir · {klub}" per klub (baris sama dengan
   caption biasa), kaki sama. Lengkap menambah "Hasil per Round" (baris match klub pertama dulu). Teks persis: 13q.
-- Lengkap / Feed / Story sparing (frame 13r–13w, disetujui host 2026-11-08, diimplementasi SP-15): Lengkap = semua
-  baris bernomor per klub dengan label `.pclub`; pasangan dan Story selalu satu kolom, Mixed di pratinjau/Feed satu
-  kolom per klub. Ukuran `.pscore`/`.pclub` per target di catatan frame (`13-sparing.md`; Story ×0,75). Kepadatan
-  (`sparingPosterDensity`, hanya Lengkap): label klub dihitung satu baris, skor klub tidak; ambang 8 baris (satu kolom),
-  10 per kolom (dua kolom per klub), 16 baris nama (Story); lebih dari itu huruf × ambang ÷ baris.
+- Lengkap sparing (13s–13w, rencana 3.7.0): §17 — skor klub hanya di blok podium mini, kepala klub `.lclub` = nama +
+  "56 game · +13" (2 satuan baris, keputusan 83), Mixed dua kolom per klub (Feed selalu, Story > 20 pemain; keputusan
+  86), kepadatan satu rumus (80). `sparingPosterDensity` dan ambang 8 / 10 / 16 baris dihapus.
 
 ### 13.10 Data (final, DBA SP-0 — bentuk lengkap, aturan baca, dan risiko di `docs/data.md` → Sparing)
 
@@ -972,7 +971,7 @@ golden 17h tidak lagi di-skip.
 
 PRD §5.9 + keputusan 60–74 (§10), frame 11a, 11c, 11d, 13q, 13r (`screens/11-bagikan.md`, `screens/13-sparing.md`) dan
 18a–18t (`screens/18-poster-podium.md`), Komponen `PodiumPoster (PodiumScenePainter)` + token `posterPodium`. Poster
-Lengkap, caption (`ResultTextBuilder`), Klasemen, dan simpanan **tidak berubah** → MINOR, tanpa `schemaVersion`, tanpa
+Lengkap (dirombak kemudian di §17), caption (`ResultTextBuilder`), Klasemen, dan simpanan **tidak berubah** → MINOR, tanpa `schemaVersion`, tanpa
 DBA. Angka di bagian ini dicek tech-lead 2026-11-13 terhadap teks dan geometri SVG frame di `design/hifi.html`
 (`<rect>` blok, garis belakang, posisi bola): semuanya cocok dengan aturan di bawah.
 
@@ -1052,14 +1051,15 @@ per nama (18m); fakta mengecil dari 10,5 sampai muat dan tidak pernah terpotong 
 judul satu baris di 22 (Story 27), kalau tidak muat satu baris → 18,5 (Story 23) maksimal dua baris (11d, 18m;
 pemicu "tidak muat satu baris" adalah bacaan tech-lead atas `.ptitle.two`).
 
-### 16.3 Tema (keputusan 66, 67, 70)
+### 16.3 Tema (keputusan 66, 67; 70 diganti 76)
 
 - Bawaan = **lapangan**: palet ikut `config.sport` (`posterPodium.courtThemes`: padel lantai `#BC5A33`, tennis
   `#1E6BB8`, latar `court-deep`). Sepuluh gradien `ShareTheme` tetap bisa dipilih; turunan warnanya per tema ada di
   `posterPodium.gradientThemes` (pakai nilainya apa adanya, jangan menurunkan ulang dengan rumus).
-- Deret Ringkas: 11 lingkaran 27 pt satu baris (lingkaran lapangan = belang `court-deep` / putih / lantai, 180°, 46–54%).
-  Deret Lengkap: tetap 10 lingkaran 30 pt; selama pilihannya lapangan, Lengkap memakai dan menandai **biru** (11e).
-  Gradien yang dipilih berlaku untuk kedua format (18b → 11b). Pilihan tidak disimpan.
+- Deret: 11 lingkaran 27 pt satu baris (lingkaran lapangan = belang `court-deep` / putih / lantai, 180°, 46–54%), sama
+  di Ringkas dan Lengkap sejak keputusan 76 (rencana 3.7.0, §17.8). Keputusan 70 (Lengkap 10 lingkaran 30 pt, lapangan
+  dipetakan ke biru) hanya berlaku di 3.6.x. Gradien yang dipilih berlaku untuk kedua format (18b → 11b). Pilihan tidak
+  disimpan.
 - Panel 86% di semua tema; teks panel pakai `panelText`/`panelText2` token, garis baris teks panel 16% (lembut 20%).
 
 ### 16.4 API yang diusulkan (`lib/services/share/podium.dart`, baru, Dart murni)
@@ -1207,7 +1207,7 @@ token `posterPodium`; turunan yang dicek dari SVG frame:
 7. **18t tombol Bagikan tetap aktif** (69); jangan menambah kondisi mati/teks "belum ada skor".
 8. **Satu `rowNoun`**: pindahkan `shareRowNoun`, jangan menyalin; pemakai lama (keterangan Lengkap, `more` Lengkap)
    memakai yang baru.
-9. **Lengkap tidak berubah**: `SharePoster`, `SharePosterTarget` (Story 202,5 × 360), `sparingPosterDensity`, golden
+9. **Lengkap tidak berubah di 3.6.0** (dirombak di rencana 3.7.0, §17): `SharePoster`, `SharePosterTarget` (Story 202,5 × 360), `sparingPosterDensity`, golden
    11b, 11e–11l, 13s–13w lolos tanpa diubah. Cabang Ringkas lama (`shareSummaryCount`, `shareClubSummaryCount`, "+n …
    lainnya" untuk Ringkas) dihapus, bukan dibiarkan mati.
 10. **Ekspor Story ×3 dari 360 × 640**: target podium punya ukuran dan `exportPixelRatio` sendiri (3); jangan memakai
@@ -1226,3 +1226,310 @@ token `posterPodium`; turunan yang dicek dari SVG frame:
    pasangan", tanpa bola), bukan ukuran pasangan. Rekomendasi: setujui.
 3. Kerumunan di Fixed campuran (kata null): asumsi nama baris "{n}" tanpa kata, mengikuti 71/09g. Kasusnya hampir
    mustahil (perlu > 4 baris #1 setelah atur ulang). Rekomendasi: setujui, atau host memilih kata.
+
+## 17. Poster Lengkap · Podium mini (rencana 3.7.0)
+
+PRD §5.9 + keputusan 76–88 (§10), frame 11b, 11e–11m (`screens/11-bagikan.md`) dan 13s–13w (`screens/13-sparing.md`),
+Komponen → `.lk` + token `posterLengkap` (warna, panel, kaki, wordmark, fakta = `posterPodium`). Caption
+(`ResultTextBuilder`), keterangan di bawah tab, Klasemen, simpanan, dan poster Ringkas **tidak berubah** → MINOR, tanpa
+`schemaVersion`, tanpa DBA. Angka di bagian ini dicek tech-lead 2026-11-13 terhadap teks dan geometri SVG frame di
+`design/hifi.html` (rect blok, path garis belakang, `--row`, `--s`, `--k`, `right` kepala): semuanya cocok dengan rumus
+di bawah.
+
+Menggantikan: ambang baris lama §9 (10 baris, 15 per kolom, 16/20 baris nama), `sparingPosterDensity` (§13.9),
+keputusan 70 (§16.3: Lengkap 10 × 30 pt, lapangan = biru), kanvas Story 202,5 × 360, kepala lama (piala, `eyebrow`,
+`summary`, `.pscore`, `.pclub`).
+
+### 17.1 Susunan dan isi
+
+Satu poster = `.scene` (`PodiumScenePainter`: latar, lantai, garis belakang, podium mini) + `.lhead` (judul, baris
+kecil) di kiri atas + `.lpanel` (baris, lalu kaki) di bawah. Kanvas sama dengan poster podium (`PodiumPosterTarget`):
+kartu 358 × 372 (tata letak Feed, panel inset samping 13), Feed 360 × 360, Story 360 × 640; Feed dan Story diekspor ×3.
+Tema = `PodiumTheme` yang sama dengan Ringkas (17.8).
+
+- **Judul dan baris kecil** = kepala poster podium (16.2 "Kepala"): bernama → nama + "Klasemen akhir|sementara ·
+  {tanggal}"; tanpa nama → "Klasemen akhir|sementara" + "{olahraga} · {mode} · {tanggal}".
+- **Kaki** = wordmark + baris fakta `podiumFacts` (16.2), sama persis dengan podium (11b: "10 pasangan · 9 round · 45
+  match"; 11e: "Padel · 20 pemain · 8 round · 32 match"; 13s: "7 pasangan · 6 round · 12 match · 1 WO").
+- **Baris** = semua baris Klasemen bernomor (`position != null`), urut Klasemen; nilai metode + selisih (77,
+  `SharePosterRow` tetap: `value`, `detail` satuan atau null untuk Win %, `diff`). Tanpa W–L.
+- **Sparing**: per klub (klub pertama dulu) kepala `.lclub` = nama klub + `ClubResult.detailLabel(tally)` ("56 game ·
+  +13"), **tanpa angka skor** (83); lalu baris bernomor klub itu dari `clubStandingEntriesProvider` (nomor mulai 1 di
+  tiap klub, #1 tiap klub lencana emas).
+- **Kosong** (87, 11m Story): `Podium.of` = `PodiumEmpty` → panel hanya kaki (tanpa baris dan tanpa kepala klub),
+  garis belakang tanpa blok.
+
+### 17.2 Podium mini: siapa naik (79, 85)
+
+= `Podium.of(entries:, clubs:)` apa adanya (16.1), **tidak ada aturan baru**. Pemetaan ke blok = pemetaan Ringkas di
+`podiumPosterData` (satu fungsi bersama, jangan disalin): `PodiumSteps` → blok per slot (urutan 2 · 1 · 3 · 4, tinggi
+dari nomor); `PodiumCrowd` → satu blok lebar level 1, muka "1", 0 bola; `PodiumClubs` → dua blok skor klub
+(`winsLabel`), klub pertama kiri; `PodiumEmpty` → tanpa blok. Ukuran bola pasangan ⇔ `PodiumSteps.pairSize`. Podium
+mini tidak menulis nama.
+
+### 17.3 Kolom dan satuan baris (81, 86, 88)
+
+| Kasus | Kartu / Feed | Story |
+|---|---|---|
+| Fixed (semua pasangan, Fixed campuran, Sparing Fixed) | 1 kolom | 1 kolom; baris pasangan ditumpuk (`.prow.duo`) |
+| Mixed / Mexicano, n baris | n > 10 → 2 kolom rata | n > 20 → 2 kolom rata |
+| Sparing Mixed, n1 + n2 baris | selalu 2 kolom per klub | n1 + n2 > 20 → 2 kolom per klub; selain itu 1 kolom |
+
+- Gerbang dua kolom = `config.mode.isEndless` (Mixed, Mexicano), **bukan** "tidak ada baris pasangan".
+- **2 kolom rata**: k = ⌈n/2⌉; kiri baris 0 … k−1, kanan k … n−1 (urut ke bawah dulu); baris kiri-kanan sejajar, n
+  ganjil → slot kanan bawah kosong (11i 7–6, 11j).
+- **2 kolom per klub** (86): kiri klub pertama, kanan klub kedua, tiap kolom diawali kepala klubnya; k = 2 + max(n1,
+  n2); klub yang lebih kecil menyisakan slot kosong di bawah (13u dua slot). Satu kolom tidak pernah berisi dua klub.
+- **1 kolom**: urut Klasemen; Sparing = kepala klub pertama, barisnya, kepala klub kedua, barisnya.
+- **Satuan** (dipakai kepadatan) = tinggi kolom terpanjang dalam tinggi baris: baris biasa 1; kepala klub 2; Story
+  Fixed: **semua** baris 2 kalau ada baris dua nama (seperti `.duo` Ringkas 18l dan Lengkap lama; nama ditumpuk hanya
+  di baris yang memang dua nama — asumsi 17.13 #2). Dua kolom rata = k; dua kolom per klub = k; Kosong = 0.
+- **Susunan ukuran** (kunci `posterLengkap.density`): `feed1` (kartu/Feed 1 kolom), `feed2` (kartu/Feed 2 kolom),
+  `story1`, `story2`.
+
+### 17.4 Kepadatan (80)
+
+```
+ruang       = bawahPanel − (garisBelakang + jarakPanel) − 6 − kaki
+tinggiBaris = min(batasBaris, ruang ÷ satuan)
+s           = min(batasSkala, tinggiBaris ÷ acuan)
+tinggiPanel = 6 + satuan × tinggiBaris + kaki        atasPanel = bawahPanel − tinggiPanel
+```
+
+bawahPanel: kartu 358, Feed 346, Story 556 (640 − 84); jarakPanel 9 (Story 10); kaki 26 (Story 34); garisBelakang dari
+17.5. Daftar pendek berhenti di batas baris: panel memendek dari atas, lantai tampil lebih banyak (11h atas 170).
+
+| Susunan | acuan | batasBaris | batasSkala | kolom nomor | jarak | nomor / nama / nilai / sisa (× s) | satuan di nilai |
+|---|---|---|---|---|---|---|---|
+| feed1 | 22 | 30 | 1,04 | 30 | 8 | 15 / 13,5 / 16 / 10,5 | ya ("52 game · +18") |
+| feed2 | 18 | 26 | 1,0 | 22 | 5 | 13 / 12 / 13,5 / 10 | tidak ("89 · +31") |
+| story1 | 17 | 42 | 1,33 | 30 | 8 | 14 / 13,5 / 15 / 10,5 | tidak |
+| story2 | 18 | 30 | 1,0 | 22 | 5 | 13 / 12 / 13,5 / 10 | tidak |
+
+Kolom nomor dan jarak juga × s. Batas skala = ukuran panel podium (nama 13,5 × 1,04 = 14 Feed; × 1,33 = 18 Story).
+Kepala klub: nama = nama × 1,06 × s (800, w95, elipsis), baris kedua = sisa × s (600, teks kedua), jarak 2s, tinggi
+2 × tinggiBaris. Yang **tidak** ikut s: judul, baris kecil, wordmark, fakta, podium mini.
+
+Invariant (wajib di test):
+- L1. Tiap baris yang tampil muncul tepat sekali; dibaca kolom kiri atas → bawah lalu kanan, urutannya = urutan
+  Klasemen (Sparing: klub pertama lalu kedua, masing-masing urut Klasemen klub).
+- L2. Fixed tidak pernah dua kolom. Dua kolom per klub: tiap kolom berisi tepat satu klub dan diawali kepalanya.
+- L3. satuan × tinggiBaris ≤ ruang (panel tidak menabrak garis belakang + jarak); tinggiBaris ≤ batasBaris, s ≤
+  batasSkala; s tidak naik kalau satuan bertambah (ruang sama).
+- L4. Hasil hanya dari angka masukan (target, mode, jumlah baris, ruang): tidak membaca jam, provider, atau font.
+
+### 17.5 Kepala, kolom judul, garis belakang (82, 84)
+
+- **Kanan kepala** = 22 + lebarPodium + 12; lebarPodium = slot × lebarSlot + dx. Slot = jumlah anak tangga (Steps 1–4),
+  3 untuk Kerumunan **dan** Kosong (11m: kolom judul tetap 118 / 126), 2 untuk Klub.
+
+  | Podium | Steps 1 | Steps 2 / Klub | Steps 3, Kerumunan, Kosong | Steps 4 |
+  |---|---|---|---|---|
+  | kanan kepala kartu/Feed (Story) | 74 (78) | 108 (114) | 118 (126) | 124 (130) |
+
+- Lebar kolom judul = W − 22 − kanan (kartu 358, Feed/Story 360).
+- **Judul** 800 w95, line-height 1,1: 22 (Story 27) kalau muat satu baris; tidak muat → 18,5 (Story 23), jumlah baris
+  1–2 dari layout sebenarnya; masih lebih dari dua baris di 18,5/23 → elipsis di baris kedua (82).
+- **Baris kecil** 700, 12,5 (Story 15), jarak dari judul 4 (Story 6), selalu satu baris: lebih lebar dari kolom judul →
+  turun per 0,5 sampai muat, paling kecil 11; di 11 masih tidak muat → elipsis (CSS `.lsub`), tidak pernah dua baris
+  (84).
+- **bawahKepala** = atasKepala (22; Story 98) + baris × ukuranJudul × 1,1 + jarak + ukuranBarisKecil × 1,2, dengan
+  ukuran baris kecil **sesudah** dikecilkan; line-height CSS, bukan metrik font Flutter (pola `_CssLines` 16.6).
+- **garisBelakang** y = round(bawahKepala + 14) (Story + 18). Sudut x 40 (Story 44), tebal 4,5 (5,5), garis samping
+  turun 31,2 (31,9) ke x −10, lantai sampai tepi bawah — sama dengan Ringkas.
+
+### 17.6 Geometri podium mini (79, 85; token `posterLengkap.miniPodium`)
+
+- Dasar blok = garisBelakang. Tinggi #1 / #2 / #3 = 34 / 24 / 16 (Story 52 / 37 / 25), **tetap**: tanpa batas tinggi
+  dan tanpa tinggi pasangan (beda dengan Ringkas 16.6).
+- Lebar slot: 1–2 slot → 34, 3 → 26, 4 → 21 (Story 36, 36, 28, 22). Kerumunan = satu blok 3 × lebar 3 (78; Story 84).
+- x0 = W − 22 − dx − slot × lebarSlot; blok ke-i di x0 + i × lebarSlot (kanan blok + dx = W − 22).
+- Kedalaman (dx, dy) = (6, −4), Story (8, −5). Muka atas menyatu, muka samping, urutan gambar, warna = Ringkas.
+- Angka muka = rumus Ringkas yang sama (`_faceSizeFor`): round(0,656 × tinggi), lebih dari satu karakter dibatasi
+  0,7 × lebar ÷ (0,54 × jumlah karakter); w72, 800, garis dasar = tengah blok + 0,344 × ukuran.
+- Bola (`MabarBall.paint` lewat painter): 9 / pasangan 8 (Story 12 / 10), jarak antarbola pasangan **1** (Ringkas 2);
+  pusat x = tengah blok + dx/2; bawah bola = atas blok + dy/2 **+ 1** (Ringkas + 2); bayangan sama dengan Ringkas (rx
+  0,41 d, ry 0,13 d, pusat di bawah bola − 0,5).
+
+### 17.7 Panel dan baris (`.lpanel`, `.prow`)
+
+- Panel: kiri/kanan 14 (kartu 13), bawah 14 (Story 84), radius 14, padding 6 / 12 / 0 (dua kolom 6 / 10 / 0), warna
+  panel 86% dan teks dari `PodiumTheme`; tiap baris bergaris bawah 1 `panelLine`.
+- Dua kolom: column-gap 14, garis tengah 1 `panelLine` di 50% lebar, dari 3 di bawah atas kolom sampai 3 di atas
+  bawahnya.
+- Baris = [kolom nomor] [nama, sisa lebar] [nilai, selebar isinya], jarak antarsel = jarak × s; tinggi = tinggiBaris
+  (duo dan kepala klub 2 ×).
+- Nomor w72 800, "#" warna teks kedua; #1 lencana emas = lencana podium (`#E3B341`, tinta, "#" tinta 75%, padding
+  0,08 / 0,3 em, digantung −0,3 em, radius 0,35 em) dengan ukuran nomor × s. Satu widget lencana untuk kedua poster.
+- Nama 600 w88 (#1 800), line-height 1,2; kartu/Feed pasangan "A + B" satu baris; Story pasangan ditumpuk
+  (line-height 1,16).
+- Nilai w72 + sisa 600 warna teks kedua, jarak 3 × s: feed1 "52" + "game · +18" (Win %: "80%" + "· +8"); feed2,
+  story1, story2 "89" + "· +31". **Nilai tidak pernah dipotong.**
+- **Nama dikecilkan bersama** (kn) per poster/target (kartu, Feed, Story dihitung sendiri): dari 1 turun 0,02 sampai
+  setiap nama muat di sel namanya (ukur dengan bobot baris itu: #1 800), paling kecil 0,82; sesudah itu elipsis per
+  nama. Nilai di frame: 11e kartu, 11f Feed, 11h, 11j (15, 17) = 0,94; 11j (19), 11l Story = 0,86; lainnya 1.
+- Kaki `.psig` = kaki podium (wordmark + fakta mengecil per 0,1 dari 10,5, tidak pernah terpotong), tinggi 26 (34).
+
+### 17.8 Tema (76, menggantikan 70)
+
+- Deret tema di tab Ringkas dan Lengkap **sama**: 11 lingkaran 27 pt satu baris (lapangan + 10 gradien), tinggi deret
+  30. Lengkap memakai `PodiumTheme` yang sama dengan Ringkas: lapangan → `PodiumTheme.court(sport)` (tidak lagi
+  dipetakan ke biru), gradien → `PodiumTheme.gradient(t)`. Pilihan berlaku untuk kedua format, tidak disimpan.
+- Warna blok, panel, teks, lantai, garis = token `posterPodium` apa adanya (11h biru, 11b/13u peach). Turunan
+  `ShareTheme.ink` lama tidak dipakai poster lagi; enum `ShareTheme` tetap (gradien dan lingkaran deret).
+
+### 17.9 API yang diusulkan
+
+`lib/services/share/lengkap.dart` (baru, Dart murni, wajib test) — hanya aturan kolom (81, 86, 88) dan kepadatan (80):
+
+```dart
+/// Kunci `posterLengkap.density`.
+enum LengkapSizing { feed1, feed2, story1, story2 }
+
+/// Satu sel kolom poster Lengkap. [club] = 0 kalau bukan Sparing.
+sealed class LengkapCell { int get units; }
+final class LengkapRowCell extends LengkapCell { final int club; final int row; final int units; } // row = indeks di klubnya
+final class LengkapClubCell extends LengkapCell { final int club; int get units => 2; }
+
+class LengkapGrid {
+  final LengkapSizing sizing;
+  final List<List<LengkapCell>> columns; // 1 atau 2 kolom
+  final int units;                       // satuan kolom terpanjang
+}
+
+/// [rowCounts]: bukan Sparing [n]; Sparing [n1, n2]. [endless] = `config.mode.isEndless`. [pairs] = ada baris dua nama.
+LengkapGrid lengkapGrid({required bool story, required bool endless, required List<int> rowCounts, required bool pairs});
+
+class LengkapDensity { final double rowHeight; final double scale; }
+
+/// 17.4. [space] = ruang panel (dihitung tata letak dari garis belakang). units == 0 → rowHeight 0, scale 1.
+LengkapDensity lengkapDensity({required LengkapSizing sizing, required int units, required double space});
+```
+
+Tetap dipakai apa adanya: `Podium.of`, `podiumFacts`, `rowNoun` (`services/share/podium.dart`).
+
+`lib/features/share/` (tata letak + gambar; bukan logika domain, tetap diuji):
+- `widgets/podium_poster.dart`: satu fungsi penempatan blok + bola dipakai `podiumLayout` (Ringkas) dan fungsi baru
+  `miniPodiumLayout` (17.6) — keduanya menghasilkan `PodiumLayout` untuk `PodiumScenePainter` yang sama; beda Lengkap
+  hanya parameter (dasar = garis belakang, tinggi tetap, jarak bola 1, angkat +1). Lencana emas dan kaki `.psig`
+  dijadikan widget bersama (ukuran sebagai parameter), bukan disalin. Kepala Lengkap (ukuran judul/baris kecil, jumlah
+  baris, bawahKepala, garisBelakang, kanan kepala) dihitung satu fungsi yang bisa diuji tanpa merender poster.
+- `widgets/share_poster.dart`: `SharePoster` ditulis ulang sebagai `.lk` (target `PodiumPosterTarget`, tema
+  `PodiumTheme`). `SharePosterRow` tetap (fixture hasil `tool/hifi_extract.py` memakainya). `SharePosterData` jadi:
+  `sport`, `title`, `subtitle`, `blocks` (`List<PodiumBlockData>`), `wide`, `pairBalls`, `endless`, `rows`, `clubs`
+  (`SharePosterClub`: `name`, `detail`, `rows`; `more` dihapus), `facts`. Dihapus: `SharePosterTarget`,
+  `SharePosterClubScore`, `sparingPosterDensity`, `_RowSizes`, `_density`, `eyebrow`, `summary`, `more`, `complete`,
+  `clubScore`.
+- `share_content.dart`: `sharePosterData` memetakan `Podium.of` + kepala + `podiumFacts` lewat helper yang sama dengan
+  `podiumPosterData` (kepala dan blok tidak ditulis dua kali).
+- `share_exports.dart`: `lengkapImages(SharePosterData, PodiumTheme)` = Feed 360 × 360 dan Story 360 × 640 dari
+  `PodiumPosterTarget`, ×3; nama berkas tidak berubah.
+
+### 17.10 Data test (= frame; nama test memakai id frame + nomor keputusan, mis. `13w K86 …`)
+
+Kolom, satuan, kepadatan (`lengkapGrid` + `lengkapDensity`; s dibulatkan 3 desimal, frame menulis nilai terpotong, jadi
+bandingkan dengan toleransi 0,002):
+
+| Frame | Kasus | Target | Susunan | Kolom (k) | Satuan | Ruang | Tinggi baris | s |
+|---|---|---|---|---|---|---|---|---|
+| 11b | Fixed 10 pasangan | kartu | feed1 | 1 | 10 | 238 | 23,8 | 1,04 |
+| 11e | Mixed 20, bernama | kartu | feed2 | 2 (10) | 10 | 242 | 24,2 | 1 |
+| 11f | sama | Feed / Story | feed2 / story1 | 2 (10) / 1 | 10 / 20 | 230 / 315 | 23 / 15,75 | 1 / 0,926 |
+| 11g | Fixed 10 pasangan | Feed / Story | feed1 / story1 | 1 / 1 | 10 / 20 | 226 / 336 | 22,6 / 16,8 | 1,027 / 0,988 |
+| 11h | Mixed 12 | kartu | feed2 | 2 (6) | 6 | 238 | 26 (batas) | 1 |
+| 11i | Mixed 13 | kartu | feed2 | 2 (7) | 7 | 238 | 26 | 1 |
+| 11j | Mixed 5 / 7 / 9 | kartu | feed1 | 1 | 5 / 7 / 9 | 238 | 30 / 30 / 26,44 | 1,04 |
+| 11j | Mixed 11 / 13 / 15 / 17 / 19 | kartu | feed2 | 2 (6/7/8/9/10) | sama | 238 | 26 ×4 / 23,8 | 1 |
+| 11k K88 | Fixed 15 pasangan | Feed / Story / kartu | feed1 / story1 / feed1 | 1 | 15 / 30 / 15 | 226 / 336 / 238 | 15,07 / 11,2 / 15,87 | 0,685 / 0,659 / 0,721 |
+| 11l K81 | Mixed 30, judul 2 baris | Feed / Story / kartu | feed2 / story2 / feed2 | 2 (15) | 15 | 209 / 315 / 221 | 13,93 / 21 / 14,73 | 0,774 / 1 / 0,818 |
+| 11m | Mixed 12, #1 × 6 | Feed | feed2 | 2 (6) | 6 | 230 | 26 | 1 |
+| 11m K87 | belum ada match | Story | story1 | 1 | 0 | — | — | panel = 6 + kaki |
+| 13s | Sparing Fixed 4 + 3 | kartu | feed1 | 1 | 7 + 2×2 = 11 | 238 | 21,64 | 0,983 |
+| 13t | sama | Feed / Story | feed1 / story1 | 1 | 11 / 7×2 + 4 = 18 | 226 / 336 | 20,55 / 18,67 | 0,934 / 1,098 |
+| 13u | Sparing Mixed 8 + 6 | kartu | feed2 | 2 per klub (10) | 10 | 238 | 23,8 | 1 |
+| 13v | sama | Feed / Story | feed2 / story1 | 2 per klub / 1 | 10 / 14 + 4 = 18 | 226 / 336 | 22,6 / 18,67 | 1 / 1,098 |
+| 13w K86 | Sparing Mixed 16 + 14 | Feed / Story / kartu | feed2 / story2 / feed2 | 2 per klub (18) | 18 | 226 / 336 / 238 | 12,56 / 18,67 / 13,22 | 0,698 / 1 / 0,735 |
+
+Batas (wajib): Mixed 10 baris Feed → 1 kolom, 11 → 2 (11j); Mixed 20 Story → 1 kolom, 21 → 2 (K81); Fixed 15 pasangan
+Story → 1 kolom (K88); Sparing Mixed 3 + 3 Feed → 2 kolom per klub, k = 5; Sparing Mixed total 20 Story → 1 kolom, 21 →
+2 per klub (K86); Mexicano mengikuti Mixed.
+
+Kepala dan garis belakang (17.5; ukur dengan `loadHifiFonts()`):
+
+| Frame | Target | Judul | Ukuran judul · baris | Baris kecil | Kanan | Garis belakang |
+|---|---|---|---|---|---|---|
+| 11b | kartu | Klasemen akhir | 22 · 1 | 12,5 | 118 | 79 |
+| 11e / 11f | kartu, Feed / Story | Mabar Jumat PB Garuda | 18,5 · 1 / 23 · 2 | 12,5 / 15 | 118 / 126 | 75 / 191 |
+| 11g, 11k | Feed / Story | Klasemen akhir | 22 · 1 / 27 · 1 | 12,5 / 15 | 118 / 126 | 79 / 170 |
+| 11j (5, 19) | kartu | Klasemen akhir | 22 · 1 | 12,5 | 124 (4 anak tangga) | 79 |
+| 11l | Feed, kartu / Story | Liga Akhir Tahun Padel Kemang | 18,5 · 2 / 23 · 2 | 12,5 / 15 | 118 / 126 | 96 / 191 |
+| 11m K84 | Feed / Story | Mabar Jumat PB Garuda | 18,5 · 1 / 23 · 2 | 12,5 / **13** | 118 / 126 | 75 / 188 |
+| 13s–13w | kartu, Feed / Story | Klasemen akhir | 22 · 1 / 27 · 1 | 12,5 / 15 | 108 / 114 (Klub) | 79 / 170 |
+
+Podium mini (17.6), rect blok (x, y, lebar, tinggi) dan angka:
+
+| Frame | Target | Blok kiri → kanan | Angka | Bola |
+|---|---|---|---|---|
+| 11b | kartu | (252,55,26,24) (278,45,26,34) (304,63,26,16) | 16 / 22 / 10 | 6 × 8, mis. blok kiri x 259,5 dan 268,5, y 46 |
+| 11f | Feed | (254,51,26,24) (280,41,26,34) (306,59,26,16) | 16 / 22 / 10 | 3 × 9, blok tengah x 291,5 y 31 |
+| 11f | Story | (246,154,28,37) (274,139,28,52) (302,166,28,25) | 24 / 34 / 16 | 3 × 12, blok kiri x 258 y 140,5 |
+| 11j (5) | kartu | (246,55,21,24) (267,45,21,34) (288,63,21,16) (309,63,21,16) | 16 / 22 / 10 / 10 | 4 |
+| 11m K85 | Feed / Story | (254,41,78,34) / tanpa blok | 22 / — | 0 / 0 |
+| 13s | kartu | (262,45,34,34) (296,55,34,24) | "7" 22 / "5" 16 | 0 |
+| 13u | kartu | (262,45,34,34) (296,55,34,24) | "10" 22 / "6" 16 | 0 |
+| 13v, 13w | Story | (258,118,36,52) (294,133,36,37) | "10" 23 / "6" 24 | 0 |
+
+Pemetaan isi (`sharePosterData`, fixture yang sudah ada: data set 1 `bagikan_test.dart`, `sparingFull`, 15f, 13w):
+- 11m Feed (`podium_poster_data` 18s): `wide`, satu blok level 1, 12 baris, 6 lencana emas; 11m Story (18t): blok
+  kosong, `rows` kosong, fakta "Padel · 12 pemain · R1 · 0 dari 3 match".
+- 13s: blok [L1 "7", L2 "5"], `clubs` = [PB Garuda "56 game · +13" 4 baris, Matcha Club "49 game · −13" 3 baris],
+  fakta "7 pasangan · 6 round · 12 match · 1 WO".
+- 13u: `clubs` detail "83 game · +14" / "69 game · −14"; 13w: "83 game · +16" / "67 game · −16".
+- Sparing 0 – 0: blok kosong, panel hanya kaki (87), tanpa kepala klub.
+
+### 17.11 Golden
+
+- Komponen (`test/hifi/components/share_poster_test.dart`, data `share_poster_data.dart`): 11b, 11e, 11h, 11i (kartu);
+  11f, 11g (Feed x 0 360 × 360, Story x 374 360 × 640); 11k, 11l (+ kartu x 748 358 × 372); 11m (Feed + Story, baru);
+  11j (delapan kartu skala 1:2, baru, pola kisi 18q/18r di `podium_poster_test.dart`). Toleransi 2%; Feed/Story 11l 3%.
+- Gambar sparing (`test/hifi/screens/sparing_bagikan_test.dart`): 13t, 13v, 13w (13w 3%), rect Story/kartu seperti di
+  atas.
+- Layar: 11b, 11e, 11h, 11i, 18b (`bagikan_test.dart`), 13s, 13u (`sparing_bagikan_test.dart`).
+- Regresi Ringkas wajib tetap lolos tanpa diubah: 11a, 11c, 11d, 13q, 13r, 18a–18t.
+- Selain golden: jumlah bola dari `layout.balls` (11b 6, 11f 3, 11j-5 4, 11m 0, 13s 0), jumlah lencana emas (11m Feed
+  6, 13s 2), teks fakta dan judul per frame (pola 16.7 #12).
+
+### 17.12 Jebakan untuk engineer dan reviewer
+
+1. **Jangan menyalin podium.** Satu `Podium.of`, satu `PodiumScenePainter`, satu `_faceSizeFor`, satu penempatan
+   blok/bola, satu lencana, satu kaki. Beda Lengkap hanya parameter (17.6). Golden Ringkas yang lolos tanpa diubah
+   adalah buktinya.
+2. **Urutan ketergantungan terbalik dari Ringkas**: kepala → garis belakang → podium mini dan atas panel → kepadatan.
+   Di Ringkas panel menentukan dasar blok; di Lengkap garis belakang yang menentukan.
+3. **bawahKepala memakai ukuran baris kecil sesudah dikecilkan** (11m Story 188, bukan 191) dan line-height CSS.
+4. **Kolom judul dari slot**, bukan dari blok yang tergambar: Kerumunan dan Kosong = 3 slot (118 / 126), Klub 2.
+5. **Fixed tidak pernah dua kolom**, juga Story 15 pasangan (88) dan Fixed campuran; gerbangnya `mode.isEndless`.
+6. **Sparing dua kolom per klub**, bukan ⌈n/2⌉ (86): k = 2 + klub terbesar. Feed Mixed sparing selalu dua kolom
+   per klub, Story hanya kalau total > 20.
+7. **Kepala klub tanpa skor** (83): skor hanya di blok; teks dari `ClubResult.detailLabel`, jangan menghitung ulang.
+8. **Satu rumus kepadatan** (80): ambang lama (10 baris, 15 per kolom, 16/20 baris nama, `sparingPosterDensity`,
+   `_RowSizes` per varian) dihapus, bukan dibiarkan mati.
+9. **Story 360 × 640**: `SharePosterTarget` (Story 202,5 × 360) dihapus; Lengkap memakai `PodiumPosterTarget` dan
+   ekspor ×3. Memakai kanvas lama = gambar gepeng.
+10. **Satuan hanya di feed1.** Ringkas tetap selalu bersatuan (63); jangan menyamakan keduanya.
+11. **kn per target**: kartu, Feed, dan Story dihitung sendiri (11f Feed 0,94, Story 1).
+12. **Golden 2% tidak menangkap bola/lencana kecil**: assert jumlahnya (17.11).
+13. **Caption dan keterangan tab tidak berubah**: tes caption 11a/13q dan "Semua n …" lama lolos tanpa diubah.
+14. **Nomor dari `position`** (Pitfalls `CLAUDE.md`); kembar senomor (11e #5 dan #12, 13w #2/#3/#13).
+15. **Tema lapangan di Lengkap bukan biru lagi** (70 diganti): 11e = lapangan padel; 18b (gradien dipilih, pindah ke
+    Lengkap tetap terpilih) tetap lolos.
+16. Render poster di test wajib `loadHifiFonts()` + `MabarTheme.light()` (Pitfalls).
+
+### 17.13 Pertanyaan terbuka — dijawab host 2026-11-13: kedua asumsi disetujui (keputusan 89–90 di PRD)
+
+1. **Sparing Lengkap belum ada match (0 – 0)**: tidak ada frame. Asumsi: ikut 72 + 87 → garis belakang tanpa blok,
+   panel hanya kaki (tanpa kepala klub), kolom judul selebar 3 slot seperti Kosong lain (118 / 126), jadi setelah
+   match pertama judul melebar ke 108 / 114. Rekomendasi: setujui (tanpa kasus khusus Sparing).
+2. **Story Fixed campuran** (pasangan diatur ulang, ada pemain tunggal; 09g): tidak ada frame Lengkap. Asumsi: semua
+   baris setinggi pasangan (2 satuan), nama ditumpuk hanya di baris dua nama — sama dengan `.duo` Ringkas 18l dan
+   perilaku Lengkap lama. Rekomendasi: setujui.

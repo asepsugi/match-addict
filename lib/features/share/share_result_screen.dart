@@ -35,12 +35,10 @@ class ShareResultScreen extends ConsumerStatefulWidget {
 class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
   ShareFormat _format = ShareFormat.ringkas;
 
-  /// Null = lapangan (bawaan Ringkas, ikut olahraga). Lengkap tidak punya lapangan dan memakai biru selama null.
+  /// Null = lapangan (bawaan kedua format, lantainya ikut olahraga).
   ShareTheme? _theme;
   bool _sharing = false;
   final _actionBar = GlobalKey();
-
-  ShareTheme get _shareTheme => _theme ?? ShareTheme.biru;
 
   Future<XFile> _render(ShareImage image) async {
     final bytes = await ScreenshotController().captureFromWidget(
@@ -64,12 +62,6 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       clubStandings: ref.read(clubStandingEntriesProvider),
     );
     try {
-      // Watermark raket poster Lengkap harus sudah ter-decode sebelum render di luar layar, kalau tidak posternya
-      // tanpa gambar. Podium tidak memakai gambar.
-      if (_format == ShareFormat.lengkap) {
-        await precacheImage(AssetImage(active.config.sport.assetPath), context);
-        if (!mounted) return;
-      }
       final files = [for (final image in images) await _render(image)];
       await Share.shareXFiles(files, text: caption);
     } catch (_) {
@@ -89,8 +81,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
     size: size,
     label: 'Tema ${t.name}',
     gradient: t.gradientFor(Size.square(size)),
-    // Lengkap menandai biru selama pilihannya lapangan (11e).
-    selected: t == _shareTheme && (_format == ShareFormat.lengkap || _theme != null),
+    selected: t == _theme,
     onTap: () => setState(() => _theme = t),
   );
 
@@ -112,7 +103,9 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
     final ringkas = _format == ShareFormat.ringkas;
     final config = active.config;
 
-    // Ringkas = podium, Lengkap = daftar penuh; pratinjau dan gambar ekspor dari data yang sama.
+    // Ringkas = podium, Lengkap = podium mini + daftar penuh; pratinjau dan gambar ekspor dari data yang sama. Kedua
+    // format memakai tema poster yang sama (keputusan 76): lapangan → lantai ikut olahraga, gradien → turunannya.
+    final theme = _theme == null ? PodiumTheme.court(config.sport) : PodiumTheme.gradient(_theme!);
     final Widget preview;
     final List<ShareImage> images;
     if (ringkas) {
@@ -124,7 +117,6 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
         clubResult: clubResult,
         clubEntries: clubEntries,
       );
-      final theme = _theme == null ? PodiumTheme.court(config.sport) : PodiumTheme.gradient(_theme!);
       preview = PodiumPoster(data: data, theme: theme, target: PodiumPosterTarget.card);
       images = podiumImages(data, theme);
     } else {
@@ -136,11 +128,8 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
         clubResult: clubResult,
         clubEntries: clubEntries,
       );
-      preview = SizedBox.fromSize(
-        size: SharePosterTarget.preview.designSize,
-        child: SharePoster(data: data, theme: _shareTheme, target: SharePosterTarget.preview),
-      );
-      images = lengkapImages(data, _shareTheme);
+      preview = SharePoster(data: data, theme: theme, target: PodiumPosterTarget.card);
+      images = lengkapImages(data, theme);
     }
     // Sparing: jumlah dan kata dari baris per klub (nomor per klub), bukan dari Klasemen gabungan.
     final rowsByClub = clubEntries.isEmpty ? entries : [for (final g in clubEntries) ...g.entries];
@@ -166,34 +155,28 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
                   child: FittedBox(fit: BoxFit.scaleDown, child: preview),
                 ),
                 const SizedBox(height: 14),
-                // `.themes` / `.themes.fit`: Lengkap 10 lingkaran 30 pt (Wrap); Ringkas 11 lingkaran 27 pt satu baris.
-                if (ringkas)
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      height: 30,
-                      child: Row(
-                        spacing: 6,
-                        children: [
-                          _ThemeSwatch(
-                            size: 27,
-                            label: 'Tema lapangan',
-                            gradient: _courtSwatch(config.sport),
-                            selected: _theme == null,
-                            onTap: () => setState(() => _theme = null),
-                          ),
-                          for (final t in ShareTheme.values) _gradientSwatch(t, 27),
-                        ],
-                      ),
+                // `.themes.fit`: lapangan + 10 gradien = 11 lingkaran 27 pt satu baris, sama di Ringkas dan Lengkap
+                // (keputusan 76).
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    height: 30,
+                    child: Row(
+                      spacing: 6,
+                      children: [
+                        _ThemeSwatch(
+                          size: 27,
+                          label: 'Tema lapangan',
+                          gradient: _courtSwatch(config.sport),
+                          selected: _theme == null,
+                          onTap: () => setState(() => _theme = null),
+                        ),
+                        for (final t in ShareTheme.values) _gradientSwatch(t, 27),
+                      ],
                     ),
-                  )
-                else
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [for (final t in ShareTheme.values) _gradientSwatch(t, 30)],
                   ),
+                ),
                 const SizedBox(height: 14),
                 MabarSection(
                   note: MabarGroupNote(
@@ -234,7 +217,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
   }
 }
 
-/// `.theme` — lingkaran gradien tema (30 pt, `.fit` 27 pt) dengan tepi tipis; terpilih = celah paper 3 lalu cincin
+/// `.theme.fit` — lingkaran gradien tema (27 pt) dengan tepi tipis; terpilih = celah paper 3 lalu cincin
 /// tinta 2.
 class _ThemeSwatch extends StatelessWidget {
   final double size;

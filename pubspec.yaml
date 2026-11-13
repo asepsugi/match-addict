@@ -1,7 +1,7 @@
 name: match_addict
 description: "Match Addict — aplikasi mabar tennis & padel untuk klub/komunitas."
 publish_to: 'none'
-version: 3.6.1+21
+version: 3.7.0+22
 
 environment:
   sdk: ^3.9.0
