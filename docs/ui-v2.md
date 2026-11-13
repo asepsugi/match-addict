@@ -41,7 +41,7 @@ hi-fi baru, bukan teks versi lama.
   PairList), `mabar_ball`.
 - Khusus layar di `features/<layar>/widgets/`: RoundTabs, RestingList, ScoreBoard/ScoreKeypad (di atas `ScoreEntry`),
   StandingTable, StatLine, NameListField, ModePicker/CourtSwatch/CourtColorGrid, HomePanel/HomeRowIcon/InstallStep,
-  SharePoster (`share/widgets/`, preset pratinjau/Feed/Story, diekspor lewat `SharePosterTarget.exportPixelRatio`).
+  SharePoster (`share/widgets/`, `.lk`, target `PodiumPosterTarget` kartu/Feed/Story, ekspor ×3 lewat `lengkapImages`).
 - Komponen jadwal v2 di `lib/features/schedule/widgets/` (RoundTabs, RestingList, ScheduleMatchRow), dipakai Fixed dan
   Mixed.
 - `MabarRowAction` tata letaknya 36 (seperti CSS) dengan area sentuh 44 lewat hit-test yang diperluas.
@@ -166,7 +166,8 @@ booking 1–12 jam per court.
   judul) + kepala + panel 86%. Kolom dan kepadatan dari `services/share/lengkap.dart` (`lengkapGrid`,
   `lengkapDensity`): satu rumus tinggi baris (80), dua kolom Mixed/Mexicano > 10 Feed / > 20 Story (81), Sparing dua
   kolom per klub (86), Fixed selalu satu kolom (88). Isi dari `sharePosterData()` = `Podium.of` + kepala + `podiumFacts`
-  (helper bersama `podiumPosterData`); baris `SharePosterRow` (`detail` satuan hanya di Feed satu kolom, `diff`
+  (`podiumBlocks` + kepala + `podiumFacts` bersama `podiumPosterData`; `lengkapHead` diukur di build,
+  panel dari `lengkapPanel`); baris `SharePosterRow` (`detail` satuan hanya di Feed satu kolom, `diff`
   selisih). Sparing: kepala klub `.lclub` (nama + `ClubResult.detailLabel`), skor hanya di blok.
 - Tema dan deret sama di dua tab (11 × 27 pt, keputusan 76): Lengkap memakai `PodiumTheme` yang sama dengan Ringkas,
   lapangan tidak lagi dipetakan ke biru. `ShareTheme` (10 gradien) hanya sumber gradien + lingkaran deret; warna
@@ -174,7 +175,7 @@ booking 1–12 jam per court.
   disimpan.
 - Golden Lengkap: komponen 11b, 11e–11m (`share_poster_test.dart`; Feed x 0, Story 360×640 x 374, kartu x 748), gambar
   sparing 13t/13v/13w, layar 11b/11e/11h/11i/13s/13u. Feed/Story 11l dan 13w bertoleransi 3%.
-- Teks kepala/kaki poster dibungkus `_CssLines` (tinggi = n baris × ukuran × line-height, ikut skala teks) supaya ruang
+- Teks kepala/kaki poster dihitung dengan line-height CSS (`_headBottom`; tinggi = n baris × ukuran × line-height, ikut skala teks) supaya ruang
   daftar sama dengan CSS; garis belakang Lengkap dihitung dari bawah kepala dengan cara yang sama. Golden rapat (11l)
   bertoleransi 3%: sisa geseran huruf ≤ 1 pt di baris rapat jadi ±1,7% piksel di Mac dan ±0,7 poin lebih tinggi di CI
   Linux.
