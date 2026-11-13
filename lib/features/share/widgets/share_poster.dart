@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
@@ -229,7 +231,16 @@ class _LengkapPanel extends StatelessWidget {
     final inner = width - 2 * padX;
     const columnGap = 14.0;
     final colW = _two ? (inner - columnGap) / 2 : inner;
-    final kn = _nameScale(sz, s, colW);
+    // Nama paling besar = baris kecil kepala (keputusan 91); kn mengecilkan dari situ.
+    final nameBase = min(sz.name * s, posterNameMax(story ? PodiumPosterTarget.story : PodiumPosterTarget.feed));
+    // Kolom nilai/keterangan selebar yang terpanjang di seluruh poster (keputusan 91).
+    final (valCol, restCol) = posterValueColumns(
+      data.allRows.map((r) => (r.value, _rest(r, sz))),
+      _valueStyle(sz, s, theme),
+      _restStyle(sz, s, theme),
+    );
+    final valW = valCol + 3 * s + restCol;
+    final kn = _nameScale(sz, s, colW, nameBase, valW);
 
     Widget cell(LengkapCell c) => switch (c) {
       LengkapClubCell(:final club) => _ClubHead(
@@ -245,7 +256,9 @@ class _LengkapPanel extends StatelessWidget {
         stacked: units == 2,
         sizes: sz,
         s: s,
-        kn: kn,
+        name: nameBase * kn,
+        valueWidth: valCol,
+        restWidth: restCol,
         theme: theme,
       ),
     };
@@ -303,28 +316,25 @@ class _LengkapPanel extends StatelessWidget {
 
   /// kn (§17.7): satu pengali nama untuk seluruh poster target ini, dari 1 turun 0,02 sampai setiap nama muat di sel
   /// namanya (diukur dengan bobot barisnya; #1 800), paling kecil 0,82; sesudah itu elipsis per nama.
-  double _nameScale(_Sizes sz, double s, double colW) {
+  double _nameScale(_Sizes sz, double s, double colW, double nameBase, double valW) {
     final cells = [
       for (final col in grid.columns)
         for (final c in col)
           if (c is LengkapRowCell) c,
     ];
     if (cells.isEmpty) return 1;
-    final valueStyle = _valueStyle(sz, s, theme), restStyle = _restStyle(sz, s, theme);
     final fixed = (sz.rankCol + 2 * sz.gap) * s;
     // Lebar sel nama tiap baris tidak bergantung pada kn: hitung sekali.
     final checks = [
       for (final c in cells)
         () {
           final r = data.rowAt(c.club, c.row);
-          final value = posterWidth(r.value, valueStyle) + 3 * s + posterWidth(_rest(r, sz), restStyle);
           final names = c.units == 2 && r.names.length > 1 ? r.names : [r.names.join(' + ')];
-          return (avail: colW - fixed - value, names: names, gold: r.position == 1);
+          return (avail: colW - fixed - valW, names: names, gold: r.position == 1);
         }(),
     ];
-    bool fits(double kn) => checks.every(
-      (c) => c.names.every((n) => posterWidth(n, _nameStyle(sz.name * s * kn, c.gold, theme)) <= c.avail),
-    );
+    bool fits(double kn) =>
+        checks.every((c) => c.names.every((n) => posterWidth(n, _nameStyle(nameBase * kn, c.gold, theme)) <= c.avail));
     var percent = 100;
     while (percent > _knMinPercent && !fits(percent / 100)) {
       percent -= _knStep;
@@ -340,7 +350,11 @@ class _Row extends StatelessWidget {
   final double height;
   final bool stacked;
   final _Sizes sizes;
-  final double s, kn;
+  final double s;
+
+  /// Ukuran nama sesudah batas dan kn.
+  final double name;
+  final double valueWidth, restWidth;
   final PodiumTheme theme;
 
   const _Row({
@@ -349,14 +363,16 @@ class _Row extends StatelessWidget {
     required this.stacked,
     required this.sizes,
     required this.s,
-    required this.kn,
+    required this.name,
+    required this.valueWidth,
+    required this.restWidth,
     required this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
     final gold = row.position == 1;
-    final name = _nameStyle(sizes.name * s * kn, gold, theme);
+    final name = _nameStyle(this.name, gold, theme);
     final Widget names = stacked && row.names.length > 1
         ? Column(
             mainAxisSize: MainAxisSize.min,
@@ -387,16 +403,15 @@ class _Row extends StatelessWidget {
           SizedBox(width: sizes.gap * s),
           Expanded(child: names),
           SizedBox(width: sizes.gap * s),
-          // Nilai tidak pernah dipotong (§17.7).
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(row.value, maxLines: 1, softWrap: false, style: _valueStyle(sizes, s, theme)),
-              SizedBox(width: 3 * s),
-              Text(_rest(row, sizes), maxLines: 1, softWrap: false, style: _restStyle(sizes, s, theme)),
-            ],
+          // Nilai tidak pernah dipotong (§17.7); kolom tetap supaya sejajar antarbaris.
+          PosterValue(
+            value: row.value,
+            rest: _rest(row, sizes),
+            valueStyle: _valueStyle(sizes, s, theme),
+            restStyle: _restStyle(sizes, s, theme),
+            valueWidth: valueWidth,
+            restWidth: restWidth,
+            gap: 3 * s,
           ),
         ],
       ),

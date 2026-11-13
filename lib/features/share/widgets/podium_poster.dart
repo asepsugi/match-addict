@@ -611,6 +611,60 @@ double posterWidth(String text, TextStyle style) {
   return w;
 }
 
+/// Batas ukuran nama di panel kedua poster = ukuran baris kecil kepala (Feed 12,5, Story 15; keputusan 91): nama
+/// tidak boleh lebih besar dari "Tennis · Mixed · …".
+double posterNameMax(PodiumPosterTarget target) => _specFor(target).subSize;
+
+/// Lebar kolom nilai dan kolom keterangan sesudahnya = yang terpanjang di antara [rows] (nilai, keterangan); 0 kalau
+/// semua keterangan kosong. Satu lebar untuk seluruh poster, termasuk dua kolom (keputusan 91).
+(double, double) posterValueColumns(Iterable<(String, String)> rows, TextStyle valueStyle, TextStyle restStyle) {
+  var value = 0.0, rest = 0.0;
+  for (final (v, r) in rows) {
+    value = max(value, posterWidth(v, valueStyle));
+    if (r.isNotEmpty) rest = max(rest, posterWidth(r, restStyle));
+  }
+  return (value, rest);
+}
+
+/// Nilai + keterangan kecil di kolom tetap: nilai rata kanan di [valueWidth], keterangan rata kiri di [restWidth],
+/// sejajar garis dasar. Tidak pernah dipotong (lebar sudah diukur dari teks terpanjang).
+class PosterValue extends StatelessWidget {
+  final String value, rest;
+  final TextStyle valueStyle, restStyle;
+  final double valueWidth, restWidth, gap;
+
+  const PosterValue({
+    super.key,
+    required this.value,
+    required this.rest,
+    required this.valueStyle,
+    required this.restStyle,
+    required this.valueWidth,
+    required this.restWidth,
+    required this.gap,
+  });
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.baseline,
+    textBaseline: TextBaseline.alphabetic,
+    children: [
+      SizedBox(
+        width: valueWidth,
+        child: Text(value, maxLines: 1, softWrap: false, textAlign: TextAlign.right, style: valueStyle),
+      ),
+      if (restWidth > 0) ...[
+        SizedBox(width: gap),
+        SizedBox(
+          width: restWidth,
+          child: Text(rest, maxLines: 1, softWrap: false, style: restStyle),
+        ),
+      ],
+    ],
+  );
+}
+
 int _lineCount(String text, TextStyle style, {required double maxWidth, required int maxLines}) {
   final tp = _measure(text, style, maxWidth: maxWidth, maxLines: maxLines);
   final n = tp.computeLineMetrics().length;
@@ -829,12 +883,15 @@ class _Panel extends StatelessWidget {
     TextStyle bStyle() =>
         posterStyle(size: valB, weight: FontWeight.w800, stretch: 72, height: 1, color: theme.panelText);
     TextStyle smallStyle() => posterStyle(size: valSmall, weight: FontWeight.w600, color: theme.panelText2);
-    double valWidth(PodiumRowData r) =>
-        posterWidth(r.value, bStyle()) + (r.detail.isEmpty ? 0 : 4 + posterWidth(r.detail, smallStyle()));
+    // Nilai rata kanan dan keterangan rata kiri di kolom selebar yang terpanjang, supaya angka dan "·" sejajar
+    // walau jumlah digit selisih berbeda (keputusan 91).
+    final (valCol, restCol) = posterValueColumns(data.rows.map((r) => (r.value, r.detail)), bStyle(), smallStyle());
+    final valW = valCol + (restCol > 0 ? 4 + restCol : 0);
 
     // Nama mengecil bersama (langkah 0,5) sampai semua muat di kolomnya; batas bawah 11,5, lalu elipsis per nama.
+    // Ukuran awal = ukuran baris kecil kepala (keputusan 91).
     final duo = data.pairSize;
-    final baseName = duo ? (story ? 17.0 : 13.0) : (story ? 18.0 : 14.0);
+    final baseName = posterNameMax(story ? PodiumPosterTarget.story : PodiumPosterTarget.feed);
     TextStyle nameStyle(double fs, bool gold) => posterStyle(
       size: fs,
       weight: gold ? FontWeight.w800 : FontWeight.w600,
@@ -842,7 +899,7 @@ class _Panel extends StatelessWidget {
       color: theme.panelText,
     );
     bool fits(double fs) => data.rows.every((r) {
-      final col = inner - posCol - 2 * gap - valWidth(r);
+      final col = inner - posCol - 2 * gap - valW;
       return r.names.every((n) => posterWidth(n, nameStyle(fs, r.gold)) <= col);
     });
     var nameSize = baseName;
@@ -901,17 +958,14 @@ class _Panel extends StatelessWidget {
                             ),
                     ),
                     SizedBox(width: gap),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(r.value, style: bStyle()),
-                        if (r.detail.isNotEmpty) ...[
-                          const SizedBox(width: 4),
-                          Text(r.detail, style: smallStyle(), maxLines: 1, softWrap: false),
-                        ],
-                      ],
+                    PosterValue(
+                      value: r.value,
+                      rest: r.detail,
+                      valueStyle: bStyle(),
+                      restStyle: smallStyle(),
+                      valueWidth: valCol,
+                      restWidth: restCol,
+                      gap: 4,
                     ),
                   ],
                 ),
@@ -978,8 +1032,9 @@ class PodiumHead extends StatelessWidget {
   );
 }
 
-/// `.psig` — kaki panel kedua poster: wordmark (bola 13 + "Match Addict") kiri, fakta kanan. Fakta mengecil per 0,1
-/// dari 10,5 sampai muat di sisa lebar, tidak pernah terpotong; lebar diambil dari tempatnya (panel satu/dua kolom).
+/// `.psig` — kaki panel kedua poster: wordmark (bola 12 + "Match Addict" 10,5) kiri, fakta kanan. Fakta mengecil per
+/// 0,1 dari 9,5 sampai muat di sisa lebar, tidak pernah terpotong; lebar diambil dari tempatnya (panel satu/dua kolom).
+/// Semua satu tingkat di bawah 3.7.0 (keputusan 91).
 class PodiumSignature extends StatelessWidget {
   final String facts;
   final PodiumTheme theme;
@@ -991,7 +1046,7 @@ class PodiumSignature extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const wmkSize = 11.5;
+    const wmkSize = 10.5, ballSize = 12.0;
     final wmkStyle = posterStyle(
       size: wmkSize,
       weight: FontWeight.w800,
@@ -1004,15 +1059,15 @@ class PodiumSignature extends StatelessWidget {
       height: height,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final wmkW = 13 + 5 + posterWidth('Match Addict', wmkStyle);
+          final wmkW = ballSize + 5 + posterWidth('Match Addict', wmkStyle);
           final factsAvail = constraints.maxWidth - wmkW - 10;
-          var factsSize = 10.5;
+          var factsSize = 9.5;
           while (factsSize > 6 && posterWidth(facts, factsStyle(factsSize)) > factsAvail) {
             factsSize = ((factsSize - 0.1) * 10).round() / 10;
           }
           return Row(
             children: [
-              const MabarBall(size: 13),
+              const MabarBall(size: ballSize),
               const SizedBox(width: 5),
               Text('Match Addict', style: wmkStyle, maxLines: 1, softWrap: false),
               const SizedBox(width: 10),

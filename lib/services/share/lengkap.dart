@@ -16,7 +16,9 @@ class LengkapSizingSpec {
 
 const lengkapSizingSpecs = <LengkapSizing, LengkapSizingSpec>{
   LengkapSizing.feed1: LengkapSizingSpec(refRow: 22, maxRow: 30, maxScale: 1.04),
-  LengkapSizing.feed2: LengkapSizingSpec(refRow: 18, maxRow: 26, maxScale: 1.0),
+  // Feed dua kolom: baris boleh setinggi ruangnya supaya panel tidak menyisakan celah di bawah kepala (keputusan 91);
+  // huruf tetap dibatasi maxScale.
+  LengkapSizing.feed2: LengkapSizingSpec(refRow: 18, maxRow: 40, maxScale: 1.0),
   LengkapSizing.story1: LengkapSizingSpec(refRow: 17, maxRow: 42, maxScale: 1.33),
   LengkapSizing.story2: LengkapSizingSpec(refRow: 18, maxRow: 30, maxScale: 1.0),
 };

@@ -3,6 +3,25 @@
 Pemilik: tech-lead. Daftar task sebelumnya (Poster podium PP-n, selesai, rilis 3.6.0) ada di riwayat git:
 `git show 3a95d55:docs/tasks.md`.
 
+## PATCH 3.7.1 · ukuran & perataan poster (umpan balik host uji HP 2026-11-13) — SEDANG JALAN
+
+Branch `poster-patch-3-7-1` (dari `5684c9e`), Level 1 Presentation, PATCH. Kode Flutter **sudah** diubah (commit WIP);
+golden poster **pasti merah** sampai hi-fi menyusul. Host minta push digabung dengan update berikutnya (belum disebut).
+- Permintaan host: (a) nama tabel Ringkas Feed/Story terlalu besar → seukuran sub judul "Tennis · Mixed …";
+  (b) kaki Lengkap Feed ("Match Addict", "n pemain …") turun 1 tingkat; (c) poin & selisih berantakan kalau digit
+  selisih beda; (d) celah lebar antara panel dan kepala di Lengkap Feed (14 pemain, dua kolom); (e) Lengkap Story:
+  nama terlalu besar + kolom poin berantakan.
+- Sudah di kode: `posterNameMax` (nama ≤ subSize 12,5/15, Ringkas & Lengkap), `posterValueColumns` + `PosterValue`
+  (nilai rata kanan, keterangan rata kiri, lebar = terpanjang se-poster), `PodiumSignature` wordmark 11,5→10,5, bola
+  13→12, fakta 10,5→9,5 (semua poster), `lengkap.dart` feed2 `maxRow` 26→40 (baris mengisi ruang, huruf tetap).
+- **Belum dikonfirmasi host:** pratinjau render sudah ditunjukkan, host belum bilang oke. Tiga pilihan main session
+  yang perlu dicek: kaki mengecil di semua poster; perataan juga di Ringkas; celah ditutup dengan baris lebih tinggi
+  (alternatif: tinggi baris tetap, panel menempel di bawah kepala).
+- Sisa: keputusan 91 di PRD §5.9; CSS hi-fi (`.psig`/`.wmk`, nama `.prow`, kolom nilai, kepadatan feed2 di JS/tokens
+  `posterLengkap.density`) → `python3 tool/hifi_extract.py` → frame 11a–11m, 13q–13w, 18a–18t; golden + test
+  `test/services/lengkap_test.dart`; satu run penuh; versi 3.7.1 + `appVersion`; publish ulang artifact hi-fi; catat
+  di Cakupan. Pratinjau: test sekali pakai seperti `docs/ui-v2.md` (data 14 pemain dari screenshot host).
+
 ## Serah terima (2026-11-13)
 
 - **Progres (sesi 2026-11-13, branch `poster-lengkap`):** B1 selesai dan Approve oleh tech-lead baru — PL-1
