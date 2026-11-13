@@ -15,7 +15,7 @@ Pemilik: tech-lead. Daftar task sebelumnya (Poster podium PP-n, selesai, rilis 3
   golden layar 11b/11e/11h/11i/13s/13u (PL-4). `docs/ui-v2.md` → Bagikan sudah memakai nama akhir. **Berikutnya:** PL-4.
 - **Progres B3 (2026-11-13):** PL-4 selesai — `8514295`, dicek main session. Full `flutter test` hijau (1173 lolos,
   1 skip), analyze bersih (2 info lama). Versi 3.7.0+22. **Berikutnya:** merge `main` + push (= deploy web) setelah
-  host bilang go; uji share di HP (host); hi-fi 11j `.mini b` dibawa ke host.
+  host bilang go; uji share di HP (host); hi-fi 11j diperbaiki (32d7a86, artifact v90).
 - **Catatan untuk PL-4 (sudah dikerjakan):** (1) layar Lengkap dengan tema null sudah menggambar lapangan tapi deret
   masih menandai biru (`share_result_screen.dart:43,87`) — beres di PL-4, test lama "Lengkap memakai dan menandai biru"
   diganti "11e K76 …". (2) Komentar `_theme` di `share_result_screen.dart:38` basi. (3) Nama test
