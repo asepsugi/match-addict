@@ -341,21 +341,35 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   pasangannya pernah diatur ulang (10d).
 
 ### 5.9 Bagikan (11a–11m, 18a–18t)
-- Kartu pratinjau + 10 tema (default biru) + Ringkas (5 teratas + "+n lainnya") / Lengkap (semua; Feed > 10 pemain
-  Mixed dibagi dua kolom rata, pasangan Fixed dan Story selalu satu kolom; lebih padat dari 10 baris satu kolom atau
-  20 baris nama di Story → semua huruf baris dikecilkan sebanding). Nomor "#n"; peringkat 1 lencana emas, digantung ke kiri supaya "#1" sejajar dengan nomor di bawahnya.
-- Tiap baris = nilai metode + selisih, sama dengan Klasemen: "42 poin · +12", "100% · +12"; dua kolom dan Story tanpa
-  satuan ("42 · +12").
+- Kartu pratinjau + deret tema (11 pilihan: lapangan ikut olahraga sebagai bawaan + 10 gradien, sama di Ringkas dan
+  Lengkap; keputusan 66, 76) + Ringkas (poster podium) / Lengkap (semua yang bernomor). Nomor "#n"; peringkat 1 lencana
+  emas, digantung ke kiri supaya "#1" sejajar dengan nomor di bawahnya.
+- Tiap baris = nilai metode + selisih, sama dengan Klasemen: "42 poin · +12", "100% · +12". Lengkap menulis satuan hanya
+  di Feed satu kolom; dua kolom dan Story tanpa satuan ("42 · +12"). Ringkas selalu dengan satuan.
 - Dua gambar 1080×1080 dan 1080×1920 dibagikan lewat share sheet sistem dengan caption teks hasil; gagal → caption
   disalin + toast "Hasil disalin".
-- Turnamen bernama: nama menggantikan baris kecil "olahraga · mode · tanggal" di atas judul poster (maks dua baris) dan
-  tanggalnya pindah ke ringkasan bawah ("4 round · 8 match · 21 Okt 2026"); caption dibuka "🏆 {nama} · Padel"
-  (tanpa nama "🏆 Match Addict · Padel").
+- Kepala poster (Ringkas dan Lengkap): tanpa nama → judul "Klasemen akhir|sementara" + baris kecil "olahraga · mode ·
+  tanggal"; bernama → judul = nama (maks dua baris) + baris kecil "Klasemen akhir|sementara · tanggal", olahraga pindah
+  ke depan baris fakta. Caption dibuka "🏆 {nama} · Padel" (tanpa nama "🏆 Match Addict · Padel").
 - **Sejak 3.6.0 (keputusan 60–74, hi-fi 11a, 11c, 11d, 13q, 13r, 18a–18t): Ringkas = poster podium**, bukan daftar 5 teratas. Ilustrasi sudut lapangan + podium
   (angka di muka blok, satu bola per pemain) dan panel nama sedikit transparan berisi baris yang naik podium (nomor,
   nama, nilai metode + selisih dengan satuan di Feed dan Story) + wordmark + baris fakta turnamen. Nomor sama → tinggi
   sama; maksimal 4 anak tangga (keputusan 65). Sparing: dua blok skor klub. Tema bawaan = palet lapangan ikut olahraga,
-  10 gradien tetap bisa dipilih. Aturan baris, kolom, dan kepadatan di atas kini hanya berlaku untuk Lengkap.
+  10 gradien tetap bisa dipilih.
+- **Sejak rencana 3.7.0 (keputusan 76–88, hi-fi 11b, 11e–11m, 13s–13w): Lengkap = arah B "Podium mini"**, satu keluarga
+  dengan poster podium. Judul + baris kecil di kiri, podium mini (angka + bola, tanpa nama) di garis belakang di
+  kanannya, semua baris bernomor di panel 86% di atas lantai, kaki wordmark + baris fakta seperti podium. Yang naik
+  podium mini = aturan poster podium, termasuk lebih dari 4 di #1 (satu blok emas lebar) dan belum ada match (tanpa
+  blok; panel hanya wordmark + fakta).
+  - Kolom: Mixed/Mexicano lebih dari 10 baris di Feed dan lebih dari 20 di Story → dua kolom rata (⌈n/2⌉ di kiri, urut
+    ke bawah). Pasangan Fixed selalu satu kolom, juga Story 15 pasangan; Story menumpuk dua nama pasangan.
+  - Kepadatan: tinggi baris = ruang panel ÷ jumlah baris, dengan batas atas; ukuran huruf baris mengikuti tinggi baris
+    dan paling besar seukuran panel podium. Tidak ada lagi ambang jumlah baris per kasus. Daftar pendek: panel memendek
+    dari atas.
+  - Judul maksimal dua baris di samping podium mini (22 → 18,5; Story 27 → 23), elipsis hanya kalau ukuran terkecil
+    masih tidak muat; baris kecil selalu satu baris, mengecil per 0,5 sampai paling kecil 11.
+  - Sparing: skor klub hanya di blok podium mini; panel per klub diawali nama klub + "83 game · +14" (tanpa skor).
+    Mixed sparing dibagi dua kolom per klub (Feed selalu, Story di atas 20 pemain), bukan ⌈n/2⌉.
 - "Selesai" memindahkan turnamen ke slot terakhir lalu kembali ke Beranda.
 
 ### 5.10 Penyimpanan Data

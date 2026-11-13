@@ -213,6 +213,10 @@ dipakai ulang; tidak ada generator atau layar kedua.
   baris dengan `position` ≤ nomor baris ke-min(3, |R|), maks 4 anak tangga, dipangkas per kelompok nomor utuh. Level
   dan tinggi dari `position` (kembar = sama tinggi), urutan slot dari indeks; emas ⇔ level 1. `podiumFacts` = baris
   fakta, `rowNoun` = kata pemain/pasangan (kosong untuk Fixed campuran; selalu dari semua baris Klasemen).
+- `share/lengkap.dart` (rencana 3.7.0, `logic.md` §17) — poster Lengkap: `lengkapGrid` (kolom: Fixed selalu satu,
+  Mixed/Mexicano dua rata di atas 10 Feed / 20 Story, Sparing dua kolom per klub; satuan baris, kepala klub 2) dan
+  `lengkapDensity` (tinggi baris = min(batas, ruang ÷ satuan), skala huruf = min(batas, tinggi ÷ acuan)). Podium mini
+  memakai `Podium.of` apa adanya.
 - `share/result_text_builder.dart` — teks share ringkas/lengkap (tiap baris memuat total point, satuan ikut format,
   "Peringkat Akhir"/"Sementara" dari `isFinal`).
 
