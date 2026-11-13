@@ -680,6 +680,11 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     sumbu depth = depth blok podium poster itu (di Lengkap = podium mini), lebar horizontal, dinding tegak. Padel:
     dinding kaca belakang + kiri bertingkat + pagar kawat; net tidak digambar. Garis lewat di belakang podium dan
     panel; panel tetap 86% (keputusan 67). Posisi podium, judul, panel tidak berubah (2026-11-13).
+92. **Ukuran & perataan poster 3.7.1** (uji HP host, 2026-11-13), semua poster Ringkas & Lengkap: nama di baris panel
+    tidak lebih besar dari sub judul (Feed 12,5, Story 15); nilai rata kanan dan keterangan ("poin · +12") rata kiri
+    dalam kolom selebar nilai terpanjang se-poster, supaya poin dan selisih sejajar walau jumlah digit beda; kaki lebih
+    kecil satu tingkat (wordmark 11,5 → 10,5, bola 13 → 12, fakta 10,5 → 9,5); Lengkap Feed dua kolom: baris mengisi
+    ruang panel (batas tinggi baris 26 → 40, huruf tetap) sehingga tidak ada celah antara kepala dan panel.
 
 ---
 
