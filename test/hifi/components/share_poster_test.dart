@@ -308,7 +308,13 @@ void main() {
         19 => 0.86,
         _ => 1.0,
       };
-      expect(nameSize(tester, rows[1].names.single), closeTo(base * kn, 0.01), reason: '${rows.length} pemain');
+      // Toleransi satu langkah kn (0,02): metrik huruf CI Linux sedikit lebih sempit dari Mac, jadi nama di batas
+      // muat satu langkah lebih awal (19 pemain: 0,88 di Linux, 0,86 di Mac).
+      expect(
+        nameSize(tester, rows[1].names.single),
+        closeTo(base * kn, base * 0.02 + 0.01),
+        reason: '${rows.length} pemain',
+      );
     }
   });
 }
