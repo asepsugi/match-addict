@@ -72,19 +72,6 @@ void main() {
     );
   }
 
-  // Teks kecil lolos toleransi golden walau salah, jadi dicek juga lewat teks.
-  void expectClubScore() {
-    expect(find.text('PB Garuda'), findsOneWidget);
-    expect(find.text('Matcha Club'), findsOneWidget);
-    expect(find.text('56 game · +13'), findsOneWidget);
-    expect(find.text('49 game · −13'), findsOneWidget);
-    expect(find.text('7'), findsOneWidget);
-    expect(find.text('5'), findsOneWidget);
-    expect(find.text('PB GARUDA'), findsOneWidget);
-    expect(find.text('MATCHA CLUB'), findsOneWidget);
-    expect(find.text('6 round · 12 match · 1 WO'), findsOneWidget);
-  }
-
   testWidgets('13q Ringkas: podium skor klub 7 – 5, tanpa daftar pemain per klub', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     await expectMatchesHifi(tester, screen(sparingFull()), '13q');
@@ -102,10 +89,14 @@ void main() {
     expect(find.text('Podium · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
   });
 
-  testWidgets('13s Lengkap: semua 7 pasangan, label tanpa +n, ×8/9', (tester) async {
+  testWidgets('13s Lengkap: semua 7 pasangan, label tanpa +n, kepala klub tanpa skor', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     await expectMatchesHifi(tester, screen(sparingFull()), '13s', act: lengkap);
-    expectClubScore();
+    // Podium mini digambar painter (angka blok dicek di "13s kartu"), jadi teksnya hanya kepala klub.
+    expect(find.text('PB Garuda'), findsOneWidget);
+    expect(find.text('Matcha Club'), findsOneWidget);
+    expect(find.text('56 game · +13'), findsOneWidget);
+    expect(find.text('49 game · −13'), findsOneWidget);
     expect(find.text('Citra + Dewi'), findsOneWidget);
     expect(find.text('Semua 7 pasangan · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
   });
@@ -369,11 +360,7 @@ void main() {
     );
     expect(find.text('83 game · +14'), findsOneWidget);
     expect(find.text('69 game · −14'), findsOneWidget);
-    expect(find.text('10'), findsOneWidget);
-    expect(find.text('6'), findsOneWidget);
-    expect(find.text('PB GARUDA'), findsOneWidget);
-    expect(find.text('MATCHA CLUB'), findsOneWidget);
-    expect(find.text('8 round · 16 match'), findsOneWidget);
+    expect(find.text('14 pemain · 8 round · 16 match'), findsOneWidget);
     expect(find.text('Semua 14 pemain · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
   });
 

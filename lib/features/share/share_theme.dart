@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/mabar_theme.dart';
-
-/// Sepuluh tema latar kartu/poster Bagikan (tokens.json → posterThemes); default biru. Semua warna teks,
-/// garis, piala, dan watermark diturunkan dari [ink] — jangan menaruh `Colors.white` langsung di poster.
+/// Sepuluh tema latar kartu/poster Bagikan (tokens.json → posterThemes), dipakai Ringkas dan Lengkap lewat
+/// PodiumTheme; warna teks/garis diturunkan dari [ink] — jangan menaruh `Colors.white` langsung di poster.
 enum ShareTheme {
   // Gelap — tinta putih.
   hijau(Color(0xFF14532D), Color(0xFF15803D)),
@@ -28,26 +26,14 @@ enum ShareTheme {
 
   const ShareTheme(this.start, this.end, {this.ink = Colors.white});
 
-  LinearGradient get gradient =>
-      LinearGradient(colors: [start, end], begin: Alignment.topLeft, end: Alignment.bottomRight);
-
   /// `linear-gradient(135deg, …)` untuk kotak [size]. Di CSS sudutnya tetap 135° dan panjang garisnya
   /// menjangkau kedua pojok, jadi untuk kotak tidak persegi titik awal/akhirnya bukan pojok persis
-  /// (berbeda dengan [gradient]).
+  /// (bukan pojok ke pojok).
   LinearGradient gradientFor(Size size) {
     final x = (size.width + size.height) / (2 * size.width), y = (size.width + size.height) / (2 * size.height);
     return LinearGradient(colors: [start, end], begin: Alignment(-x, -y), end: Alignment(x, y));
   }
 
-  Color inkAlpha(double alpha) => ink.withValues(alpha: alpha);
-
-  /// Garis pemisah & watermark: tipis di tema gelap, sedikit lebih tegas di
-  /// tema lembut supaya tidak hilang di latar terang.
+  /// Tema lembut (tinta gelap): PodiumTheme memilih turunan warna per kelompok.
   bool get isLight => ink != Colors.white;
-
-  Color get divider => inkAlpha(isLight ? 0.22 : 0.15);
-
-  /// Piala: bola di tema gelap, tinta tema di tema lembut (bola hilang di latar terang).
-  Color get trophy => isLight ? ink : MabarColors.ball;
-  Color get watermark => inkAlpha(isLight ? 0.22 : 0.18);
 }
