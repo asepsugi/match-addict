@@ -5,7 +5,21 @@ Pemilik: tech-lead. Daftar task sebelumnya (Poster podium PP-n, selesai, rilis 3
 
 ## Serah terima (2026-11-13)
 
-- **Keputusan host:** PRD §10 keputusan 76–88. **Hi-fi final:** 3a95d55 / cbcf0d4, artifact v88. Frame 11b, 11e–11m,
+- **Progres (sesi 2026-11-13, branch `poster-lengkap`):** B1 selesai dan Approve oleh tech-lead baru — PL-1
+  `4cc9e4a`, PL-2 `b13dcd6`, merge `214a859`. 54 test baru lolos; golden Ringkas lolos tanpa diubah; 13 golden Lengkap
+  (11b/e/h/i, 13s–13w) masih gagal, menunggu PL-3. **Berikutnya (sesi baru):** PL-3 (engineer opus/high, base =
+  HEAD `poster-lengkap`), review tech-lead baru, lalu PL-4 (sonnet/low–medium, dicek main session), satu full test,
+  bump 3.7.0, merge `main` setelah host bilang go.
+- **Catatan review B1 untuk PL-3 (wajib masuk brief):** (1) Sparing: kalau `Podium.of` = `PodiumEmpty`, oper
+  `rowCounts` 0 ke `lengkapGrid` (bukan jumlah baris Klasemen klub), kalau tidak kepala klub muncul dan melanggar
+  keputusan 89 — test "K89 Sparing 0–0 tanpa kepala klub" di tingkat `sharePosterData`. (2) `lengkapHead` dipanggil di
+  build/jalur ekspor seperti Ringkas, jangan di-cache di provider. (3) `rankCol`/`gap` dari tokens ditambahkan di PL-3
+  (bagian widget). API B1: `miniPodiumLayout`, `lengkapHead` → `LengkapHead`, widget bersama `PodiumHead`,
+  `PodiumRank`, `PodiumSignature`; `PodiumLayout.panel` kini nullable.
+- **Backlog PATCH (sesudah 3.7.0):** Ringkas `podium_poster.dart:325` menghitung bawah kepala dengan ukuran 22/27 untuk
+  judul yang mengecil tapi tetap satu baris (menyimpang dari §16.6 `.ptitle.two`, sejak 3.6.0). Probe reviewer: tidak
+  ada fixture yang kena, jadi golden tidak berubah; kalau ternyata berubah, bawa ke host.
+- **Keputusan host:** PRD §10 keputusan 76–90. **Hi-fi final:** 3a95d55 / cbcf0d4, artifact v89 (f53cebe). Frame 11b, 11e–11m,
   13s–13w; Komponen → `.lk`; `tokens.json` → `posterLengkap`; fixture `test/hifi/components/share_poster_data.dart`
   (termasuk '11m') sudah di-generate ulang.
 - **Spec:** `design/spec/logic.md` §17 (aturan, rumus, data test = frame, golden, jebakan). PRD §5.9, logic §9, §13.9,
