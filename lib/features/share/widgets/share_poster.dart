@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/mabar_theme.dart';
 import '../../../models/models.dart';
 import '../../../services/share/lengkap.dart';
 import '../podium_theme.dart';
@@ -145,18 +144,11 @@ class SharePoster extends StatelessWidget {
       pairs: data.allRows.any((r) => r.names.length > 1),
     );
 
-    // Panel (§17.4, 17.7): bawahPanel = H − 14 (Story 84); jarak dari garis belakang 9 (Story 10); kaki 26 (Story 34).
-    final foot = story ? 34.0 : 26.0;
-    final panelBottom = size.height - (story ? 84.0 : 14.0);
-    final space = panelBottom - (head.backLine + (story ? 10 : 9)) - 6 - foot;
-    final density = lengkapDensity(sizing: grid.sizing, units: grid.units, space: space);
-    final insetX = target == PodiumPosterTarget.card ? 13.0 : 14.0;
-    final panel = Rect.fromLTRB(
-      insetX,
-      panelBottom - (6 + grid.units * density.rowHeight + foot),
-      size.width - insetX,
-      panelBottom,
-    );
+    // Panel (§17.4, 17.7): angka satu sumber di podium_poster.dart.
+    final box = lengkapPanel(target, head);
+    final foot = box.foot;
+    final density = lengkapDensity(sizing: grid.sizing, units: grid.units, space: box.space);
+    final panel = box.rect(grid.units * density.rowHeight);
 
     final base = MediaQuery.maybeOf(context) ?? const MediaQueryData();
     return MediaQuery(
@@ -165,7 +157,7 @@ class SharePoster extends StatelessWidget {
         size: size,
         child: ClipRect(
           child: DefaultTextStyle(
-            style: _ts(size: 14, color: theme.panelText),
+            style: posterStyle(size: 14, color: theme.panelText),
             child: Stack(
               children: [
                 Positioned.fill(
@@ -325,13 +317,14 @@ class _LengkapPanel extends StatelessWidget {
       for (final c in cells)
         () {
           final r = data.rowAt(c.club, c.row);
-          final value = _width(r.value, valueStyle) + 3 * s + _width(_rest(r, sz), restStyle);
+          final value = posterWidth(r.value, valueStyle) + 3 * s + posterWidth(_rest(r, sz), restStyle);
           final names = c.units == 2 && r.names.length > 1 ? r.names : [r.names.join(' + ')];
           return (avail: colW - fixed - value, names: names, gold: r.position == 1);
         }(),
     ];
-    bool fits(double kn) =>
-        checks.every((c) => c.names.every((n) => _width(n, _nameStyle(sz.name * s * kn, c.gold, theme)) <= c.avail));
+    bool fits(double kn) => checks.every(
+      (c) => c.names.every((n) => posterWidth(n, _nameStyle(sz.name * s * kn, c.gold, theme)) <= c.avail),
+    );
     var percent = 100;
     while (percent > _knMinPercent && !fits(percent / 100)) {
       percent -= _knStep;
@@ -443,7 +436,7 @@ class _ClubHead extends StatelessWidget {
           maxLines: 1,
           softWrap: false,
           overflow: TextOverflow.ellipsis,
-          style: _ts(
+          style: posterStyle(
             size: sizes.name * 1.06 * s,
             weight: FontWeight.w800,
             stretch: 95,
@@ -456,7 +449,7 @@ class _ClubHead extends StatelessWidget {
           club.detail,
           maxLines: 1,
           softWrap: false,
-          style: _ts(size: sizes.rest * s, weight: FontWeight.w600, height: 1.1, color: theme.panelText2),
+          style: posterStyle(size: sizes.rest * s, weight: FontWeight.w600, height: 1.1, color: theme.panelText2),
         ),
       ],
     ),
@@ -466,36 +459,16 @@ class _ClubHead extends StatelessWidget {
 /// Teks kecil sesudah nilai: feed1 bersatuan "game · +18" (Win %: "· +8"), susunan lain "· +31".
 String _rest(SharePosterRow r, _Sizes sz) => sz.unit && r.detail != null ? '${r.detail} · ${r.diff}' : '· ${r.diff}';
 
-TextStyle _nameStyle(double size, bool gold, PodiumTheme theme) =>
-    _ts(size: size, weight: gold ? FontWeight.w800 : FontWeight.w600, stretch: 88, height: 1.2, color: theme.panelText);
-
-TextStyle _valueStyle(_Sizes sz, double s, PodiumTheme theme) =>
-    _ts(size: sz.value * s, weight: FontWeight.w800, stretch: 72, height: 1, color: theme.panelText);
-
-TextStyle _restStyle(_Sizes sz, double s, PodiumTheme theme) =>
-    _ts(size: sz.rest * s, weight: FontWeight.w600, height: 1, color: theme.panelText2);
-
-TextStyle _ts({
-  required double size,
-  FontWeight weight = FontWeight.w400,
-  double? stretch,
-  double height = 1.2,
-  Color? color,
-}) => TextStyle(
-  fontFamily: MabarType.family,
-  fontSize: size,
-  fontWeight: weight,
-  height: height,
-  leadingDistribution: TextLeadingDistribution.even,
-  fontFeatures: MabarType.tabular,
-  fontVariations: stretch == null ? null : [FontVariation('wdth', stretch)],
-  color: color,
-  decoration: TextDecoration.none,
+TextStyle _nameStyle(double size, bool gold, PodiumTheme theme) => posterStyle(
+  size: size,
+  weight: gold ? FontWeight.w800 : FontWeight.w600,
+  stretch: 88,
+  height: 1.2,
+  color: theme.panelText,
 );
 
-double _width(String text, TextStyle style) => (TextPainter(
-  text: TextSpan(text: text, style: style),
-  textDirection: TextDirection.ltr,
-  textScaler: TextScaler.noScaling,
-  maxLines: 1,
-)..layout()).width;
+TextStyle _valueStyle(_Sizes sz, double s, PodiumTheme theme) =>
+    posterStyle(size: sz.value * s, weight: FontWeight.w800, stretch: 72, height: 1, color: theme.panelText);
+
+TextStyle _restStyle(_Sizes sz, double s, PodiumTheme theme) =>
+    posterStyle(size: sz.rest * s, weight: FontWeight.w600, height: 1, color: theme.panelText2);

@@ -181,7 +181,7 @@ class _MiniSpec {
   final List<double> heights;
   final Map<int, double> widths;
   final Offset depth;
-  final double ball, ballPair, backLineBelowHead;
+  final double ball, ballPair, backLineBelowHead, panelBelowBackLine;
 
   const _MiniSpec({
     required this.heights,
@@ -190,6 +190,7 @@ class _MiniSpec {
     required this.ball,
     required this.ballPair,
     required this.backLineBelowHead,
+    required this.panelBelowBackLine,
   });
 }
 
@@ -200,6 +201,7 @@ const _miniFeedSpec = _MiniSpec(
   ball: 9,
   ballPair: 8,
   backLineBelowHead: 14,
+  panelBelowBackLine: 9,
 );
 
 const _miniStorySpec = _MiniSpec(
@@ -209,6 +211,7 @@ const _miniStorySpec = _MiniSpec(
   ball: 12,
   ballPair: 10,
   backLineBelowHead: 18,
+  panelBelowBackLine: 10,
 );
 
 /// Podium mini: kanan blok + dx = W − 22; kanan kepala = 22 + lebar podium + 12. Bola pasangan berjarak 1 dan
@@ -233,6 +236,12 @@ double _faceSizeFor(String face, double height, double blockWidth) {
   if (face.length < 2 || size * _faceCharEm * face.length <= 0.7 * blockWidth) return size;
   return (0.7 * blockWidth / (_faceCharEm * face.length)).roundToDouble();
 }
+
+/// Kartu memakai inset 13 (bukan 14 Feed).
+double _insetX(PodiumPosterTarget target, _Spec s) => target == PodiumPosterTarget.card ? 13.0 : s.insetX;
+
+/// Padding atas panel sebelum baris pertama.
+const _panelPadTop = 6.0;
 
 _Spec _specFor(PodiumPosterTarget target) => target == PodiumPosterTarget.story ? _storySpec : _feedSpec;
 
@@ -312,13 +321,13 @@ PodiumLayout podiumLayout({
   final s = _specFor(target);
   final size = target.designSize;
   final rowH = pairSize ? s.rowPair : s.row;
-  final panelH = 6 + panelRows * rowH + s.foot;
+  final panelH = _panelPadTop + panelRows * rowH + s.foot;
   final panelTop = size.height - s.insetBottom - panelH;
-  final insetX = target == PodiumPosterTarget.card ? 13.0 : s.insetX;
+  final insetX = _insetX(target, s);
   final panel = Rect.fromLTWH(insetX, panelTop, size.width - 2 * insetX, panelH);
 
   // Kosong: tidak ada panel nama, tapi garis belakang tetap di tempat poster tiga baris (18t = 18c).
-  final baseH = blocks.isEmpty ? 6 + 3 * s.row + s.foot : panelH;
+  final baseH = blocks.isEmpty ? _panelPadTop + 3 * s.row + s.foot : panelH;
   final base = size.height - s.insetBottom - baseH - 10;
 
   // Ringkas sengaja memakai ukuran judul besar untuk judul satu baris (perilaku 3.6.0, dijaga golden).
@@ -456,15 +465,15 @@ double _headBottom(_Spec s, int titleLines, double titleSize, double subSize) =>
     s.headTop + titleLines * titleSize * 1.1 + s.subGap + subSize * 1.2;
 
 TextStyle _titleStyle(double size, {Color? color}) =>
-    _style(size: size, weight: FontWeight.w800, stretch: 95, height: 1.1, color: color);
+    posterStyle(size: size, weight: FontWeight.w800, stretch: 95, height: 1.1, color: color);
 
-TextStyle _subStyle(double size, {Color? color}) => _style(size: size, weight: FontWeight.w700, color: color);
+TextStyle _subStyle(double size, {Color? color}) => posterStyle(size: size, weight: FontWeight.w700, color: color);
 
 /// Judul satu baris di ukuran biasa; tidak muat di [width] → ukuran kecil (`.two`), jumlah baris 1–2 dari layout
 /// sebenarnya (lebih dari dua → elipsis di baris kedua).
 (double, int) _fitTitle(String title, double width, _Spec s) {
-  if (_width(title, _titleStyle(s.title)) <= width) return (s.title, 1);
-  final lines = _measure(title, _titleStyle(s.titleTwo), maxWidth: width, maxLines: 2).computeLineMetrics().length;
+  if (posterWidth(title, _titleStyle(s.title)) <= width) return (s.title, 1);
+  final lines = _lineCount(title, _titleStyle(s.titleTwo), maxWidth: width, maxLines: 2);
   return (s.titleTwo, lines);
 }
 
@@ -518,7 +527,7 @@ LengkapHead lengkapHead({
   final width = target.designSize.width - _headInset - right;
   final (titleSize, titleLines) = _fitTitle(title, width, s);
   var subSize = s.subSize;
-  while (subSize > _subMin && _width(subtitle, _subStyle(subSize)) > width) {
+  while (subSize > _subMin && posterWidth(subtitle, _subStyle(subSize)) > width) {
     subSize = max(_subMin, subSize - _subStep);
   }
   final bottom = _headBottom(s, titleLines, titleSize, subSize);
@@ -535,11 +544,39 @@ LengkapHead lengkapHead({
   );
 }
 
+/// Ruang panel Lengkap (§17.4) dan kakinya; [rect] memberi kotak panel untuk tinggi isi tertentu. Membaca [_Spec] yang
+/// sama dengan [podiumLayout], jadi inset, kaki, dan padding atas tidak tertulis dua kali.
+class LengkapPanelBox {
+  /// Ruang untuk baris = bawahPanel − (garis belakang + jarak) − padding atas − kaki.
+  final double space;
+  final double foot;
+  final Rect Function(double contentHeight) _rect;
+
+  const LengkapPanelBox._(this.space, this.foot, this._rect);
+
+  /// Panel menempel ke bawah; [contentHeight] = tinggi seluruh baris (satuan × tinggi baris).
+  Rect rect(double contentHeight) => _rect(contentHeight);
+}
+
+LengkapPanelBox lengkapPanel(PodiumPosterTarget target, LengkapHead head) {
+  final s = _specFor(target), m = _miniFor(target);
+  final size = target.designSize;
+  final bottom = size.height - s.insetBottom;
+  final insetX = _insetX(target, s);
+  return LengkapPanelBox._(
+    bottom - (head.backLine + m.panelBelowBackLine) - _panelPadTop - s.foot,
+    s.foot,
+    (contentHeight) =>
+        Rect.fromLTRB(insetX, bottom - (_panelPadTop + contentHeight + s.foot), size.width - insetX, bottom),
+  );
+}
+
 // ---------------------------------------------------------------------------------------------------------------
 // Painter lapangan + podium
 // ---------------------------------------------------------------------------------------------------------------
 
-TextStyle _style({
+/// Gaya teks poster (satu sumber untuk Ringkas dan Lengkap; pengukur dan penggambar harus memakai gaya yang sama).
+TextStyle posterStyle({
   required double size,
   FontWeight weight = FontWeight.w400,
   double? stretch,
@@ -566,7 +603,20 @@ TextPainter _measure(String text, TextStyle style, {double maxWidth = double.inf
       ellipsis: maxLines > 1 ? '…' : null,
     )..layout(maxWidth: maxWidth);
 
-double _width(String text, TextStyle style) => _measure(text, style).width;
+/// Lebar satu baris. Painter dilepas di sini: pengukuran berulang (ratusan per build) tidak boleh bocor.
+double posterWidth(String text, TextStyle style) {
+  final tp = _measure(text, style);
+  final w = tp.width;
+  tp.dispose();
+  return w;
+}
+
+int _lineCount(String text, TextStyle style, {required double maxWidth, required int maxLines}) {
+  final tp = _measure(text, style, maxWidth: maxWidth, maxLines: maxLines);
+  final n = tp.computeLineMetrics().length;
+  tp.dispose();
+  return n;
+}
 
 /// `.podium .scene` — latar, lantai + garis lapangan, blok (muka atas, samping, depan, angka), lalu bola. Urutan
 /// gambar sama dengan SVG hi-fi: blok yang berdampingan dan sama tinggi berbagi satu muka atas; muka samping hanya di
@@ -659,7 +709,7 @@ class PodiumScenePainter extends CustomPainter {
   void _paintFace(Canvas canvas, PodiumBlockGeom b) {
     TextPainter at(double size) => _measure(
       b.face,
-      _style(
+      posterStyle(
         size: size,
         weight: FontWeight.w800,
         stretch: 72,
@@ -737,7 +787,7 @@ class PodiumPoster extends StatelessWidget {
         size: size,
         child: ClipRect(
           child: DefaultTextStyle(
-            style: _style(color: theme.panelText, size: 14),
+            style: posterStyle(color: theme.panelText, size: 14),
             child: Stack(
               children: [
                 Positioned.fill(
@@ -776,15 +826,16 @@ class _Panel extends StatelessWidget {
     final footH = story ? 34.0 : 26.0;
     final valB = story ? 24.0 : 18.0, valSmall = story ? 12.5 : 10.5;
 
-    TextStyle bStyle() => _style(size: valB, weight: FontWeight.w800, stretch: 72, height: 1, color: theme.panelText);
-    TextStyle smallStyle() => _style(size: valSmall, weight: FontWeight.w600, color: theme.panelText2);
+    TextStyle bStyle() =>
+        posterStyle(size: valB, weight: FontWeight.w800, stretch: 72, height: 1, color: theme.panelText);
+    TextStyle smallStyle() => posterStyle(size: valSmall, weight: FontWeight.w600, color: theme.panelText2);
     double valWidth(PodiumRowData r) =>
-        _width(r.value, bStyle()) + (r.detail.isEmpty ? 0 : 4 + _width(r.detail, smallStyle()));
+        posterWidth(r.value, bStyle()) + (r.detail.isEmpty ? 0 : 4 + posterWidth(r.detail, smallStyle()));
 
     // Nama mengecil bersama (langkah 0,5) sampai semua muat di kolomnya; batas bawah 11,5, lalu elipsis per nama.
     final duo = data.pairSize;
     final baseName = duo ? (story ? 17.0 : 13.0) : (story ? 18.0 : 14.0);
-    TextStyle nameStyle(double fs, bool gold) => _style(
+    TextStyle nameStyle(double fs, bool gold) => posterStyle(
       size: fs,
       weight: gold ? FontWeight.w800 : FontWeight.w600,
       height: duo ? 1.18 : 1.2,
@@ -792,7 +843,7 @@ class _Panel extends StatelessWidget {
     );
     bool fits(double fs) => data.rows.every((r) {
       final col = inner - posCol - 2 * gap - valWidth(r);
-      return r.names.every((n) => _width(n, nameStyle(fs, r.gold)) <= col);
+      return r.names.every((n) => posterWidth(n, nameStyle(fs, r.gold)) <= col);
     });
     var nameSize = baseName;
     while (nameSize > 11.5 && !fits(nameSize)) {
@@ -941,16 +992,22 @@ class PodiumSignature extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const wmkSize = 11.5;
-    final wmkStyle = _style(size: wmkSize, weight: FontWeight.w800, stretch: 125, height: 1, color: theme.panelText);
-    TextStyle factsStyle(double fs) => _style(size: fs, weight: FontWeight.w500, color: theme.panelText2);
+    final wmkStyle = posterStyle(
+      size: wmkSize,
+      weight: FontWeight.w800,
+      stretch: 125,
+      height: 1,
+      color: theme.panelText,
+    );
+    TextStyle factsStyle(double fs) => posterStyle(size: fs, weight: FontWeight.w500, color: theme.panelText2);
     return SizedBox(
       height: height,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final wmkW = 13 + 5 + _width('Match Addict', wmkStyle);
+          final wmkW = 13 + 5 + posterWidth('Match Addict', wmkStyle);
           final factsAvail = constraints.maxWidth - wmkW - 10;
           var factsSize = 10.5;
-          while (factsSize > 6 && _width(facts, factsStyle(factsSize)) > factsAvail) {
+          while (factsSize > 6 && posterWidth(facts, factsStyle(factsSize)) > factsAvail) {
             factsSize = ((factsSize - 0.1) * 10).round() / 10;
           }
           return Row(
@@ -1004,7 +1061,7 @@ class PodiumRank extends StatelessWidget {
   Widget build(BuildContext context) {
     final fs = fontSize;
     final ink = PodiumTheme.goldNumber;
-    TextStyle st(Color c) => _style(size: fs, weight: FontWeight.w800, stretch: 72, height: 1, color: c);
+    TextStyle st(Color c) => posterStyle(size: fs, weight: FontWeight.w800, stretch: 72, height: 1, color: c);
     final text = Text.rich(
       TextSpan(
         children: [
