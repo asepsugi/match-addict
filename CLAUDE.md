@@ -82,7 +82,7 @@ pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda
 Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
-sparing menolak id pemain duplikat.
+sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini".
 
 ## Status
 
@@ -109,8 +109,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Poster podium Bagikan 3.6.0 (MINOR): Ringkas = ilustrasi podium sudut lapangan, PRD §5.9 + keputusan 60–74, hi-fi
   11a/11c/11d/13q/13r + 18a–18t (artifact v85), spec `logic.md` §16, task PP-n; rilis 3.6.0+20 live 2026-11-13
   (8cbdfed). Sisa: uji share di HP (host). Eksplorasi A/B/C: `design/explore/`.
-- Poster Lengkap arah B "Podium mini" (rencana 3.7.0 MINOR): keputusan 76–90, hi-fi 11b/11e–11m/13s–13w (artifact v88,
-  cbcf0d4); spec §17 + task PL-1–PL-4 di branch `poster-lengkap` (7122639), kode belum — `docs/tasks.md`.
+- Poster Lengkap arah B "Podium mini" 3.7.0 (MINOR): keputusan 76–90, hi-fi 11b/11e–11m/13s–13w (artifact v89),
+  spec §17, task PL-1–PL-4 selesai di branch `poster-lengkap` (full test hijau 2026-11-13); belum merge `main` —
+  `docs/tasks.md`.
 
 ## Area docs
 

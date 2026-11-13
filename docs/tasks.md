@@ -13,7 +13,10 @@ Pemilik: tech-lead. Daftar task sebelumnya (Poster podium PP-n, selesai, rilis 3
 - **Progres B2 (2026-11-13):** PL-3 selesai + Approve — `e66971d` (feat) + `ff8a144` (review: panel/pengukur satu
   sumber, `lengkapPanel`, `posterStyle`/`posterWidth`). Golden komponen Lengkap + 13t/13v/13w + Ringkas lolos; tinggal
   golden layar 11b/11e/11h/11i/13s/13u (PL-4). `docs/ui-v2.md` → Bagikan sudah memakai nama akhir. **Berikutnya:** PL-4.
-- **Catatan untuk PL-4 (wajib masuk brief):** (1) layar Lengkap dengan tema null sudah menggambar lapangan tapi deret
+- **Progres B3 (2026-11-13):** PL-4 selesai — `8514295`, dicek main session. Full `flutter test` hijau (1173 lolos,
+  1 skip), analyze bersih (2 info lama). Versi 3.7.0+22. **Berikutnya:** merge `main` + push (= deploy web) setelah
+  host bilang go; uji share di HP (host); hi-fi 11j `.mini b` dibawa ke host.
+- **Catatan untuk PL-4 (sudah dikerjakan):** (1) layar Lengkap dengan tema null sudah menggambar lapangan tapi deret
   masih menandai biru (`share_result_screen.dart:43,87`) — beres di PL-4, test lama "Lengkap memakai dan menandai biru"
   diganti "11e K76 …". (2) Komentar `_theme` di `share_result_screen.dart:38` basi. (3) Nama test
   `sparing_bagikan_test.dart:105` "13s … ×8/9" merujuk kepadatan lama. (4) Turunan `ShareTheme.ink` dkk tak terpakai

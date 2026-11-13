@@ -170,7 +170,7 @@ booking 1–12 jam per court.
   panel dari `lengkapPanel`); baris `SharePosterRow` (`detail` satuan hanya di Feed satu kolom, `diff`
   selisih). Sparing: kepala klub `.lclub` (nama + `ClubResult.detailLabel`), skor hanya di blok.
 - Tema dan deret sama di dua tab (11 × 27 pt, keputusan 76): Lengkap memakai `PodiumTheme` yang sama dengan Ringkas,
-  lapangan tidak lagi dipetakan ke biru. `ShareTheme` (10 gradien) hanya sumber gradien + lingkaran deret; warna
+  lapangan tidak lagi dipetakan ke biru. `ShareTheme` (10 gradien) hanya sumber gradien + lingkaran deret (+ `ink`/`isLight` untuk `PodiumTheme.gradient`); warna
   poster dari `PodiumTheme` (token `posterPodium`), jangan menaruh `Colors.white` langsung. Tema & format tidak
   disimpan.
 - Golden Lengkap: komponen 11b, 11e–11m (`share_poster_test.dart`; Feed x 0, Story 360×640 x 374, kartu x 748), gambar
