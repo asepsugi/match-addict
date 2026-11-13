@@ -626,6 +626,26 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     71/09g (2026-11-13).
 75. Tema Bagikan hijau, jingga, teal: warna ujung gradien digelapkan satu tingkat (#15803D, #C2410C, #0F766E) supaya
     teks putih di baris bawah poster Lengkap ≥ 4,5 : 1; teks kecil 70% transparan dibiarkan (2026-11-13, PATCH 3.6.1).
+76. **Poster Lengkap dirombak satu keluarga dengan poster podium**: tema bawaan palet lapangan ikut olahraga, kepala
+    poster memakai sudut lapangan yang sama (kecil), daftar di panel bergaya panel podium. Deret tema di tab Ringkas
+    dan Lengkap sama (11 lingkaran: lapangan + 10 gradien), menggantikan keputusan 70. Arah visual diputuskan lewat
+    eksplorasi designer (2026-11-13).
+77. Isi baris poster Lengkap tetap "nilai metode + selisih" seperti Klasemen (§5.9), tanpa W–L atau statistik
+    tambahan; aturan kolom dan kepadatan §5.9 tetap kecuali eksplorasi mengusulkan lain dan host menyetujui (2026-11-13).
+78. Data frame hi-fi 11h diperbaiki supaya konsisten (selisih tertulis +4 padahal seharusnya 0), sekalian di rombak
+    Lengkap (2026-11-13).
+79. Arah visual poster Lengkap = **B "Podium mini"** (`design/explore/bagikan-lengkap.html`): podium kecil (angka +
+    bola, tanpa nama) berdiri di garis belakang di kanan judul, daftar di panel 86% di atas lantai. Pilihan host atas
+    rekomendasi A (2026-11-13).
+80. Kepadatan poster Lengkap memakai satu aturan: ukuran huruf baris mengikuti tinggi baris yang tersedia, dibatasi
+    ukuran panel poster podium; menggantikan ambang jumlah baris per kasus di §5.9 (2026-11-13).
+81. Story Mixed di atas 20 pemain dibagi dua kolom rata (seperti Feed); menggantikan "Story selalu satu kolom" untuk
+    kasus itu. Pasangan Fixed tetap satu kolom (2026-11-13).
+82. Judul poster Lengkap arah B: maksimal dua baris di samping podium mini, huruf mengecil bertahap seperti judul
+    podium (22 → 18,5; Story 27 → 23); podium mini Story lebih ramping supaya kolom judul lebar; elipsis hanya kalau
+    ukuran terkecil masih tidak muat (2026-11-13).
+83. Sparing poster Lengkap: angka skor klub hanya di blok podium mini; kepala klub di panel = nama klub + "83 game ·
+    +14" tanpa angka skor (2026-11-13).
 
 ---
 

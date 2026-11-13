@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Poster Lengkap Bagikan · eksplorasi</title>
+<style>
+/* Eksplorasi untuk dipilih host, BUKAN hi-fi final. Token dokumen disalin dari bagikan-podium.html; kelas poster baru
+   berawalan .pl (poster Lengkap) dan .dA / .dB / .dC per arah. Frame dibangun skrip di bawah dari data RAW (hasil
+   simulasi daftar match), skala 1:3 (360 = 1080 px). ?f=LA1 = satu poster saja (ekspor PNG), ?sheet=A = lembar kontak,
+   ?check=1 = hasil cek tata letak di <pre id="check">. */
+@font-face { font-family: "Archivo Lokal"; src: url("../../assets/fonts/Archivo%5Bwdth,wght%5D.ttf") format("truetype"); font-weight: 100 900; font-stretch: 62% 125%; }
+:root {
+  --bg: #E7ECF0; --surface: #FFFFFF; --fg: #13202B; --muted: #4F5D69; --faint: #7A8794; --line: #D3DBE2; --accent: #1E6BB8;
+  --f: "Archivo Lokal", "Archivo", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0C141B; --surface: #141F29; --fg: #E3EAF0; --muted: #A3B0BB; --faint: #74838F; --line: #24323D; --accent: #7DB1E6; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 96px;
+}
+.doc { max-width: 1720px; margin: 0 auto; display: flex; flex-direction: column; gap: 72px; }
+.doc h1, .doc h2, .doc h3 { margin: 0; text-wrap: balance; line-height: 1.15; }
+.doc-head h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 800; font-stretch: 112%; }
+.doc-head p { max-width: 78ch; color: var(--muted); margin: 12px 0 0; font-size: 16px; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 20px; }
+.toc a { font-size: 13.5px; font-weight: 600; color: var(--fg); text-decoration: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+.toc a:hover { border-color: var(--accent); color: var(--accent); }
+.toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.flow { display: flex; flex-direction: column; gap: 28px; scroll-margin-top: 24px; }
+.flow-head { display: flex; flex-direction: column; gap: 6px; max-width: 84ch; }
+.flow-head h2 { font-size: 28px; font-weight: 800; font-stretch: 105%; }
+.flow-head p { margin: 0; color: var(--muted); }
+.screens { display: flex; flex-wrap: wrap; gap: 48px 36px; align-items: flex-start; }
+.scr { width: 360px; display: flex; flex-direction: column; gap: 12px; }
+.scr > .cap { display: flex; gap: 10px; align-items: baseline; }
+.scr > .cap b { font-size: 13px; font-weight: 800; font-stretch: 80%; color: var(--accent); font-variant-numeric: tabular-nums; }
+.scr > .cap span { font-size: 15px; font-weight: 700; }
+.scr > ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; color: var(--muted); }
+.scr > ul li::marker { color: var(--faint); }
+.scr > ul b { color: var(--fg); }
+code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em; color: var(--fg); }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel > h3 { font-size: 16px; font-weight: 800; }
+.panel > p { margin: 0; font-size: 14px; color: var(--muted); }
+.ruleslist { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table.map { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px; }
+.map th { text-align: left; font-size: 12px; font-weight: 700; color: var(--faint); padding: 12px 16px; }
+.map td { padding: 10px 16px; border-top: 1px solid var(--line); vertical-align: top; }
+.map td:first-child { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--line); margin-right: 6px; white-space: nowrap; }
+.tag.ok { color: #1F7A4D; border-color: #1F7A4D; } .tag.mid { color: #A8620F; border-color: #A8620F; } .tag.no { color: #B9482A; border-color: #B9482A; }
+.tag.us { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- poster Lengkap: dasar (semua arah) ---------- */
+.pl { position: relative; overflow: hidden; width: 360px; flex: none; font-family: var(--f); color: var(--hfg); line-height: 1.2; font-variant-numeric: tabular-nums; text-align: left; background: var(--bg0); }
+.pl.feed { height: 360px; }
+.pl.story { height: 640px; }
+.pl svg { display: block; flex: none; }
+.pl .scene { position: absolute; inset: 0; }
+.pl .n { font-weight: 800; font-stretch: 72%; }
+.pl .hd { position: absolute; left: 22px; right: 22px; top: 22px; }
+.pl.story .hd { top: 98px; }
+.pl .hl { font-size: 22px; font-weight: 800; font-stretch: 95%; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pl .hl.long { font-size: 18.5px; }
+.pl .sub { margin-top: 4px; font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl.story .hl { font-size: 27px; }
+.pl.story .hl.long { font-size: 23px; }
+.pl.story .sub { margin-top: 6px; font-size: 15px; }
+/* Panel = panel podium: warna panel 86%, radius 14, padding 6 12 0, garis baris 16%. */
+.pl .pn { position: absolute; background: var(--panel); color: var(--pfg); border-radius: 14px; padding: 6px 12px 0; display: flex; flex-direction: column; }
+.pl .pn.box { padding: 6px 10px 0; }
+.pl .pn.ft { padding: 0 12px; }
+.pl .body { flex: 1 1 auto; min-height: 0; }
+.pl .pn.two { padding: 6px 10px 0; }
+.pl .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 14px; position: relative; }
+.pl .cols::after { content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 1px; background: var(--pline); }
+.pl .row { height: var(--row); display: grid; grid-template-columns: calc(var(--rc) * var(--s)) minmax(0, 1fr) auto; column-gap: calc(var(--cg) * var(--s)); align-items: center; border-bottom: 1px solid var(--pline); }
+.pl .row.empty { border-bottom: 0; }
+.pl .r { font-size: calc(var(--fr) * var(--s)); line-height: 1; justify-self: start; white-space: nowrap; }
+.pl .r::before { content: "#"; color: var(--psub); }
+.pl .p1 .r { background: #E3B341; color: #0F1E2C; padding: .08em .3em; margin-left: -.3em; border-radius: .35em; }
+.pl .p1 .r::before { color: rgba(15, 30, 44, .75); }
+.pl .nm { font-size: calc(var(--fn) * var(--s) * var(--kn, 1)); font-weight: 600; font-stretch: 88%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.pl .nm2 { font-size: calc(var(--fn) * var(--s) * var(--kn, 1)); font-weight: 600; font-stretch: 88%; line-height: 1.16; min-width: 0; }
+.pl .nm2 span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl .p1 .nm, .pl .p1 .nm2 { font-weight: 800; }
+.pl .pt { white-space: nowrap; display: flex; align-items: baseline; gap: calc(3px * var(--s)); }
+.pl .pt b { font-size: calc(var(--fv) * var(--s)); line-height: 1; }
+.pl .pt small { font-size: calc(var(--fs) * var(--s)); font-weight: 600; color: var(--psub); }
+/* Label klub sparing: dua satuan baris; nama klub + match menang (emas = klub unggul), Total Point di bawahnya. */
+.pl .club { height: calc(var(--row) * 2); display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: center; border-bottom: 1px solid var(--pline); }
+.pl .club .cn { font-size: calc(var(--fn) * 1.06 * var(--s)); font-weight: 800; font-stretch: 95%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl .club .ct { display: block; margin-top: calc(2px * var(--s)); font-size: calc(var(--fs) * var(--s)); font-weight: 600; color: var(--psub); white-space: nowrap; }
+.pl .club .cw { font-size: calc(var(--fv) * 1.45 * var(--s)); line-height: 1; padding: .06em .22em; border-radius: .2em; }
+.pl .club.win .cw { background: #E3B341; color: #0F1E2C; }
+.pl .sig { height: var(--sig); flex: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pl .wmk { display: flex; align-items: center; gap: 5px; font-weight: 800; font-stretch: 125%; font-size: 11.5px; line-height: 1; white-space: nowrap; }
+.pl .wmk svg { width: 13px; height: 13px; }
+.pl .facts { min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--psub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Zona UI Instagram di Story (250 px atas/bawah): penanda dokumen saja, tidak ikut ke gambar ekspor. */
+.pl .safe { position: absolute; left: 0; right: 0; height: 83.33px; pointer-events: none; background: repeating-linear-gradient(135deg, transparent 0 7px, rgba(127, 127, 127, .32) 7px 8px); }
+.pl .safe.t { top: 0; border-bottom: 1px dashed var(--hfg); }
+.pl .safe.b { bottom: 0; border-top: 1px dashed var(--hfg); }
+body.solo { padding: 0; background: #fff; }
+body.solo .safe, body.sheet .safe { display: none; }
+body.sheet { padding: 24px; background: #E7ECF0; color: #13202B; }
+.sheet-wrap { display: flex; flex-direction: column; gap: 22px; }
+.sheet-wrap h2 { margin: 0; font-size: 26px; font-weight: 800; font-stretch: 105%; }
+.sheet-row { display: flex; gap: 22px; align-items: flex-start; }
+.sheet-cell { width: 360px; display: flex; flex-direction: column; gap: 6px; }
+.sheet-cell > b { font-size: 15px; font-weight: 800; font-stretch: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-cell > b span { font-weight: 600; color: #4F5D69; margin-left: 6px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ball" viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#CDE84A" stroke="#A8C233" stroke-width="1.5"/><path d="M6 15C14 20 20 26 20 42M42 33C34 28 28 22 28 6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></symbol>
+</svg>
+<div class="doc" id="doc">
+
+<header class="doc-head">
+  <h1>Eksplorasi · Poster Lengkap Bagikan</h1>
+  <p>Tiga arah untuk merombak poster <b>Lengkap</b> supaya satu keluarga dengan poster podium Ringkas 3.6.0 (keputusan 76–78). <b>Ini eksplorasi untuk dipilih host, bukan hi-fi final</b>: <code>design/hifi.html</code>, <code>tokens.json</code>, PRD, dan kode belum diubah. Tiap frame digambar skala 1:3 (360 = 1080 px) dan dirender ke <code>design/explore/frames/L&lt;arah&gt;&lt;n&gt;.png</code> pada ukuran ekspor sebenarnya. Pembanding: Lengkap sekarang di hi-fi 11e–11l dan 13s–13w; podium di 18a–18t.</p>
+  <nav class="toc"><a href="#aturan">Keputusan dan aturan bersama</a><a href="#arah-a">Arah A · Garis belakang</a><a href="#arah-b">Arah B · Podium mini</a><a href="#arah-c">Arah C · Kotak servis</a><a href="#cakupan">Cakupan</a></nav>
+</header>
+
+<section class="flow" id="aturan">
+  <div class="flow-head"><h2>Keputusan dan aturan bersama</h2><p>Berlaku untuk ketiga arah. Yang bertanda usulan belum diputuskan host.</p></div>
+  <div class="fgrid">
+    <div class="panel">
+      <h3>Keputusan host 2026-11-13 (76–78) dan sebelumnya</h3>
+      <ul class="ruleslist">
+        <li>Tema bawaan = palet lapangan ikut olahraga (padel terracotta, tennis biru <code>court</code>); 10 gradien tetap bisa dipilih. Deret tema Ringkas dan Lengkap sama: 11 lingkaran.</li>
+        <li>Kepala poster memakai sudut lapangan yang sama dengan podium (garis belakang + garis samping miring), ukurannya kecil. Daftar di panel bergaya panel podium: warna panel 86%, radius 14, garis baris 16%, wordmark + baris fakta di kaki panel.</li>
+        <li>Isi baris: nilai metode + selisih. Satu kolom Feed dengan satuan ("76 poin · +47", "80% · +8"); dua kolom dan Story tanpa satuan ("76 · +47"). Tanpa W–L.</li>
+        <li>Kolom: ≤ 10 satu kolom; Mixed &gt; 10 dua kolom rata ⌈n/2⌉ di kiri; pasangan Fixed dan Story selalu satu kolom (Story menumpuk dua nama pasangan). Sparing Feed: satu kolom per klub.</li>
+        <li>Nomor "#n" dari Klasemen (nomor rapat, kembar senomor), #1 lencana emas digantung ke kiri. Nama turnamen menggantikan baris kecil; tanpa nama: judul "Klasemen akhir", baris kecil "olahraga · mode · tanggal".</li>
+        <li>Data frame hi-fi 11h salah (selisih +4 seharusnya 0, keputusan 78): dicatat, diperbaiki di fase hi-fi final. Frame di sini memakai data baru.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Aturan ukuran (usulan desainer)</h3>
+      <ul class="ruleslist">
+        <li><span class="tag us">usulan</span><b>Satu aturan kepadatan untuk semua kasus:</b> tinggi baris = sisa panel ÷ jumlah satuan baris (nama pasangan bertumpuk dan label klub = 2 satuan); huruf baris = ukuran dasar × tinggi baris ÷ tinggi acuan, dibatasi ukuran panel podium. Menggantikan ambang jumlah baris per kasus (10, 15, 16, 20, 8 …) dengan hasil yang sama pada kasus yang disetujui.</li>
+        <li>Tinggi acuan dan ukuran dasar (nomor / nama / nilai / sisa): Feed satu kolom 22 → 15 / 13,5 / 16 / 10,5; Feed dua kolom 18 → 13 / 12,5 / 14 / 10; Story 17 → 14 / 13,5 / 15 / 10,5. Batas atas: Feed ×1,04 (nama 14 = podium), Story ×1,33 (nama 18 = podium).</li>
+        <li>Baris tidak lebih tinggi dari 30 (Feed satu kolom), 26 (Feed dua kolom), 42 (Story = baris podium). Kalau daftar pendek, panel memendek dari atas dan lantai tampil lebih banyak.</li>
+        <li>Nama memakai Archivo lebar 90% (podium 100%) supaya dua kolom muat nama dua kata utuh.</li>
+        <li><span class="tag us">usulan</span><b>Story Mixed &gt; 20 pemain dua kolom</b> (frame 13 tiap arah): 30 pemain jadi 15 baris per kolom, nama ±12,5 alih-alih ±8,5. Saat ini Story selalu satu kolom.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Data frame</h3>
+      <p>Angka dihitung dari daftar match yang disimulasikan (skrip), bukan ditulis tangan: jumlah selisih = 0, jumlah poin = match × 21 × 2 (Fixed: × 21), nomor rapat.</p>
+      <ul class="ruleslist">
+        <li><b>1–2 · Mixed 8:</b> Padel, Americano 21, 2 court × 5 round = 10 match, semua main 5 kali. Poin 420, selisih = 2 × poin − 105. Kembar #6 (34 · −37).</li>
+        <li><b>3–4 · Mixed 20:</b> Americano 21, 4 court × 8 round = 32 match, 8 pemain main 7 kali dan 12 main 6 kali. Poin 1344. Kembar #5 dan #12; Umar 63 · 0 di atas dua pemain 63 · −21.</li>
+        <li><b>5–6, 13 · Mixed 30:</b> Americano 21, 4 court × 8 round = 32 match, main 4–5 kali. Nama turnamen 40 karakter (batasnya). Kembar #3, #6, #8, #13, #18.</li>
+        <li><b>7–8 · Fixed 10 pasangan:</b> Americano 21, round-robin 45 match (5 court × 9 round). Poin 945, selisih = 2 × poin − 189. Kembar #2 dan #5.</li>
+        <li><b>9–10 · Sparing Mixed 8 + 6:</b> data 15s (hi-fi 13u/13v): PB Garuda 10 – 6 Matcha Club, 83 game · +14 dan 69 game · −14; jumlah poin pemain = 2 × poin klub.</li>
+        <li><b>11 · Tennis Mixed 12:</b> Race to 6, 3 court × 5 round = 15 match, Win % (keputusan 21). Kembar #1 (dua lencana emas), #6, #7 (tiga pemain).</li>
+        <li><b>12 · Mixed 13, Sementara, tema peach:</b> Americano 21, 3 court, R5 berjalan: 14 dari 15 match. Poin 588. Ganjil → 7–6.</li>
+      </ul>
+    </div>
+    <div class="panel" id="checked">
+      <h3>Yang sudah dicek pada render</h3>
+      <ul class="ruleslist" id="checklist">
+        <li>39 frame dirender headless Chrome ke 1080×1080 / 1080×1920; dilihat lewat lembar kontak per arah.</li>
+        <li>Cek program (<code>?check=1</code>): tidak ada baris keluar panel, panel tidak menimpa kepala, teks lebih tinggi dari barisnya tidak ada, semua teks Story di dalam 250–1670 px, baris fakta tidak pernah terpotong (Fixed dikecilkan ke 10,1).</li>
+        <li>Nama terpotong: 0 di A dan B; C 1 nama (LC11, kotak servis lebih sempit ±8 pt). Judul 40 karakter terpotong di B (LB5, LB6, LB13); utuh di A dan C. B Story: judul dan baris kecil menyempit di kiri podium mini dan pecah dua baris ("Klasemen akhir · 13 / Nov 2026"), tinggi baris turun ±2 pt dari A.</li>
+        <li>Ukuran nama terkecil di gambar 1080 px (≈ pt di HP selebar 390): Feed 30 pemain A 28 px (10,1) · B 27,9 · C 25,7 (9,3); Story 30 satu kolom A 25,2 px (9,1) · C 24,1 (8,7); usulan Story dua kolom 36 px (13). Feed 20 pemain 33,8 px (12,2); Story 20 pemain 40,3 px (14,6).</li>
+        <li>Kontras (WCAG, panel 86% di atas warna latar paling terang): putih di panel atas lantai padel 14,9 · tennis 14,9; teks kedua <code>#B8C4CF</code> 8,4; peach teks panel 5,6, tinta kepala 5,7 (ujung gelap) dan 4,7 di atas lantai 13%; tinta di emas 8,7, "#" 75% di emas 5,1; putih di <code>court-deep</code> 8,4. Semua ≥ 4,5.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="flow" id="arah-a"><div class="flow-head"><h2>Arah A · Garis belakang</h2><p>Podium tanpa blok: kepala di run-off, garis belakang dan garis samping lapangan tepat di bawah judul, lalu satu panel yang memenuhi lantai. Dua kolom dan dua klub dibagi garis tipis di dalam panel. Paling dekat dengan podium dan paling murah.</p></div><div class="screens" data-dir="A"></div></section>
+<section class="flow" id="arah-b"><div class="flow-head"><h2>Arah B · Podium mini</h2><p>Kepala memuat podium kecil (angka di muka blok, bola, tanpa nama) yang berdiri di garis belakang, sama dengan Ringkas dalam skala ±⅓. Sparing: dua blok skor klub. Paling jelas satu keluarga, tetapi kepala lebih tinggi dan judul lebih sempit.</p></div><div class="screens" data-dir="B"></div></section>
+<section class="flow" id="arah-c"><div class="flow-head"><h2>Arah C · Kotak servis</h2><p>Lantai digambar sampai garis servis dan garis tengah. Dua kolom = dua kotak servis: dua panel terpisah dengan garis tengah lapangan di antaranya, wordmark dan fakta di panel kaki. Sparing: tiap klub di sisi lapangannya sendiri. Satu kolom sama dengan A plus garis servis.</p></div><div class="screens" data-dir="C"></div></section>
+
+<section class="flow" id="cakupan">
+  <div class="flow-head"><h2>Cakupan</h2><p>Per 2026-11-13. Nomor frame = berkas PNG <code>L&lt;arah&gt;&lt;n&gt;.png</code> di <code>design/explore/frames/</code>; lembar kontak <code>lengkap-sheet-A/B/C.png</code> dan gabungan <code>lengkap-sheet.png</code>.</p></div>
+  <div class="tablebox"><table class="map">
+    <thead><tr><th>Kasus</th><th>A · Garis belakang</th><th>B · Podium mini</th><th>C · Kotak servis</th></tr></thead>
+    <tbody id="covbody"></tbody>
+  </table></div>
+  <div class="fgrid">
+    <div class="panel">
+      <h3>Rekomendasi desainer</h3>
+      <ul class="ruleslist">
+        <li><b>Arah A</b>, dengan pembagi dua kolom dari C sebagai opsi kalau host suka garis tengahnya. A paling banyak memberi tempat untuk baris (penting di 30 pemain), memakai bentuk podium apa adanya, dan satu painter saja.</li>
+        <li>B paling terasa sekeluarga, tetapi podium mini mengulang tiga baris teratas tanpa nama dan mengambil ±12–20 pt tinggi; nama turnamen lebih sering pecah dua baris.</li>
+        <li>C paling bercerita (dua kolom = dua kotak servis, sparing = dua sisi lapangan), tetapi tiga panel terpisah memakan lebar kolom ±8 pt dan hanya beda dari A di kasus dua kolom.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Belum diputuskan</h3>
+      <ul class="ruleslist">
+        <li><b>Arah yang dipakai.</b> Usul: A.</li>
+        <li><b>Aturan kepadatan per tinggi baris</b> (menggantikan ambang jumlah baris). Usul: ya, satu aturan untuk Feed, Story, pasangan, sparing.</li>
+        <li><b>Story Mixed &gt; 20 pemain dua kolom.</b> Usul: ya; satu kolom 30 baris membuat nama ±8,5 pt (±9 pt di layar HP).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</div>
+<pre id="check" hidden></pre>
+<script>
+/* Data: [nomor, nama | [nama1, nama2], nilai, selisih]; dihasilkan skrip simulasi match (lihat panel Data frame). */
+const RAW = {"m8":[[1,"Nanda Rizki",76,47],[2,"Citra Lestari",74,43],[3,"Eko Mulyadi",66,27],[4,"Andi Pratama",60,15],[5,"Indra Wijaya",45,-15],[6,"Oki Setiawan",34,-37],[6,"Maya Putri",34,-37],[7,"Rizky Hidayat",31,-43]],"m20":[[1,"Citra Lestari",89,31],[2,"Eko Mulyadi",87,48],[3,"Fajar Kurnia",85,44],[4,"Rizky Hidayat",81,15],[5,"Andi Pratama",80,34],[5,"Kiki Amalia",80,34],[6,"Lina Marlina",75,3],[7,"Oki Setiawan",70,-7],[8,"Gina Rosalia",68,10],[9,"Sari Dewi",66,6],[10,"Dewant Rahman",65,-17],[11,"Umar Faruq",63,0],[12,"Budi Santoso",63,-21],[12,"Joko Susilo",63,-21],[13,"Tono Basuki",61,-4],[14,"Hana Taslim",58,-10],[15,"Indra Wijaya",55,-16],[16,"Maya Putri",53,-41],[17,"Putri Anggraini",44,-38],[18,"Nanda Rizki",38,-50]],"m30":[[1,"Indra Wijaya",69,33],[2,"Andi Pratama",66,27],[3,"Nanda Rizki",59,13],[3,"Tari Wulandari",59,13],[4,"Rizky Hidayat",57,30],[5,"Wulan Sari",54,3],[6,"Eko Mulyadi",51,18],[6,"Gina Rosalia",51,18],[7,"Hana Taslim",49,14],[8,"Dewant Rahman",49,-7],[8,"Agus Salim",49,-7],[9,"Joko Susilo",48,12],[10,"Yoga Prasetyo",47,10],[11,"Dian Permata",46,-13],[12,"Zaki Maulana",45,6],[13,"Bayu Saputra",44,4],[13,"Vina Oktavia",44,4],[14,"Budi Santoso",43,2],[15,"Putri Anggraini",41,-2],[16,"Kiki Amalia",40,-4],[17,"Lina Marlina",39,-6],[18,"Fajar Kurnia",38,-8],[18,"Rina Kartika",38,-8],[19,"Maya Putri",37,-10],[20,"Oki Setiawan",34,-16],[21,"Umar Faruq",33,-18],[22,"Citra Lestari",30,-24],[23,"Sari Dewi",29,-26],[24,"Tono Basuki",28,-28],[25,"Arif Hakim",27,-30]],"f10":[[1,["Budi Santoso","Sari Dewi"],124,59],[2,["Dewant Rahman","Gina Rosalia"],107,25],[2,["Hana Taslim","Lina Marlina"],107,25],[3,["Indra Wijaya","Maya Putri"],99,9],[4,["Fajar Kurnia","Tono Basuki"],96,3],[5,["Andi Pratama","Nanda Rizki"],95,1],[5,["Oki Setiawan","Rizky Hidayat"],95,1],[6,["Eko Mulyadi","Citra Lestari"],81,-27],[7,["Joko Susilo","Kiki Amalia"],74,-41],[8,["Umar Faruq","Putri Anggraini"],67,-55]],"t12":[[1,"Indra Wijaya",80,8],[1,"Hana Taslim",80,8],[2,"Nanda Rizki",60,6],[3,"Maya Putri",60,5],[4,"Gina Rosalia",60,2],[5,"Eko Mulyadi",60,1],[6,"Rizky Hidayat",40,-1],[6,"Dewant Rahman",40,-1],[7,"Oki Setiawan",40,-4],[7,"Citra Lestari",40,-4],[7,"Lina Marlina",40,-4],[8,"Andi Pratama",0,-16]],"m13":[[1,"Andi Pratama",65,25],[2,"Rizky Hidayat",56,7],[3,"Eko Mulyadi",53,22],[4,"Indra Wijaya",51,18],[5,"Gina Rosalia",51,-3],[6,"Maya Putri",44,4],[6,"Budi Santoso",44,4],[7,"Citra Lestari",40,-4],[8,"Dewant Rahman",39,-6],[9,"Lina Marlina",39,-27],[10,"Nanda Rizki",38,-29],[11,"Oki Setiawan",34,5],[12,"Hana Taslim",34,-16]]};
+/* Sparing = data 15s hi-fi 13u/13v (disetujui), urut Klasemen per klub. */
+RAW.sp = [
+  { name: "PB Garuda", wins: 10, tp: "83 game · +14", win: true, rows: [[1,"Dewi",24,9],[2,"Gita",23,8],[3,"Andi",22,9],[4,"Fajar",21,7],[5,"Budi",21,2],[6,"Eko",20,3],[7,"Hadi",19,-4],[8,"Citra",16,-6]] },
+  { name: "Matcha Club", wins: 6, tp: "69 game · −14", win: false, rows: [[1,"Lina",29,-1],[2,"Joko",26,5],[3,"Nanda",26,-4],[4,"Indra",23,-6],[5,"Maya",20,-6],[6,"Kiki",14,-16]] }
+];
+
+const GOLD = { f: "#E3B341", t: "#F1D27C", s: "#B58A26", n: "#0F1E2C" };
+const COURT = { bg0: "#164E8C", hfg: "#fff", line: "rgba(255,255,255,.72)", panel: "rgba(15,30,44,.86)", pfg: "#fff", psub: "#B8C4CF", pline: "rgba(255,255,255,.16)", bf: "#0F1E2C", bt: "#2B4257", bs: "#08131D", bn: "#fff" };
+const THEMES = {
+  padel: Object.assign({}, COURT, { floor: "#BC5A33" }),
+  tennis: Object.assign({}, COURT, { floor: "#1E6BB8" }),
+  peach: { bg0: "linear-gradient(135deg,#F6BE9C,#FDE3D0)", hfg: "#6B3A22", floor: "rgba(107,58,34,.13)", line: "rgba(107,58,34,.5)", panel: "rgba(107,58,34,.86)", pfg: "#FDE3D0", psub: "#FDE3D0", pline: "rgba(253,227,208,.2)", bf: "#6B3A22", bt: "#91664F", bs: "#462616", bn: "#FDE3D0" }
+};
+
+/* Kasus uji. kind: mixed | fixed | sparing; win = Win % (tanpa kata satuan). */
+const CASES = {
+  m8:  { kind: "mixed", theme: "padel", hl: "Mabar Jumat PB Garuda", sub: "Klasemen akhir · 6 Nov 2026", facts: "Padel · 8 pemain · 5 round · 10 match", label: "Mixed 8" },
+  m20: { kind: "mixed", theme: "padel", hl: "Mabar Jumat PB Garuda", sub: "Klasemen akhir · 6 Nov 2026", facts: "Padel · 20 pemain · 8 round · 32 match", label: "Mixed 20" },
+  m30: { kind: "mixed", theme: "padel", hl: "Turnamen Akhir Tahun Komunitas Padel Bdg", sub: "Klasemen akhir · 13 Nov 2026", facts: "Padel · 30 pemain · 8 round · 32 match", label: "Mixed 30 · nama 40 karakter" },
+  f10: { kind: "fixed", theme: "padel", hl: "Liga Pasangan PB Garuda", sub: "Klasemen akhir · 1 Nov 2026", facts: "Padel · 10 pasangan · 9 round · 45 match", label: "Fixed 10 pasangan" },
+  sp:  { kind: "sparing", theme: "padel", hl: "Klasemen akhir", sub: "Padel · Mixed · 4 Nov 2026", facts: "8 round · 16 match", label: "Sparing Mixed 8 + 6" },
+  t12: { kind: "mixed", theme: "tennis", win: true, hl: "Klasemen akhir", sub: "Tennis · Mixed · 8 Nov 2026", facts: "12 pemain · 5 round · 15 match", label: "Tennis Mixed 12 · Win %" },
+  m13: { kind: "mixed", theme: "peach", hl: "Mabar Jumat PB Garuda", sub: "Klasemen sementara · 13 Nov 2026", facts: "Padel · R5 · 14 dari 15 match", label: "Mixed 13 · Sementara · peach" }
+};
+/* Frame per arah: [nomor, kasus, format, opsi]. */
+const FRAMES = [
+  [1, "m8", "feed"], [2, "m8", "story"], [3, "m20", "feed"], [4, "m20", "story"], [5, "m30", "feed"], [6, "m30", "story"],
+  [7, "f10", "feed"], [8, "f10", "story"], [9, "sp", "feed"], [10, "sp", "story"], [11, "t12", "feed"], [12, "m13", "feed"],
+  [13, "m30", "story", { story2: true }]
+];
+
+/* Ukuran per mode (pt skala 1:3). ref = tinggi baris acuan; max = batas tinggi baris; smax = batas skala huruf. */
+const MODE = {
+  f1: { ref: 22, max: 30, smax: 1.04, rc: 30, cg: 8, fr: 15, fn: 13.5, fv: 16, fs: 10.5, unit: true },
+  f2: { ref: 18, max: 26, smax: 1.0, rc: 22, cg: 5, fr: 13, fn: 12, fv: 13.5, fs: 10, unit: false },
+  s1: { ref: 17, max: 42, smax: 1.33, rc: 30, cg: 8, fr: 14, fn: 13.5, fv: 15, fs: 10.5, unit: false },
+  s2: { ref: 18, max: 30, smax: 1.0, rc: 22, cg: 5, fr: 13, fn: 12, fv: 13.5, fs: 10, unit: false }
+};
+
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const sgn = d => d > 0 ? "+" + d : d < 0 ? "−" + (-d) : "0";
+const WMK = '<div class="wmk"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ball"/></svg><span>Match Addict</span></div>';
+
+function valueHtml(c, v, d, unit) {
+  const b = c.win ? v + "%" : v;
+  const tail = unit && !c.win ? "poin · " + sgn(d) : "· " + sgn(d);
+  return '<span class="pt"><b class="n">' + b + '</b><small>' + tail + '</small></span>';
+}
+function rowEl(c, r, mode, stacked) {
+  const [p, name, v, d] = r;
+  const e = el("div", "row" + (p === 1 ? " p1" : ""));
+  let nm;
+  if (Array.isArray(name)) nm = stacked ? '<span class="nm2"><span>' + name[0] + '</span><span>' + name[1] + '</span></span>' : '<span class="nm">' + name[0] + " + " + name[1] + "</span>";
+  else nm = '<span class="nm">' + name + "</span>";
+  e.innerHTML = '<span class="r n">' + p + "</span>" + nm + valueHtml(c, v, d, MODE[mode].unit);
+  if (stacked) e.style.height = "calc(var(--row) * 2)";
+  return e;
+}
+function clubEl(club) {
+  return el("div", "club" + (club.win ? " win" : ""), '<div style="min-width:0"><div class="cn">' + club.name + '</div><span class="ct">' + club.tp + '</span></div><b class="cw n">' + club.wins + "</b>");
+}
+function setMode(node, mode, row) {
+  const m = MODE[mode];
+  const s = Math.min(m.smax, row / m.ref);
+  node.style.setProperty("--row", row.toFixed(2) + "px");
+  node.style.setProperty("--s", s.toFixed(3));
+  for (const k of ["rc", "cg", "fr", "fn", "fv", "fs"]) node.style.setProperty("--" + k, m[k] + "px");
+  return s;
+}
+
+/* Podium mini arah B: aturan yang naik = keputusan 64/65 (nomor menentukan tinggi, maks 4 anak tangga). */
+function podiumSteps(rows) {
+  if (rows.length < 2) return rows.map(r => r);
+  let top = rows.slice(0, 3);
+  const p3 = top[top.length - 1][0];
+  let i = 3; while (i < rows.length && rows[i][0] === p3) { top.push(rows[i]); i++; }
+  if (top.length > 4) { const keep = top.filter(r => r[0] !== p3); top = keep.length ? keep : top.slice(0, 1); }
+  if (top.length === 3) return [top[1], top[0], top[2]];
+  if (top.length === 4) return [top[1], top[0], top[2], top[3]];
+  return top;
+}
+
+function build(dir, n, key, fmt, opt) {
+  opt = opt || {};
+  const c = CASES[key], t = THEMES[c.theme], st = fmt === "story";
+  const W = 360, H = st ? 640 : 360, side = 14, bottom = st ? 84 : 14, sigH = st ? 34 : 26;
+  const id = "L" + dir + n;
+  const p = el("div", "pl " + fmt + " d" + dir); p.dataset.frame = id;
+  p.style.background = t.bg0;
+  for (const k of ["hfg", "panel", "pfg", "psub", "pline"]) p.style.setProperty("--" + k, t[k]);
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg"); svg.setAttribute("class", "scene"); svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("aria-hidden", "true");
+  p.appendChild(svg);
+  const hd = el("div", "hd", '<div class="hl">' + c.hl + '</div><div class="sub">' + c.sub + "</div>");
+  p.appendChild(hd);
+  // Podium mini: lebar dihitung dulu supaya judul tidak masuk ke area blok.
+  let steps = null, pod = null;
+  if (dir === "B") {
+    pod = st ? { w: 36, h: [62, 44, 30], dx: 8, dy: 5, ball: 12, ballPair: 10 } : { w: 26, h: [34, 24, 16], dx: 6, dy: 4, ball: 9, ballPair: 8 };
+    steps = c.kind === "sparing" ? RAW.sp.map((cl, i) => [cl.win ? 1 : 2, cl.wins]) : podiumSteps(RAW[key]);
+    if (c.kind === "sparing") pod.w = st ? 48 : 34;
+    pod.total = steps.length * pod.w + pod.dx;
+    // Judul dan baris kecil tidak boleh masuk ke area podium mini; baris kecil boleh pecah dua baris.
+    hd.querySelector(".hl").style.marginRight = (pod.total + 12) + "px";
+    Object.assign(hd.querySelector(".sub").style, { marginRight: (pod.total + 12) + "px", whiteSpace: "normal" });
+  }
+  return { p, svg, hd, c, t, st, W, H, side, bottom, sigH, dir, key, fmt, opt, steps, pod, id };
+}
+
+function layout(f) {
+  const { p, svg, hd, c, t, st, W, H, side, bottom, sigH, dir, key, opt, steps, pod } = f;
+  const hl = hd.querySelector(".hl");
+  const lh = parseFloat(getComputedStyle(hl).fontSize) * 1.1;
+  if (hl.getBoundingClientRect().height > lh * 1.5) hl.classList.add("long");
+  const hb = hd.offsetTop + hd.offsetHeight;
+  const back = Math.round(hb + (st ? 16 : 12) + (dir === "B" ? 2 : 0));
+  const svc = dir === "C" ? back + (st ? 14 : 11) : null;
+  let ptop = (svc || back) + (st ? 10 : 9);
+  const pbot = H - bottom;
+  const cx = st ? 44 : 40, lw = st ? 5.5 : 4.5, slope = 31.2 / 50;
+  let g = "";
+  g += '<polygon points="' + cx + "," + back + " " + (W + 10) + "," + back + " " + (W + 10) + "," + (H + 10) + " -10," + (H + 10) + " -10," + (back + (cx + 10) * slope).toFixed(1) + '" fill="' + t.floor + '"/>';
+  g += '<path d="M' + (W + 10) + " " + back + "H" + cx + "L-10 " + (back + (cx + 10) * slope).toFixed(1) + '" stroke="' + t.line + '" stroke-width="' + lw + '" fill="none"/>';
+
+  // Susunan kolom.
+  const rows = key === "sp" ? null : RAW[key];
+  let twoCol, mode;
+  if (c.kind === "sparing") { twoCol = !st; mode = st ? "s1" : "f2"; }
+  else if (c.kind === "fixed") { twoCol = false; mode = st ? "s1" : "f1"; }
+  else if (opt.story2) { twoCol = true; mode = "s2"; }
+  else { twoCol = !st && rows.length > 10; mode = st ? "s1" : (twoCol ? "f2" : "f1"); }
+  const stacked = c.kind === "fixed" && st;
+  let colsData;
+  if (c.kind === "sparing") colsData = twoCol ? [[RAW.sp[0]], [RAW.sp[1]]] : [[RAW.sp[0], RAW.sp[1]]];
+  else if (twoCol) { const k = Math.ceil(rows.length / 2); colsData = [rows.slice(0, k), rows.slice(k)]; }
+  else colsData = [rows];
+  const unitsOf = col => c.kind === "sparing" ? col.reduce((a, cl) => a + 2 + cl.rows.length, 0) : col.length * (stacked ? 2 : 1);
+  const units = Math.max.apply(null, colsData.map(unitsOf));
+  const splitPanels = dir === "C" && twoCol;
+  const ftH = sigH, ftGap = 7;
+  const area = splitPanels ? (pbot - ftH - ftGap) - ptop - 6 : pbot - ptop - 6 - sigH;
+  const row = Math.min(MODE[mode].max, area / units);
+  const used = units * row;
+  // Panel menempel ke bawah; kalau baris dibatasi, atas panel turun dan lantai tampil.
+  ptop = splitPanels ? (pbot - ftH - ftGap) - 6 - used : pbot - 6 - sigH - used;
+  ptop = Math.floor(ptop);
+
+  const fill = (body, col) => {
+    if (c.kind === "sparing") col.forEach(cl => { body.appendChild(clubEl(cl)); cl.rows.forEach(r => body.appendChild(rowEl(c, r, mode, false))); });
+    else col.forEach(r => body.appendChild(rowEl(c, r, mode, stacked)));
+    const u = unitsOf(col);
+    for (let i = u; i < units; i++) body.appendChild(el("div", "row empty"));
+  };
+  const placePanel = (cls, x0, x1, y0, y1) => { const pn = el("div", "pn " + cls); Object.assign(pn.style, { left: x0 + "px", width: (x1 - x0) + "px", top: y0 + "px", height: (y1 - y0) + "px" }); p.appendChild(pn); return pn; };
+  if (splitPanels) {
+    const mid = W / 2, gap = 7, boxBot = pbot - ftH - ftGap;
+    colsData.forEach((col, i) => {
+      const pn = placePanel("box", i ? mid + gap : side, i ? W - side : mid - gap, ptop, boxBot);
+      setMode(pn, mode, row);
+      const body = el("div", "body"); fill(body, col); pn.appendChild(body);
+    });
+    const ft = placePanel("ft", side, W - side, pbot - ftH, pbot);
+    ft.appendChild(el("div", "sig", WMK + '<span class="facts">' + c.facts + "</span>"));
+    ft.querySelector(".sig").style.setProperty("--sig", ftH + "px");
+  } else {
+    const pn = placePanel(twoCol ? "two" : "", side, W - side, ptop, pbot);
+    pn.style.setProperty("--sig", sigH + "px");
+    setMode(pn, mode, row);
+    const body = el("div", "body");
+    if (twoCol) { const cols = el("div", "cols"); colsData.forEach(col => { const cc = el("div"); fill(cc, col); cols.appendChild(cc); }); body.appendChild(cols); }
+    else fill(body, colsData[0]);
+    pn.appendChild(body);
+    pn.appendChild(el("div", "sig", WMK + '<span class="facts">' + c.facts + "</span>"));
+  }
+  if (dir === "C") {
+    const sx = cx - (svc - back) / slope;
+    // Garis tengah tidak digambar di balik panel tunggal (tembus 14% terlihat sebagai garis pudar di tengah daftar).
+    const cy0 = splitPanels ? svc : pbot;
+    g += '<path d="M' + sx.toFixed(1) + " " + svc + "H" + (W + 10) + "M" + (W / 2) + " " + cy0 + "V" + (H + 10) + '" stroke="' + t.line + '" stroke-width="' + lw + '" fill="none"/>';
+  }
+  if (dir === "B") g += podiumSvg(f, back);
+  svg.innerHTML = g;
+  if (st) { p.appendChild(el("div", "safe t")); p.appendChild(el("div", "safe b")); }
+  f.meta = { units, row, mode, twoCol, back, ptop };
+  fitNames(p);
+}
+
+/* Nama di satu panel dikecilkan bersama sampai yang terpanjang muat (pola podium 18m), paling kecil ×0,82; lebih dari itu elipsis. */
+function fitNames(p) {
+  // Satu skala untuk semua panel di poster, supaya dua kotak (arah C) memakai ukuran nama yang sama.
+  const pns = [...p.querySelectorAll(".pn")];
+  const names = [...p.querySelectorAll(".nm, .nm2 span")];
+  let k = 1;
+  const cut = () => names.some(e => e.scrollWidth > e.clientWidth + 0.5);
+  while (cut() && k > 0.821) { k -= 0.02; pns.forEach(pn => pn.style.setProperty("--kn", k.toFixed(2))); }
+  // Baris fakta tidak pernah terpotong: hurufnya dikecilkan sampai muat (pola 11d).
+  p.querySelectorAll(".facts").forEach(e => { let fs = 10.5; while (e.scrollWidth > e.clientWidth + 0.5 && fs > 7) { fs -= 0.1; e.style.fontSize = fs.toFixed(1) + "px"; } });
+}
+
+function podiumSvg(f, base) {
+  const { pod, steps, t, W, c } = f;
+  const sp = c.kind === "sparing";
+  let x = W - 22 - pod.total, s = "";
+  const pair = c.kind === "fixed";
+  const parts = steps.map((r, i) => {
+    const num = r[0], h = pod.h[Math.min(num, 3) - 1];
+    const gold = num === 1;
+    const o = { x: x + i * pod.w, h, gold, label: sp ? r[1] : num };
+    return o;
+  });
+  // Muka atas dan samping dulu (urut kiri ke kanan), lalu muka depan; samping hanya kalau tetangga kanan lebih rendah.
+  parts.forEach((o, i) => {
+    const top = base - o.h, fc = o.gold ? GOLD : { f: t.bf, t: t.bt, s: t.bs };
+    s += '<polygon points="' + o.x + "," + top + " " + (o.x + pod.w) + "," + top + " " + (o.x + pod.w + pod.dx) + "," + (top - pod.dy) + " " + (o.x + pod.dx) + "," + (top - pod.dy) + '" fill="' + fc.t + '"/>';
+    const nx = parts[i + 1];
+    if (!nx || nx.h < o.h) {
+      const nh = nx ? nx.h : 0;
+      s += '<polygon points="' + (o.x + pod.w) + "," + top + " " + (o.x + pod.w + pod.dx) + "," + (top - pod.dy) + " " + (o.x + pod.w + pod.dx) + "," + (base - nh - pod.dy) + " " + (o.x + pod.w) + "," + (base - nh) + '" fill="' + fc.s + '"/>';
+    }
+  });
+  parts.forEach(o => {
+    const top = base - o.h, fc = o.gold ? GOLD : { f: t.bf, n: t.bn };
+    const fs = Math.min(o.h * 0.656, pod.w * (String(o.label).length > 1 ? 0.62 : 0.9));
+    s += '<rect x="' + o.x + '" y="' + top + '" width="' + pod.w + '" height="' + o.h + '" fill="' + fc.f + '"/>';
+    s += '<text x="' + (o.x + pod.w / 2) + '" y="' + (top + o.h / 2 + fs * 0.36).toFixed(1) + '" text-anchor="middle" font-size="' + fs.toFixed(1) + '" fill="' + (o.gold ? GOLD.n : t.bn) + '" font-family="Archivo Lokal, Archivo" font-weight="800" font-stretch="72%">' + o.label + "</text>";
+    if (!c.kind.startsWith("sp")) {
+      const b = pair ? pod.ballPair : pod.ball, n = pair ? 2 : 1, gap = 1;
+      const bx0 = o.x + pod.dx / 2 + pod.w / 2 - (n * b + (n - 1) * gap) / 2;
+      for (let k = 0; k < n; k++) {
+        const bx = bx0 + k * (b + gap), by = top - pod.dy / 2 - b + 1;
+        s += '<ellipse cx="' + (bx + b / 2) + '" cy="' + (by + b - 0.5) + '" rx="' + (b * 0.4) + '" ry="' + (b * 0.13) + '" fill="#0F1E2C" fill-opacity=".28"/><use href="#ball" x="' + bx + '" y="' + by + '" width="' + b + '" height="' + b + '"/>';
+      }
+    }
+  });
+  return s;
+}
+
+/* Catatan per frame: umum + per arah. */
+const NOTES = {
+  1: ["≤ 10 baris → satu kolom dengan satuan. 8 baris: tinggi baris dibatasi 28, panel penuh.", "Kembar #6: dua baris senomor, nomor berikutnya #7."],
+  2: ["Story satu kolom, tanpa satuan. 8 baris → baris 42 = baris podium, huruf ×1,33 (nama 18 = podium Story)."],
+  3: ["20 → dua kolom 10–10, urut ke bawah dulu. Tanpa satuan.", "Kembar #5 dan #12; Umar 63 · 0 di atas dua pemain 63 · −21 (selisih)."],
+  4: ["Story satu kolom 20 baris (ambang lama Story)."],
+  5: ["Terpadat: 30 → 15–15. Nama turnamen 40 karakter pecah dua baris (22 → 18,5)."],
+  6: ["Story 30 baris satu kolom (aturan sekarang): huruf mengecil mengikuti tinggi baris. Ukuran nyata di laporan cek."],
+  7: ["Pasangan selalu satu kolom, nama lengkap dipisah \"+\". Kembar #2 dan #5."],
+  8: ["Story menumpuk dua nama pasangan: 10 pasangan = 20 satuan baris."],
+  9: ["Sparing Feed: satu kolom per klub, label klub = nama + match menang (emas = unggul) + Total Point, dihitung 2 satuan baris. Kolom kanan menyisakan dua slot kosong."],
+  10: ["Story: klub pertama lalu klub kedua dalam satu kolom: 8 + 6 + 2 label × 2 = 18 satuan."],
+  11: ["Tennis: lantai biru court. Win %: \"80% · +8\" tanpa kata satuan. Dua #1 → dua lencana emas; tiga pemain #7."],
+  12: ["Gradien lembut peach: teks kepala dan panel memakai tinta tema, teks panel warna ujung terang. Sementara: fakta \"R5 · 14 dari 15 match\"."],
+  13: ["Usulan: Story Mixed > 20 dua kolom 15–15, tinggi baris ±21 (nama ±12,5) alih-alih satu kolom ±10,7."]
+};
+const DIRNOTES = {
+  A: { 1: "Garis belakang 12 pt di bawah kepala; panel mulai 9 pt di bawahnya.", 3: "Dua kolom dibagi garis tipis 16% di tengah panel.", 9: "Dua klub dibagi garis tipis seperti dua kolom." },
+  B: { 1: "Podium mini 2 · 1 · 3 di kanan judul, berdiri di garis belakang; judul menyempit.", 5: "Kembar #3 → empat anak tangga (keputusan 65).", 7: "Pasangan: dua bola per blok. #2 kembar sama tinggi.", 9: "Sparing: dua blok skor klub, emas = klub unggul (keputusan 62).", 11: "Dua #1: dua blok emas sama tinggi." },
+  C: { 1: "Satu kolom: garis servis di atas panel, garis tengah tertutup panel.", 3: "Dua kotak servis: dua panel, garis tengah lapangan di celahnya; wordmark dan fakta di panel kaki.", 9: "Tiap klub di sisi lapangannya sendiri." }
+};
+const FMT = { feed: "Feed 1080×1080", story: "Story 1080×1920" };
+
+function captionOf(n, key, fmt) { return FMT[fmt] + " · " + CASES[key].label + (n === 13 ? " · usulan dua kolom" : ""); }
+
+function renderDoc() {
+  const made = [];
+  document.querySelectorAll(".screens[data-dir]").forEach(box => {
+    const dir = box.dataset.dir;
+    FRAMES.forEach(([n, key, fmt, opt]) => {
+      const scr = el("div", "scr");
+      scr.appendChild(el("div", "cap", "<b>L" + dir + n + "</b><span>" + captionOf(n, key, fmt) + "</span>"));
+      const f = build(dir, n, key, fmt, opt);
+      scr.appendChild(f.p);
+      const ul = el("ul");
+      NOTES[n].forEach(s => ul.appendChild(el("li", null, s)));
+      if (DIRNOTES[dir][n]) ul.appendChild(el("li", null, DIRNOTES[dir][n]));
+      scr.appendChild(ul);
+      box.appendChild(scr);
+      layout(f); made.push(f);
+    });
+  });
+  coverage();
+  return made;
+}
+function coverage() {
+  const ok = (t, x) => '<span class="tag ' + t + '">' + ({ ok: "tertangani", mid: "terbatas", no: "gagal sebagian", us: "usulan" })[t] + "</span>" + x;
+  const rowsDef = [
+    ["Mixed 8 · satu kolom", [ok("ok", "LA1, LA2"), ok("ok", "LB1, LB2"), ok("ok", "LC1, LC2 · sama dengan A")]],
+    ["Mixed 20 · dua kolom", [ok("ok", "LA3, LA4"), ok("ok", "LB3, LB4"), ok("ok", "LC3, LC4 · nama ×0,84")]],
+    ["Mixed 30 · terpadat", [ok("ok", "LA5, LA6 · Story nama 25 px"), ok("no", "LB5, LB6 · judul 40 karakter terpotong"), ok("mid", "LC5, LC6 · nama Feed 25,7 px, terkecil")]],
+    ["Fixed 10 pasangan", [ok("ok", "LA7, LA8"), ok("ok", "LB7, LB8 · dua bola per blok"), ok("ok", "LC7, LC8")]],
+    ["Sparing Mixed 8 + 6", [ok("ok", "LA9, LA10"), ok("ok", "LB9, LB10 · skor klub dua kali"), ok("ok", "LC9, LC10 · klub per sisi")]],
+    ["Tennis · biru court · kembar #1", [ok("ok", "LA11"), ok("ok", "LB11 · dua blok emas"), ok("mid", "LC11 · 1 nama terpotong")]],
+    ["Gradien lembut · Sementara", [ok("ok", "LA12"), ok("ok", "LB12"), ok("ok", "LC12")]],
+    ["Usulan · Story 30 dua kolom", [ok("us", "LA13"), ok("no", "LB13 · judul terpotong"), ok("us", "LC13")]],
+    ["Ruang baris (Feed 10 baris)", ["22,8", "20,9–22,6", "21,0–21,7"]],
+    ["Perkiraan kerja", ["±1,5 hari · satu painter lantai", "±2,5 hari · podium mini dari painter podium", "±2 hari · panel kotak + panel kaki"]]
+  ];
+  const tb = document.getElementById("covbody");
+  rowsDef.forEach(([k, cells]) => {
+    const tr = el("tr"); tr.appendChild(el("td", null, k));
+    cells.forEach(x => tr.appendChild(el("td", null, x)));
+    tb.appendChild(tr);
+  });
+}
+function renderSheet(which) {
+  document.body.className = "sheet";
+  const doc = document.getElementById("doc"); doc.remove();
+  const wrap = el("div", "sheet-wrap"); document.body.appendChild(wrap);
+  const dirs = which === "ALL" ? ["A", "B", "C"] : [which];
+  const names = { A: "A · Garis belakang", B: "B · Podium mini", C: "C · Kotak servis" };
+  const made = [];
+  dirs.forEach(dir => {
+    wrap.appendChild(el("h2", null, "Arah " + names[dir]));
+    const r1 = el("div", "sheet-row"), r2 = el("div", "sheet-row");
+    wrap.appendChild(r1); wrap.appendChild(r2);
+    FRAMES.forEach(([n, key, fmt, opt]) => {
+      const cell = el("div", "sheet-cell");
+      cell.appendChild(el("b", null, "L" + dir + n + "<span>" + captionOf(n, key, fmt) + "</span>"));
+      const f = build(dir, n, key, fmt, opt); cell.appendChild(f.p);
+      (fmt === "feed" ? r1 : r2).appendChild(cell);
+      layout(f); made.push(f);
+    });
+  });
+  return made;
+}
+
+/* Cek tata letak: ukuran nama terkecil (px ekspor), nama terpotong, teks keluar panel/kanvas, teks Story di zona UI. */
+function check(made) {
+  const out = [];
+  made.forEach(f => {
+    const P = f.p.getBoundingClientRect();
+    const names = [...f.p.querySelectorAll(".nm, .nm2 span, .cn")];
+    const cut = names.concat([...f.p.querySelectorAll('.facts')]).filter(e => e.scrollWidth > e.clientWidth + 0.5).map(e => e.textContent);
+    const factsPx = Math.min(...[...f.p.querySelectorAll('.facts')].map(e => parseFloat(getComputedStyle(e).fontSize))) * 3;
+    const minName = Math.min(...[...f.p.querySelectorAll(".nm, .nm2")].map(e => parseFloat(getComputedStyle(e).fontSize))) * 3;
+    const minVal = Math.min(...[...f.p.querySelectorAll(".pt b")].map(e => parseFloat(getComputedStyle(e).fontSize))) * 3;
+    const minAny = Math.min(...[...f.p.querySelectorAll(".pn *, .hd *")].filter(e => e.childNodes.length && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())).map(e => parseFloat(getComputedStyle(e).fontSize))) * 3;
+    const issues = [];
+    // Setiap baris/label harus di dalam panelnya; panel di dalam kanvas; panel tidak menimpa kepala.
+    f.p.querySelectorAll(".pn").forEach(pn => {
+      const R = pn.getBoundingClientRect();
+      if (R.left < P.left - .5 || R.right > P.right + .5 || R.bottom > P.bottom + .5) issues.push("panel keluar kanvas");
+      pn.querySelectorAll(".row, .club, .sig").forEach(r => { const q = r.getBoundingClientRect(); if (q.bottom > R.bottom + .6 || q.top < R.top - .6 || q.right > R.right + .6) issues.push("baris keluar panel: " + r.textContent.slice(0, 20)); });
+      pn.querySelectorAll(".row > *, .club > *").forEach(ch => { const q = ch.getBoundingClientRect(), pr = ch.parentElement.getBoundingClientRect(); if (q.height > 0 && (q.top < pr.top - 1 || q.bottom > pr.bottom + 1)) issues.push("teks lebih tinggi dari baris: " + ch.textContent.slice(0, 16)); });
+    });
+    const H = f.hd.getBoundingClientRect();
+    if (f.meta.ptop < (H.bottom - P.top)) issues.push("panel menimpa kepala");
+    if (H.right > P.right) issues.push("kepala keluar");
+    const hlE = f.hd.querySelector(".hl"), subE = f.hd.querySelector(".sub");
+    if (hlE.scrollHeight > hlE.clientHeight + 1) issues.push("judul terpotong");
+    if (f.pod) { const lim = P.left + f.W - 22 - f.pod.total - 4; [hlE, subE].forEach(e => { if (e.getBoundingClientRect().right > lim) issues.push("kepala menimpa podium mini"); }); }
+    if (subE.scrollWidth > subE.clientWidth + 0.5) issues.push("baris kecil terpotong");
+    if (f.st) {
+      const leaf = [...f.p.querySelectorAll(".hd *, .pn *")].filter(e => [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()));
+      leaf.forEach(e => { const q = e.getBoundingClientRect(); const top = q.top - P.top, bot = q.bottom - P.top; if (top < 83.34 || bot > 640 - 83.34) issues.push("teks di zona UI: " + e.textContent.slice(0, 16) + " " + (top * 3).toFixed(0) + "–" + (bot * 3).toFixed(0)); });
+    }
+    out.push({ id: f.id, mode: f.meta.mode, units: f.meta.units, row: +f.meta.row.toFixed(1), minNamePx: +minName.toFixed(1), minValPx: +minVal.toFixed(1), minTextPx: +minAny.toFixed(1), namesCut: cut.length + "/" + names.length, factsPx: +factsPx.toFixed(1), cut, issues });
+  });
+  const pre = document.getElementById("check") || document.body.appendChild(el("pre"));
+  pre.id = "check"; pre.textContent = JSON.stringify(out);
+}
+
+(document.fonts ? document.fonts.load('800 16px "Archivo Lokal"').then(() => document.fonts.ready) : Promise.resolve()).then(() => {
+  const q = new URLSearchParams(location.search);
+  if (q.get("sheet")) { const made = renderSheet(q.get("sheet")); if (q.get("check")) check(made); return; }
+  const made = renderDoc();
+  if (q.get("check")) check(made);
+  const f = q.get("f");
+  if (f) {
+    const node = document.querySelector('[data-frame="' + f + '"]');
+    if (!node) return;
+    const keep = document.querySelector("body > svg");
+    document.body.innerHTML = ""; document.body.className = "solo";
+    document.body.appendChild(keep); document.body.appendChild(node);
+  }
+});
+</script>
+</body>
+</html>
