@@ -205,9 +205,9 @@ Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
 
 - Keadaan sama dengan 13q (data 13C Final, tema lapangan bawaan); hanya format diganti ke Lengkap. Lengkap arah B "Podium mini" (keputusan 79) seperti 11b; ukuran di Komponen → `.lk`.
-- Podium mini sparing (keputusan 62, 83): dua blok skor klub tanpa bola dan tanpa nama; klub pertama selalu blok kiri. Klub yang unggul (K2: match menang → Total Point klub) emas setinggi #1 (34), klub lain setinggi #2 (24); lebar blok 34 (dua anak tangga), angka 22 / 16. Klub kedua unggul → blok emas di kanan; Seri → dua blok emas setinggi #1 (pola 18n, 18o). Skor 0 – 0 (belum ada match selesai, keputusan 72, 85): garis belakang tanpa blok, tanpa frame sendiri.
+- Podium mini sparing (keputusan 62, 83): dua blok skor klub tanpa bola dan tanpa nama; klub pertama selalu blok kiri. Klub yang unggul (K2: match menang → Total Point klub) emas setinggi #1 (34), klub lain setinggi #2 (24); lebar blok 34 (dua anak tangga), angka 22 / 16. Klub kedua unggul → blok emas di kanan; Seri → dua blok emas setinggi #1 (pola 18n, 18o). Skor 0 – 0 (belum ada match selesai, keputusan 72, 85): lapangan tanpa blok, tanpa frame sendiri.
 - Panel per klub: kepala klub `.lclub` = nama klub + Total Point klub · selisih ("56 game · +13"), tanpa angka skor (keputusan 83); lalu pasangan klub itu, nomor mulai 1 di tiap klub, #1 tiap klub lencana emas. Pasangan selalu satu kolom, klub pertama di atas. Feed satu kolom menulis satuan ("18 game · +11").
-- Kepadatan (keputusan 80): kepala klub = 2 satuan baris. 7 pasangan + 2 kepala × 2 = 11 satuan; ruang 238 ÷ 11 = 21,6 per baris → s 0,98 (nama 13,3, nilai 15,7). Kepala klub: nama 800 w95 = ukuran nama × 1,06; baris kedua = ukuran sisa, warna teks kedua.
+- Kepadatan (keputusan 80): kepala klub = 2 satuan baris. 7 pasangan + 2 kepala × 2 = 11 satuan; ruang 238 ÷ 11 = 21,6 per baris → s 0,98 (nama 12,5 = batas baris kecil kepala, keputusan 92; nilai 15,7). Kepala klub: nama 800 w95 = ukuran nama × 1,06; baris kedua = ukuran sisa, warna teks kedua.
 - Fakta "7 pasangan · 6 round · 12 match · 1 WO" (sama dengan 13q). Keterangan "Semua 7 pasangan" (jumlah kedua klub). Caption seperti 13q, Lengkap menambah "Hasil per Round".
 
 ## 13t · Gambar Lengkap · Fixed sparing 4 + 3 pasangan · Feed dan Story (skala 1:3)
@@ -216,7 +216,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `SharePoster`
 
-- Isi sama dengan 13s. Feed: 11 satuan, ruang 226 ÷ 11 = 20,5 → s 0,93 (nama 12,6, nilai 14,9), satuan ditulis.
+- Isi sama dengan 13s. Feed: 11 satuan, ruang 226 ÷ 11 = 20,5 → s 0,93 (nama 12,5 = batas baris kecil kepala, keputusan 92; nilai 14,9), satuan ditulis.
 - Story: nama pasangan ditumpuk (`.prow.duo`, 2 satuan): 7 × 2 + 2 kepala × 2 = 18 satuan; ruang 336 ÷ 18 = 18,7 → s 1,10 (nama 14,8, nilai 16,5), tanpa satuan ("18 · +11"). Podium mini Story lebar 36, tinggi 52 / 37, angka 34 / 24.
 - Kepala, podium, dan panel di luar zona aman Story 250 px (84 pt atas dan bawah).
 - File dan cara berbagi sama dengan 11d.
