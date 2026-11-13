@@ -12,13 +12,24 @@ penonton, t m di atas lantai) digambar di x = ax + S·u − k·g·v, y = ay + g�
   susunannya (K_DEFAULT).
 - S: garis samping kanan memotong tepi bawah di x = W − cornerX; g: net 10 px di bawah tepi bawah.
 Net tidak digambar. Padel: dinding kaca belakang + kiri bertingkat + pagar kawat; dinding kanan tidak.
+Kontras kepala (keputusan host 2026-11-13): di dalam kotak kepala (.phead/.lhead) + HEAD_PAD semua lapis dinding
+digambar sebagai satu lapisan dengan opacity HEAD_WALL, lalu memudar (smoothstep) ke opacity normal sepanjang HEAD_FADE di luar
+kotak (mask SVG hasil kali gradien horizontal × vertikal; di Flutter saveLayer + dstOut, lihat head_mask).
+Kotak kepala diukur Chrome headless setelah font termuat (butuh internet untuk font Archivo, sama dengan
+tool/hifi_poster_fit.py) dan dibulatkan keluar ke piksel utuh.
 
 Skrip ini idempoten: lantai yang sudah digambar disimpan sebagai <g class="court" data-…> dan dihitung ulang dari
 atributnya. Lantai lama (polygon + path garis belakang/samping) dikenali dari bentuknya.
 """
+import html
+import json
+import math
 import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HIFI = os.path.join(ROOT, 'design', 'hifi.html')
@@ -30,6 +41,26 @@ COURT = {
 }
 # k standar per susunan (dx ÷ |dy| kedalaman blok): dipakai poster tanpa blok (Klasemen kosong).
 K_DEFAULT = {('pod', False): 16 / 10, ('pod', True): 22 / 13, ('lk', False): 6 / 4, ('lk', True): 8 / 5}
+# Dinding padel di belakang kepala: opacity satu lapisan dan padding kotak kepala (pt). 0,25 = batas tema hijau (lihat
+# Komponen .podium → Kontras): tumpukan dinding terpadat × 0,25 tetap ≥ 4,5 : 1 di semua tema.
+HEAD_WALL = 0.25
+HEAD_PAD = 4
+HEAD_FADE = 6  # lebar pudar (pt) di luar kotak kepala + pad (keputusan host 2026-11-13)
+# Pudar smoothstep 3t² − 2t³ di 7 titik (t = 0, 1/6, …, 1), bukan linear: ramp linear meninggalkan pita Mach di kedua
+# ujung yang tetap menggambar garis kotak. Stop yang sama dipakai gradien Flutter.
+FADE_RAMP = [round(3 * (i / 6) ** 2 - 2 * (i / 6) ** 3, 4) for i in range(7)]
+CHROME = os.environ.get('CHROME', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+MEASURE = r"""<style>*{zoom:1!important}</style><pre id="head"></pre><script>
+document.fonts.ready.then(() => {
+  const out = [];
+  for (const sc of document.querySelectorAll('svg.scene')) {
+    const root = sc.parentElement, hd = root.querySelector('.phead, .lhead');
+    const rr = root.getBoundingClientRect(), hr = hd.getBoundingClientRect(), z = rr.width / root.offsetWidth;
+    out.push([hr.left - rr.left, hr.top - rr.top, hr.right - rr.left, hr.bottom - rr.top].map(v => v / z));
+  }
+  document.getElementById('head').textContent = JSON.stringify(out);
+});
+</script>"""
 
 
 def segs(sport):
@@ -56,7 +87,7 @@ def ln(a, b):
     return f'<line x1="{r1(a[0])}" y1="{r1(a[1])}" x2="{r1(b[0])}" y2="{r1(b[1])}"/>'
 
 
-def court_svg(W, H, sport, ax, ay, k, ink, w0, story):
+def court_svg(W, H, sport, ax, ay, k, ink, w0, story, head=None, n=0):
     c = COURT[sport]
     S = (W - 2 * ax + k * (H - ay)) / c['W']
     g = (H + 10 - ay) / c['half']
@@ -65,7 +96,37 @@ def court_svg(W, H, sport, ax, ay, k, ink, w0, story):
     inner = ''.join(ln(P(a, b), P(x, y)) for a, b, x, y in segs(sport))
     lines = (f'<g stroke="{ink}" stroke-width="{3.5 if story else 3}" stroke-linecap="square">{inner}</g>'
              f'<polygon points="{rect}" fill="none" stroke="{ink}" stroke-width="{w0}" stroke-linejoin="miter"/>')
-    return rect, lines, walls(W, ax, ay, S, g, k, ink, story) if sport == 'padel' else ''
+    if sport != 'padel':
+        return rect, lines, ''
+    wall = walls(W, ax, ay, S, g, k, ink, story)
+    if head:
+        wall = f'{head_mask(W, H, head, n)}<g mask="url(#hk{n})">{wall}</g>'
+    return rect, lines, wall
+
+
+def head_mask(W, H, head, n):
+    """Mask dinding di belakang kepala: alpha dinding × (1 − (1 − HEAD_WALL)·gx·gy). gx/gy = 1 di dalam kotak kepala,
+    turun ke 0 (smoothstep, FADE_RAMP) sepanjang HEAD_FADE di luar kotak (memudar keluar; isi kotak tetap HEAD_WALL penuh). Hasil kali
+    dua gradien satu arah, bukan sembilan potong, supaya tanpa sambungan dan sama dengan resep Flutter (saveLayer
+    dstOut: rect gradien horizontal, lalu rect gradien vertikal dstIn)."""
+    x0, y0, x1, y1 = head
+    f = HEAD_FADE
+    X0, Y0, X1, Y1 = x0 - f, y0 - f, x1 + f, y1 + f
+
+    def grad(gid, a, b, horiz, color, op):
+        o = f / (b - a)
+        ends = f'x1="{a}" y1="0" x2="{b}" y2="0"' if horiz else f'x1="0" y1="{a}" x2="0" y2="{b}"'
+        stop = lambda off, v: f'<stop offset="{off:.4f}" stop-color="{color}" stop-opacity="{round(v, 4):g}"/>'
+        rise = ''.join(stop(o * i / 6, op * FADE_RAMP[i]) for i in range(7))
+        fall = ''.join(stop(1 - o * i / 6, op * FADE_RAMP[i]) for i in reversed(range(7)))
+        return f'<linearGradient id="{gid}" gradientUnits="userSpaceOnUse" {ends}>{rise}{fall}</linearGradient>'
+
+    box = f'x="{X0}" y="{Y0}" width="{X1 - X0}" height="{Y1 - Y0}"'
+    return (grad(f'hx{n}', X0, X1, True, '#000', round(1 - HEAD_WALL, 4)) + grad(f'hy{n}', Y0, Y1, False, '#fff', 1)
+            + f'<mask id="hv{n}" maskUnits="userSpaceOnUse" {box}><rect {box} fill="url(#hy{n})"/></mask>'
+            f'<mask id="hk{n}" maskUnits="userSpaceOnUse" x="-20" y="-20" width="{r1(W + 40)}" height="{r1(H + 40)}">'
+            f'<rect x="-20" y="-20" width="{r1(W + 40)}" height="{r1(H + 40)}" fill="#fff"/>'
+            f'<rect {box} fill="url(#hx{n})" mask="url(#hv{n})"/></mask>')
 
 
 def walls(W, ax, ay, S, g, k, ink, story):
@@ -113,15 +174,37 @@ def walls(W, ax, ay, S, g, k, ink, story):
 OLD = re.compile(r'<polygon points="(-?[\d.]+),(-?[\d.]+) [^"]*" fill="([^"]+)"(?:></polygon>|/>)'
                  r'<path d="M[^"]*" stroke="([^"]+)" stroke-width="([\d.]+)" stroke-linejoin="miter" fill="none"(?:></path>|/>)')
 NEW = re.compile(r'<g class="court" data-sport="(\w+)" data-corner="(-?[\d.]+),(-?[\d.]+)" data-k="([\d.]+)" '
-                 r'data-fill="([^"]+)" data-ink="([^"]+)" data-w="([\d.]+)">.*?</g><!--/court-->', re.S)
+                 r'data-fill="([^"]+)" data-ink="([^"]+)" data-w="([\d.]+)"(?: data-head="[^"]*")?>.*?</g><!--/court-->', re.S)
 TOP = re.compile(r'<polygon points="([-\d.]+),([-\d.]+) ([-\d.]+),([-\d.]+) ([-\d.]+),([-\d.]+) ([-\d.]+),([-\d.]+)"')
+
+
+def head_boxes(s):
+    """Kotak kepala tiap <svg class="scene"> (urut dokumen), relatif ke poster, + HEAD_PAD, dibulatkan keluar."""
+    tmp = os.path.join(ROOT, 'design', '_court.html')
+    open(tmp, 'w', encoding='utf-8').write(s.replace('</body>', MEASURE + '</body>', 1))
+    profile = tempfile.mkdtemp(prefix='hifi-court-')
+    try:
+        dom = subprocess.run([CHROME, '--headless=new', '--disable-gpu', '--no-first-run', '--user-data-dir=' + profile,
+                              '--virtual-time-budget=8000', '--window-size=1400,1200', '--dump-dom', 'file://' + tmp],
+                             capture_output=True, text=True, timeout=120).stdout
+    finally:
+        shutil.rmtree(profile, ignore_errors=True)
+        os.remove(tmp)
+    boxes = json.loads(html.unescape(re.search(r'<pre id="head">(.*?)</pre>', dom, re.S).group(1)))
+    # Dibulatkan ke 0,01 dulu supaya sisa float Chrome (65.2000001) tidak menggeser kotak satu piksel.
+    lo, hi = (lambda v: math.floor(round(v, 2))), (lambda v: math.ceil(round(v, 2)))
+    return [(lo(a - HEAD_PAD), lo(b - HEAD_PAD), hi(x + HEAD_PAD), hi(y + HEAD_PAD)) for a, b, x, y in boxes]
 
 
 def main():
     check = '--check' in sys.argv
     s = open(HIFI, encoding='utf-8').read()
     out, last, report = [], 0, []
-    for m in re.finditer(r'<svg class="scene"([^>]*)>(.*?)</svg>', s, re.S):
+    scenes = list(re.finditer(r'<svg class="scene"([^>]*)>(.*?)</svg>', s, re.S))
+    heads = head_boxes(s)
+    if len(heads) != len(scenes):
+        sys.exit(f'jumlah scene beda: sumber {len(scenes)}, Chrome {len(heads)}')
+    for n, m in enumerate(scenes):
         attrs, body = m.group(1), m.group(2)
         W, H = (float(x) for x in re.search(r'width="([\d.]+)" height="([\d.]+)"', attrs).groups())
         story = H > 400
@@ -157,9 +240,11 @@ def main():
             src = 'standar'
         if abs(k - K_DEFAULT[(kind, story)]) > 0.02:
             report.append(f'  ! k {k:.3f} beda dari standar {K_DEFAULT[(kind, story)]:.3f}')
-        rect, lines, wall = court_svg(W, H, sport, ax, ay, k, ink, w0, story)
+        head = heads[n] if sport == 'padel' else None
+        rect, lines, wall = court_svg(W, H, sport, ax, ay, k, ink, w0, story, head, n)
+        hd = f' data-head="{",".join(map(str, head))}"' if head else ''
         g = (f'<g class="court" data-sport="{sport}" data-corner="{r1(ax)},{r1(ay)}" data-k="{round(k, 4)}" '
-             f'data-fill="{fill}" data-ink="{ink}" data-w="{w0}">{wall}<polygon points="{rect}" fill="{fill}"/>'
+             f'data-fill="{fill}" data-ink="{ink}" data-w="{w0}"{hd}>{wall}<polygon points="{rect}" fill="{fill}"/>'
              f'{lines}</g><!--/court-->')
         b0 = m.start(2)
         out.append(s[last:b0 + span[0]])
