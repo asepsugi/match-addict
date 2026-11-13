@@ -8,8 +8,8 @@ import '../../../models/models.dart';
 import '../podium_theme.dart';
 
 /// Di mana poster podium tampil (tokens.json → posterPodium). Gambar dirancang di [designSize] (skala 1:3 dari
-/// 1080 px) lalu dirender ×[exportPixelRatio]; kartu pratinjau memakai ukuran Feed di kanvas 358 × 372. Story podium
-/// 360 × 640 **bukan** kanvas 203 × 360 poster Lengkap ([SharePosterTarget.story]).
+/// 1080 px) lalu dirender ×[exportPixelRatio]; kartu pratinjau memakai ukuran Feed di kanvas 358 × 372. Dipakai
+/// poster Ringkas dan Lengkap (logic.md §17.1).
 enum PodiumPosterTarget {
   card,
   feed,

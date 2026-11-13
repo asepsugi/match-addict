@@ -12,13 +12,38 @@ String _dateOf(ActiveTournament active) {
   return '${created.day} ${_months[created.month - 1]} ${created.year}';
 }
 
-/// Isi poster Lengkap dari turnamen + baris Klasemen ([entries] = `standingEntriesProvider`, jadi nomornya sama
-/// dengan Klasemen): semua yang bernomor. Tiap baris = nilai metode + selisih, dua angka penentu nomornya ("42 poin ·
-/// +12", "100% · +12"). Turnamen bernama: nama menggantikan baris kecil "olahraga · mode · tanggal" dan tanggalnya
-/// pindah ke ringkasan, sama dengan baris akhir caption. Ringkas = [podiumPosterData], bukan fungsi ini.
+/// Kepala kedua poster (16.2 "Kepala"): bernama → nama + "Klasemen akhir|sementara · {tanggal}"; tanpa nama →
+/// "Klasemen akhir|sementara" + "{olahraga} · {mode} · {tanggal}".
+(String, String) _headOf(ActiveTournament active, bool isFinal) {
+  final config = active.config;
+  final state = isFinal ? 'akhir' : 'sementara';
+  final date = _dateOf(active);
+  return (
+    config.name ?? 'Klasemen $state',
+    config.name != null ? 'Klasemen $state · $date' : '${config.sport.label} · ${config.mode.label} · $date',
+  );
+}
+
+/// Blok podium dari [Podium.of] — satu pemetaan untuk podium Ringkas dan podium mini Lengkap (logic.md §17.2):
+/// anak tangga per slot, Kerumunan satu blok lebar ([wide]), dua blok skor klub, Kosong tanpa blok. [pairSize] =
+/// ukuran bola (dan di Ringkas tinggi baris/blok) pasangan.
+({List<PodiumBlockData> blocks, bool wide, bool pairSize}) podiumBlocks(Podium podium) {
+  PodiumBlockData blockOf(PodiumBlock b) => PodiumBlockData(level: b.level, face: b.face, balls: b.balls);
+  return switch (podium) {
+    PodiumEmpty() => (blocks: const <PodiumBlockData>[], wide: false, pairSize: false),
+    PodiumSteps() => (blocks: [for (final b in podium.blocks) blockOf(b)], wide: false, pairSize: podium.pairSize),
+    PodiumCrowd() => (blocks: [blockOf(podium.block)], wide: true, pairSize: false),
+    PodiumClubs() => (blocks: [for (final b in podium.blocks) blockOf(b)], wide: false, pairSize: false),
+  };
+}
+
+/// Isi poster Lengkap (logic.md §17.1, 17.9) dari turnamen + baris Klasemen ([entries] = `standingEntriesProvider`,
+/// jadi nomornya sama dengan Klasemen): kepala, podium mini, dan fakta lewat helper yang sama dengan
+/// [podiumPosterData]; panel = semua baris bernomor, nilai metode + selisih ("42" + "poin · +12", "100%" + "· +12").
 ///
 /// Sparing ([clubResult] + [clubEntries] = `clubScoreProvider` + `clubStandingEntriesProvider`, nomor per klub sama
-/// dengan Klasemen): skor klub di bawah judul, lalu daftar per klub (13s–13w).
+/// dengan Klasemen): per klub kepala `.lclub` (nama + `ClubResult.detailLabel`, tanpa skor) lalu barisnya. Kosong
+/// (`PodiumEmpty`, juga Sparing 0 – 0, keputusan 87, 89): tanpa baris dan tanpa kepala klub, panel hanya kaki.
 SharePosterData sharePosterData({
   required ActiveTournament active,
   required List<StandingEntry> entries,
@@ -29,12 +54,12 @@ SharePosterData sharePosterData({
 }) {
   final config = active.config;
   final unit = config.format.unit;
-  final rows = [
-    for (final e in entries)
-      if (e.position != null) e,
-  ];
-  final date = _dateOf(active);
-  final wo = active.matches.where((m) => m.status == MatchStatus.wo).length;
+  final sparing = clubResult != null && clubEntries.isNotEmpty;
+  final allRows = sparing ? [for (final g in clubEntries) ...g.entries] : entries;
+  final podium = Podium.of(entries: entries, clubs: sparing ? clubResult : null);
+  final empty = podium is PodiumEmpty;
+  final (title, subtitle) = _headOf(active, isFinal);
+  final mini = podiumBlocks(podium);
 
   SharePosterRow row(StandingEntry e) {
     final s = e.standing;
@@ -48,34 +73,27 @@ SharePosterData sharePosterData({
     );
   }
 
-  final sparing = clubResult != null && clubEntries.isNotEmpty;
-  SharePosterClub club(ClubStandings g) => SharePosterClub(
-    name: g.club.name,
-    rows: [
-      for (final e in g.entries)
-        if (e.position != null) row(e),
-    ],
-  );
+  List<SharePosterRow> ranked(List<StandingEntry> list) => [
+    for (final e in list)
+      if (e.position != null) row(e),
+  ];
+
+  SharePosterClub club(ClubStandings g) {
+    final tally = [clubResult!.first, clubResult.second].firstWhere((t) => t.club.id == g.club.id);
+    return SharePosterClub(name: g.club.name, detail: clubResult.detailLabel(tally), rows: ranked(g.entries));
+  }
 
   return SharePosterData(
     sport: config.sport,
-    eyebrow: config.name ?? '${config.sport.label} · ${config.mode.label} · $date',
-    isFinal: isFinal,
-    rows: sparing ? const [] : [for (final e in rows) row(e)],
-    clubScore: sparing
-        ? [
-            for (final t in [clubResult.first, clubResult.second])
-              SharePosterClubScore(name: t.club.name, detail: clubResult.detailLabel(t), score: t.winsLabel),
-          ]
-        : null,
-    clubs: sparing ? [for (final g in clubEntries) club(g)] : null,
-    summary: [
-      '${active.playedRoundCount} round',
-      '${active.playedMatchCount} match',
-      if (wo > 0) '$wo WO',
-      if (config.name != null) date,
-    ].join(' · '),
-    complete: true,
+    title: title,
+    subtitle: subtitle,
+    blocks: mini.blocks,
+    wide: mini.wide,
+    pairBalls: mini.pairSize,
+    endless: config.mode.isEndless,
+    rows: sparing || empty ? const [] : ranked(entries),
+    clubs: sparing && !empty ? [for (final g in clubEntries) club(g)] : null,
+    facts: podiumFacts(active: active, rows: allRows, isFinal: isFinal),
   );
 }
 
@@ -95,14 +113,9 @@ PodiumPosterData podiumPosterData({
   // Semua baris Klasemen (juga "Belum main"): dasar kata dan jumlah di fakta dan di baris Kerumunan.
   final allRows = sparing ? [for (final g in clubEntries) ...g.entries] : entries;
   final podium = Podium.of(entries: entries, clubs: sparing ? clubResult : null);
-
-  final state = isFinal ? 'akhir' : 'sementara';
-  final date = _dateOf(active);
-  final title = config.name ?? 'Klasemen $state';
-  final subtitle = config.name != null
-      ? 'Klasemen $state · $date'
-      : '${config.sport.label} · ${config.mode.label} · $date';
+  final (title, subtitle) = _headOf(active, isFinal);
   final facts = podiumFacts(active: active, rows: allRows, isFinal: isFinal);
+  final mini = podiumBlocks(podium);
 
   // Nilai metode + selisih dengan satuan (63): "42" + "poin · +12", "100%" + "· +19".
   final total = method == RankingMethod.totalGames;
@@ -124,63 +137,46 @@ PodiumPosterData podiumPosterData({
     );
   }
 
-  PodiumBlockData blockOf(PodiumBlock b) => PodiumBlockData(level: b.level, face: b.face, balls: b.balls);
-
-  PodiumPosterData of({
-    List<PodiumBlockData> blocks = const [],
-    bool wide = false,
-    List<PodiumRowData> rows = const [],
-    bool pairSize = false,
-  }) => PodiumPosterData(
+  // Blok, Kerumunan, dan ukuran pasangan dari [podiumBlocks]; di sini hanya baris panel per jenis podium.
+  PodiumPosterData of([List<PodiumRowData> rows = const []]) => PodiumPosterData(
     sport: config.sport,
     title: title,
     subtitle: subtitle,
-    blocks: blocks,
-    wide: wide,
+    blocks: mini.blocks,
+    wide: mini.wide,
     rows: rows,
-    pairSize: pairSize,
+    pairSize: mini.pairSize,
     facts: facts,
   );
 
   return switch (podium) {
     PodiumEmpty() => of(),
-    PodiumSteps() => of(
-      blocks: [for (final b in podium.blocks) blockOf(b)],
-      rows: [for (final e in podium.rows) rowOf(e)],
-      pairSize: podium.pairSize,
-    ),
+    PodiumSteps() => of([for (final e in podium.rows) rowOf(e)]),
     PodiumCrowd() => () {
       final (value, detail) = valueOf(podium.rows.first);
       final noun = rowNoun(active, allRows);
-      return of(
-        blocks: [blockOf(podium.block)],
-        wide: true,
-        rows: [
-          PodiumRowData(
-            badge: '1',
-            gold: true,
-            names: [
-              [podium.rows.length, ?noun].join(' '),
-            ],
-            value: value,
-            detail: detail,
-          ),
-        ],
-      );
+      return of([
+        PodiumRowData(
+          badge: '1',
+          gold: true,
+          names: [
+            [podium.rows.length, ?noun].join(' '),
+          ],
+          value: value,
+          detail: detail,
+        ),
+      ]);
     }(),
-    PodiumClubs() => of(
-      blocks: [for (final b in podium.blocks) blockOf(b)],
-      rows: [
-        for (final (i, t) in [podium.result.first, podium.result.second].indexed)
-          PodiumRowData(
-            badge: t.winsLabel,
-            hash: false,
-            gold: podium.blocks[i].gold,
-            names: [t.club.name],
-            value: '${t.totalPoint}',
-            detail: '${podium.result.unit} · ${t.diffLabel}',
-          ),
-      ],
-    ),
+    PodiumClubs() => of([
+      for (final (i, t) in [podium.result.first, podium.result.second].indexed)
+        PodiumRowData(
+          badge: t.winsLabel,
+          hash: false,
+          gold: podium.blocks[i].gold,
+          names: [t.club.name],
+          value: '${t.totalPoint}',
+          detail: '${podium.result.unit} · ${t.diffLabel}',
+        ),
+    ]),
   };
 }

@@ -64,12 +64,6 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       clubStandings: ref.read(clubStandingEntriesProvider),
     );
     try {
-      // Watermark raket poster Lengkap harus sudah ter-decode sebelum render di luar layar, kalau tidak posternya
-      // tanpa gambar. Podium tidak memakai gambar.
-      if (_format == ShareFormat.lengkap) {
-        await precacheImage(AssetImage(active.config.sport.assetPath), context);
-        if (!mounted) return;
-      }
       final files = [for (final image in images) await _render(image)];
       await Share.shareXFiles(files, text: caption);
     } catch (_) {
@@ -112,7 +106,9 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
     final ringkas = _format == ShareFormat.ringkas;
     final config = active.config;
 
-    // Ringkas = podium, Lengkap = daftar penuh; pratinjau dan gambar ekspor dari data yang sama.
+    // Ringkas = podium, Lengkap = podium mini + daftar penuh; pratinjau dan gambar ekspor dari data yang sama. Kedua
+    // format memakai tema poster yang sama (keputusan 76): lapangan → lantai ikut olahraga, gradien → turunannya.
+    final theme = _theme == null ? PodiumTheme.court(config.sport) : PodiumTheme.gradient(_theme!);
     final Widget preview;
     final List<ShareImage> images;
     if (ringkas) {
@@ -124,7 +120,6 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
         clubResult: clubResult,
         clubEntries: clubEntries,
       );
-      final theme = _theme == null ? PodiumTheme.court(config.sport) : PodiumTheme.gradient(_theme!);
       preview = PodiumPoster(data: data, theme: theme, target: PodiumPosterTarget.card);
       images = podiumImages(data, theme);
     } else {
@@ -136,11 +131,8 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
         clubResult: clubResult,
         clubEntries: clubEntries,
       );
-      preview = SizedBox.fromSize(
-        size: SharePosterTarget.preview.designSize,
-        child: SharePoster(data: data, theme: _shareTheme, target: SharePosterTarget.preview),
-      );
-      images = lengkapImages(data, _shareTheme);
+      preview = SharePoster(data: data, theme: theme, target: PodiumPosterTarget.card);
+      images = lengkapImages(data, theme);
     }
     // Sparing: jumlah dan kata dari baris per klub (nomor per klub), bukan dari Klasemen gabungan.
     final rowsByClub = clubEntries.isEmpty ? entries : [for (final g in clubEntries) ...g.entries];
