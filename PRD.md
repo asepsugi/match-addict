@@ -674,6 +674,17 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     judul menyempit (2026-11-13, tanpa frame; `logic.md` §17.13).
 90. Story Fixed campuran (pasangan diatur ulang, ada pemain tunggal) di poster Lengkap: semua baris setinggi baris
     pasangan, nama ditumpuk hanya di baris dua nama — sama dengan Ringkas 18l (2026-11-13, tanpa frame).
+91. **Lantai poster = lapangan utuh** (arah L1, eksplorasi `design/explore/bagikan-lapangan.html`): lapangan tennis /
+    padel digambar utuh dengan semua garis resmi lalu dipotong kanvas — setengah lapangan dari sudut garis belakang
+    (posisi sudut tetap) sampai dekat net, dilihat dari penonton di dekat net di sisi seberang sudut. Proyeksi sejajar:
+    sumbu depth = depth blok podium poster itu (di Lengkap = podium mini), lebar horizontal, dinding tegak. Padel:
+    dinding kaca belakang + kiri bertingkat + pagar kawat; net tidak digambar. Garis lewat di belakang podium dan
+    panel; panel tetap 86% (keputusan 67). Posisi podium, judul, panel tidak berubah (2026-11-13).
+92. **Ukuran & perataan poster 3.7.1** (uji HP host, 2026-11-13), semua poster Ringkas & Lengkap: nama di baris panel
+    tidak lebih besar dari sub judul (Feed 12,5, Story 15); nilai rata kanan dan keterangan ("poin · +12") rata kiri
+    dalam kolom selebar nilai terpanjang se-poster, supaya poin dan selisih sejajar walau jumlah digit beda; kaki lebih
+    kecil satu tingkat (wordmark 11,5 → 10,5, bola 13 → 12, fakta 10,5 → 9,5); Lengkap Feed dua kolom: baris mengisi
+    ruang panel (batas tinggi baris 26 → 40, huruf tetap) sehingga tidak ada celah antara kepala dan panel.
 
 ---
 

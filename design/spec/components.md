@@ -591,9 +591,9 @@ Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 11
 .theme.on { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); }
 .poster-pair { display: flex; gap: 14px; align-items: flex-start; line-height: 1.4; }
 .podium .psig, .poster .lk .psig { height: 26px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.podium .wmk, .poster .lk .wmk { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; font-stretch: 125%; line-height: 1; white-space: nowrap; }
-.podium .wmk svg, .poster .lk .wmk svg { width: 13px; height: 13px; display: block; flex: none; }
-.podium .facts, .poster .lk .facts { min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--psub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium .wmk, .poster .lk .wmk { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; font-stretch: 125%; line-height: 1; white-space: nowrap; }
+.podium .wmk svg, .poster .lk .wmk svg { width: 12px; height: 12px; display: block; flex: none; }
+.podium .facts, .poster .lk .facts { min-width: 0; font-size: 9.5px; font-weight: 500; color: var(--psub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .podium.story .psig, .poster .lk.story .psig { height: 34px; }
 .podium .safe, .poster .lk .safe { display: none; }
 .doc .podium .safe, .doc .poster .lk .safe { display: block; position: absolute; left: 0; right: 0; height: 84px; pointer-events: none; background: repeating-linear-gradient(135deg, transparent 0 7px, rgba(127,127,127,.32) 7px 8px); }
@@ -612,9 +612,9 @@ Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 11
 .poster .lk.story .ltitle { font-size: 27px; }
 .poster .lk.story .ltitle.two { font-size: 23px; }
 .poster .lk.story .lsub { margin-top: 6px; font-size: 15px; }
-.poster .lk .lpanel { position: absolute; left: 14px; right: 14px; bottom: 14px; background: rgba(var(--panel, 15,30,44), .86); color: var(--pfg, #fff); border-radius: 14px; padding: 6px 12px 0; display: flex; flex-direction: column; --rc: 30px; --cg: 8px; --fr: 15px; --fn: 13.5px; --fv: 16px; --fs: 10.5px; }
+.poster .lk .lpanel { position: absolute; left: 14px; right: 14px; bottom: 14px; background: rgba(var(--panel, 15,30,44), .86); color: var(--pfg, #fff); border-radius: 14px; padding: 6px 12px 0; display: flex; flex-direction: column; --rc: 30px; --cg: 8px; --fr: 15px; --fn: 13.5px; --fv: 16px; --fs: 10.5px; --nmax: 12.5px; }
 .poster .lk.card .lpanel { left: 13px; right: 13px; }
-.poster .lk.story .lpanel { bottom: 84px; --fr: 14px; --fv: 15px; }
+.poster .lk.story .lpanel { bottom: 84px; --fr: 14px; --fv: 15px; --nmax: 15px; }
 .poster .lk .lpanel.two { padding: 6px 10px 0; --rc: 22px; --cg: 5px; --fr: 13px; --fn: 12px; --fv: 13.5px; --fs: 10px; }
 .poster .lk .lcols { display: grid; grid-auto-flow: column; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: repeat(var(--k), auto); column-gap: 14px; position: relative; }
 .poster .lk .lclub { height: calc(var(--row) * 2); grid-row: span 2; display: flex; flex-direction: column; justify-content: center; gap: calc(2px * var(--s)); min-width: 0; border-bottom: 1px solid var(--pline); line-height: 1.1; }
@@ -627,13 +627,13 @@ Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 11
 .poster .lk .prow .r::before { content: "#"; color: var(--psub); opacity: 1; }
 .poster .lk .prow.gold .r { background: #E3B341; color: #0F1E2C; padding: .08em .3em; margin-left: -.3em; border-radius: .35em; }
 .poster .lk .prow.gold .r::before { color: inherit; opacity: .75; }
-.poster .lk .prow .nm, .poster .lk .prow .nm2 { font-size: calc(var(--fn) * var(--s, 1) * var(--kn, 1)); font-weight: 600; font-stretch: 88%; min-width: 0; }
+.poster .lk .prow .nm, .poster .lk .prow .nm2 { font-size: calc(min(var(--fn) * var(--s, 1), var(--nmax)) * var(--kn, 1)); font-weight: 600; font-stretch: 88%; min-width: 0; }
 .poster .lk .prow .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
 .poster .lk .prow .nm2 { line-height: 1.16; }
 .poster .lk .prow .nm2 span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .poster .lk .prow.gold .nm, .poster .lk .prow.gold .nm2 { font-weight: 800; }
-.poster .lk .prow .pt { font-size: calc(var(--fv) * var(--s, 1)); white-space: nowrap; }
-.poster .lk .prow .pt small { font-size: calc(var(--fs) * var(--s, 1)); font-weight: 600; font-stretch: 100%; color: var(--psub); opacity: 1; margin-left: calc(3px * var(--s, 1)); }
+.poster .lk .prow .pt { font-size: calc(var(--fv) * var(--s, 1)); white-space: nowrap; display: grid; grid-template-columns: var(--vw, auto) var(--rw, auto); column-gap: calc(3px * var(--s, 1)); align-items: baseline; text-align: right; }
+.poster .lk .prow .pt small { font-size: calc(var(--fs) * var(--s, 1)); font-weight: 600; font-stretch: 100%; color: var(--psub); opacity: 1; margin-left: 0; text-align: left; }
 .poster .pscore { margin-top: 8px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
 .poster .pscore .ps { display: grid; grid-template-columns: minmax(0, 1fr) auto 30px; gap: 8px; align-items: center; height: 26px; border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
 .poster .pscore .ps .nm { font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -673,17 +673,17 @@ Dipakai di frame: 11a, 11c, 11d, 13q, 13r, 18a, 18b, 18c, 18d, 18e, 18f, 18g, 18
 .podium .pos.sc::before { content: none; }
 .podium .prank.gold .pos { background: #E3B341; color: #0F1E2C; padding: .08em .3em; margin-left: -.3em; border-radius: .35em; }
 .podium .prank.gold .pos::before { color: inherit; opacity: .75; }
-.podium .who { font-size: var(--nm, 14px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.podium .who2 { font-size: var(--nm, 13px); font-weight: 600; line-height: 1.18; min-width: 0; }
+.podium .who { font-size: var(--nm, 12.5px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium .who2 { font-size: var(--nm, 12.5px); font-weight: 600; line-height: 1.18; min-width: 0; }
 .podium .who2 span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .podium .prank.gold .who, .podium .prank.gold .who2 { font-weight: 800; }
-.podium .val { white-space: nowrap; display: flex; align-items: baseline; gap: 4px; }
-.podium .val b { font-size: 18px; line-height: 1; }
-.podium .val small { font-size: 10.5px; font-weight: 600; color: var(--psub); }
+.podium .val { white-space: nowrap; display: grid; grid-template-columns: var(--vw, auto) var(--rw, auto); column-gap: var(--vg, 4px); align-items: baseline; }
+.podium .val b { font-size: 18px; line-height: 1; justify-self: end; }
+.podium .val small { font-size: 10.5px; font-weight: 600; color: var(--psub); justify-self: start; }
 .podium .psig, .poster .lk .psig { height: 26px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.podium .wmk, .poster .lk .wmk { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; font-stretch: 125%; line-height: 1; white-space: nowrap; }
-.podium .wmk svg, .poster .lk .wmk svg { width: 13px; height: 13px; display: block; flex: none; }
-.podium .facts, .poster .lk .facts { min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--psub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium .wmk, .poster .lk .wmk { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; font-stretch: 125%; line-height: 1; white-space: nowrap; }
+.podium .wmk svg, .poster .lk .wmk svg { width: 12px; height: 12px; display: block; flex: none; }
+.podium .facts, .poster .lk .facts { min-width: 0; font-size: 9.5px; font-weight: 500; color: var(--psub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .podium.story .phead { top: 98px; }
 .podium.story .ptitle { font-size: 27px; }
 .podium.story .ptitle.two { font-size: 23px; }
@@ -692,8 +692,7 @@ Dipakai di frame: 11a, 11c, 11d, 13q, 13r, 18a, 18b, 18c, 18d, 18e, 18f, 18g, 18
 .podium.story .prank { height: 42px; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; }
 .podium.story.duo .prank { height: 54px; }
 .podium.story .pos { font-size: 21px; }
-.podium.story .who { font-size: var(--nm, 18px); }
-.podium.story .who2 { font-size: var(--nm, 17px); }
+.podium.story .who, .podium.story .who2 { font-size: var(--nm, 15px); }
 .podium.story .val b { font-size: 24px; }
 .podium.story .val small { font-size: 12.5px; }
 .podium.story .psig, .poster .lk.story .psig { height: 34px; }

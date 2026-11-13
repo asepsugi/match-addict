@@ -125,8 +125,8 @@ Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
 Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Feed: keenam nama utuh di ukuran biasa (13), termasuk yang 26 karakter.
-- Story: nama 26 karakter tidak muat di 17, jadi semua nama di panel dikecilkan bersama ke 11,5 (batas bawah) dan tetap utuh. Lebih panjang lagi → elipsis per nama. Nilai tidak pernah terpotong.
+- Feed: keenam nama utuh di ukuran awal 12,5 (= baris kecil kepala, keputusan 92), termasuk yang 26 karakter.
+- Story: nama 26 karakter tidak muat di 15, jadi semua nama di panel dikecilkan bersama ke 11,5 (batas bawah) dan tetap utuh. Lebih panjang lagi → elipsis per nama. Nilai tidak pernah terpotong.
 - Nama turnamen 40 karakter (batasnya): dua baris, Feed 18,5 dan Story 23. Story: blok turun dari 144 / 104 / 70 ke 128 / 92 / 62.
 - Data: Padel Fixed, Americano 21, 4 pasangan round-robin 6 match; selisih = 2 × poin − 63 (43 → +23, 29 → −5, 28 → −7).
 

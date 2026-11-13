@@ -53,10 +53,10 @@ void main() {
       _expectDensity(story, 336, 16.8, 0.988);
     });
 
-    test('11h K80 Mixed 12 kartu: batas baris 26', () {
+    test('11h K80 Mixed 12 kartu: baris mengisi panel 238 ÷ 6 (batas 40, keputusan 92)', () {
       final g = _mixed(12);
       expect((g.sizing, g.columns.length, g.units), (LengkapSizing.feed2, 2, 6));
-      _expectDensity(g, 238, 26, 1);
+      _expectDensity(g, 238, 39.67, 1);
     });
 
     test('11i K81 Mixed 13: kolom kanan sisa satu slot kosong', () {
@@ -64,7 +64,7 @@ void main() {
       expect((g.columns.length, g.units), (2, 7));
       expect(g.columns[0].length, 7);
       expect(g.columns[1].length, 6);
-      _expectDensity(g, 238, 26, 1);
+      _expectDensity(g, 238, 34, 1);
     });
 
     test('11j K80 Mixed 5 / 7 / 9 satu kolom feed1', () {
@@ -76,7 +76,7 @@ void main() {
     });
 
     test('11j K80 Mixed 11 / 13 / 15 / 17 / 19 dua kolom feed2', () {
-      for (final (n, k, row) in [(11, 6, 26.0), (13, 7, 26.0), (15, 8, 26.0), (17, 9, 26.0), (19, 10, 23.8)]) {
+      for (final (n, k, row) in [(11, 6, 39.67), (13, 7, 34.0), (15, 8, 29.75), (17, 9, 26.44), (19, 10, 23.8)]) {
         final g = _mixed(n);
         expect((g.sizing, g.columns.length, g.units), (LengkapSizing.feed2, 2, k));
         _expectDensity(g, 238, row, 1);
@@ -117,7 +117,7 @@ void main() {
     test('11m K80 12 baris #1 × 6 Feed', () {
       final g = _mixed(12);
       expect(g.units, 6);
-      _expectDensity(g, 230, 26, 1);
+      _expectDensity(g, 230, 38.33, 1);
     });
 
     test('13s K86 Sparing Fixed 4 + 3 kartu', () {

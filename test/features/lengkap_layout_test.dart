@@ -174,7 +174,7 @@ void main() {
       // Garis belakang = dasar blok; painter dan garis lapangan sama dengan Ringkas.
       expect(l.base, 79);
       expect(l.backLine, 79);
-      expect((l.cornerX, l.lineWidth, l.lineDrop), (40, 4.5, 31.2));
+      expect((l.cornerX, l.lineWidth), (40, 4.5));
       expect(l.depth, const Offset(6, -4));
       expect(l.panel, isNull);
     });
@@ -201,7 +201,7 @@ void main() {
       expect(faces(l), [24, 34, 16]);
       expect(l.balls, hasLength(3));
       expect((l.balls[0].rect.left, l.balls[0].rect.top, l.balls[0].rect.width), (258, 140.5, 12));
-      expect((l.cornerX, l.lineWidth, l.lineDrop), (44, 5.5, 31.9));
+      expect((l.cornerX, l.lineWidth), (44, 5.5));
       expect(l.depth, const Offset(8, -5));
     });
 
@@ -330,7 +330,8 @@ void main() {
       await pump(tester, PodiumSignature(facts: facts, theme: theme, height: 34));
       expect(tester.getSize(find.byType(PodiumSignature)).height, 34);
       double factsSize() => tester.widget<Text>(find.text(facts)).style!.fontSize!;
-      expect(factsSize(), 10.5);
+      // Fakta 9,5 (keputusan 92: kaki satu tingkat lebih kecil).
+      expect(factsSize(), 9.5);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -345,7 +346,7 @@ void main() {
           ),
         ),
       );
-      expect(factsSize(), lessThan(10.5));
+      expect(factsSize(), lessThan(9.5));
       expect(find.text('Match Addict'), findsOneWidget);
     });
   });

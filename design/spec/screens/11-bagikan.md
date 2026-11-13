@@ -27,7 +27,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Lengkap arah B "Podium mini" (keputusan 79): judul dan baris kecil di kiri, podium mini (angka di muka blok + bola, tanpa nama) berdiri di garis belakang di kanan judul, daftar semua baris di panel 86% di atas lantai. Rincian ukuran di Komponen → `.lk`.
 - Fixed 20 pemain = 10 pasangan, round-robin 45 match (5 court, 9 round), metode Total Point (game). Pasangan selalu satu kolom, nama kedua anggota dipisah "+". Feed satu kolom menulis satuan: "52 game · +18" (keputusan 77).
-- Kepadatan (keputusan 80): tinggi baris = ruang panel ÷ jumlah baris; huruf baris mengikuti tinggi baris, dibatasi ukuran panel podium. Di pratinjau 10 baris × 23,8 → batas (nama 14 = nama panel podium).
+- Kepadatan (keputusan 80): tinggi baris = ruang panel ÷ jumlah baris; huruf baris mengikuti tinggi baris, dibatasi ukuran panel podium. Di pratinjau 10 baris × 23,8 → skala 1,04 (batas); nama 12,5 = baris kecil kepala (keputusan 92).
 - Podium mini pasangan: dua bola per blok (keputusan 61). Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "Tennis · Fixed · 21 Okt 2026", fakta "10 pasangan · 9 round · 45 match".
 - Deret tema Lengkap = deret Ringkas (keputusan 76): lapangan (bawaan, lantai ikut olahraga) + 10 gradien, 11 lingkaran 27 pt. Gradien yang dipilih berlaku untuk kedua format; pilihan tidak disimpan. Peach: kepala, blok, dan panel memakai tinta tema; warna turunannya sama dengan poster podium.
 - Pratinjau 358 × 372 memakai tata letak Feed (panel 13 dari kiri/kanan); gambar Feed dan Story di 11g.
@@ -53,7 +53,7 @@ Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 - Feed 360 × 360 dan Story 360 × 640, keduanya diekspor ×3. Story podium tidak memakai kanvas 203 × 360 poster Lengkap (11f); ukuran per target ada di Komponen → `.podium`.
 - Nama terpanjang (40 karakter): dua baris dengan huruf 18,5 di Feed dan 23 di Story. Di Story blok turun dari 178 / 128 / 86 ke 160 / 115 / 77 supaya bola #1 berjarak 12 dari baris kecil (aturan batas tinggi); di Feed tinggi blok tetap.
 - Satuan ditulis di Feed dan Story: "52 poin · +10" (keputusan 63); aturan lama "Story tanpa satuan" hanya untuk Lengkap.
-- Baris fakta "Padel · 10 pemain · 4 round · 8 match · 1 WO" lebih lebar dari sisa baris kaki, jadi hurufnya dikecilkan dari 10,5 ke 9,3 sampai muat; fakta tidak pernah terpotong.
+- Baris fakta "Padel · 10 pemain · 4 round · 8 match · 1 WO" muat di sisa baris kaki pada 9,5 (kaki satu tingkat lebih kecil sejak keputusan 92). Fakta yang lebih lebar dikecilkan per 0,1 sampai muat, tidak pernah terpotong.
 - Story: semua teks di antara 250 px atas dan bawah (arsiran = zona UI Instagram, tidak ikut ke gambar). Lantai menerus sampai tepi bawah.
 - File: `match-addict-feed-1080x1080.png`, `match-addict-story-1080x1920.png`, dibagikan bersamaan lewat `Share.shareXFiles`.
 - Render poster di test wajib memuat font Archivo (`loadHifiFonts()`), jangan percaya font Ahem.
@@ -100,8 +100,8 @@ Komponen: `SharePoster`
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
 
-- Arah B di tema gradien gelap (biru): latar gradien, lantai putih 10%, garis belakang putih 55%, muka blok `#E3E9EE` dengan angka warna awal gradien `#172554`; blok #1 tetap emas. Panel, teks, dan kontras sama dengan tema lapangan (`tokens.json` → `posterPodium.gradientThemes`).
-- 12 baris → dua kolom rata 6–6 (1–6 kiri, 7–12 kanan). 6 baris per kolom: ruang 238 ÷ 6 = 39,7 → dibatasi 26 (batas baris dua kolom), skala 1; panel memendek dari atas (atas 170) dan lantai tampil lebih banyak (keputusan 80).
+- Arah B di tema gradien gelap (biru): latar gradien, lantai putih 10%, garis lapangan putih 55%, muka blok `#E3E9EE` dengan angka warna awal gradien `#172554`; blok #1 tetap emas. Panel, teks, dan kontras sama dengan tema lapangan (`tokens.json` → `posterPodium.gradientThemes`).
+- 12 baris → dua kolom rata 6–6 (1–6 kiri, 7–12 kanan). 6 baris per kolom: ruang 238 ÷ 6 = 39,67 (batas baris dua kolom 40, keputusan 92), skala 1; panel mengisi ruang sampai atas paling tinggi (88), tanpa celah di bawah kepala.
 - Kembar senomor: Lina dan Umar 62 · −2 sama-sama #6, Sari berikutnya #7 (nomor rapat). Podium mini 2 · 1 · 3 = Andi, Citra, Dewant, tanpa nama.
 - Nama dikecilkan bersama ×0,94 sampai nama terpanjang muat di kolom dua kolom yang sempit.
 - Data (keputusan 78, menggantikan data lama yang selisihnya berjumlah +4): Americano 21, 3 court × 6 round = 18 match, semua 12 pemain main 6 kali. Jumlah poin 756 = 18 × 42; selisih = 2 × poin − 126, jumlahnya 0.
@@ -113,7 +113,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
 
 - Jumlah ganjil: kolom kiri dapat kelebihan satu (13 → 7–6). Satu grid 7 baris (⌈13 ÷ 2⌉) diisi turun dulu, jadi baris kiri dan kanan sejajar dan slot kanan bawah kosong.
-- 7 baris per kolom: 238 ÷ 7 = 34 → dibatasi 26, skala 1, panel mulai di 144. Tema lapangan padel (bawaan).
+- 7 baris per kolom: 238 ÷ 7 = 34 (di bawah batas 40, keputusan 92), skala 1, panel mulai di 88. Tema lapangan padel (bawaan).
 - Nilai metode dulu, selisih hanya pemisah: Gina 62 · +19 (main 5 kali) di #4, di bawah Oki 64 · +2. Andi dan Sari 57 · −12 sama-sama #7.
 - Data (sama dengan kartu 13 pemain di 11j): Americano 21, 3 court × 6 round = 18 match; tiap round 1 pemain istirahat → 7 pemain main 6 kali, 6 main 5 kali (72 = 7 × 6 + 6 × 5). Jumlah poin 756 = 18 × 42; selisih = 2 × poin − 21 × match, jumlahnya 0.
 
@@ -124,8 +124,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `SharePoster`
 
 - Sampai 10 baris satu kolom dengan satuan ("54 poin · +24"); 11 ke atas dua kolom rata tanpa satuan, kiri dapat kelebihan satu: 11 → 6–5, 13 → 7–6, 15 → 8–7, 17 → 9–8, 19 → 10–9. Baris kiri dan kanan selalu sejajar; slot terakhir kanan kosong.
-- Kepadatan dari tinggi baris (keputusan 80), ruang kartu 238: 5 dan 7 baris → batas 30, skala 1,04, panel memendek; 9 baris → 26,44, skala 1,04; dua kolom 6–9 baris per kolom → batas 26, skala 1; 19 (10 per kolom) → 23,8, skala 1.
-- Nama dikecilkan bersama: ×0,94 di 15 dan 17 pemain, ×0,86 di 19 pemain; kartu lain ×1.
+- Kepadatan dari tinggi baris (keputusan 80), ruang kartu 238: 5 dan 7 baris → batas 30, skala 1,04, panel memendek; 9 baris → 26,44, skala 1,04; dua kolom 6 / 7 / 8 / 9 baris per kolom → 39,67 / 34 / 29,75 / 26,44, skala 1 (batas 40, keputusan 92), panel mulai di 88; 19 (10 per kolom) → 23,8, skala 1.
+- Nama dikecilkan bersama: ×0,94 di 11, 13, 15, dan 17 pemain, ×0,86 di 19 pemain; kartu lain ×1. Kolom nilai selebar nilai terlebar se-poster (keputusan 92).
 - Podium mini ikut aturan podium (keputusan 64, 65): 5 pemain #1, #2, #3, #3 dan 19 pemain #1, #2, #3, #3 → empat anak tangga selebar 21, dua #3 sama tinggi; kepala bergeser ke kanan 124. Kartu lain tiga anak tangga.
 - Data Americano 21, semua kartu jumlah selisih 0 dan jumlah poin = 42 × match: 5 = 1 court × 5 round (5 match, semua main 4) · 7 = 1 × 7 (7 match, semua main 4) · 9 = 2 × 6 (12 match, main 5–6) · 11 = 2 × 6 (12 match, main 4–5) · 13 = 3 × 6 (18 match, main 5–6) · 15 = 3 × 7 (21 match, main 5–6) · 17 = 4 × 6 (24 match, main 5–6) · 19 = 4 × 7 (28 match, main 5–6).
 
@@ -160,7 +160,7 @@ Komponen: `SharePoster`
 Komponen: `SharePoster`
 
 - Podium mini ikut podium Ringkas (keputusan 85). Feed: lebih dari empat di #1 (keputusan 68) → satu blok emas lebar 3 × 26 = 78, tinggi #1 34, angka "1", tanpa bola; kolom judul tetap 118 seperti tiga anak tangga. Story memakai 3 × 28 = 84, tinggi 52.
-- Daftar Lengkap tetap semua baris: enam #1 berlencana emas, enam #2. 12 baris → dua kolom 6–6, batas 26.
-- Story: belum ada match selesai (keputusan 69) → garis belakang tanpa blok. Panel hanya wordmark + fakta "R1 · 0 dari 3 match", seperti 18t. Kolom judul tetap selebar tiga anak tangga (126), jadi judul tidak bergeser setelah match pertama selesai. Feed memakai aturan yang sama.
+- Daftar Lengkap tetap semua baris: enam #1 berlencana emas, enam #2. 12 baris → dua kolom 6–6, ruang 230 ÷ 6 = 38,33 (batas 40, keputusan 92).
+- Story: belum ada match selesai (keputusan 69) → lapangan tanpa blok (lantai memakai kedalaman podium mini Story 8:5). Panel hanya wordmark + fakta "R1 · 0 dari 3 match", seperti 18t. Kolom judul tetap selebar tiga anak tangga (126), jadi judul tidak bergeser setelah match pertama selesai. Feed memakai aturan yang sama.
 - Baris kecil "Klasemen sementara · 6 Nov 2026" lebih lebar dari kolom judul Story → 15 dikecilkan per 0,5 sampai 13 (keputusan 84). Judul dua baris di 23.
 - Data (sama dengan 18s/18t): Americano 21, 12 pemain, 3 court. Feed: R1 tiga skor 12–9 → enam pemain 12 · +3 (#1), enam 9 · −3 (#2), jumlah selisih 0. Story: R1 belum ada skor.

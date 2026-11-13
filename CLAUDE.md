@@ -14,8 +14,8 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
   2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t.
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 247 frame layar 390×844 +
-  12 lembar gambar (per 2026-11-12) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±1,1 MB (per
-  2026-11-12): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
+  12 lembar gambar (per 2026-11-12) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2 MB (per
+  2026-11-13; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
   lebih ringkas baca `design/spec/screens/<alur>.md` + PNG frame-nya.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu
   `tokens.json`, `components.md`, `logic.md` (aturan logika yang berubah + data test), `screens/*.md` (per alur).
@@ -82,7 +82,8 @@ pindah alamat web, peringkat dari nilai metode + selisih (peringkat lama berbeda
 Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point); 3.3.1 (PATCH) = back di Jadwal ke Beranda;
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
-sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini".
+sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini"; 3.7.1 (PATCH) = lantai poster
+lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92).
 
 ## Status
 
@@ -112,6 +113,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Poster Lengkap arah B "Podium mini" 3.7.0 (MINOR): keputusan 76–90, hi-fi 11b/11e–11m/13s–13w (artifact v90),
   spec §17, task PL-1–PL-4; rilis 3.7.0+22 live 2026-11-13 (b8d39bc). Sisa: uji share di HP (host) —
   `docs/tasks.md`.
+- PATCH 3.7.1: lantai poster = lapangan utuh L1 + dinding padel, kepala memudar (keputusan 91), ukuran/perataan
+  (keputusan 92); geometri `lib/services/share/court_floor.dart` = `tool/hifi_court_floor.py`. Branch
+  `poster-patch-3-7-1`, suite lolos, belum push (menunggu host).
 
 ## Area docs
 
