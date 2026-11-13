@@ -650,6 +650,11 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     paling kecil 11 (pola baris fakta); tidak pecah dua baris (2026-11-13).
 85. Podium mini kasus khusus ikut podium Ringkas: lebih dari 4 di #1 (keputusan 68) = satu blok emas lebar tanpa bola;
     belum ada match selesai (keputusan 69) = garis belakang tanpa blok (2026-11-13).
+86. Sparing poster Lengkap di Story dengan banyak pemain dibagi dua kolom per klub (13w), bukan ⌈n/2⌉, supaya satu
+    kolom tidak berisi dua klub (2026-11-13).
+87. Poster Lengkap saat belum ada match: panel hanya wordmark + baris fakta, seperti poster podium 18t (11m) (2026-11-13).
+88. Story Fixed 15 pasangan tetap satu kolom (nama ±27 px di gambar 1080); keterbacaan diuji di HP setelah rilis
+    (2026-11-13).
 
 ---
 
