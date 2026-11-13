@@ -340,7 +340,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   di atas (Mixed menampilkan partner; menang WO menulis "+N"). Fixed menampilkan "Beda partner" hanya kalau
   pasangannya pernah diatur ulang (10d).
 
-### 5.9 Bagikan (11a–11l, 18a–18t)
+### 5.9 Bagikan (11a–11m, 18a–18t)
 - Kartu pratinjau + 10 tema (default biru) + Ringkas (5 teratas + "+n lainnya") / Lengkap (semua; Feed > 10 pemain
   Mixed dibagi dua kolom rata, pasangan Fixed dan Story selalu satu kolom; lebih padat dari 10 baris satu kolom atau
   20 baris nama di Story → semua huruf baris dikecilkan sebanding). Nomor "#n"; peringkat 1 lencana emas, digantung ke kiri supaya "#1" sejajar dengan nomor di bawahnya.

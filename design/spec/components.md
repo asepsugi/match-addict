@@ -559,7 +559,7 @@ Dipakai di frame: 03g, 03i, 03j, 03k, 03n, 04h, 06w, 06x, 06y, 06z, 08c, 08d, 08
 Kartu/gambar Bagikan dan pemilih tema.
 
 Kelas hi-fi: `.poster`, `.themes`, `.theme`, `.poster-pair`  
-Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 13q, 13r, 13s, 13t, 13u, 13v, 13w, 18a, 18b, 18c, 18d, 18e, 18f, 18g, 18h, 18i, 18j, 18k, 18l, 18m, 18n, 18o, 18p, 18q, 18r, 18s, 18t
+Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 11m, 13q, 13r, 13s, 13t, 13u, 13v, 13w, 18a, 18b, 18c, 18d, 18e, 18f, 18g, 18h, 18i, 18j, 18k, 18l, 18m, 18n, 18o, 18p, 18q, 18r, 18s, 18t
 
 ```css
 .poster { position: relative; overflow: hidden; color: var(--pink, #fff); font-family: var(--f); border-radius: 14px; flex: none; }
@@ -617,6 +617,9 @@ Dipakai di frame: 11a, 11b, 11c, 11d, 11e, 11f, 11g, 11h, 11i, 11j, 11k, 11l, 13
 .poster .lk.story .lpanel { bottom: 84px; --fr: 14px; --fv: 15px; }
 .poster .lk .lpanel.two { padding: 6px 10px 0; --rc: 22px; --cg: 5px; --fr: 13px; --fn: 12px; --fv: 13.5px; --fs: 10px; }
 .poster .lk .lcols { display: grid; grid-auto-flow: column; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: repeat(var(--k), auto); column-gap: 14px; position: relative; }
+.poster .lk .lclub { height: calc(var(--row) * 2); grid-row: span 2; display: flex; flex-direction: column; justify-content: center; gap: calc(2px * var(--s)); min-width: 0; border-bottom: 1px solid var(--pline); line-height: 1.1; }
+.poster .lk .lclub .cn { font-size: calc(var(--fn) * 1.06 * var(--s)); font-weight: 800; font-stretch: 95%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poster .lk .lclub small { font-size: calc(var(--fs) * var(--s)); font-weight: 600; color: var(--psub); white-space: nowrap; }
 .poster .lk .lcols::after { content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 1px; background: var(--pline); }
 .poster .lk .prow { height: var(--row); display: grid; grid-template-columns: calc(var(--rc) * var(--s, 1)) minmax(0, 1fr) auto; gap: 0 calc(var(--cg) * var(--s, 1)); align-items: center; padding: 0; border-top: 0; border-bottom: 1px solid var(--pline); line-height: 1; }
 .poster .lk .prow.duo { height: calc(var(--row) * 2); }
