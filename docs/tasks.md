@@ -14,8 +14,7 @@ Pemilik: tech-lead. Daftar task sebelumnya (Poster podium PP-n, selesai, rilis 3
 - **Versi:** 3.6.1 (0336826) belum di-push. Rilis berikutnya 3.7.0 (MINOR), dinaikkan main session saat merge ke
   `main`, bukan oleh engineer.
 - **Tanpa** `schemaVersion`, DBA, tech-infra, atau dependensi baru. Caption dan simpanan tidak berubah.
-- Pertanyaan terbuka untuk host: `logic.md` §17.13 (dua asumsi, kode ditulis sesuai asumsi; kalau host memilih lain,
-  perubahannya satu konstanta/cabang).
+- Pertanyaan terbuka `logic.md` §17.13: kedua asumsi disetujui host 2026-11-13 (keputusan 89–90).
 
 ## Urutan batch
 

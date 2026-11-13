@@ -669,6 +669,11 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 87. Poster Lengkap saat belum ada match: panel hanya wordmark + baris fakta, seperti poster podium 18t (11m) (2026-11-13).
 88. Story Fixed 15 pasangan tetap satu kolom (nama ±27 px di gambar 1080); keterbacaan diuji di HP setelah rilis
     (2026-11-13).
+89. Poster Lengkap Sparing belum ada match (0 – 0): ikut 87 tanpa kasus khusus Sparing — garis belakang tanpa blok,
+    panel hanya wordmark + fakta (tanpa kepala klub), kolom judul selebar kasus kosong lain; setelah match pertama
+    judul menyempit (2026-11-13, tanpa frame; `logic.md` §17.13).
+90. Story Fixed campuran (pasangan diatur ulang, ada pemain tunggal) di poster Lengkap: semua baris setinggi baris
+    pasangan, nama ditumpuk hanya di baris dua nama — sama dengan Ringkas 18l (2026-11-13, tanpa frame).
 
 ---
 

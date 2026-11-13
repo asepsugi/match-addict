@@ -1525,7 +1525,7 @@ Pemetaan isi (`sharePosterData`, fixture yang sudah ada: data set 1 `bagikan_tes
     Lengkap tetap terpilih) tetap lolos.
 16. Render poster di test wajib `loadHifiFonts()` + `MabarTheme.light()` (Pitfalls).
 
-### 17.13 Pertanyaan terbuka (asumsi tech-lead, menunggu host)
+### 17.13 Pertanyaan terbuka — dijawab host 2026-11-13: kedua asumsi disetujui (keputusan 89–90 di PRD)
 
 1. **Sparing Lengkap belum ada match (0 – 0)**: tidak ada frame. Asumsi: ikut 72 + 87 → garis belakang tanpa blok,
    panel hanya kaki (tanpa kepala klub), kolom judul selebar 3 slot seperti Kosong lain (118 / 126), jadi setelah
