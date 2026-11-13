@@ -646,6 +646,10 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     ukuran terkecil masih tidak muat (2026-11-13).
 83. Sparing poster Lengkap: angka skor klub hanya di blok podium mini; kepala klub di panel = nama klub + "83 game ·
     +14" tanpa angka skor (2026-11-13).
+84. Baris kecil di bawah judul poster Lengkap yang lebih lebar dari kolom judul: huruf mengecil per 0,5 sampai muat,
+    paling kecil 11 (pola baris fakta); tidak pecah dua baris (2026-11-13).
+85. Podium mini kasus khusus ikut podium Ringkas: lebih dari 4 di #1 (keputusan 68) = satu blok emas lebar tanpa bola;
+    belum ada match selesai (keputusan 69) = garis belakang tanpa blok (2026-11-13).
 
 ---
 
