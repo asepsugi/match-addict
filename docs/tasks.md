@@ -31,6 +31,22 @@ naik → berhenti, itu MAJOR dan kembali ke host. Tidak ada perubahan build/depl
 
 Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — belum ada frame (`logic.md` 18.13 #1).
 
+### Status (2026-11-17, akhir sesi B1–B4)
+
+- Selesai di branch `grup-gugur` (90485e8): GG-0…GG-8. Review fresh tech-lead: GG-1, GG-2, GG-3, GG-4 (temuan sudah
+  diperbaiki); layar GG-5…GG-8 dicek main session. `flutter test` penuh: 1692 lolos, 1 skip.
+- Berikutnya B5: GG-9 (Bagan + Input Skor/WO gugur; opus/high; isi `BaganView(active, onOpenMatch)` di
+  `lib/features/schedule/group_knockout/bagan_view.dart`, dialog 21k/21l via `KnockoutBracket.flipCheck`) paralel
+  GG-10 (Bagikan, caption, live). Lalu review layar oleh main session, GG-11 rilis.
+- `MatchScoreRow.label`: Jadwal (non-compact) 12/14 + `labelOverlap`, Detail (compact) 13 pt — jangan disatukan.
+- Pertanyaan host terbuka: (1) GU9 ubah format babak setelah jadwal dibuat — belum ada frame, rekomendasi tunda ke
+  3.8.x (tidak di batch mana pun); (2) "Belum main" tanpa nomor saat diakhiri di fase grup (GG-8 sudah mengikuti
+  usulan); (3) caption "Pemenang SF2" (GG-10); (4) frame 19s menggambar 3 pasangan masuk / "5 pasangan tanpa grup",
+  catatan menulis 2 → rekomendasi frame benar, perbaiki catatan; (5) oke perbaiki pseudocode PRD §3.3
+  (`rotate[i] vs rotate[n-3-i]`, i = 0..n/2−2; kode benar) + kepala PRD §16 "belum ada spec/task".
+- Asumsi tanpa frame (laporkan ke host saat review): WO gugur tanpa "+n"; subjudul Detail sebelum bagan; sheet pilih
+  slot beberapa grup ("Pilih A2 dan C2"); subjudul round gugur "· diakhiri"; setelah finishNow SF masih bisa diubah.
+
 ## GG-0 · dba — bentuk simpanan Grup + Gugur
 
 - **Tujuan:** putuskan bentuk JSON kebutuhan `logic.md` §18.11 (config `groupKnockout`, `phase` per match, sisi tbd),
