@@ -5,6 +5,7 @@ import '../../../core/time_text.dart';
 import '../../../core/widgets/mabar_controls.dart';
 import '../../../core/widgets/match_score_row.dart';
 import '../../../models/models.dart';
+import '../../../services/schedule/knockout_bracket.dart';
 
 /// Subjudul app bar Jadwal: "Tennis · Race to 6", atau "… · diakhiri". Waktu tidak di sini: court bisa mulai di
 /// jam berbeda, jadi sisa booking ditulis di strip court masing-masing ([ScheduleMatchRow]). [named] = halaman
@@ -52,21 +53,38 @@ class ScheduleMatchRow extends StatelessWidget {
     final court = active.courtById(match.courtId);
 
     final winner = match.winnerPairId;
-    MatchScoreSide side(Pair pair, int score, VoidCallback? onSwap) {
+    final phase = match.phase;
+    final gk = active.config.groupKnockout;
+    // Grup + Gugur: sisi gugur yang belum diketahui ditulis dari asalnya ("Pemenang SF1"), bukan pairById('').
+    final sources = phase is KnockoutPhase && gk != null
+        ? KnockoutBracket.sources(phase, groupCount: gk.groupCount)
+        : null;
+    final hasTbd = match.pair1.isTbd || match.pair2.isTbd;
+    MatchScoreSide side(Pair pair, int score, VoidCallback? onSwap, SideSource? source) {
+      if (pair.isTbd) {
+        return MatchScoreSide(
+          names: [if (source != null) KnockoutBracket.sourceLabel(source)],
+          seed: '',
+          tbd: true,
+        );
+      }
       final names = pairNames(active, pair);
+      final seed = phase is KnockoutPhase ? (KnockoutBracket.seedOf(active, pair.id) ?? '') : null;
       return switch (match.status) {
         MatchStatus.done => MatchScoreSide(
           names: names,
+          seed: seed,
           scores: ['$score'],
           win: winner == pair.id,
           tone: winner != null && winner != pair.id ? MatchScoreTone.lost : MatchScoreTone.normal,
         ),
         MatchStatus.wo when match.woLoserPairId == pair.id => MatchScoreSide(
           names: names,
+          seed: seed,
           tag: match.woReason == null ? 'WO' : 'WO · ${match.woReason!.label}',
         ),
-        MatchStatus.wo => MatchScoreSide(names: names, win: true),
-        _ => MatchScoreSide(names: names, onSwap: onSwap),
+        MatchStatus.wo => MatchScoreSide(names: names, seed: seed, win: true),
+        _ => MatchScoreSide(names: names, seed: seed, onSwap: onSwap),
       };
     }
 
@@ -80,12 +98,18 @@ class ScheduleMatchRow extends StatelessWidget {
       countdown: !preview && match.roundNumber == active.runningRound
           ? countdownText(active.remainingBookingMinutes(court, now))
           : null,
-      top: side(match.pair1, match.pair1TotalGames, onSwapTop),
-      bottom: side(match.pair2, match.pair2TotalGames, onSwapBottom),
+      label: switch (phase) {
+        GroupPhase() => 'Grup ${phase.code}',
+        KnockoutPhase() => KnockoutBracket.matchLabel(active.config, match),
+        null => null,
+      },
+      labelOverlap: phase is KnockoutPhase ? 2 : 4,
+      top: side(match.pair1, match.pair1TotalGames, onSwapTop, sources?.$1),
+      bottom: side(match.pair2, match.pair2TotalGames, onSwapBottom, sources?.$2),
       cancelled: cancelled,
       note: cancelled ? 'Tidak dimainkan' : (draw ? 'Seri' : null),
-      trailing: onFill == null ? null : MabarButton(label: 'Isi skor', small: true, onPressed: onFill),
-      onTap: cancelled ? null : onTap,
+      trailing: onFill == null || hasTbd ? null : MabarButton(label: 'Isi skor', small: true, onPressed: onFill),
+      onTap: cancelled || hasTbd ? null : onTap,
     );
   }
 }

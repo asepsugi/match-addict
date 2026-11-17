@@ -20,6 +20,12 @@ class RoundTabs extends StatefulWidget {
   final String? meta;
   final bool metaAlert;
 
+  /// Grup + Gugur: teks tab per round (nama babak, 21b); null = "R{n}".
+  final String Function(int round)? labelOf;
+
+  /// Grup + Gugur: tab tambahan paling kanan ("Bagan", 21a); nomornya [count] + 1 di [selected] dan [onSelect].
+  final String? extraTab;
+
   const RoundTabs({
     super.key,
     required this.count,
@@ -29,6 +35,8 @@ class RoundTabs extends StatefulWidget {
     this.isFuture,
     this.meta,
     this.metaAlert = false,
+    this.labelOf,
+    this.extraTab,
   });
 
   @override
@@ -48,7 +56,9 @@ class _RoundTabsState extends State<RoundTabs> {
   @override
   void didUpdateWidget(RoundTabs old) {
     super.didUpdateWidget(old);
-    if (old.selected != widget.selected || old.count != widget.count) _revealSelected(animate: true);
+    if (old.selected != widget.selected || old.count != widget.count || old.extraTab != widget.extraTab) {
+      _revealSelected(animate: true);
+    }
   }
 
   @override
@@ -63,6 +73,16 @@ class _RoundTabsState extends State<RoundTabs> {
       final context = _keys[widget.selected]?.currentContext;
       if (context == null || !mounted) return;
       final duration = animate ? const Duration(milliseconds: 220) : Duration.zero;
+      // Grup + Gugur (21b, 21e, 21v): tab sesudahnya ikut terlihat, jadi "Final" dan "Bagan" tidak tersembunyi di kanan.
+      final next = widget.extraTab == null ? null : _keys[widget.selected + 1]?.currentContext;
+      if (next != null) {
+        Scrollable.ensureVisible(
+          next,
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+          duration: duration,
+          curve: Curves.easeOut,
+        );
+      }
       for (final policy in [ScrollPositionAlignmentPolicy.keepVisibleAtEnd, ScrollPositionAlignmentPolicy.keepVisibleAtStart]) {
         Scrollable.ensureVisible(context, alignmentPolicy: policy, duration: duration, curve: Curves.easeOut);
       }
@@ -89,7 +109,10 @@ class _RoundTabsState extends State<RoundTabs> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('R$round', style: MabarType.body.copyWith(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
+              Text(
+                round > widget.count ? widget.extraTab! : (widget.labelOf?.call(round) ?? 'R$round'),
+                style: MabarType.body.copyWith(fontSize: 15, fontWeight: FontWeight.w700, color: color),
+              ),
               if (round == widget.liveRound) ...[const SizedBox(width: 6), const LiveDot()],
             ],
           ),
@@ -106,7 +129,10 @@ class _RoundTabsState extends State<RoundTabs> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          for (var r = 1; r <= widget.count; r++) ...[if (r > 1) const SizedBox(width: 22), _tab(r)],
+          for (var r = 1; r <= widget.count + (widget.extraTab == null ? 0 : 1); r++) ...[
+            if (r > 1) const SizedBox(width: 22),
+            _tab(r),
+          ],
         ],
       ),
     );

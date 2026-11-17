@@ -9,9 +9,13 @@ import '../../core/widgets/mabar_controls.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../live/live_score.dart';
+import '../../services/schedule/knockout_bracket.dart';
 import '../live/live_view_controller.dart';
 import 'club_score_view.dart';
 import 'fixed/add_rounds_sheet.dart';
+import 'group_knockout/bagan_view.dart';
+import 'group_knockout/create_bracket_flow.dart';
+import 'group_knockout/gk_labels.dart';
 import 'sparing_providers.dart';
 import 'schedule_widgets.dart';
 import 'tournament_controller.dart';
@@ -33,8 +37,9 @@ class ScheduleFixedScreen extends ConsumerStatefulWidget {
 }
 
 class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
-  /// Pilihan tab bertahan; tidak pindah otomatis saat round selesai.
+  /// Pilihan tab bertahan; tidak pindah otomatis saat round selesai. [_bagan] = tab Bagan (Grup + Gugur).
   int? _selectedRound;
+  static const _bagan = -1;
   MinuteTicker? _clock;
 
   @override
@@ -94,6 +99,11 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     if (await showAddRoundsSheet(context, active) && mounted) setState(() => _selectedRound = null);
   }
 
+  /// Buat bagan (20e): pilih slot kalau perlu, dialog kunci, lalu Jadwal terbuka di tab Bagan (21a).
+  Future<void> _createBracket() async {
+    if (await startCreateBracket(context, ref) && mounted) setState(() => _selectedRound = _bagan);
+  }
+
   /// Pasangan yang istirahat di [round], per klub menurut urutan `config.clubs` (klub pertama di kiri).
   List<RestingClub> _restingByClub(ActiveTournament active, int round) => [
     for (final c in active.restingPairsByClub(round))
@@ -110,11 +120,16 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     final finished = active.tournament.isFinished;
     final current = active.currentRound;
     final live = !finished && !active.isRoundComplete(current);
-    final selected = (_selectedRound ?? current).clamp(1, active.roundCount);
-    final locked = !finished && selected > current;
-    final matches = active.matchesOfRound(selected);
+    // Grup + Gugur: tab Bagan = nomor tab setelah round terakhir; isinya bukan daftar match round.
+    final gk = active.config.isGroupKnockout;
+    final onBagan = gk && active.hasBracket && _selectedRound == _bagan;
+    final picked = _selectedRound == _bagan ? null : _selectedRound;
+    final selected = onBagan ? active.roundCount + 1 : (picked ?? current).clamp(1, active.roundCount);
+    final locked = !onBagan && !finished && selected > current;
+    final matches = onBagan ? const <MatchGame>[] : active.matchesOfRound(selected);
     final played = matches.where((m) => m.status == MatchStatus.done || m.status == MatchStatus.wo).length;
     final byePairId = active.byePairIdByRound[selected];
+    final canCreateBracket = !watching && active.canCreateBracket;
     final byePair = byePairId == null ? null : active.pairById(byePairId);
     // Sparing: papan skor klub di atas daftar (ikut tergulir) dan Istirahat dua kolom per klub (13k).
     final clubScore = ref.watch(clubScoreProvider);
@@ -133,8 +148,12 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             MabarAppBar(
-              title: 'Round $selected',
-              subtitle: scheduleSubtitle(active, named: watching),
+              title: !gk
+                  ? 'Round $selected'
+                  : (onBagan ? 'Bagan' : KnockoutBracket.roundTitle(active, selected)),
+              subtitle: !gk
+                  ? scheduleSubtitle(active, named: watching)
+                  : (onBagan ? gkBaganSubtitle(active) : gkRoundSubtitle(active, selected)),
               onBack: watching ? null : () => context.go('/'),
               actions: [
                 if (!watching)
@@ -153,11 +172,19 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
             RoundTabs(
               count: active.roundCount,
               selected: selected,
-              onSelect: (r) => setState(() => _selectedRound = r),
+              onSelect: (r) => setState(() => _selectedRound = r > active.roundCount ? _bagan : r),
               liveRound: live ? current : null,
-              isFuture: finished ? null : (r) => r > current,
-              meta: '$played/${matches.length} match',
+              isFuture: finished ? null : (r) => r > current && r <= active.roundCount,
+              meta: onBagan ? gkBaganMeta(active) : '$played/${matches.length} match',
+              labelOf: gk ? (r) => KnockoutBracket.roundTab(active, r) : null,
+              extraTab: gk && active.hasBracket ? 'Bagan' : null,
             ),
+            // Titik sambung GG-9: tab Bagan mengisi seluruh badan; daftar round di bawah tidak dipakai di tab ini.
+            if (onBagan)
+              Expanded(
+                child: BaganView(active: active, onOpenMatch: watching ? null : openScore),
+              )
+            else
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -208,7 +235,19 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
             ),
             MabarActionBar(
               // Semua match terisi dan belum diakhiri (06v): Klasemen jadi ikon, seperti Mixed saat waktu habis.
-              children: !watching && active.canAddRounds
+              children: canCreateBracket
+                  ? [
+                      MabarIconButton(
+                        icon: MabarIcons.ranking,
+                        semanticLabel: 'Klasemen',
+                        solid: true,
+                        onPressed: () => context.push('/leaderboard'),
+                      ),
+                      Expanded(
+                        child: MabarButton(label: 'Buat bagan', icon: MabarIcons.trophy, onPressed: _createBracket),
+                      ),
+                    ]
+                  : !watching && active.canAddRounds
                   ? [
                       MabarIconButton(
                         icon: MabarIcons.ranking,
