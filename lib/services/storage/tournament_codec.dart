@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import '../../core/app_version.dart';
 import '../../models/models.dart';
+import '../schedule/group_stage.dart';
+import '../schedule/knockout_bracket.dart';
 
 /// Serialisasi [ActiveTournament] ke JSON dan kembali. Dipisah dari Hive supaya
 /// bisa dites tanpa plugin, dan supaya format simpanan tidak terikat ke
@@ -28,6 +30,14 @@ class TournamentCodec {
   /// Revisi bentuk sparing; revisi tak kompatibel berikutnya menaikkannya supaya pembaca lama menolak.
   static const _sparingRevision = '1';
 
+  /// Penanda Grup + Gugur di `bye` (GU15, docs/data.md → Grup + Gugur). Kunci non-angka seperti `sparing`: decoder
+  /// ≤ 3.7.x meng-`int.parse` tiap kunci `bye`, jadi app lama menolak payload Grup + Gugur alih-alih membacanya sebagai
+  /// round-robin biasa (yang mengabaikan `phase`). Jangan dihapus.
+  static const _groupKnockoutKey = 'gg';
+
+  /// Revisi bentuk Grup + Gugur; revisi tak kompatibel berikutnya menaikkannya.
+  static const _groupKnockoutRevision = '1';
+
   /// Batas `roundNumber` yang dibaca. Turnamen nyata jauh di bawahnya; payload live dengan nomor raksasa membuat tab
   /// penonton membeku karena banyak turunan mengulang 1..roundCount (docs/security.md #4).
   static const maxRoundNumber = 1000;
@@ -37,7 +47,8 @@ class TournamentCodec {
   static bool canEncode(ActiveTournament active) =>
       active.matches.every((m) => m.roundNumber >= 1 && m.roundNumber <= maxRoundNumber) &&
       _isValidMexicano(active.config) &&
-      (!active.config.isSparing || (active.extraPutaran >= 0 && _isValidSparing(active.tournament)));
+      (!active.config.isSparing || (active.extraPutaran >= 0 && _isValidSparing(active.tournament))) &&
+      _isValidGroupKnockout(active);
 
   /// Mexicano tanpa klub dan hanya Americano (keputusan 27, logic.md §14.6): payload lain tidak bisa ditulis penulis
   /// mana pun, jadi rusak. Mode tidak dikenal sudah ditolak `byName` — jangan diberi fallback (versi lama menolak
@@ -51,6 +62,7 @@ class TournamentCodec {
     if (!canEncode(active)) throw UnreadableTournamentError();
     // Kunci sparing hanya untuk turnamen sparing: encode turnamen biasa harus byte-sama dengan 3.1.0 (AC-S19).
     final sparing = active.config.isSparing;
+    final groupKnockout = active.config.isGroupKnockout;
     return jsonEncode({
       'schema': schemaVersion,
       // Versi app yang menulis data ini, untuk mengenali simpanan saat format berubah lagi.
@@ -59,6 +71,7 @@ class TournamentCodec {
       // Kunci JSON wajib String, jadi nomor round di-stringify.
       'bye': {
         if (sparing) _sparingKey: _sparingRevision,
+        if (groupKnockout) _groupKnockoutKey: _groupKnockoutRevision,
         for (final e in active.byePairIdByRound.entries) '${e.key}': e.value,
       },
       'resting': {for (final e in active.restingPlayerIdsByRound.entries) '${e.key}': e.value},
@@ -83,6 +96,10 @@ class TournamentCodec {
       final bye = Map<String, dynamic>.of(json['bye'] as Map<String, dynamic>);
       final hasMarker = bye.containsKey(_sparingKey);
       final marker = bye.remove(_sparingKey);
+      // GR1/GR2: penanda Grup + Gugur persis "1" dan hanya bersama `config.groupKnockout` (dan sebaliknya).
+      final hasGgMarker = bye.containsKey(_groupKnockoutKey);
+      final ggMarker = bye.remove(_groupKnockoutKey);
+      if (hasGgMarker != config.isGroupKnockout || (hasGgMarker && ggMarker != _groupKnockoutRevision)) return null;
       final restingPairs = json['restingPairs'] as Map<String, dynamic>?;
       final extraPutaran = (json['extraPutaran'] as int?) ?? 0;
       if (config.isSparing) {
@@ -91,7 +108,7 @@ class TournamentCodec {
         // Kunci sparing tanpa `clubs` tidak bisa ditulis oleh penulis mana pun: payload rusak.
         return null;
       }
-      return ActiveTournament(
+      final active = ActiveTournament(
         tournament: tournament,
         byePairIdByRound: {for (final e in bye.entries) int.parse(e.key): e.value as String},
         restingPlayerIdsByRound: {
@@ -111,6 +128,7 @@ class TournamentCodec {
             int.parse(e.key): [for (final id in e.value as List) id as String],
         },
       );
+      return _isValidGroupKnockout(active) ? active : null;
     } catch (_) {
       // Payload rusak (mis. app di-kill di tengah tulis) tidak boleh membuat
       // app gagal dibuka — turnamennya saja yang hilang.
@@ -137,6 +155,121 @@ class TournamentCodec {
     return t.matches.every(
       (m) => config.clubOfPair(m.pair1)?.id == first.id && config.clubOfPair(m.pair2)?.id == second.id,
     );
+  }
+
+  /// Bentuk Grup + Gugur (GR3–GR17, docs/data.md → Aturan baca), dipakai [decode] dan [canEncode]. Turnamen lain: tanpa
+  /// `phase` dan tanpa sisi tbd (GR10). Total: tidak melempar untuk model apa pun. Tidak memanggil `resolve`/`formatFor`
+  /// (keduanya ber-assert) sebelum bentuknya lolos.
+  static bool _isValidGroupKnockout(ActiveTournament active) {
+    final config = active.config;
+    final matches = active.matches;
+    final gk = config.groupKnockout;
+    if (gk == null) return matches.every((m) => m.phase == null && !m.pair1.isTbd && !m.pair2.isTbd);
+
+    // GR3
+    if (config.mode != PartnerMode.fixed || config.isSparing || active.restingPairIdsByRound.isNotEmpty) return false;
+    if (config.players.any((p) => p.clubId != null)) return false;
+    // GR17
+    if (active.byePairIdByRound.isNotEmpty ||
+        active.restingPlayerIdsByRound.isNotEmpty ||
+        active.withdrawnPlayerIds.isNotEmpty ||
+        active.extraPutaran != 0) {
+      return false;
+    }
+    // GR4, GR5
+    final pairs = config.fixedPairs;
+    if (pairs == null || pairs.isEmpty) return false;
+    final groupCount = gk.groups.length;
+    if (gk.groupCount != groupCount || !GroupStage.groupCountsFor(pairs.length).contains(groupCount)) return false;
+    // GR9
+    final playerIds = {for (final p in config.players) p.id};
+    if (playerIds.length != config.players.length) return false;
+    final memberIds = [for (final p in pairs) ...p.playerIds];
+    if (memberIds.toSet().length != memberIds.length || !memberIds.every(playerIds.contains)) return false;
+    // GR6
+    final byId = {for (final p in pairs) p.id: p};
+    if (byId.length != pairs.length || byId.containsKey('')) return false;
+    final flat = [for (final g in gk.groups) ...g];
+    final coversOnce = flat.length == pairs.length && flat.toSet().length == flat.length;
+    if (!coversOnce || !flat.every(byId.containsKey)) return false;
+    // GR7
+    final sizes = GroupStage.sizes(pairs.length, groupCount);
+    for (var g = 0; g < groupCount; g++) {
+      if (gk.groups[g].length != sizes[g]) return false;
+    }
+    // GR8
+    final wanted = {
+      KnockoutRound.semifinal,
+      KnockoutRound.thirdPlace,
+      KnockoutRound.finalRound,
+      if (groupCount == 4) KnockoutRound.quarterfinal,
+    };
+    if (gk.formats.length != wanted.length || !wanted.every(gk.formats.containsKey)) return false;
+    if (gk.formats.values.any((f) => !f.isValidKnockout)) return false;
+
+    bool same(Pair a, Pair b) => a.id == b.id && a.player1Id == b.player1Id && a.player2Id == b.player2Id;
+    bool isFixed(Pair p) => !p.isTbd && byId[p.id] != null && same(p, byId[p.id]!);
+
+    // GR10, GR11
+    final met = <int, Set<String>>{};
+    final knockout = <KnockoutPhase, MatchGame>{};
+    var lastGroupRound = 0;
+    for (final m in matches) {
+      switch (m.phase) {
+        case null:
+          return false;
+        case GroupPhase(:final group):
+          if (group < 0 || group >= groupCount) return false;
+          if (!isFixed(m.pair1) || !isFixed(m.pair2) || m.pair1.id == m.pair2.id) return false;
+          final members = gk.groups[group];
+          if (!members.contains(m.pair1.id) || !members.contains(m.pair2.id)) return false;
+          final key = ([m.pair1.id, m.pair2.id]..sort()).join('\u0000');
+          if (!(met[group] ??= {}).add(key)) return false;
+          if (m.roundNumber > lastGroupRound) lastGroupRound = m.roundNumber;
+        case final KnockoutPhase p:
+          if (p.round == KnockoutRound.quarterfinal && groupCount != 4) return false;
+          // GR12: kode ganda
+          if (knockout.containsKey(p)) return false;
+          knockout[p] = m;
+      }
+    }
+    // GR12
+    final expected = KnockoutBracket.phases(groupCount: groupCount, thirdPlace: gk.thirdPlace);
+    if (knockout.isNotEmpty && (knockout.length != expected.length || !expected.every(knockout.containsKey))) {
+      return false;
+    }
+    for (final MapEntry(key: phase, value: m) in knockout.entries) {
+      // GR13
+      if (m.roundNumber <= lastGroupRound) return false;
+      final (s1, s2) = KnockoutBracket.sources(phase, groupCount: groupCount);
+      for (final s in [s1, s2]) {
+        if (s is ResultSource && m.roundNumber <= knockout[s.match]!.roundNumber) return false;
+      }
+      // GR14
+      if (s1 is SeedSource && (m.pair1.isTbd || m.pair2.isTbd)) return false;
+      for (final (s, side) in [(s1, m.pair1), (s2, m.pair2)]) {
+        if (!side.isTbd && !isFixed(side)) return false;
+        if (s is SeedSource && !gk.groups[s.group].contains(side.id)) return false;
+      }
+      // GR15 (sisi tbd hanya di match tanpa hasil), GR16
+      final hasResult = m.status == MatchStatus.done || m.status == MatchStatus.wo;
+      if (hasResult && (m.pair1.isTbd || m.pair2.isTbd || m.winnerPairId == null)) return false;
+    }
+    for (var g = 0; g < groupCount; g++) {
+      final slot1 = _seedPair(knockout, groupCount, g, 1), slot2 = _seedPair(knockout, groupCount, g, 2);
+      if (slot1 != null && slot1 == slot2) return false;
+    }
+    return KnockoutBracket.isResolved(config, matches);
+  }
+
+  /// Id pasangan di slot lolos [slot] grup [group] dari match babak pertama; null kalau belum ada.
+  static String? _seedPair(Map<KnockoutPhase, MatchGame> knockout, int groupCount, int group, int slot) {
+    for (final MapEntry(key: phase, value: m) in knockout.entries) {
+      final (s1, s2) = KnockoutBracket.sources(phase, groupCount: groupCount);
+      if (s1 is SeedSource && s1.group == group && s1.slot == slot) return m.pair1.id;
+      if (s2 is SeedSource && s2.group == group && s2.slot == slot) return m.pair2.id;
+    }
+    return null;
   }
 
   // --- encode -------------------------------------------------------------
@@ -177,6 +310,25 @@ class TournamentCodec {
       for (final p in c.players) {'id': p.id, 'name': p.name, if (c.isSparing && p.clubId != null) 'club': p.clubId},
     ],
     'fixedPairs': c.fixedPairs == null ? null : [for (final pair in c.fixedPairs!) _pair(pair)],
+    // Grup + Gugur (3.8.0): turnamen lain tidak punya kunci ini. `groupCount` = groups.length, tidak ditulis.
+    if (c.groupKnockout != null) 'groupKnockout': _groupKnockout(c.groupKnockout!),
+  };
+
+  static const _formatKeys = {
+    KnockoutRound.quarterfinal: 'PF',
+    KnockoutRound.semifinal: 'SF',
+    KnockoutRound.thirdPlace: 'J3',
+    KnockoutRound.finalRound: 'F',
+  };
+
+  static Map<String, dynamic> _groupKnockout(GroupKnockout gk) => {
+    'groups': [for (final g in gk.groups) g],
+    // Urutan enum KnockoutRound (PF, SF, J3, F).
+    'formats': {
+      for (final r in KnockoutRound.values)
+        if (gk.formats[r] case final f?) _formatKeys[r]!: {'scoring': f.method.name, 'target': f.target},
+    },
+    'thirdPlace': gk.thirdPlace,
   };
 
   static Map<String, dynamic> _pair(Pair p) => {'id': p.id, 'player1Id': p.player1Id, 'player2Id': p.player2Id};
@@ -186,14 +338,16 @@ class TournamentCodec {
     'roundNumber': m.roundNumber,
     'matchNumberInRound': m.matchNumberInRound,
     'courtId': m.courtId,
-    'pair1': _pair(m.pair1),
-    'pair2': _pair(m.pair2),
+    // Sisi gugur yang belum diketahui = null (bukan objek berid kosong).
+    'pair1': m.pair1.isTbd ? null : _pair(m.pair1),
+    'pair2': m.pair2.isTbd ? null : _pair(m.pair2),
     'sets': [
       for (final s in m.sets) {'side1': s.side1, 'side2': s.side2},
     ],
     'status': m.status.name,
     'woLoserPairId': m.woLoserPairId,
     'woReason': m.woReason?.name,
+    if (m.phase != null) 'phase': m.phase!.code,
   };
 
   // --- decode -------------------------------------------------------------
@@ -235,7 +389,54 @@ class TournamentCodec {
     fixedPairs: j['fixedPairs'] == null
         ? null
         : [for (final p in j['fixedPairs'] as List) _readPair(p as Map<String, dynamic>)],
+    // Kunci ada tapi null/bukan map = rusak (melempar → decode null), beda dengan kunci yang tidak ada.
+    groupKnockout: j.containsKey('groupKnockout')
+        ? _readGroupKnockout(j['groupKnockout'] as Map<String, dynamic>)
+        : null,
   );
+
+  static GroupKnockout _readGroupKnockout(Map<String, dynamic> j) {
+    final groups = [
+      for (final g in j['groups'] as List) [for (final id in g as List) id as String],
+    ];
+    final formats = <KnockoutRound, ScoreFormat>{};
+    for (final e in (j['formats'] as Map<String, dynamic>).entries) {
+      final round = _formatKeys.entries.firstWhere((k) => k.value == e.key).key;
+      final f = e.value as Map<String, dynamic>;
+      formats[round] = ScoreFormat(ScoringMethod.values.byName(f['scoring'] as String), f['target'] as int);
+    }
+    return GroupKnockout(
+      groupCount: groups.length,
+      groups: groups,
+      formats: formats,
+      thirdPlace: j['thirdPlace'] as bool,
+    );
+  }
+
+  /// Hanya kode yang ditulis [MatchPhase.code]; selain itu melempar (payload rusak).
+  static MatchPhase _readPhase(String code) {
+    const groups = ['A', 'B', 'C', 'D'];
+    if (groups.contains(code)) return GroupPhase(groups.indexOf(code));
+    return switch (code) {
+      'PF1' => const KnockoutPhase(KnockoutRound.quarterfinal, 1),
+      'PF2' => const KnockoutPhase(KnockoutRound.quarterfinal, 2),
+      'PF3' => const KnockoutPhase(KnockoutRound.quarterfinal, 3),
+      'PF4' => const KnockoutPhase(KnockoutRound.quarterfinal, 4),
+      'SF1' => const KnockoutPhase(KnockoutRound.semifinal, 1),
+      'SF2' => const KnockoutPhase(KnockoutRound.semifinal, 2),
+      'J3' => const KnockoutPhase(KnockoutRound.thirdPlace, 1),
+      'F' => const KnockoutPhase(KnockoutRound.finalRound, 1),
+      _ => throw FormatException('phase tak dikenal: $code'),
+    };
+  }
+
+  /// `null` = sisi gugur yang belum diketahui; objek berid kosong tidak pernah ditulis, jadi ditolak.
+  static Pair _readSide(Object? j) {
+    if (j == null) return Pair.tbd;
+    final pair = _readPair(j as Map<String, dynamic>);
+    if (pair.isTbd) throw const FormatException('sisi berid kosong');
+    return pair;
+  }
 
   static ScoreFormat _readFormat(Map<String, dynamic> j) =>
       ScoreFormat(ScoringMethod.values.byName(j['scoring'] as String), j['target'] as int);
@@ -248,11 +449,12 @@ class TournamentCodec {
     roundNumber: j['roundNumber'] as int,
     matchNumberInRound: j['matchNumberInRound'] as int,
     courtId: j['courtId'] as String,
-    pair1: _readPair(j['pair1'] as Map<String, dynamic>),
-    pair2: _readPair(j['pair2'] as Map<String, dynamic>),
+    pair1: _readSide(j['pair1']),
+    pair2: _readSide(j['pair2']),
     sets: [for (final s in j['sets'] as List) SetScore(side1: s['side1'] as int, side2: s['side2'] as int)],
     status: MatchStatus.values.byName(j['status'] as String),
     woLoserPairId: j['woLoserPairId'] as String?,
     woReason: j['woReason'] == null ? null : WoReason.values.byName(j['woReason'] as String),
+    phase: j['phase'] == null ? null : _readPhase(j['phase'] as String),
   );
 }
