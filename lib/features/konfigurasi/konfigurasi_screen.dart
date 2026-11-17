@@ -13,6 +13,7 @@ import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../../services/schedule/config_summary.dart';
 import '../../services/schedule/endless_round_generator.dart';
+import '../../services/schedule/group_stage.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
 import '../schedule/tournament_controller.dart';
 import 'widgets/config_pickers.dart';
@@ -45,6 +46,15 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
   PartnerMode _mode = PartnerMode.fixed;
   ScoreFormat _format = ScoreFormat.standard;
 
+  /// Format Grup + Gugur (19a–19l). Dipilih hanya berlaku kalau segmented-nya tampil ([_knockoutOn]); pindah ke
+  /// Mixed lalu kembali ke Fixed memulihkan pilihan ini (asumsi 19a).
+  bool _knockout = false;
+  int _groupCount = 2;
+  bool _thirdPlace = true;
+
+  /// Format babak yang sudah diubah host; babak yang tidak ada di sini ikut format grup (GU9, [_roundFormat]).
+  final Map<KnockoutRound, ScoreFormat> _roundFormats = {};
+
   /// Null = durasi dikosongkan host (03p); tetap kosong sampai diisi.
   late int? _duration = widget.sport.defaultMatchDurationMinutes;
   final List<_CourtDraft> _courts = [];
@@ -63,6 +73,17 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
       _mode = last.mode;
       _format = last.format;
       _duration = last.matchDurationMinutes;
+      final gk = last.groupKnockout;
+      if (gk != null && _knockoutOffered) {
+        // Turunan saat dibaca (docs/data.md): 4 grup di bawah 12 pasangan → 2 grup, format Perempat final dibuang.
+        _knockout = true;
+        _groupCount = GroupStage.groupCountsFor(_pairs).contains(gk.groupCount) ? gk.groupCount : 2;
+        _thirdPlace = gk.thirdPlace;
+        for (final MapEntry(key: round, value: format) in gk.formats.entries) {
+          if (round == KnockoutRound.quarterfinal && _groupCount == 2) continue;
+          if (format != _format.forKnockout) _roundFormats[round] = format;
+        }
+      }
       for (final (i, c) in last.courts.indexed) {
         _courts.add(_createCourt(i, colorIndex: c.colorIndex, hours: c.bookingMinutes ~/ 60)..name.text = c.name ?? '');
       }
@@ -126,7 +147,31 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
     format: _format,
     name: _name.text.trim().isEmpty ? null : _name.text.trim(),
     clubs: widget.clubs,
+    groupKnockout: _knockoutOn
+        ? GroupKnockout(
+            groupCount: _groupCount,
+            formats: {for (final r in _knockoutRounds) r: _roundFormat(r)},
+            thirdPlace: _thirdPlace,
+          )
+        : null,
   );
+
+  int get _pairs => widget.players.length ~/ 2;
+
+  /// Segmented Round-robin / Grup + Gugur: hanya Fixed biasa dengan 6+ pasangan (AC-G1, GU14).
+  bool get _knockoutOffered => widget.clubs == null && GroupStage.groupCountsFor(_pairs).isNotEmpty;
+
+  bool get _knockoutOn => _mode == PartnerMode.fixed && _knockoutOffered && _knockout;
+
+  /// Babak urut main (urutan baris sheet Gugur 19e); juara 3 selalu ada di sini, matinya lewat [_thirdPlace].
+  List<KnockoutRound> get _knockoutRounds => [
+    if (_groupCount == 4) KnockoutRound.quarterfinal,
+    KnockoutRound.semifinal,
+    KnockoutRound.thirdPlace,
+    KnockoutRound.finalRound,
+  ];
+
+  ScoreFormat _roundFormat(KnockoutRound r) => _roundFormats[r] ?? _format.forKnockout;
 
   bool get _fixedSparing => widget.clubs != null && _mode == PartnerMode.fixed;
 
@@ -168,6 +213,18 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
     if (m == PartnerMode.mexicano) _format = _format.forMexicano;
   });
 
+  /// Tombol Grup + Gugur (19b, 19i, 19k): jadwalnya pasti, jadi tanpa "±"; lewat booking → round + kelebihan saja.
+  String? _knockoutMeta() {
+    final e = GroupStage.estimate(
+      players: widget.players.length,
+      groups: _groupCount,
+      bookingMinutes: [for (final c in _courts) c.hours * 60],
+      matchDurationMinutes: _duration!,
+      thirdPlace: _thirdPlace,
+    );
+    return ConfigSummary.groupKnockoutMeta(e.rounds, e.matches, e.overMinutes);
+  }
+
   void _next() {
     final config = _config;
     context.push(config.mode.isEndless ? '/schedule' : '/pair-setup', extra: config);
@@ -203,9 +260,21 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
   /// Isi sheet Skor (03d): segmented, angka format, durasi. Grup berlatar paper di dalam sheet.
   Widget _scoreGroup(BuildContext sheetContext) {
     final method = _format.method;
+    final counts = GroupStage.groupCountsFor(_pairs);
     return MabarGroup(
       color: MabarColors.paper,
       children: [
+        // Sheet Fase grup (19d): 2 atau 4 grup; hanya 2 grup → tanpa pilihan, jumlahnya jadi subjudul sheet (19c).
+        if (_knockoutOn && counts.length > 1)
+          MabarRow.stack(
+            children: [
+              MabarSegmented<int>(
+                options: [for (final n in counts) (n, '$n grup')],
+                selected: _groupCount,
+                onChanged: (n) => _change(() => _groupCount = n),
+              ),
+            ],
+          ),
         // Mexicano hanya Americano: tanpa segmented, formatnya tertulis sebagai subjudul (03e).
         if (_mode != PartnerMode.mexicano)
           MabarRow.stack(
@@ -218,11 +287,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
             ],
           ),
         MabarRow(
-          title: switch (method) {
-            ScoringMethod.raceTo => 'Target game',
-            ScoringMethod.bestOf => 'Game per match',
-            ScoringMethod.americano => 'Poin per match',
-          },
+          title: _targetTitle(method),
           trailing: MabarStepper(
             value: _format.target,
             min: method.minTarget,
@@ -246,6 +311,74 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
             onChanged: (n) => _change(() => _duration = n),
           ),
         ),
+      ],
+    );
+  }
+
+  static String _targetTitle(ScoringMethod method) => switch (method) {
+    ScoringMethod.raceTo => 'Target game',
+    ScoringMethod.bestOf => 'Game per match',
+    ScoringMethod.americano => 'Poin per match',
+  };
+
+  /// Isi sheet Gugur (19e, 19j): satu baris per babak urut main; ketuk → sheet babak.
+  Widget _knockoutGroup(BuildContext sheetContext) => MabarGroup(
+    color: MabarColors.paper,
+    children: [
+      for (final r in _knockoutRounds)
+        MabarRow(
+          key: ValueKey(r),
+          title: r.label,
+          value: r == KnockoutRound.thirdPlace && !_thirdPlace ? 'Tidak ada' : _roundFormat(r).label,
+          chevron: true,
+          onTap: () => _openSheet(r.label, (c) => _roundGroup(r), over: sheetContext, showNote: false),
+        ),
+    ],
+  );
+
+  /// Isi sheet babak (19f–19h): tanpa durasi; Best of / Americano melangkah 2 supaya tetap ganjil (G10, GU9). Juara 3
+  /// punya Ada / Tidak ada di atas; Tidak ada menyembunyikan formatnya, bukan menghapusnya (19g).
+  Widget _roundGroup(KnockoutRound round) {
+    final format = _roundFormat(round);
+    final method = format.method;
+    final odd = method != ScoringMethod.raceTo;
+    return MabarGroup(
+      color: MabarColors.paper,
+      children: [
+        if (round == KnockoutRound.thirdPlace)
+          MabarRow.stack(
+            children: [
+              MabarSegmented<bool>(
+                options: const [(true, 'Ada'), (false, 'Tidak ada')],
+                selected: _thirdPlace,
+                onChanged: (on) => _change(() => _thirdPlace = on),
+              ),
+            ],
+          ),
+        if (round != KnockoutRound.thirdPlace || _thirdPlace) ...[
+          MabarRow.stack(
+            children: [
+              MabarSegmented<ScoringMethod>(
+                options: [for (final m in ScoringMethodX.selectable) (m, m.label)],
+                selected: method,
+                onChanged: (m) => _change(() => _roundFormats[round] = ScoreFormat(m, m.defaultTarget)),
+              ),
+            ],
+          ),
+          MabarRow(
+            title: _targetTitle(method),
+            trailing: MabarStepper(
+              value: format.target,
+              // Americano 2 tidak ganjil: batas bawahnya 3.
+              min: odd && method.minTarget.isEven ? method.minTarget + 1 : method.minTarget,
+              max: method.maxTarget,
+              step: odd ? 2 : 1,
+              unit: method == ScoringMethod.americano ? null : method.unit,
+              normalizeTyped: odd ? (n) => n.isEven ? n + 1 : n : null,
+              onChanged: (n) => _change(() => _roundFormats[round] = ScoreFormat(method, n)),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -294,14 +427,23 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
   }
 
   /// Sheet jenis kelola: tanpa footer, isi dibangun ulang tiap [_change].
-  void _openSheet(String title, Widget Function(BuildContext) group, {bool withDraw = true, String? subtitle}) {
+  /// [over] = sheet di bawahnya (19f–19h ditumpuk di atas Gugur, seperti sheet warna 03k).
+  void _openSheet(
+    String title,
+    Widget Function(BuildContext) group, {
+    bool withDraw = true,
+    String? subtitle,
+    BuildContext? over,
+    bool showNote = true,
+  }) {
     showMabarSheet<void>(
-      context,
+      over ?? context,
       title: title,
       subtitle: subtitle,
       builder: (sheetContext) => ValueListenableBuilder<int>(
         valueListenable: _tick,
-        builder: (context, _, _) => MabarSection(note: _scoreNote(withDraw: withDraw), child: group(sheetContext)),
+        builder: (context, _, _) =>
+            MabarSection(note: showNote ? _scoreNote(withDraw: withDraw) : null, child: group(sheetContext)),
       ),
     );
   }
@@ -314,9 +456,11 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
   Widget build(BuildContext context) {
     final rounds = _config.maxRounds;
     final tooLong = _tooLong;
+    final knockoutMeta = _knockoutOn && _duration != null && !tooLong ? _knockoutMeta() : null;
     final sparingMeta = _fixedSparing && _duration != null ? _sparingMeta() : null;
     final endless = _mode.isEndless;
     final (scoreFormat, scoreDuration) = ConfigSummary.scoreParts(_format, _duration);
+    final groupFormat = ConfigSummary.groupPhaseParts(_groupCount, _format, _duration).$1;
     final bodyStyle = MabarType.body.copyWith(color: MabarColors.ink);
 
     return Scaffold(
@@ -363,16 +507,25 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    // 19a: tepat di bawah kartu mode, tanpa label.
+                    if (_mode == PartnerMode.fixed && _knockoutOffered) ...[
+                      MabarSegmented<bool>(
+                        options: const [(false, 'Round-robin'), (true, 'Grup + Gugur')],
+                        selected: _knockout,
+                        onChanged: (on) => _change(() => _knockout = on),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                     MabarSection(
                       bodyGap: 12,
-                      header: const MabarGroupLabel('Skor'),
+                      header: MabarGroupLabel(_knockoutOn ? 'Fase grup' : 'Skor'),
                       note: _scoreNote(),
                       child: _summaryRow(
                         Text.rich(
                           TextSpan(
                             style: bodyStyle,
                             children: [
-                              TextSpan(text: '$scoreFormat · '),
+                              TextSpan(text: '${_knockoutOn ? groupFormat : scoreFormat} · '),
                               TextSpan(
                                 text: scoreDuration,
                                 style: tooLong || _duration == null ? const TextStyle(color: MabarColors.clay) : null,
@@ -384,12 +537,34 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                         ),
                         // Mexicano: formatnya tertulis sebagai subjudul fakta (03e); segmented tidak ada.
                         () => _openSheet(
-                          'Skor',
+                          _knockoutOn ? 'Fase grup' : 'Skor',
                           _scoreGroup,
-                          subtitle: _mode == PartnerMode.mexicano ? _format.method.label : null,
+                          subtitle: _knockoutOn
+                              ? (GroupStage.groupCountsFor(_pairs).length > 1 ? null : '$_groupCount grup')
+                              : _mode == PartnerMode.mexicano
+                              ? _format.method.label
+                              : null,
                         ),
                       ),
                     ),
+                    if (_knockoutOn) ...[
+                      const SizedBox(height: 12),
+                      MabarSection(
+                        bodyGap: 12,
+                        header: const MabarGroupLabel('Gugur'),
+                        child: _summaryRow(
+                          Text(
+                            ConfigSummary.knockout({
+                              for (final r in _knockoutRounds) r: _roundFormat(r),
+                            }, thirdPlace: _thirdPlace),
+                            style: bodyStyle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          () => _openSheet('Gugur', _knockoutGroup, showNote: false),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     MabarSection(
                       bodyGap: 12,
@@ -418,6 +593,8 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                       ? null
                       : _fixedSparing
                       ? sparingMeta
+                      : _knockoutOn
+                      ? knockoutMeta
                       : tooLong
                       ? null
                       : (endless
