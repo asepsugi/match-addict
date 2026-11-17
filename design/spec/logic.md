@@ -1867,31 +1867,31 @@ bagan selalu Sementara walau semua match grup terisi (20f). Cabang baru di `isFi
   20/21, tapi 20/21 tidak menggambarnya) — tidak dikerjakan sampai designer/host menjawab (18.13 #1). Juara 3 nyala/mati
   setelah jadwal dibuat juga menunggu jawaban yang sama.
 
-### 18.11 Data (kebutuhan + usulan kasar; **bentuk final diputuskan dba di GG-0**, `docs/data.md`)
+### 18.11 Data — **Final (dba, GG-0, 2026-11-17)**; bentuk lengkap, aturan baca GR1–GR17, dan test GG-3 di `docs/data.md` → Grup + Gugur
 
-Kebutuhan (PRD 16.10): format turnamen + jumlah grup + anggota grup berurutan + format per babak + juara 3 (config);
-fase tiap match; hasil Buat bagan; sisi gugur yang belum diketahui.
-Usulan tech-lead (dba boleh mengganti):
+Kebutuhan (PRD 16.10): format turnamen + jumlah grup + anggota grup berurutan + format per babak + juara 3 (config); fase
+tiap match; hasil Buat bagan; sisi gugur yang belum diketahui. Keputusan dba (usulan tech-lead diterima kecuali yang tertulis
+"diganti"):
 - config: kunci opsional `groupKnockout` `{groups: [[pairId…]…], formats: {"PF"|"SF"|"J3"|"F": {scoring, target}},
-  thirdPlace}`; `groupCount` = `groups.length` di simpanan (simpanan selalu setelah layar Grup).
-- match: kunci opsional `phase` (string `MatchPhase.code`); sisi tbd ditulis sebagai `null` (atau objek kosong — dba).
-- Hasil Buat bagan **tidak** disimpan terpisah: yang lolos dan urutannya terbaca dari sisi babak pertama (topologi
-  18.8), "skor grup terkunci" = ada match gugur. Pilihan host = isi slot itu. Court per grup juga tidak perlu kunci:
-  `courtId` tiap match grup sudah tersimpan, jadi jadwal tidak bergeser walau aturan GU3 berubah.
-- **GU15 (app ≤ 3.7.x menolak):** usulan penanda kunci non-angka di `bye` (pola `bye.sparing` yang terbukti: decoder
-  lama `int.parse` tiap kunci `bye` → null), mis. `bye.gg = "1"`. Tanpa penanda, decoder lama mengabaikan kunci baru
-  dan membaca Grup + Gugur sebagai round-robin (bagan hilang, sisi tbd jadi pasangan '' → bisa crash). dba memilih.
-- `schemaVersion` **tetap 2**: semua kunci baru opsional, encode turnamen lain byte-sama dengan 3.7.x (AC-G16). Tidak
-  ada alasan menaikkannya → MINOR.
-- Aturan baca yang perlu (dba menulis, security mencatat di `docs/security.md`): `groupKnockout` hanya bersama
-  mode fixed tanpa `clubs`; `groups` menutup `fixedPairs` tepat sekali (pasangan di dua grup / tanpa grup → null);
-  ukuran = `GroupStage.sizes`; groupCount ∈ {2, 4} dan P sesuai `groupCountsFor`; format babak `isValidKnockout`;
-  `phase` hanya di Grup + Gugur; match `GroupPhase(g)` hanya antara anggota grup g; match gugur: kode cocok dengan
-  `layout` (jumlah, babak, juara 3), semua atau tidak sama sekali; sisi babak pertama = slot 1/2 grup yang benar (dua
-  pasangan grup itu, posisi sesuai topologi); sisi lain = `resolve`; tbd hanya di pending/cancelled; done tanpa
-  pemenang → null. Payload yang melanggar = rusak (tidak bisa ditulis penulis mana pun). `canEncode` aturan yang sama.
-- Pengaturan terakhir (`settings.<olahraga>`, §14.5): 19i mengandaikan Grup + Gugur, jumlah grup, format babak, dan juara
-  3 diingat. Usulan kunci opsional di JSON v1 yang ada; dba memutuskan (termasuk apakah `v` naik).
+  thirdPlace}` (sesudah `fixedPairs`). `groupCount` = `groups.length`, tidak disimpan; `PF` hanya kalau 4 grup, `J3` selalu
+  ada. Simpanan selalu sesudah layar Grup, jadi `groups` selalu terisi saat `ActiveTournament` pertama dibuat (GG-4).
+- match: kunci opsional `phase` (string `MatchPhase.code`), di Grup + Gugur wajib di **semua** match. Sisi tbd ditulis
+  `null` (**diganti** dari "atau objek kosong": `null` tidak bisa tertukar dengan pasangan berid kosong).
+- Hasil Buat bagan tidak disimpan terpisah: lolos, urutan (A1/A2), dan pilihan host terbaca dari sisi babak pertama (topologi
+  18.8); "skor grup terkunci" = ada match gugur. Court per grup tidak disimpan (`courtId` match sudah cukup). Decoder tidak
+  mencocokkan nomor round/court dengan `layout` (rumus boleh berubah di 3.8.x).
+- **GU15:** penanda `bye.gg = "1"` (pola `bye.sparing`). Terbukti: decoder 3.7.1 `int.parse('gg')` di `tournament_codec.dart:96`
+  melempar, ditangkap `:114` → null (`docs/data.md` → Penanda GU15, termasuk hasil run). Tanpa penanda decoder lama membaca
+  Grup + Gugur sebagai round-robin.
+- **`schemaVersion` tetap 2**: semua kunci baru opsional dan hanya ditulis untuk Grup + Gugur; encode turnamen lain byte-sama
+  dengan 3.7.x (AC-G16). Tidak ada alasan menaikkannya → MINOR.
+- Aturan baca = `docs/data.md` GR1–GR17 (security mencatat di `docs/security.md`): `groupKnockout` hanya Fixed tanpa klub;
+  `groups` menutup `fixedPairs` tepat sekali dengan ukuran `GroupStage.sizes` dan G ∈ `groupCountsFor(P)`; format babak
+  `isValidKnockout`; `phase` semua-atau-tidak; match grup hanya antar-anggota grupnya; kode gugur = susunan `layout` (atau
+  kosong); sisi babak pertama = slot 1/2 grup yang benar dan tidak tbd; sisi lain = `resolve`; tbd hanya di pending/cancelled;
+  gugur done tanpa pemenang → null; tanpa `bye`/`restingPairs`/`resting`/`withdrawn`/`extraPutaran`. `canEncode` aturan yang sama.
+- Pengaturan terakhir (19i): kunci opsional `groupKnockout` `{groupCount, thirdPlace, formats}` di `settings.<olahraga>`, `v`
+  **tetap 1**; diturunkan saat dibaca (4 grup dengan P < 12 → 2 grup; Sparing membuangnya), bukan lewat perubahan simpanan.
 
 ### 18.12 Jebakan untuk engineer dan reviewer
 

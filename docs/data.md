@@ -38,6 +38,8 @@ tanpa migrasi. Fixture literal tiap bentuk ada di test (SP-1 menambahkan yang be
 | `mode: "mexicano"` | 3.4.0 | nilai baru, tanpa kunci baru | ditolak kalau bersama `clubs` atau bukan Americano (lihat "Mexicano"); pembaca ≤ 3.3.x menolaknya (null) |
 | `settings.<olahraga>` (pengaturan terakhir) | 3.4.0 | kunci Hive terpisah, bukan bagian payload turnamen | tak terbaca = default; ≤ 3.3.x tidak membacanya |
 | tukar pemain | 3.5.0 | tanpa kunci baru | `resting[n]` round terakhir bisa berubah oleh tukar dan boleh berisi pemain yang dikeluarkan; codec tidak berubah, 3.4.x membacanya apa adanya (`logic.md` §15.1) |
+| Grup + Gugur: `config.groupKnockout`, `matches[].phase`, sisi gugur belum diketahui = `null`, penanda `bye.gg` | 3.8.0 | opsional, satu paket | tanpa `config.groupKnockout` = round-robin (semua simpanan ≤ 3.7.x); satu paket utuh atau payload rusak (lihat "Grup + Gugur"); pembaca ≤ 3.7.x menolaknya (null) lewat `bye.gg` |
+| `settings.<olahraga>.groupKnockout` | 3.8.0 | kunci opsional di JSON `v` 1 | tanpa kunci = round-robin; ≤ 3.7.x mengabaikannya (membaca sebagai Fixed biasa) |
 
 ## Sparing (3.2.0, MINOR)
 
@@ -258,6 +260,177 @@ Kode: `services/storage/last_settings.dart` (KF-1), Dart murni, ter-test.
 - KF-1 `test/services/last_settings_test.dart`: satu test per baris tabel validasi (→ null, tidak melempar), JSON terpotong,
   `v: 2`, round trip (nama default → null → "Court n"), tennis dan padel terpisah, Sparing + Mexicano → Mixed, nama turnamen
   tidak tersimpan, resume tidak menulis, olahraga lain tidak berubah.
+
+## Grup + Gugur (3.8.0, MINOR)
+
+**Final (dba, GG-0, 2026-11-17).** `schemaVersion` tetap 2: semua kunci baru opsional dan hanya ditulis untuk turnamen Grup +
+Gugur, jadi encode round-robin, Mixed, Mexicano, dan Sparing byte-sama dengan 3.7.x (AC-G16) dan simpanan 3.7.x terbaca tanpa
+migrasi. Tidak ada bentuk yang memaksa kenaikan skema, jadi tidak ada keputusan MAJOR untuk host. Aturan produk: PRD §16,
+`design/spec/logic.md` §18. Di sini hanya bentuk simpanan dan aturan baca.
+
+### Bentuk
+
+```json
+{ "schema": 2, "appVersion": "3.8.0",
+  "tournament": { "id": "...", "createdAt": "...", "isFinished": false,
+    "config": { "sport": "padel", "mode": "fixed", "scoring": "raceTo", "target": 6, "...": "...",
+      "fixedPairs": [ {"id": "pair-1", "player1Id": "p1", "player2Id": "p2"}, "..." ],
+      "groupKnockout": {
+        "groups": [ ["pair-1", "pair-3", "pair-5", "pair-7"], ["pair-2", "pair-4", "pair-6", "pair-8"] ],
+        "formats": { "SF": {"scoring": "raceTo", "target": 6}, "J3": {"scoring": "raceTo", "target": 4},
+                     "F": {"scoring": "raceTo", "target": 9} },
+        "thirdPlace": true } },
+    "matches": [
+      { "id": "m-r1-1", "roundNumber": 1, "...": "...", "pair1": {"id": "pair-1", "...": "..."}, "phase": "A" },
+      { "id": "m-r7-1", "roundNumber": 7, "...": "...", "pair1": {"id": "pair-1", "...": "..."}, "phase": "SF1" },
+      { "id": "m-r8-1", "roundNumber": 8, "...": "...", "pair1": null, "pair2": null, "phase": "F" } ] },
+  "bye": { "gg": "1" }, "resting": { }, "withdrawn": [ ], "extraPutaran": 0 }
+```
+
+- **`config.groupKnockout`** (ditulis hanya kalau `config.groupKnockout != null`; letaknya sesudah `fixedPairs`).
+  - `groups`: list 2 atau 4 elemen (Grup A..D menurut indeks), tiap elemen list id pasangan (`fixedPairs[].id`) **urut
+    round-robin** (urutan masuk di layar Grup, `logic.md` §18.1). `groupCount` **tidak** disimpan: = `groups.length`.
+    Model boleh punya `groups` kosong selama Konfigurasi/layar Grup; turnamen yang disimpan selalu sesudah layar Grup, jadi
+    `groups` selalu terisi saat `ActiveTournament` pertama dibuat (GG-4 menjaganya; `canEncode` menolak sisanya).
+  - `formats`: peta kode babak → `{scoring, target}` (nama kunci sama dengan `config.scoring`/`target`). Kode = awalan
+    `MatchPhase.code`: `PF` (perempat final, **hanya** kalau 4 grup), `SF`, `J3`, `F`. `J3` selalu ada walau `thirdPlace`
+    false (format terakhir tetap diingat, keputusan 100). Urutan tulis = urutan enum `KnockoutRound` (PF, SF, J3, F).
+    Format fase grup tetap `config.scoring`/`target`, tidak disalin.
+  - `thirdPlace`: bool.
+- **`matches[].phase`**: string `MatchPhase.code` ('A'..'D', 'PF1'..'PF4', 'SF1', 'SF2', 'F', 'J3'), ditulis hanya kalau
+  `phase != null`, sesudah `woReason`. Di turnamen Grup + Gugur **setiap** match punya `phase`.
+- **Sisi belum diketahui** (`Pair.tbd`, "Pemenang SF1"): `pair1`/`pair2` ditulis `null` (bukan objek berid kosong, supaya
+  tidak tertukar dengan pasangan sungguhan; hanya `isTbd` yang jadi `null`). Pembaca membuatnya jadi `Pair.tbd`.
+- **Hasil Buat bagan tidak disimpan terpisah** (usulan tech-lead disetujui). Cukup dari sisi babak pertama: topologi
+  `logic.md` §18.8 menaruh tiap pasangan lolos di tepat satu slot (2 grup: SF1 = A1 vs B2, SF2 = B1 vs A2; 4 grup: PF1 =
+  A1 vs B2, PF2 = C1 vs D2, PF3 = B1 vs A2, PF4 = D1 vs C2), jadi siapa yang lolos, urutannya (A1 atau A2), dan pilihan host
+  atas seri semua terbaca dari `pair1`/`pair2` di sana. Pilihan host tidak perlu disimpan sebagai pilihan (AC-G7). "Skor grup
+  terkunci" = ada match gugur (`hasBracket`); sebelum Buat bagan tidak ada match gugur sama sekali, jadi tidak ada keadaan
+  setengah jadi di simpanan. Tabel grup, seed (`seedOf`), dan peringkat akhir turunan dari match, tidak disimpan.
+- **Court per grup tidak disimpan**: `courtId` tiap match grup sudah menentukan jadwal, jadi jadwal tidak bergeser walau
+  aturan GU3 berubah di rilis berikutnya. Decoder tidak mengulang `courtsOfGroups`/`layout`: nomor round dan court tidak
+  dicocokkan dengan rumus (rumus boleh berubah di 3.8.x tanpa membuat simpanan lama ditolak).
+- **Turunan lain tanpa kunci baru**: `byePairIdByRound` selalu kosong (GU5), tanpa `restingPairs`, `resting` kosong,
+  `withdrawn` kosong, `extraPutaran` 0 (tanpa Tambah round, `canAddRounds` false di Grup + Gugur). Diakhiri: match `pending`
+  jadi `cancelled`, tak ada kunci khusus; `isFinished` seperti biasa.
+
+### Penanda GU15 (app ≤ 3.7.x menolak) — `bye.gg = "1"`
+
+Payload Grup + Gugur menulis `"bye": {"gg": "1"}` (kunci pertama, sebelum nomor round — yang di sini selalu kosong). Pola sama
+dengan `bye.sparing`: kunci bukan angka membuat decoder lama melempar. Bukti dari kode (tidak hanya dibaca):
+
+- Decoder 3.7.1 (`527b0ab`, `lib/services/storage/tournament_codec.dart`): `:75` `try {`, `:83-85` hanya kunci persis `sparing`
+  yang dibuang dari `bye` (`gg` tertinggal), `:96` `byePairIdByRound: {for (final e in bye.entries) int.parse(e.key): …}` →
+  `int.parse('gg')` melempar `FormatException`, `:114-117` `catch (_) { return null; }`. `schema` 2 dan `appVersion` String
+  lolos lebih dulu (`:77`), jadi penolakannya memang karena penanda.
+- Baris `int.parse(e.key)` untuk `bye` yang sama ada di semua rilis skema 2: bc38717:33, 3.1.0 (10817f4):37, 3.2.0
+  (564ea67):74, 3.3.2 (8af509b):88, 3.7.1 (527b0ab):96 (ekspresi `int.parse(e.key): e.value as String` yang sama; perubahan
+  sesudah 3.3.2, yaitu 9c8f35f Mexicano dan 0336826 id duplikat sparing, tidak menyentuhnya).
+- Dijalankan 2026-11-17: `git archive 527b0ab` ke folder sementara, `flutter test` memanggil `TournamentCodec.decode` 3.7.1:
+  payload bersih → terbaca (kontrol); payload dengan `config.groupKnockout` + `phase` **tanpa** penanda → **terbaca** sebagai
+  round-robin (bahaya yang dicegah); sama dengan `bye.gg: "1"` → `null`; `bye.gg` saja → `null`. Folder sementara dihapus.
+- Penonton ≤ 3.7.x membuka live: `decode` null → `LiveViewStatus.unreadable` (`features/live/live_view_controller.dart`,
+  layar "Live tidak bisa dibuka"). Relay tidak berubah (hanya memeriksa `schema` angka dan `tournament` objek, tidak membaca
+  `bye`). Host ≤ 3.7.x di box yang sama: `loadActive` null, listener auto-save mengabaikan state null, simpanan tidak
+  ditimpa sampai host memulai turnamen baru di versi lama (risiko yang sama dengan Sparing dan Mexicano; `lastFinished`
+  Grup + Gugur di versi lama tak terbaca tapi tidak dihapus). Konsekuensi yang diterima: penonton versi lama melihat "Live
+  tidak bisa dibuka" (bukan data salah) sampai membuka link sekali lagi setelah update tertarik.
+- Penanda ini wajib dipertahankan oleh siapa pun yang menyentuh codec. Nilai "1" = revisi bentuk Grup + Gugur; nilai lain →
+  null di 3.8.0 (revisi tak kompatibel berikutnya menaikkannya, app 3.8.0 menolak dengan cara yang sama). Decoder 3.8.0 membuang
+  kunci persis `gg` (dan `sparing`) sebelum membaca nomor round; kunci non-angka lain tetap membuat payload rusak.
+
+### Aturan baca (semua pelanggaran = `decode` null, bukan melempar; `canEncode` memakai fungsi yang sama)
+
+Pembaca membedakan **round-robin/lainnya** (tanpa `config.groupKnockout`) dan **Grup + Gugur** (ada). Kunci Grup + Gugur di
+keadaan yang salah = rusak, karena tidak ada penulis yang bisa menghasilkannya. Satu fungsi `_isValidGroupKnockout` untuk
+`decode` dan `canEncode` (pola `_isValidSparing`); kegagalan `encode` = `UnreadableTournamentError`, store melewati tulisannya.
+
+| # | Kondisi | Contoh payload yang ditolak |
+|---|---|---|
+| GR1 | `bye.gg` ada tapi bukan `"1"` | `bye: {gg: "2"}`, `{gg: 1}` |
+| GR2 | `config.groupKnockout` ada tanpa `bye.gg` = `"1"`, atau `bye.gg` ada tanpa `config.groupKnockout` | round-robin 3.7.x + `bye.gg`; Grup + Gugur tanpa penanda |
+| GR3 | `groupKnockout` bersama `mode` ≠ `fixed`, atau `config.clubs`, atau kunci sparing (`club` di pemain, `restingPairs`, `bye.sparing`) | `mode: "mixed"` + `groupKnockout`; Sparing + `groupKnockout` |
+| GR4 | `groupKnockout` bukan map; `groups` bukan list berisi tepat 2 atau 4 list-of-String; `thirdPlace` bukan bool; `formats` bukan map | `groups: [["a"]]`, 3 grup, `thirdPlace: "true"` |
+| GR5 | `fixedPairs` null/kosong, atau `G` ∉ `GroupStage.groupCountsFor(P)` dengan P = `fixedPairs.length` | 5 pasangan; 8 pasangan 4 grup |
+| GR6 | `groups` tidak menutup `fixedPairs` tepat sekali: id di dua grup, duplikat dalam satu grup, id yang bukan `fixedPairs`, pasangan tanpa grup; id `fixedPairs` kembar | `pair-1` di Grup A dan B |
+| GR7 | Ukuran grup i ≠ `GroupStage.sizes(P, G)[i]` | 7 pasangan 2 grup sebagai [3, 4] atau [5, 2] |
+| GR8 | `formats` tidak persis `{SF, J3, F}` (+ `PF` iff 4 grup), atau nilai bukan `{scoring: nama ScoringMethod, target: int}` yang `isValidKnockout` | `PF` di 2 grup; `SF` tanpa `J3`; Best of 6; Americano 24; Race to 10 |
+| GR9 | Id pemain kembar di `config.players`; anggota `fixedPairs` tak ada di `players`; satu pemain di dua pasangan | pemain `p1` dua kali; pasangan memakai `p99` |
+| GR10 | Match tanpa `phase` di Grup + Gugur, atau `phase` di turnamen lain; `phase` bukan String, kode tak dikenal, grup di luar `groups.length`, `PF*` di 2 grup | `phase: "E"`, `"C"` di 2 grup, `"PF1"` di 2 grup, `phase` di round-robin |
+| GR11 | Match `GroupPhase(g)`: sisi `null`, atau sisi ≠ (nilai) `fixedPairs` dengan id itu, atau bukan anggota `groups[g]`, atau dua sisi sama, atau dua pasangan itu bertemu dua kali di grup yang sama | match grup A berisi pasangan grup B |
+| GR12 | Himpunan kode match gugur bukan kosong atau tepat susunan `layout`: 2 grup `{SF1, SF2, F}`, 4 grup `{PF1..PF4, SF1, SF2, F}`, plus `J3` iff `thirdPlace`; kode ganda | `J3` padahal `thirdPlace: false`; PF1–PF3 tanpa PF4; dua `F` |
+| GR13 | Urutan round: ada round gugur ≤ round grup terbesar; round babak berikutnya ≤ round salah satu sumbernya (PF→SF, SF→F dan J3) | Final di round yang sama dengan SF |
+| GR14 | Match babak pertama (PF di 4 grup, SF di 2 grup) bersisi `null`, atau sisi seed (A1, B2, …) bukan anggota grup huruf itu, atau slot 1 dan 2 satu grup berisi pasangan yang sama | `pair1: null` di SF1; A1 dan A2 pasangan yang sama |
+| GR15 | Sisi babak lanjut ≠ `KnockoutBracket.resolve` (pemenang/kalah dari `winnerPairId` sumber; sumber belum punya hasil → `null`); `null` di match berstatus `done`/`walkover` | Final berisi pemenang SF yang salah; match `done` bersisi `null` |
+| GR16 | Match gugur `done`/`walkover` tanpa `winnerPairId` (I9) | Final Americano 24–24 `done` |
+| GR17 | Di Grup + Gugur: `bye` (selain `gg`) tidak kosong, ada `restingPairs`, `resting` tidak kosong, `withdrawn` tidak kosong, atau `extraPutaran` ≠ 0 | `bye: {gg: "1", "3": "pair-1"}`, `extraPutaran: 1` |
+
+Yang **tidak** diperiksa (keadaan, bukan bentuk): siapa sebenarnya juara grup dan benarkah yang lolos = dua teratas (pilihan host
+dan head-to-head tidak bisa diverifikasi; payload dengan lolos "salah" tetap sah), setiap pasangan grup bertemu tepat sekali
+(I2; yang dijaga hanya "paling sekali" dan hanya sesama anggota, supaya penulis yang kelak menghapus match yang tak jadi
+dimainkan tidak membuat simpanannya ditolak), nomor round/court tiap match, `matchNumberInRound`, `courtId` ada di `config.courts`
+(sama dengan mode lain), match grup masih `pending` setelah ada bagan, pasangan di dua match pada round yang sama (I4), skor
+sah per format (`withScore` sudah menolak di layar; membaca tidak menolak data yang masih bisa ditampilkan). Helper model
+(`groupOfPair`, `seedOf`, `formatFor`) harus **total**: id tak dikenal → null/dilewati, tidak pernah melempar. Aturan umum yang
+sudah ada tetap berlaku (`roundNumber` 1..1000, `schema`/`appVersion`).
+
+Penulisan: `encode(decode(x)) == x` untuk payload Grup + Gugur yang sah (urutan kunci tetap: `groupKnockout` sesudah `fixedPairs`,
+di dalamnya `groups`, `formats` (urutan PF, SF, J3, F), `thirdPlace`; `bye.gg` kunci pertama `bye`; `phase` sesudah `woReason`).
+Turnamen lain: tidak satu pun kunci baru ditulis dan `null` hanya untuk `Pair.tbd`, jadi byte-sama dengan 3.7.x.
+
+### Pengaturan terakhir (19i) — `settings.<olahraga>`
+
+Diingat: Grup + Gugur atau round-robin, jumlah grup, format tiap babak, juara 3. Kunci opsional baru `groupKnockout` di JSON
+**`v` tetap 1** (tidak naik: 3.7.x tetap membaca entri itu dan mengabaikan kunci yang tak dikenalnya, sehingga membacanya
+sebagai Fixed biasa; menaikkan `v` hanya membuat 3.7.x membuang seluruh entri, tanpa untung):
+
+```json
+{ "v": 1, "mode": "fixed", "scoring": "raceTo", "target": 6, "duration": 15, "courts": [ "..." ],
+  "groupKnockout": { "groupCount": 4, "thirdPlace": false,
+    "formats": { "PF": {"scoring": "raceTo", "target": 5}, "SF": {"scoring": "raceTo", "target": 6},
+                 "J3": {"scoring": "raceTo", "target": 4}, "F": {"scoring": "raceTo", "target": 9} } } }
+```
+
+- Ditulis hanya kalau turnamen yang dimulai Grup + Gugur (di `startIfNeeded`, panggilan tunggal yang sama, bukan mutator);
+  kunci tidak ada = round-robin dan kunci tidak ditulis untuk turnamen lain, jadi entri 3.7.x dan entri round-robin 3.8.0
+  byte-sama. Anggota grup tidak diingat (tidak pernah ikut pengaturan).
+- Validasi (satu pelanggaran = seluruh entri tak terbaca, konvensi tabel di atas): `groupKnockout` map; `mode` = `fixed`;
+  `groupCount` int 2 atau 4; `thirdPlace` bool; `formats` persis `{SF, J3, F}` (+ `PF` iff `groupCount` 4) dengan
+  `isValidKnockout`. Batas 16 KB yang ada tetap.
+- Tidak disimpan sebagai pilihan yang pasti berlaku: Konfigurasi menurunkan saat dibaca, tanpa mengubah simpanan. 4 grup tapi
+  P < 12 → 2 grup dan format `PF` dibuang (19i, asumsi designer); Sparing (`LastSettings.forSparing`) membuang `groupKnockout`
+  (GU14), seperti Mexicano jatuh ke Mixed; turunan itu tugas GG-5 di sisi layar, bukan di `read`.
+- Versi lama: 3.7.x membaca entri ini sebagai Fixed biasa (kunci `groupKnockout` diabaikan) dan menimpanya tanpa kunci saat
+  turnamen berikutnya dimulai: hilangnya pilihan Grup + Gugur saat downgrade tidak berbahaya.
+
+### Ukuran
+
+Terbesar: 30 pemain, 2 grup (8 + 7 pasangan, 49 match grup) + 2 SF, Final, Juara 3 = 53 match; ±660 B per match (id UUID)
+≈ 35 KB, jauh di bawah `MAX_BYTES` relay 256 KB (GG-3 menulis angka sebenarnya di komentar test). Match tbd lebih kecil
+(sisi `null`). Tidak ada batas baru; jumlah match gugur dibatasi aturan GR12 (≤ 8).
+
+### Test wajib (GG-3, `test/services/group_knockout_codec_test.dart`; nama memakai id aturan/AC)
+
+- AC-G16 fixture literal 3.7.x (round-robin Fixed dengan `extraPutaran`, Sparing, Mexicano, Mixed dengan `withdrawn`) terbaca
+  dan ter-encode **byte-sama**; encode turnamen lain tanpa `groupKnockout`, `phase`, `gg`, dan tanpa `null` di `pair1`/`pair2`.
+- AC-G15 round trip `encode(decode(x)) == x` di tiga keadaan (fase grup 20b, setelah Buat bagan 21a, tengah gugur 21c SF1),
+  setelah diakhiri (21t, match gugur `cancelled` bersisi `null`), dan 4 grup (16B 21w–21y, PF terisi, Final + Juara 3 bersisi
+  tbd), 4 grup 3 court (16B varian), tanpa juara 3 (21q), 1 court (21s), WO di SF (21o).
+- Satu test ditolak per aturan **GR1–GR17**, dari payload sah yang diubah satu bagian (varian contoh di tabel), termasuk dua
+  varian GR8 (`PF` di 2 grup; `Best of 6`) dan GR6 (dua grup / tanpa grup); tiap kasus: `decode` null, tidak melempar, dan
+  `canEncode` false untuk model yang setara (`encode` melempar `UnreadableTournamentError`).
+- Payload terpotong, `groupKnockout: null`, `groups` bertipe salah, `phase: 5`, `pair1: "x"` → null (tanpa melempar).
+- **Penanda GU15**: payload Grup + Gugur sah, dibaca oleh salinan aturan decoder 3.7.1 (fungsi test yang meniru `:83-96`:
+  buang kunci `sparing`, `int.parse` tiap kunci `bye`) → null; payload sama tanpa `bye.gg` → terbaca oleh salinan itu (membuktikan
+  penanda yang menolaknya, bukan hal lain); decoder 3.8.0 membuang `gg` sebelum nomor round dan menolak kunci non-angka lain
+  (`bye: {gg: "1", x: "1"}` → null). Pola `sparing_codec_test`.
+- `bye.gg` pada round-robin dan pada Sparing → null (GR2/GR3), JSON sparing tetap memakai `sparing`, bukan `gg`.
+- `LastSettings` (di `last_settings_test.dart` atau berkas codec): round trip dengan `groupKnockout` (2 dan 4 grup, juara 3
+  mati); entri 3.7.x/round-robin tanpa kunci terbaca sebagai round-robin dan ter-`toJson` byte-sama; tiap baris validasi di
+  atas → null (`mode` mixed, `groupCount` 3, `PF` di 2 grup, Best of 6, `thirdPlace` bukan bool); `v: 2` tetap null.
+- Ukuran: 30 pemain 2 grup + bagan lengkap, encode < 256 KB (tulis angka sebenarnya).
+- Properti (boleh digabung dengan GG-4): setiap state yang dihasilkan rangkaian skor/WO/ubah-skor acak `KnockoutBracket` lolos
+  `canEncode` dan `decode(encode(x)) == x`.
 
 ## Auto-save & resume
 
