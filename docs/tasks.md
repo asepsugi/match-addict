@@ -35,7 +35,7 @@ Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — b
 
 - Rilis siap di `grup-gugur`: versi 3.8.0+24, docs (`architecture.md`, `ui-v2.md`, `logic.md` §18.10, `security.md`,
   `CLAUDE.md`), suite penuh 1753 lolos (1 skip), `tool/build_web.sh` OK, smoke Chrome (v3.8.0, konsol bersih; branch
-  tidak menyentuh kode web). Berikutnya: merge ke `main` (= deploy web) setelah host bilang go; uji HP alur 16A (AC-G19).
+  tidak menyentuh kode web). Merge ke `main` + live 2026-11-17 (90ebba2, Deploy web lolos). Sisa: uji HP alur 16A (AC-G19, host).
 
 ### Status (2026-11-17, akhir sesi B5)
 

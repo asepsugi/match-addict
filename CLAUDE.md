@@ -120,8 +120,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   (keputusan 92); geometri `lib/services/share/court_floor.dart` = `tool/hifi_court_floor.py`. Branch
   rilis 3.7.1 di `main` (527b0ab).
 - Grup + Gugur 3.8.0 (MINOR): PRD §16 + keputusan 93–109, hi-fi 19a–22r (artifact v95), spec `logic.md` §18, data
-  `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Branch `grup-gugur` siap rilis 3.8.0+24 (GG-11, suite 1753
-  lolos); merge ke `main` menunggu host. Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
+  `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Rilis 3.8.0+24 live 2026-11-17 (90ebba2). Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
 
 ## Area docs
 
