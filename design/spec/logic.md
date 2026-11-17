@@ -7,7 +7,7 @@ saling menguatkan.
 **Status: §1–§14 sudah diimplementasi di model/service dan ter-test** (§13 Sparing = 3.2.0; §14 Mexicano +
 Konfigurasi diringkas = 3.4.0, task MX-n / KF-n di riwayat git `docs/tasks.md`). **§15 Tukar pemain (3.5.0) sudah
 diimplementasi** (task TP-n di riwayat git `docs/tasks.md`). **§16 Poster podium (3.6.0) sudah diimplementasi**
-(task PP-n di `docs/tasks.md`).
+(task PP-n di `docs/tasks.md`). **§18 Grup + Gugur (3.8.0) = rencana**, task GG-n di `docs/tasks.md`.
 Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor
@@ -1541,3 +1541,406 @@ Pemetaan isi (`sharePosterData`, fixture yang sudah ada: data set 1 `bagikan_tes
 2. **Story Fixed campuran** (pasangan diatur ulang, ada pemain tunggal; 09g): tidak ada frame Lengkap. Asumsi: semua
    baris setinggi pasangan (2 satuan), nama ditumpuk hanya di baris dua nama — sama dengan `.duo` Ringkas 18l dan
    perilaku Lengkap lama. Rekomendasi: setujui.
+
+## 18. Grup + Gugur (rencana 3.8.0, MINOR)
+
+Keputusan host 93–103 (PRD §16, usulan GU1–GU16 dan Q1–Q4 disetujui 2026-11-17); frame 19a–19y (persiapan), 20a–20q
+(fase grup), 21a–21y (gugur + Bagan), 22a–22r (peringkat akhir, Detail, Bagikan). Hanya Fixed turnamen biasa:
+round-robin Fixed, Mixed, Mexicano, Sparing tidak berubah sedikit pun — setiap cabang dimulai dari
+`config.isGroupKnockout`. Semua angka di bagian ini dicek tech-lead 2026-11-17 dengan skrip + hitung tangan terhadap
+PRD 16A–16F dan catatan frame; ID test = ID PRD (`AC-G3 16A …`, `16D-iii …`) + id frame kalau angkanya dari frame
+(`20o …`). Task GG-n: `docs/tasks.md`.
+
+### 18.1 Model (`lib/models/models.dart`)
+
+- `enum KnockoutRound { quarterfinal, semifinal, thirdPlace, finalRound }` — urutan = urutan main. Getter: `label`
+  ("Perempat final", "Semifinal", "Perebutan juara 3", "Final"), `shortLabel` (sama, kecuali thirdPlace = "Juara 3",
+  GU1), `codePrefix` ("PF", "SF", null, null — Final dan Juara 3 tanpa kode, 21a).
+- `@immutable class GroupKnockout { int groupCount; List<List<String>> groups; Map<KnockoutRound, ScoreFormat> formats;
+  bool thirdPlace; }`
+  - `groupCount` 2 atau 4 (diisi Konfigurasi). `groups` = id pasangan per grup, indeks 0..3 = Grup A..D, **urutan di
+    dalam grup = urutan round-robin** (urutan masuk di layar Grup, 19s; Acak = urutan acak). Kosong sampai layar Grup
+    selesai; setelah itu `groups.length == groupCount`.
+  - `formats`: satu `ScoreFormat` per babak yang dimainkan (quarterfinal hanya kalau 4 grup; thirdPlace tetap ada walau
+    `thirdPlace` false, supaya "Ada" lagi memulihkan formatnya, 19g). Format fase grup = `config.format` (tidak
+    disalin ke sini).
+  - Helper: `letter(g)` → 'A'..'D', `groupOfPair(pairId)` → indeks atau null, `rounds` → babak yang dimainkan urut main
+    (`[quarterfinal?] semifinal, thirdPlace?, finalRound` — urutan baris sheet Gugur 19e).
+- `TournamentConfig.groupKnockout` (`GroupKnockout?`, null = round-robin dan semua mode lain) + `bool get
+  isGroupKnockout`. **`copyWith` wajib membawanya** (parameter baru `groupKnockout`), kalau tidak `addRounds`/Kelola
+  dsb. menghapusnya diam-diam (Pitfall `copyWith` di `CLAUDE.md`).
+- `ScoreFormat formatFor(MatchGame m)` di `TournamentConfig`: match `KnockoutPhase` → `groupKnockout.formats[round]`,
+  selain itu `format`. **Satu-satunya** jalan ke format sebuah match: Input Skor, keypad, WO sheet, label baris
+  ("SF1 · Race to 6"), caption. `config.format` langsung hanya untuk fase grup / turnamen lain.
+- `ScoreFormat.forKnockout` (GU9): Race to → sama; Best of / Americano N genap → N + 1 (Best of 6 → 7, Americano 24 →
+  25, Americano 98 → 99). `bool get isValidKnockout` = `isValid && (method == raceTo || target.isOdd)`. Stepper babak
+  (19h) melangkah 2 di Best of (1…15) dan Americano (3…99); angka genap yang diketik → ganjil berikutnya.
+- `sealed class MatchPhase` dengan `final class GroupPhase(int group)` dan `final class KnockoutPhase(KnockoutRound
+  round, int slot)` (slot 1-basis: PF1..PF4, SF1..SF2; Final dan Juara 3 = 1). `==`/`hashCode` nilai. `String get code`:
+  'A'..'D' / 'PF1' / 'SF2' / 'F' / 'J3' (kode internal + usulan simpanan; teks UI dari `label`/`codePrefix`).
+- `MatchGame.phase` (`MatchPhase?`, null di semua turnamen lain). **`copyWith` dan `_with` wajib membawanya** — kalau
+  lupa, `withScore` menghapus fase dan match gugur berubah jadi match biasa (jebakan #1).
+- `Pair.tbd` = `Pair(id: '', player1Id: '', player2Id: '')` + `bool get isTbd`: sisi match gugur yang belum diketahui
+  ("Pemenang SF1"). Hanya boleh ada di match `KnockoutPhase` berstatus `pending` atau `cancelled` (invariant I7).
+  Teks sisi itu dari `KnockoutBracket.sourceLabel`, bukan dari nama pemain.
+- `StandingEntry.stage` (`String?`, default null): babak yang dicapai di peringkat akhir (GU16, "Juara", "Grup A · 3").
+  Null di semua turnamen lain → baris, poster, caption lama tidak berubah.
+- `ActiveTournament`: `bool get hasBracket` = ada match `KnockoutPhase`; `isGroupKnockoutLocked(m)` = `hasBracket` dan
+  `m.phase is GroupPhase`. `byePairIdByRound` **selalu kosong** di Grup + Gugur (GU5: tanpa baris Istirahat; beberapa
+  grup bisa bye di round yang sama, peta satu-per-round tidak muat).
+
+### 18.2 Ukuran grup dan ketersediaan (G1, G2, GU2) — `services/schedule/group_stage.dart` (baru)
+
+- `GroupStage.sizes(pairs P, groups G)` = ⌊P ÷ G⌋, ditambah 1 untuk P mod G grup pertama (yang besar huruf awal).
+  7/2 → [4, 3]; 11/2 → [6, 5]; 13/4 → [4, 3, 3, 3]; 15/4 → [4, 4, 4, 3]; 15/2 → [8, 7]; 12/4 → [3, 3, 3, 3].
+- `GroupStage.groupCountsFor(P)`: P < 6 → [] (tidak ditawarkan); 6–11 → [2]; 12–15 → [2, 4]. Konfigurasi memakai P =
+  ⌊pemain ÷ 2⌋ (17 pemain → 8, 19q). Segmented Round-robin / Grup + Gugur hanya kalau Fixed, bukan Sparing, dan
+  `groupCountsFor(P)` tidak kosong (AC-G1: 10 pemain tidak ada; 22 pemain hanya 2 grup; 24 pemain 2/4).
+- Turnamen terakhir 4 grup lalu P < 12 → 2 grup (19i, asumsi designer).
+
+### 18.3 Court per grup (G6, GU3, GU4) — `GroupStage.courtsOfGroups(sizes, courtCount)`
+
+Rumus per grup (PRD 16.3): g pasangan, k court → `rounds(g, k) = r × ⌈m ÷ k⌉`, r = g − 1 (g genap) atau g (ganjil),
+m = ⌊g ÷ 2⌋. Hasil: indeks court (urut `config.courts`) per grup. Dua kasus saling lepas:
+
+- **C ≥ G:** court i → grup i (i < G), k = 1. Court sisa, urut nomor: calon = grup dengan `rounds(g, k+1) < rounds(g,
+  k)`; tidak ada calon → court itu tidak dipakai di fase grup; ada → calon dengan `rounds(g, k)` terbesar, seri → huruf
+  awal, k grup itu +1. (Membaca GU3 sebagai "terbesar di antara yang berkurang" atau "terbesar, lalu cek berkurang"
+  memberi hasil sama untuk semua ukuran G2; sudah dicek.) Tiap court paling banyak satu grup.
+- **C < G:** grup urut huruf, masing-masing ke court dengan jumlah match grup (Σ g(g−1)/2) terkecil sejauh ini, seri →
+  court terkecil. Tiap grup tepat satu court.
+
+| Data | Ukuran | Court per grup | Round fase grup |
+|---|---|---|---|
+| AC-G3 16A, 2 court | [4, 4] | A [C1], B [C2] | 6 |
+| AC-G3 16A, 1 court | [4, 4] | A [C1], B [C1] | 12 |
+| AC-G4 16B, 2 court | [3, 3, 3, 3] | A [C1], B [C2], C [C1], D [C2] | 6 |
+| AC-G4 16B varian 3 court, 13 pasangan | [4, 3, 3, 3] | A [C1], B [C2], C [C3], D [C2] | 6 (C3 kosong setelah R3) |
+| AC-G5 16C, 30 pemain 4 court | [8, 7] | A [C1, C3], B [C2, C4] | 14 (A 28 → 14; B 21 → 14) |
+| AC-G5 12 pemain, 3 court | [3, 3] | A [C1], B [C2]; C3 tidak dipakai | 3 |
+| 16.4 30 pemain 2 grup 1 court | [8, 7] | semua C1 | 49 (B habis R42) |
+| 16.4 30 pemain 4 grup 1 court | [4, 4, 4, 3] | semua C1 | 21 |
+| 16.4 14 pemain 2 court | [4, 3] | A [C1], B [C2] | 6 (B 3 round lalu kosong) |
+
+### 18.4 Jadwal fase grup (G5, GU4, GU5) — `GroupStage.schedule(groups: List<List<Pair>>, courts: List<Court>)`
+
+- Urutan match satu grup = `RoundRobinGenerator._circleRounds` atas pasangan grup itu (dipakai ulang, **bukan**
+  disalin: buka jadi helper statis/paket-privat di file yang sama atau pindahkan ke `group_stage.dart` dengan
+  `RoundRobinGenerator` memanggilnya). Grup 4: 1–4, 2–3 | 1–3, 4–2 | 1–2, 3–4 (pair1 = sisi kiri seperti tertulis).
+  Grup 3: 2–3 | 1–3 | 1–2 (bye 1, 2, 3).
+- **Grup dengan k ≥ 1 court sendiri (kasus C ≥ G):** `_Packer` yang sama dengan round-robin (`courtsFor` = court grup
+  itu urut nomor, mulai R1): putaran dipotong per k, dua putaran tidak digabung, match ke-j round itu di court ke-j grup.
+- **Court dipakai beberapa grup (kasus C < G):** urutan di court = bergantian satu match per round urut huruf, grup yang
+  habis dilewati: `for i in 0..: for grup di court itu (urut huruf): kalau grup punya match ke-i → round berikutnya`.
+  Court mulai R1.
+- Gabungan: semua match diurut (round, indeks court); `matchNumberInRound` 1.. menurut urutan itu; id
+  `m-r{round}-{matchNumberInRound}`; `phase = GroupPhase(g)`. Court tanpa match di sebuah round tidak punya baris
+  (20p). Bye **tidak** ditulis ke `byePairIdByRound`.
+
+Data test (id pasangan = nama pemain pertama; grup = 16A, 16B, 16C):
+
+| Kasus | Harus |
+|---|---|
+| AC-G3 16A R1–R6 | C1: Andi–Gita, Citra–Eko, Andi–Eko, Gita–Citra, Andi–Citra, Eko–Gita · C2: Indra–Oki, Kiki–Maya, Indra–Maya, Oki–Kiki, Indra–Kiki, Maya–Oki (20a, 20c). Tiap pasangan 3 match |
+| AC-G3 16A 1 court | C1 saja: R1 Andi–Gita (A), R2 Indra–Oki (B), R3 Citra–Eko (A), … R12 Maya–Oki (B); pola A, B, A, B |
+| AC-G4 16B | C1: R1 Citra–Eko (A), R2 Rudi–Oki (C), R3 Andi–Eko, R4 Maya–Oki, R5 Andi–Citra, R6 Maya–Rudi · C2: R1 Indra–Kiki (B), R2 Qori–Vina (D), R3 Gita–Kiki, R4 Tono–Vina, R5 Gita–Indra, R6 Tono–Qori (20m, 20o). Tidak ada pasangan main di dua round beruntun (sifat contoh ini, bukan invariant umum, PRD 16.12) |
+| AC-G5 16C R1 | C1 Andi–Oki, C2 Sari–Dodi, C3 Citra–Maya, C4 Umar–Bayu; R2 C4 tanpa match; Qori bye R1–R2 (20p) |
+| 30 pemain 2 grup 1 court | B match terakhir R42, A R43–R49 |
+
+**Invariant** (test properti `test/services/group_stage_property_test.dart`, semua P 6–15 × G ∈ `groupCountsFor(P)`
+× C 1–10, grup = urutan acak berseed):
+- I1 tiap pasangan di tepat satu grup; ukuran = `sizes(P, G)`.
+- I2 match fase grup hanya antara pasangan satu grup; tiap dua pasangan satu grup bertemu tepat sekali.
+- I3 semua match satu grup di court miliknya (`courtsOfGroups`); kasus C ≥ G tiap court ≤ 1 grup, C < G tiap grup 1 court.
+- I4 tidak ada pasangan di dua match pada round yang sama (juga setelah gugur ditambahkan).
+- I5 per round: satu match per court, `matchNumberInRound` 1..n urut indeks court.
+- I6 jumlah round fase grup = maks per court = angka tabel 18.3.
+
+### 18.5 Estimasi Konfigurasi (16.2, 19b, 19g, 19i, 19k) — `GroupStage.estimate(...)`
+
+Masukan: P = ⌊pemain ÷ 2⌋, G, C, `thirdPlace`, durasi, booking per court. Keluaran `(rounds, matches, overMinutes)`:
+- round gugur (GU10) = (G = 4 ? ⌈4 ÷ C⌉ : 0) + ⌈2 ÷ C⌉ + (thirdPlace dan C = 1 ? 2 : 1).
+- rounds = round fase grup (18.3) + round gugur; matches = Σ g(g−1)/2 + (G = 4 ? 4 : 0) + 2 + 1 + (thirdPlace ? 1 : 0).
+- overMinutes = max(0, rounds − `maxRounds`) × durasi, `maxRounds` = booking terpendek ÷ durasi (sama dengan
+  `TournamentConfig.maxRounds` dan Fixed sparing K10). Tidak bergantung pada siapa di grup mana.
+
+| Data | rounds | matches | over | Tombol |
+|---|---|---|---|---|
+| 19b 16A, 2 court 2 jam, 15 mnt | 8 | 16 | 0 | "· 8 round · 16 match" |
+| 19g 16A tanpa juara 3 | 8 | 15 | 0 | |
+| 19k 16A 1 court | 16 | 16 | 120 | "· 16 round · lewat booking 02:00" |
+| 19g 16A 1 court tanpa juara 3 | 15 | 15 | 105 | |
+| 19i 16B 24 pemain 4 grup 2 court 3 jam 20 mnt | 10 | 20 | 20 | "· 10 round · lewat booking 00:20" |
+| 16B varian 26 pemain 4 grup 3 court | 10 | 23 | 20 | |
+| 16C 30 pemain 2 grup 4 court 4 jam | 16 | 53 | 0 | |
+| 12 pemain 2 grup 3 court 2 jam | 5 | 10 | 0 | |
+| 16.4 30 pemain 2 grup 1 court | 53 | 53 | — | |
+| 16.4 30 pemain 4 grup 1 court | 29 | 29 | — | |
+
+Durasi tidak muat (19l) = aturan 03l yang ada (`maxRounds == 0` → tombol mati), tanpa aturan baru.
+
+### 18.6 Klasemen grup (G7, GU8) — `services/ranking/group_knockout_ranking.dart` (baru)
+
+- `GroupTable {int group; List<StandingEntry> entries; RankingMethod method}` per grup, urut huruf.
+  `method = RankingCalculator.defaultMethod(config.format)` (keputusan 21; tidak membaca `rankingMethodProvider`).
+  `entries = standingEntries(standings: RankingCalculator.rank(players: anggota grup, matches: match GroupPhase(g),
+  method, format: config.format), method, fixedPairs: pasangan grup)`. Hanya match grup itu; nilai WO dari rata-rata
+  match grup saja (aturan 4.4 apa adanya).
+- Nomor tabel tetap aturan 4.3 (keputusan 17): head-to-head **tidak** mengubah nomor.
+- Data: 20d (5 dari 12 match), 20f = 16D-ii (A: Andi 2–1 +3 67%, Citra 2–1 +3 67% → 1, 1; Eko 1–2 −2 → 2; Gita 1–2 −4
+  → 3 · B: Indra 3–0 +11, Maya 2–1 +5, Kiki 1–2 −5, Oki 0–3 −11), 16D-i (1, 2, 2, 3), 20h = 16D-iii (Citra, Eko, Gita
+  1–2 −3 33% → 2, 2, 2), 20n (C: Maya, Rudi 100% +3 → 1, 1; D: Tono "Belum main" `position` null), 20o (A Andi 100
+  +7, Citra 50 0, Eko 0 −7 · B Indra 100 +7, Gita 50 −1, Kiki 0 −6 · C Maya 100 +5, Rudi 50 +1, Oki 0 −6 · D Tono 100
+  +7, Vina 50 −2, Qori 0 −5).
+
+### 18.7 Siapa lolos (G8, GU7) — `GroupKnockoutRanking.qualifierPlan(active)`
+
+Per grup, dari `GroupTable.entries` (saat Buat bagan semua match grup terisi, jadi semua `position` non-null):
+1. Kelompokkan per `position` (tingkat T1, T2, …). Isi slot 1, 2 berurutan: tingkat yang muat utuh di slot tersisa →
+   semua anggotanya lolos; tingkat yang melewati batas (atau tingkat berisi ≥ 2 di slot yang perlu urutan) = **himpunan
+   seri S** + slot yang diperebutkan. Paling banyak satu S per grup (hanya ada 2 slot).
+   - |T1| = 1 → slot 1 pasti; T2 berukuran 1 → slot 2 pasti, ≥ 2 → S = T2 untuk slot 2.
+   - |T1| ≥ 2 → S = T1 untuk slot 1 dan 2 (|T1| = 2: keduanya lolos, hanya urutan A1/A2 yang dicari).
+2. **Head-to-head satu kali** di S: h(p) = menang + ½ seri, WO = menang (yang kalah WO = kalah), **hanya** match grup
+   yang kedua sisinya di S. Urut h turun → sub-tingkat H1, H2, …; isi slot yang diperebutkan dengan aturan langkah 1
+   (sub-tingkat yang muat utuh dan berukuran 1 = pasti). Tidak dihitung ulang untuk sisa yang masih seri.
+3. Sisa = **pilihan host**: `OpenPick {group, slots (mis. [2] atau [1, 2]), candidates (urut nama)}`. Jumlah ketukan =
+   min(|slots|, |candidates| − 1): kandidat 2 untuk slot [1, 2] → cukup pilih A1 (yang lain A2); kandidat ≥ 3 untuk
+   [1, 2] → ketukan pertama A1, kedua A2 (20l); ketuk ulang yang terpilih → lepas, slot sesudahnya ikut lepas.
+- Hasil: `QualifierPlan {List<List<String?>> slots /* per grup [slot1, slot2] */, List<OpenPick> picks}`;
+  `withPicks(Map<int, List<String>>)` → `List<List<String>>` lengkap, menolak (null) pilihan yang bukan kandidat atau
+  belum lengkap. Pilihan host hanya hidup di UI sampai dialog dikonfirmasi (AC-G7: app ditutup → tidak tersimpan).
+
+| Data (AC-G7) | Hasil |
+|---|---|
+| 16D-i | T1 Andi; T2 {Citra, Eko} h Citra 1, Eko 0 → A1 Andi, A2 Citra; nomor tabel 1, 2, 2, 3 tetap |
+| 16D-ii / 20f | T1 {Andi, Citra} h Andi 1 (R5 6–4) → A1 Andi, A2 Citra; tanpa pilihan → langsung dialog 20g |
+| 16D-iii / 20h–20k | T1 Andi; T2 {Citra, Eko, Gita} h 1, 1, 1 → `OpenPick(A, [2], [Citra, Eko, Gita])`; host pilih Eko → A2 Eko |
+| 20l | T1 {Andi, Citra, Eko} h 1, 1, 1 → `OpenPick(A, [1, 2], [Andi, Citra, Eko])`, dua ketukan |
+| Seri dua pasangan di #1, match mereka seri (Americano 24 12–12) | `OpenPick(A, [1, 2], 2 kandidat)` → satu ketukan "Pilih A1" |
+| T1 {X, Y, Z} h X 2, Y 0,5, Z 0,5 (satu seri) | A1 X; `OpenPick([2], [Y, Z])` |
+| T1 {X, Y, Z} h 2, 1, 0 | A1 X, A2 Y, tanpa pilihan |
+| 20o (4 grup) | A1 Andi A2 Citra · B1 Indra B2 Gita · C1 Maya C2 Rudi · D1 Tono D2 Vina, tanpa pilihan |
+| Dua grup perlu pilihan | dua `OpenPick`, tombol "· pilih A2 dan C2" (20i) |
+
+### 18.8 Bagan (G9, G12, GU10, GU11) — `services/schedule/knockout_bracket.dart` (baru)
+
+**Topologi** (pair1 = sisi pertama yang ditulis; huruf = grup, angka = slot lolos):
+- 2 grup: SF1 = A1 vs B2, SF2 = B1 vs A2.
+- 4 grup: PF1 = A1 vs B2, PF2 = C1 vs D2, PF3 = B1 vs A2, PF4 = D1 vs C2; SF1 = W(PF1) vs W(PF2), SF2 = W(PF3) vs W(PF4).
+- Final = W(SF1) vs W(SF2); Juara 3 (kalau `thirdPlace`) = L(SF1) vs L(SF2). W = pemenang, L = yang kalah.
+- `sources(KnockoutPhase)` → dua `SideSource` (seed 'A1' atau W/L match lain); `sourceLabel` → "A1", "Pemenang SF1",
+  "Kalah SF1" (21a). `seedOf(active, pairId)` → 'A1'… dari sisi babak pertama (kode slot di depan nama, 21b, 21s).
+- **AC-G8 properti:** untuk tiap huruf, slot 1 dan 2 grup itu di paruh berbeda (2 grup: SF1 vs SF2; 4 grup: PF1–PF2 vs
+  PF3–PF4), jadi dua pasangan satu grup paling cepat bertemu di Final.
+
+**Round dan court** (`layout(groupCount, thirdPlace, courts, firstRound)`; firstRound = round fase grup terakhir + 1):
+babak urut main; match satu babak urut slot diisi ke round baru per C court (`config.courts` urutan, Court 1 dulu —
+court kunci grup tidak berlaku); babak berikutnya selalu di round sesudahnya. Round terakhir: thirdPlace dan C ≥ 2 →
+satu round Final (Court 1, match 1) + Juara 3 (Court 2, match 2); C = 1 → Juara 3 satu round, lalu Final; tanpa
+thirdPlace → Final saja di Court 1.
+
+| Data | Round gugur |
+|---|---|
+| 16E (2 court) | R7 SF1 C1 + SF2 C2 · R8 Final C1 + Juara 3 C2 |
+| 16A 1 court (21s) | R13 SF1 · R14 SF2 · R15 Juara 3 · R16 Final |
+| 16B 2 court (21u) | R7 PF1 + PF2 · R8 PF3 + PF4 · R9 SF1 + SF2 · R10 Final + Juara 3 |
+| 4 grup 3 court | PF1–PF3 satu round, PF4 round berikut, SF1 + SF2, Final + Juara 3 |
+| 21q tanpa juara 3 | R8 hanya Final di C1 |
+
+**Buat bagan** (`build(qualifiers, …)`): semua match gugur dibuat sekaligus (`phase` = `KnockoutPhase`, id
+`m-r{round}-{n}`); sisi yang belum diketahui = `Pair.tbd`. Karena semua round gugur ada sejak awal, `roundCount`,
+`currentRound`, kunci round, jumlah match ("R7 · 13 dari 16 match", 22o) bekerja tanpa cabang baru.
+
+**Pemenang maju** (`resolve(config, matches)` → matches): untuk tiap match gugur urut main, hitung sisi dari `sources`
+(W/L dari `winnerPairId` match sumber; belum ada hasil → `Pair.tbd`). Sisi berbeda dan match tujuan tanpa hasil
+(`pending`/`cancelled`) → ganti sisi (sets tetap kosong). Sisi berbeda dan match tujuan sudah ada hasil → pelanggaran
+(controller harus menolak lebih dulu lewat `flipCheck`; `resolve` meng-`assert`). Dipanggil di **setiap** mutasi skor/WO
+match gugur, di dalam `state =` yang sama (G12, keputusan 101: langsung).
+
+**Ubah skor gugur (GU11)** — `flipCheck(active, matchId, newWinnerPairId)`: pemenang sama → selalu boleh (tanpa
+dialog, 21m). Pemenang berganti → `dependents` (PF → SF-nya; SF → Final **dan** Juara 3; Final dan Juara 3 → tidak
+ada): kalau ada dependent dengan hasil (done/WO) → `blocked` dengan daftar babaknya (pesan 21l "Final sudah ada skor" /
+"Final dan Juara 3 sudah ada skor"); kalau tidak → `allowed` + pratinjau susunan baru dependent (dialog 21k; Final/Juara
+3 tanpa dependent → tanpa dialog). Dependent `cancelled` (diakhiri) dihitung tanpa hasil (asumsi: tidak ada skor yang
+hilang). Berlaku sama untuk skor ↔ WO dan WO ganti sisi.
+
+**WO di gugur (16.7):** `markWalkover` biasa; pemenang maju lewat `resolve`. Teks sheet 21n per babak tujuan.
+
+**Skor fase grup terkunci (GU6, AC-G12):** `submitScore`/`markWalkover` pada match `GroupPhase` saat `hasBracket` →
+ditolak tanpa mengubah state (UI tidak membuka Input Skor). Gugur: match dengan sisi `isTbd` tidak bisa dibuka; round
+terkunci = aturan Fixed (`currentRound`).
+
+Data test 16E (`test/services/knockout_bracket_test.dart`, AC-G9/G11):
+- Bagan 16D-ii + 16E: SF1 Andi (A1) vs Maya (B2), SF2 Indra (B1) vs Citra (A2); Final dan Juara 3 dua sisi tbd.
+- SF1 6–4 → Final pair1 Andi, Juara 3 pair1 Maya; pair2 keduanya tbd; Final tidak bisa dibuka (sisi tbd).
+- SF2 4–6 → Final Andi vs Citra, Juara 3 Maya vs Indra (21f). SF2 WO Indra → sama (21o, AC-G11; tabel grup tetap).
+- Ubah SF1 jadi 4–6 sebelum R8 ada skor → `allowed`; Final Maya vs Citra, Juara 3 Andi vs Indra.
+- Final 7–9 tersimpan, lalu SF1 4–6 → `blocked [finalRound]`; Juara 3 juga 4–2 → `blocked [finalRound, thirdPlace]`;
+  SF1 6–5 → `allowed` tanpa pratinjau. Final 7–9 → 9–7 → boleh (tanpa dependent).
+- AC-G10: Final Race to 9 menerima 9–7; Juara 3 Race to 4 menolak 6–2 (`ScoreRules.judge(formatFor(m), …)`).
+- 16B (21w–21y): PF1 Andi 6–3 Gita, PF2 Maya 4–6 Vina, PF3 Indra 6–5 Citra, PF4 Tono 6–2 Rudi → SF1 Andi vs Vina, SF2
+  Indra vs Tono; SF1 6–4, SF2 3–6 → Final Andi vs Tono 9–6, Juara 3 Vina vs Indra 4–3.
+
+**Invariant** (properti, `knockout_bracket_property_test.dart`: 2/4 grup × C 1–4 × thirdPlace × hasil acak berseed
+termasuk WO, ubah skor acak yang `flipCheck` izinkan):
+- I7 sisi `isTbd` hanya di match berstatus pending/cancelled; match pending di round ≤ `currentRound` tidak punya sisi tbd.
+- I8 setelah setiap mutasi, sisi semua match gugur = `resolve` atas dirinya (idempoten).
+- I9 match gugur done selalu punya pemenang (`winnerPairId` != null).
+- I10 setelah bagan dibuat, semua match `GroupPhase` identik dengan sebelum bagan.
+- I11 round gugur > semua round grup; babak berikutnya di round > babak sebelumnya; Final di round terakhir.
+- I12 tiap pasangan lolos muncul tepat sekali di babak pertama; pasangan tidak lolos tidak pernah di match gugur.
+
+### 18.9 Peringkat akhir (GU12, GU13, GU16) — `GroupKnockoutRanking.finalEntries(active)`
+
+Satu daftar `StandingEntry` (pasangan, `standing` = baris tabel grupnya, `position`, `stage`). Kunci tingkat (kecil =
+atas); `position` = peringkat **rapat** dari kunci (tingkat kosong tidak memakan nomor); senomor urut `label`
+(`String.compareTo`, sama dengan pemisah nama `RankingCalculator.rank`).
+
+| Keadaan pasangan | Kunci | `stage` |
+|---|---|---|
+| Menang Final | 10 | "Juara" |
+| Di Final, belum ada hasil (pending/cancelled) | 15 | "Final" |
+| Kalah Final | 20 | "Final" |
+| Di Semifinal, belum ada hasil | 25 | "Semifinal" |
+| Menang Juara 3 | 30 | "Juara 3" |
+| Kalah Semifinal, tanpa match Juara 3 (`thirdPlace` false) | 30 | "Semifinal" |
+| Di Juara 3, pending | 35 | "Perebutan juara 3" |
+| Di Juara 3, cancelled (diakhiri) | 35 | "Semifinal" (22f: match tidak dimainkan bukan babak yang dicapai) |
+| Kalah Juara 3 | 40 | "Semifinal" |
+| Di Perempat final, belum ada hasil | 45 | "Perempat final" |
+| Kalah Perempat final | 50 | "Perempat final" |
+| Tidak lolos, posisi grup q | 60 + q | "Grup A · q" |
+| **Sebelum bagan**, posisi grup q | q | "Grup A · q" |
+| Sebelum bagan, belum main (`position` null di tabel grup) | — | `position` null, `stage` null (baris "Belum main", asumsi) |
+
+- Keadaan pasangan = match gugurnya yang paling akhir menurut urutan main (match yang ia mainkan/menunggu).
+- Posisi grup sebelum bagan q = 1 + jumlah pasangan di grupnya dengan nomor tabel lebih kecil (1, 1, 2 → 1, 1, 3).
+  Setelah bagan, pasangan tidak lolos: q = 3 + jumlah pasangan **tidak lolos** di grupnya dengan nomor lebih kecil.
+- "Di babak X tanpa hasil" ada di atas semua kemungkinan kalah di babak itu (25 di atas 30–40), sesuai 16.8.
+
+| Data (AC-G13) | Harus |
+|---|---|
+| 16F / 22a | #1 Citra "Juara" · #2 Andi "Final" · #3 Maya "Juara 3" · #4 Indra "Semifinal" · #5 Eko "Grup A · 3", Kiki "Grup B · 3" · #6 Gita "Grup A · 4", Oki "Grup B · 4" |
+| 22c tanpa juara 3 | #1 Citra · #2 Andi · #3 Indra, Maya ("Semifinal") · #4 posisi 3 · #5 posisi 4 |
+| 22f / 21t diakhiri setelah R7 | #1 Andi, Citra ("Final") · #2 Indra, Maya ("Semifinal") · #3 posisi 3 · #4 posisi 4 |
+| 22d bagan baru dibuat | #1 Andi, Citra, Indra, Maya ("Semifinal") · #2 Eko, Kiki · #3 Gita, Oki |
+| 22e SF1 6–4 | #1 Andi ("Final") · #2 Citra, Indra ("Semifinal") · #3 Maya ("Perebutan juara 3") · #4 posisi 3 · #5 posisi 4 |
+| 22g diakhiri di R4 (20q) | #1 Citra, Indra ("Grup A · 1", "Grup B · 1") · #2 Andi, Maya · #3 Gita, Kiki · #4 Eko, Oki |
+| 22h–22i / 21y 4 grup | #1 Andi · #2 Tono · #3 Vina · #4 Indra · #5 Citra, Gita, Maya, Rudi ("Perempat final") · #6 Eko, Kiki, Oki, Qori ("Grup X · 3") |
+| 16D-iii, host pilih Eko | Citra, Gita (nomor tabel 2, tidak lolos) → keduanya "Grup A · 3" |
+
+**Status (4.6, AC-G14):** `isFinal` Grup + Gugur = diakhiri, atau `hasBracket` dan tidak ada match pending. Sebelum
+bagan selalu Sementara walau semua match grup terisi (20f). Cabang baru di `isFinal`; aturan Fixed lama
+(`matches.every(!pending)`) akan salah di sini.
+
+### 18.10 Controller, provider, layar yang membaca logika
+
+- `startIfNeeded`: `isGroupKnockout` → `GroupStage.schedule(groups dari config.groupKnockout.groups → Pair, courts)`;
+  tanpa bye. Round-robin dan sparing tidak berubah.
+- `canCreateBracket` (model) = `isGroupKnockout && !hasBracket && !isFinished && semua match GroupPhase done/WO`
+  (AC-G6). `createBracket(Map<int, List<String>> picks)` (controller): `qualifierPlan.withPicks` → null = tidak berubah;
+  lalu `build` → match ditambahkan, satu `state =` (auto-save + live ikut).
+- `canAddRounds` false untuk Grup + Gugur (tanpa Tambah round, 16.2); Atur pasangan, Kelola court, Lanjutkan, tukar
+  pemain sudah tertutup oleh mode Fixed.
+- `submitScore` / `markWalkover`: tolak match grup terkunci; match gugur → `flipCheck` (blocked → tidak berubah) →
+  ubah match → `resolve`. Satu `state =`. Jangan menambah `saveActive`/kirim live manual (CLAUDE.md).
+- `finishNow` apa adanya: match gugur pending (termasuk sisi tbd) → cancelled; bagan tidak dibuat kalau masih fase grup.
+- Provider: `standingEntriesProvider` → `finalEntries` untuk Grup + Gugur (Klasemen tab Peringkat, Detail "Peringkat n",
+  Bagikan, caption, live membaca nomor yang sama); `groupTablesProvider` (baru) → `groupTables`. `rankingMethodProvider`
+  tidak dipakai untuk urutan Grup + Gugur (toggle tidak tampil, Q1); `standingsProvider` (semua match, satu format)
+  **tidak boleh** dipakai di Grup + Gugur.
+- Label round (21b, 21s, 21v) — `KnockoutBracket.roundTab(active, round)` / `roundTitle`: round fase grup → "R{n}"
+  seperti biasa. Round gugur: berisi Final → tab "Final", judul "Final"; seluruh satu babak → `shortLabel` ("Semifinal",
+  "Juara 3", "Perempat final"), judul `label`; sebagian babak → kode ("SF1", "SF2", "PF1–2", "PF3–4", "PF1–3", "PF4"),
+  judul `label`. Baris match gugur: "{kode atau shortLabel} · {formatFor(m).label}" ("SF1 · Race to 6", "Juara 3 · Race to 4").
+- Detail (GU13, 22j–22k): angka = `standing` baris tabel grup (Andi 16 game, 2–1, +3, 67% = 22b); riwayat = semua match
+  pasangan (`PlayerProfile.of` atas semua match) dengan label grup/babak; "Beda lawan" tidak ditampilkan.
+- Bagikan (22l–22r): `Podium.of(finalEntries)` apa adanya (podium 16F = Citra, Andi, Maya; tanpa juara 3 = 4 anak
+  tangga #3 kembar, AC-G18); kolom kanan = `stage`. Caption baris "1. Citra + Dewi — Juara"; "Hasil per Round" diawali
+  label ("Grup A · …", "Semifinal · …", "Juara 3 · …"); match cancelled bersisi tbd ditulis dengan `sourceLabel`
+  ("Pemenang SF2"), bukan "?" (asumsi, tanpa frame).
+- Live (AC-G17): payload sama dengan simpanan (codec); penonton = Jadwal round gugur dengan nama babak + Klasemen grup +
+  peringkat akhir, tanpa tab Bagan dan tanpa aksi. Relay tidak berubah.
+- Format babak setelah jadwal dibuat (GU9): aturan = `formats[round]` boleh diganti selama tidak ada match babak itu
+  dengan hasil (`canChangeKnockoutFormat`). **Belum ada frame** untuk tempatnya di Jadwal (19e menunjuk ke kelompok
+  20/21, tapi 20/21 tidak menggambarnya) — tidak dikerjakan sampai designer/host menjawab (18.13 #1). Juara 3 nyala/mati
+  setelah jadwal dibuat juga menunggu jawaban yang sama.
+
+### 18.11 Data (kebutuhan + usulan kasar; **bentuk final diputuskan dba di GG-0**, `docs/data.md`)
+
+Kebutuhan (PRD 16.10): format turnamen + jumlah grup + anggota grup berurutan + format per babak + juara 3 (config);
+fase tiap match; hasil Buat bagan; sisi gugur yang belum diketahui.
+Usulan tech-lead (dba boleh mengganti):
+- config: kunci opsional `groupKnockout` `{groups: [[pairId…]…], formats: {"PF"|"SF"|"J3"|"F": {scoring, target}},
+  thirdPlace}`; `groupCount` = `groups.length` di simpanan (simpanan selalu setelah layar Grup).
+- match: kunci opsional `phase` (string `MatchPhase.code`); sisi tbd ditulis sebagai `null` (atau objek kosong — dba).
+- Hasil Buat bagan **tidak** disimpan terpisah: yang lolos dan urutannya terbaca dari sisi babak pertama (topologi
+  18.8), "skor grup terkunci" = ada match gugur. Pilihan host = isi slot itu. Court per grup juga tidak perlu kunci:
+  `courtId` tiap match grup sudah tersimpan, jadi jadwal tidak bergeser walau aturan GU3 berubah.
+- **GU15 (app ≤ 3.7.x menolak):** usulan penanda kunci non-angka di `bye` (pola `bye.sparing` yang terbukti: decoder
+  lama `int.parse` tiap kunci `bye` → null), mis. `bye.gg = "1"`. Tanpa penanda, decoder lama mengabaikan kunci baru
+  dan membaca Grup + Gugur sebagai round-robin (bagan hilang, sisi tbd jadi pasangan '' → bisa crash). dba memilih.
+- `schemaVersion` **tetap 2**: semua kunci baru opsional, encode turnamen lain byte-sama dengan 3.7.x (AC-G16). Tidak
+  ada alasan menaikkannya → MINOR.
+- Aturan baca yang perlu (dba menulis, security mencatat di `docs/security.md`): `groupKnockout` hanya bersama
+  mode fixed tanpa `clubs`; `groups` menutup `fixedPairs` tepat sekali (pasangan di dua grup / tanpa grup → null);
+  ukuran = `GroupStage.sizes`; groupCount ∈ {2, 4} dan P sesuai `groupCountsFor`; format babak `isValidKnockout`;
+  `phase` hanya di Grup + Gugur; match `GroupPhase(g)` hanya antara anggota grup g; match gugur: kode cocok dengan
+  `layout` (jumlah, babak, juara 3), semua atau tidak sama sekali; sisi babak pertama = slot 1/2 grup yang benar (dua
+  pasangan grup itu, posisi sesuai topologi); sisi lain = `resolve`; tbd hanya di pending/cancelled; done tanpa
+  pemenang → null. Payload yang melanggar = rusak (tidak bisa ditulis penulis mana pun). `canEncode` aturan yang sama.
+- Pengaturan terakhir (`settings.<olahraga>`, §14.5): 19i mengandaikan Grup + Gugur, jumlah grup, format babak, dan juara
+  3 diingat. Usulan kunci opsional di JSON v1 yang ada; dba memutuskan (termasuk apakah `v` naik).
+
+### 18.12 Jebakan untuk engineer dan reviewer
+
+1. `MatchGame.copyWith`/`_with`/`withScore`/`asWalkover` dan `TournamentConfig.copyWith` wajib membawa `phase` /
+   `groupKnockout`. Test: `withScore` pada match gugur mempertahankan `phase`; `config.copyWith(players: …)` tetap
+   Grup + Gugur.
+2. `isFinal` dan `canAddRounds` punya cabang Grup + Gugur. Tanpanya, fase grup lengkap = "Final" + "Tambah round" (20e
+   salah).
+3. Jangan menulis bye ke `byePairIdByRound` (Jadwal Fixed akan menampilkan baris Istirahat; beberapa grup bye di round
+   yang sama saling menimpa).
+4. `formatFor(m)` di Input Skor, keypad, WO, label baris, caption — bukan `config.format`. Tabel grup dan nilai WO grup
+   memakai format grup. Test AC-G10 dengan Race to 9 / Race to 4.
+5. Head-to-head hanya untuk siapa lolos + urutan slot; nomor tabel grup tetap 4.3 (16D-i: 1, 2, 2, 3). Satu kali, tidak
+   rekursif. Kandidat pilihan host = yang masih seri setelah head-to-head, bukan seluruh tingkat.
+6. `Pair.tbd` tidak boleh bocor: `pairById('')`, caption (`?+?`), live, Detail, `standingPairs`. Match bersisi tbd
+   pending/cancelled saja, jadi ranking dan `PlayerProfile` (hanya done/WO) aman — jangan ubah filter itu.
+7. `resolve` di setiap mutasi skor/WO gugur, di `state =` yang sama; `flipCheck` sebelum mutasi. Ubah skor tanpa ganti
+   pemenang tidak pernah ditolak.
+8. Peringkat akhir: nomor dari `finalEntries.position` (Pitfall nomor), bukan dari tabel grup atau indeks. Kunci 25
+   (Semifinal tanpa hasil) di atas 30–40, 35 cancelled berlabel "Semifinal" tapi pending "Perebutan juara 3".
+9. Posisi grup dua rumus: sebelum bagan 1 + (lebih kecil di grup), setelah bagan 3 + (tidak lolos lebih kecil).
+10. Urutan dalam grup = urutan di `groups` (urutan masuk 19s), bukan urutan `fixedPairs` atau nama.
+11. Konfigurasi memakai P = ⌊pemain ÷ 2⌋; estimasi tidak bergantung isi grup. Round gugur dihitung dari `config.courts`
+    (semua court), walau court kosong di fase grup.
+12. Jalur round-robin/sparing/Mixed/Mexicano harus byte-sama: semua golden dan test lama lolos tanpa diubah (AC-G16).
+
+### 18.13 Pertanyaan terbuka
+
+1. **Ubah format babak / juara 3 setelah jadwal dibuat (GU9) tanpa frame.** 19e menunjuk ke kelompok 20/21, tapi tidak
+   ada frame-nya. Asumsi: 3.8.0 hanya mengatur di Konfigurasi; logika `canChangeKnockoutFormat` ditulis bila frame
+   datang. Rekomendasi: designer menambah satu frame (baris babak di Bagan/menu ⋯) atau host menunda ke 3.8.x.
+2. **Pasangan belum main saat diakhiri di fase grup**: tanpa frame. Asumsi: `position` null ("Belum main") seperti
+   09c, tidak naik podium. Rekomendasi: setujui.
+3. **Caption match gugur tidak dimainkan bersisi tbd**: asumsi tulis "Pemenang SF2" (label Jadwal). Rekomendasi: setujui.
+
+### 18.14 Draf grup (layar Grup 19r–19y) — `services/pairing/group_draft.dart` (baru, pola `PairDraft`)
+
+- `GroupDraft(pairs, groupCount)`: target = `GroupStage.sizes(P, G)`; `groups` = id per grup **urut masuk** (urutan
+  round-robin, 19s); belum masuk grup = sisanya urut daftar pasangan.
+- `tap(pairId, g)`: sudah di grup g → kembali ke "belum masuk grup"; selain itu keluar dari grupnya (kalau ada) dan
+  masuk **di akhir** grup g. Tanpa Urungkan (19r).
+- Label grup: "n dari t"; penuh = "t pasangan"; n > t → angka clay (19v).
+- `blockReason`: grup pertama urut huruf dengan n > t → "Grup X lebih (n − t) pasangan"; kalau tidak ada dan masih ada
+  yang tanpa grup → "k pasangan tanpa grup"; selain itu null = Buat jadwal aktif (G4, AC-G2). Null ⇔ semua masuk dan n
+  = t di tiap grup.
+- `random(Random rng)` (Acak, GU2, 19u): acak urutan pasangan, isi A sampai target, lalu B, …; pindah ke Manual
+  mengosongkan semua grup tanpa konfirmasi. Test menyuntik `Random(seed)`.
+- `reconcile(newPairs)` (kembali ke Pasangan lalu Lanjut lagi, 19o, asumsi designer): pasangan yang anggotanya sama
+  (himpunan id pemain, bukan id pasangan) tetap di grup dan posisinya; yang berubah keluar dari grupnya.
+- Data test: 19t (16A, 4 + 4 → null); 19v 7 pasangan 5 + 2 → "Grup A lebih 1 pasangan", pindah satu ke B → null; 3 +
+  4 → "Grup B lebih 1 pasangan"; 19x 13 pasangan 4 grup 4 + 3 + 3 + 3 → null, 3 + 4 + 3 + 3 → "Grup B lebih 1
+  pasangan"; 19s 2 dari 8 masuk → "6 pasangan tanpa grup".
