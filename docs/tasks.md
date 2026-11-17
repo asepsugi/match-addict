@@ -31,6 +31,16 @@ naik → berhenti, itu MAJOR dan kembali ke host. Tidak ada perubahan build/depl
 
 Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — belum ada frame (`logic.md` 18.13 #1).
 
+### Status (2026-11-17, akhir sesi B5)
+
+- GG-9 + GG-10 selesai di `grup-gugur` (HEAD setelah merge a2e4564): review fresh tech-lead → test tambahan (69a0e53)
+  + saran rapikan (a2e4564: `ActiveTournament.canOpenScore`, `MatchGame.isScorable`, `KnockoutBracket.sourcesOf` /
+  `advancesTo`, test caption di `test/services`). Keputusan 109: frame 22q/22r Story ikut §17.12 #3 (763fd4b, hi-fi
+  v95). Suite penuh 1753 lolos, 1 skip.
+- Diterima host: WO yang membalik pemenang ditolak di sheet kalau babak berikut sudah berskor; Simpan mati saat seri
+  di gugur (pengaman, tidak terjadi). Mixed tetap hanya `isScorable` (tanpa kunci round), sengaja.
+- Berikutnya: GG-11 (sesi baru): versi 3.8.0, docs, build web + Chrome, lalu merge ke `main` setelah host bilang go.
+
 ### Status (2026-11-17, akhir sesi B1–B4)
 
 - Selesai di branch `grup-gugur` (90485e8): GG-0…GG-8. Review fresh tech-lead: GG-1, GG-2, GG-3, GG-4 (temuan sudah
