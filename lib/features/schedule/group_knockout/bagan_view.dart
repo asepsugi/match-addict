@@ -94,13 +94,8 @@ class _BaganViewState extends State<BaganView> {
                 match: card.match,
                 // Titik bola = match di round berjalan yang belum ada skor (makna sama dengan titik di tab round).
                 live: !finished && card.match.roundNumber == current && card.match.status == MatchStatus.pending,
-                // Bisa diisi = sama dengan baris di tab round: round tidak terkunci, sisi lengkap, bukan "Tidak dimainkan".
-                onTap:
-                    widget.onOpenMatch == null ||
-                        card.match.status == MatchStatus.cancelled ||
-                        card.match.pair1.isTbd ||
-                        card.match.pair2.isTbd ||
-                        (!finished && card.match.roundNumber > current)
+                // Bisa diisi = aturan yang sama dengan baris di tab round (`canOpenScore`).
+                onTap: widget.onOpenMatch == null || !active.canOpenScore(card.match)
                     ? null
                     : () => widget.onOpenMatch!(card.match),
               ),
@@ -321,8 +316,7 @@ class _BaganCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final phase = match.phase! as KnockoutPhase;
-    final gk = active.config.groupKnockout!;
-    final (s1, s2) = KnockoutBracket.sources(phase, groupCount: gk.groupCount);
+    final (s1, s2) = KnockoutBracket.sourcesOf(active.config, match)!;
     final off = match.status == MatchStatus.cancelled;
     final code = phase.round.codePrefix == null ? null : KnockoutBracket.code(phase);
     final court = active.config.courts.indexWhere((c) => c.id == match.courtId) + 1;

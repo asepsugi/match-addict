@@ -433,6 +433,10 @@ class MatchGame {
     phase: phase,
   );
 
+  /// Bisa dibuka ke Input Skor dari sisi match sendiri: bukan "Tidak dimainkan" (cancelled) dan kedua sisi sudah
+  /// diketahui (gugur: sisi "tbd" menunggu hasil match sebelumnya).
+  bool get isScorable => status != MatchStatus.cancelled && !pair1.isTbd && !pair2.isTbd;
+
   /// Skor disimpan: status selesai, sisa WO lama (pasangan & alasan) dibuang — membuka match WO di Input
   /// Skor lalu menyimpan skor mengubahnya jadi match biasa.
   MatchGame withScore(List<SetScore> sets) => _with(sets: sets, status: MatchStatus.done);
@@ -794,6 +798,11 @@ class ActiveTournament {
     }
     return late;
   }
+
+  /// Match [m] boleh dibuka ke Input Skor: [MatchGame.isScorable] dan round-nya tidak terkunci (round depan
+  /// terkunci selama turnamen belum diakhiri; setelah diakhiri semua round terbuka). Satu aturan untuk tab round
+  /// Fixed/Grup + Gugur dan kartu Bagan. Tidak butuh jam, jadi tanpa `now`.
+  bool canOpenScore(MatchGame m) => m.isScorable && (tournament.isFinished || m.roundNumber <= currentRound);
 
   /// Round dianggap selesai kalau tidak ada lagi match yang menunggu skor.
   bool isRoundComplete(int round) => matchesOfRound(round).every((m) => m.status != MatchStatus.pending);

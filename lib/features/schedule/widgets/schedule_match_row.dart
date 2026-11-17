@@ -54,11 +54,8 @@ class ScheduleMatchRow extends StatelessWidget {
 
     final winner = match.winnerPairId;
     final phase = match.phase;
-    final gk = active.config.groupKnockout;
     // Grup + Gugur: sisi gugur yang belum diketahui ditulis dari asalnya ("Pemenang SF1"), bukan pairById('').
-    final sources = phase is KnockoutPhase && gk != null
-        ? KnockoutBracket.sources(phase, groupCount: gk.groupCount)
-        : null;
+    final sources = KnockoutBracket.sourcesOf(active.config, match);
     final hasTbd = match.pair1.isTbd || match.pair2.isTbd;
     MatchScoreSide side(Pair pair, int score, VoidCallback? onSwap, SideSource? source) {
       if (pair.isTbd) {
@@ -109,7 +106,7 @@ class ScheduleMatchRow extends StatelessWidget {
       cancelled: cancelled,
       note: cancelled ? 'Tidak dimainkan' : (draw ? 'Seri' : null),
       trailing: onFill == null || hasTbd ? null : MabarButton(label: 'Isi skor', small: true, onPressed: onFill),
-      onTap: cancelled || hasTbd ? null : onTap,
+      onTap: match.isScorable ? onTap : null,
     );
   }
 }

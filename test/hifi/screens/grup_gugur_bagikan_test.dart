@@ -220,29 +220,8 @@ void main() {
       'Klasemen Akhir',
       '1. Citra + Dewi — Juara',
     ]);
-    final i = lines.indexOf('Hasil per Round');
-    expect(lines[i + 1], '· Round 1');
-    expect(lines[i + 2], '  Grup A · Andi+Budi vs Gita+Hadi → 4-6');
-    expect(lines[i + 3], '  Grup B · Indra+Joko vs Oki+Putri → 6-1');
-    expect(lines.sublist(lines.indexOf('· Round 7')), [
-      '· Round 7',
-      '  Semifinal · Andi+Budi vs Maya+Nanda → 6-4',
-      '  Semifinal · Indra+Joko vs Citra+Dewi → 4-6',
-      '· Round 8',
-      '  Final · Andi+Budi vs Citra+Dewi → 7-9',
-      '  Juara 3 · Maya+Nanda vs Indra+Joko → 4-2',
-      '',
-      '8 round · 16 match · 17 Nov 2026',
-    ]);
-  });
-
-  // Keputusan 106: match gugur tidak dimainkan dengan sisi belum diketahui menulis sumbernya, bukan nama.
-  test('K106 caption: match gugur cancelled bersisi tbd menulis sumber ("Pemenang SF2")', () {
-    final caption = captionOf(gg21c().finish(), ShareFormat.lengkap);
-    expect(caption, contains('  Semifinal · Indra+Joko vs Citra+Dewi → tidak dimainkan'));
-    expect(caption, contains('  Final · Andi+Budi vs Pemenang SF2 → tidak dimainkan'));
-    expect(caption, contains('  Juara 3 · Maya+Nanda vs Kalah SF2 → tidak dimainkan'));
-    expect(caption, isNot(contains('?')));
+    // Label babak per baris Hasil per Round dan K106: test/services/result_text_builder_test.dart.
+    expect(lines, contains('Hasil per Round'));
   });
 
   // AC-G18: podium = peringkat akhir apa adanya.
