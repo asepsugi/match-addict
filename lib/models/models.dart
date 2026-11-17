@@ -226,8 +226,17 @@ class GroupKnockout {
     required this.groupCount,
     this.groups = const [],
     required this.formats,
-    this.thirdPlace = true,
+    required this.thirdPlace,
   });
+
+  /// Konfigurasi/layar Grup mengganti isi; [groupCount] ikut apa adanya.
+  GroupKnockout copyWith({List<List<String>>? groups, Map<KnockoutRound, ScoreFormat>? formats, bool? thirdPlace}) =>
+      GroupKnockout(
+        groupCount: groupCount,
+        groups: groups ?? this.groups,
+        formats: formats ?? this.formats,
+        thirdPlace: thirdPlace ?? this.thirdPlace,
+      );
 
   /// 'A'..'D'.
   static String letter(int group) => String.fromCharCode(0x41 + group);
@@ -507,12 +516,14 @@ class TournamentConfig {
   bool get isGroupKnockout => groupKnockout != null;
 
   /// Satu-satunya jalan ke format sebuah match (Input Skor, keypad, WO, label baris, caption): match gugur memakai
-  /// format babaknya, selain itu [format]. Sengaja total (babak tanpa format → [format]) seperti helper klub di
-  /// bawah.
-  ScoreFormat formatFor(MatchGame m) => switch (m.phase) {
-    KnockoutPhase(:final round) => groupKnockout?.formats[round] ?? format,
-    _ => format,
-  };
+  /// format babaknya, selain itu [format]. Rilis tetap total (babak tanpa format → [format]) seperti helper klub di
+  /// bawah; `assert` menangkap config gugur yang lupa format babaknya saat debug/test.
+  ScoreFormat formatFor(MatchGame m) {
+    final phase = m.phase;
+    if (phase is! KnockoutPhase) return format;
+    assert(groupKnockout?.formats[phase.round] != null, 'format babak ${phase.round} tidak ada');
+    return groupKnockout?.formats[phase.round] ?? format;
+  }
 
   /// Batas nama turnamen: muat dua baris di poster Story.
   static const maxNameLength = 40;
@@ -568,7 +579,8 @@ class TournamentConfig {
   ];
 
   // `clubs` ikut tanpa parameter: klub tidak berubah selama turnamen (Pitfall copyWith di CLAUDE.md). `groupKnockout`
-  // wajib ikut juga, kalau tidak Kelola court dsb. diam-diam mengubah turnamen jadi round-robin.
+  // wajib ikut juga, kalau tidak Kelola court dsb. diam-diam mengubah turnamen jadi round-robin. Akibatnya copyWith
+  // tidak bisa mengosongkan `groupKnockout` (null = tetap); turnamen round-robin dibuat dengan konstruktor.
   TournamentConfig copyWith({
     List<Player>? players,
     List<Court>? courts,
@@ -802,6 +814,8 @@ class ActiveTournament {
   bool isFinal(DateTime now) {
     if (tournament.isFinished) return true;
     if (matches.isEmpty) return false;
+    // Grup + Gugur (AC-G14): fase grup lengkap tetap Sementara sampai bagan dibuat dan dimainkan habis.
+    if (config.isGroupKnockout) return hasBracket && matches.every((m) => m.status != MatchStatus.pending);
     return config.mode.isEndless
         ? courtsAvailableAt(now).isEmpty && isRoundComplete(roundCount)
         : matches.every((m) => m.status != MatchStatus.pending);
@@ -994,10 +1008,19 @@ class ActiveTournament {
   /// Grup + Gugur: skor fase grup dikunci begitu bagan dibuat (GU6).
   bool isGroupKnockoutLocked(MatchGame m) => hasBracket && m.phase is GroupPhase;
 
+  /// Grup + Gugur: "Buat bagan" tersedia setelah semua match grup Selesai/WO, sebelum bagan, belum diakhiri (AC-G6).
+  bool get canCreateBracket =>
+      config.isGroupKnockout &&
+      !hasBracket &&
+      !tournament.isFinished &&
+      matches.any((m) => m.phase is GroupPhase) &&
+      matches.every((m) => m.phase is! GroupPhase || m.status == MatchStatus.done || m.status == MatchStatus.wo);
+
   /// Fixed: round tambahan (06v, `RoundRobinGenerator.extraRounds`) boleh dibuat setelah semua match terisi, selama
   /// belum diakhiri.
   bool get canAddRounds =>
       config.mode == PartnerMode.fixed &&
+      !config.isGroupKnockout && // tanpa Tambah round (PRD 16.2)
       !tournament.isFinished &&
       matches.isNotEmpty &&
       matches.every((m) => m.status != MatchStatus.pending);

@@ -346,6 +346,7 @@ void main() {
         KnockoutRound.thirdPlace: ScoreFormat(ScoringMethod.raceTo, 4),
         KnockoutRound.finalRound: ScoreFormat(ScoringMethod.raceTo, 9),
       },
+      thirdPlace: true,
     );
     final config = TournamentConfig(
       sport: SportType.padel,
@@ -398,6 +399,20 @@ void main() {
       expect(gk.rounds, [KnockoutRound.semifinal, KnockoutRound.thirdPlace, KnockoutRound.finalRound]);
       const four = GroupKnockout(groupCount: 4, formats: {}, thirdPlace: false);
       expect(four.rounds, [KnockoutRound.quarterfinal, KnockoutRound.semifinal, KnockoutRound.finalRound]);
+    });
+
+    test('GroupKnockout.copyWith(groups: …) mempertahankan thirdPlace false dan formats', () {
+      final off = gk.copyWith(thirdPlace: false);
+      final regrouped = off.copyWith(
+        groups: const [
+          ['Andi', 'Eko', 'Citra', 'Gita'],
+          ['Indra', 'Kiki', 'Maya', 'Oki'],
+        ],
+      );
+      expect(regrouped.thirdPlace, isFalse);
+      expect(regrouped.formats, gk.formats);
+      expect(regrouped.groupCount, 2);
+      expect(regrouped.groups.first, ['Andi', 'Eko', 'Citra', 'Gita']);
     });
 
     test('KnockoutRound label, shortLabel, codePrefix; MatchPhase code dan ==', () {
