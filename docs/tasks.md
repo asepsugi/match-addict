@@ -119,6 +119,13 @@ Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — b
   `fixed_add_rounds_test`, `sparing_fixed_flow_test`, `resume_tournament_test` lolos tanpa diubah.
 - **Bergantung:** GG-1, GG-2; GG-3 hanya untuk test kill/buka (merge GG-3 dulu).
 
+- **Review GG-4 (2026-11-17): Request changes → selesai di main session** (penjaga `generateNextRound`/`withdrawPlayer`
+  di Grup + Gugur; test alur cek `canEncode` di tiap `read()`). Untuk GG-7/GG-9: setelah `finishNow`, mengubah SF1
+  sampai pemenang berganti masih boleh dan sisi Final cancelled ikut berganti (sesuai §18.8, tanpa frame) — layar
+  mengikuti perilaku turnamen diakhiri yang sudah ada; kalau frame bertentangan, tanya host. Jam fixture 20h, 20l,
+  21u, 21w–21y diambil dari frame terdekat: kalau golden beda, tambah konstanta `at…` baru, jangan ubah yang ada.
+  Opsional: `startIfNeeded` pakai `config.isGroupKnockout` + assert id grup ada di `fixedPairs`.
+
 ## GG-5 · Konfigurasi 19a–19l — sonnet
 
 - **Tujuan:** segmented Round-robin / Grup + Gugur (hanya Fixed biasa, `groupCountsFor`), baris Fase grup / Gugur,

@@ -106,7 +106,8 @@ class TournamentController extends Notifier<ActiveTournament?> {
   void generateNextRound() {
     final current = state;
     final now = ref.read(clockProvider)();
-    if (current == null || !current.canGenerateNextRound(now)) return;
+    // Grup + Gugur: jadwal sudah lengkap sejak awal, round tambahan tanpa `phase` ditolak codec (GR10).
+    if (current == null || current.config.isGroupKnockout || !current.canGenerateNextRound(now)) return;
 
     final roundNumber = current.roundCount + 1;
     // Pemain telat tidak ada di Mexicano (keputusan 28), jadi generatornya memang tidak menerima latePlayerIds.
@@ -208,7 +209,8 @@ class TournamentController extends Notifier<ActiveTournament?> {
   /// [ActiveTournament.canWithdraw]).
   bool withdrawPlayer(String playerId) {
     final current = state;
-    if (current == null || !current.canWithdraw(playerId)) return false;
+    // Grup + Gugur: pemain pulang = WO (PRD 16.9); `withdrawn` harus kosong (GR17).
+    if (current == null || current.config.isGroupKnockout || !current.canWithdraw(playerId)) return false;
     state = current.copyWith(withdrawn: {...current.withdrawnPlayerIds, playerId});
     return true;
   }

@@ -21,7 +21,13 @@ List<String> _shape(ActiveTournament a) => [
 void main() {
   late ProviderContainer container;
   late TournamentStore store;
-  ActiveTournament read() => container.read(tournamentProvider)!;
+  // Tiap state yang dibaca harus bisa disimpan: `LoadedTournament` tidak memasang listener assert `canEncode`.
+  ActiveTournament read() {
+    final s = container.read(tournamentProvider)!;
+    expect(TournamentCodec.canEncode(s), isTrue, reason: 'state tidak bisa disimpan');
+    return s;
+  }
+
   TournamentController controller() => container.read(tournamentProvider.notifier);
 
   ProviderContainer open({ActiveTournament? loaded, DateTime? now}) => ProviderContainer(
@@ -357,5 +363,14 @@ void main() {
       expect(reopened.config.groupKnockout?.formats, state.config.groupKnockout?.formats);
       expect(TournamentCodec.encode(reopened), TournamentCodec.encode(state));
     }
+  });
+
+  test('review GG-4: generateNextRound dan withdrawPlayer tidak berlaku di Grup + Gugur', () {
+    reopen(loaded: gg20b(), now: at20b);
+    final before = read();
+    controller().generateNextRound();
+    expect(identical(read(), before), isTrue);
+    expect(controller().withdrawPlayer(before.config.players.first.id), isFalse);
+    expect(identical(read(), before), isTrue);
   });
 }
