@@ -185,7 +185,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `PairList`, `MabarChip`
 
-- Host menyebar pasangan kuat: Andi · Budi ke A, Indra · Joko ke B. Urutan di grup = urutan masuk; itu urutan round-robin grup (PRD 16.10).
+- Host menyebar pasangan kuat: Andi · Budi dan Citra · Dewi ke A, Indra · Joko ke B → "5 pasangan tanpa grup". Urutan di grup = urutan masuk; itu urutan round-robin grup (PRD 16.10).
 - Baris yang masuk grup pindah ke daftar grupnya (seperti pasangan jadi di 04b), jadi tiap pasangan hanya di satu tempat.
 
 ## 19t · Grup · Manual · lengkap · 4 + 4

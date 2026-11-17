@@ -39,11 +39,9 @@ Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — b
   `lib/features/schedule/group_knockout/bagan_view.dart`, dialog 21k/21l via `KnockoutBracket.flipCheck`) paralel
   GG-10 (Bagikan, caption, live). Lalu review layar oleh main session, GG-11 rilis.
 - `MatchScoreRow.label`: Jadwal (non-compact) 12/14 + `labelOverlap`, Detail (compact) 13 pt — jangan disatukan.
-- Pertanyaan host terbuka: (1) GU9 ubah format babak setelah jadwal dibuat — belum ada frame, rekomendasi tunda ke
-  3.8.x (tidak di batch mana pun); (2) "Belum main" tanpa nomor saat diakhiri di fase grup (GG-8 sudah mengikuti
-  usulan); (3) caption "Pemenang SF2" (GG-10); (4) frame 19s menggambar 3 pasangan masuk / "5 pasangan tanpa grup",
-  catatan menulis 2 → rekomendasi frame benar, perbaiki catatan; (5) oke perbaiki pseudocode PRD §3.3
-  (`rotate[i] vs rotate[n-3-i]`, i = 0..n/2−2; kode benar) + kepala PRD §16 "belum ada spec/task".
+- Pertanyaan host dijawab 2026-11-17 (semua rekomendasi disetujui, PRD keputusan 104–108): GU9 ubah format babak
+  setelah jadwal **ditunda ke 3.8.x** (tidak dikerjakan); "Belum main" tanpa nomor; caption "Pemenang SF2"; frame 19s
+  benar (catatan diperbaiki); pseudocode PRD 3.3 diperbaiki.
 - Asumsi tanpa frame (laporkan ke host saat review): WO gugur tanpa "+n"; subjudul Detail sebelum bagan; sheet pilih
   slot beberapa grup ("Pilih A2 dan C2"); subjudul round gugur "· diakhiri"; setelah finishNow SF masih bisa diubah.
 

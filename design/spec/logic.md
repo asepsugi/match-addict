@@ -1943,4 +1943,4 @@ tiap match; hasil Buat bagan; sisi gugur yang belum diketahui. Keputusan dba (us
   (himpunan id pemain, bukan id pasangan) tetap di grup dan posisinya; yang berubah keluar dari grupnya.
 - Data test: 19t (16A, 4 + 4 → null); 19v 7 pasangan 5 + 2 → "Grup A lebih 1 pasangan", pindah satu ke B → null; 3 +
   4 → "Grup B lebih 1 pasangan"; 19x 13 pasangan 4 grup 4 + 3 + 3 + 3 → null, 3 + 4 + 3 + 3 → "Grup B lebih 1
-  pasangan"; 19s 2 dari 8 masuk → "6 pasangan tanpa grup".
+  pasangan"; 19s 3 dari 8 masuk → "5 pasangan tanpa grup" (keputusan 107); 2 dari 8 → "6 pasangan tanpa grup".

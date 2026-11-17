@@ -107,7 +107,7 @@ function generateRoundRobin(pairs):
     if n ganjil: tambah dummy "bye"
     fixed = pairs[0]; rotate = pairs[1..n-1]
     for round in 0..n-2:
-        matches = [fixed vs rotate[last]] + [rotate[i] vs rotate[n-2-i] for i in 0..n/2-2]
+        matches = [fixed vs rotate[last]] + [rotate[i] vs rotate[n-3-i] for i in 0..n/2-2]
         rotate = [rotate[last]] + rotate[0..last-1]
         yield matches
 ```
@@ -726,6 +726,16 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
      "Ganti pemenang SF1?" dan penolakan kalau babak berikut sudah ada skor; Klasemen "Peringkat | Fase grup" dengan
      kolom # · Pasangan · Babak; podium #1 #2 #3 #3 tanpa Juara 3; Detail tanpa "Beda lawan". Poster selama fase grup
      dan halaman penonton live mengikuti aturan 22g, frame dibuat kalau host minta.
+104. **Ubah format babak / juara 3 setelah jadwal dibuat (GU9) ditunda ke 3.8.x** (2026-11-17, "setuju"): belum ada
+     frame; di 3.8.0 hanya diatur di Konfigurasi.
+105. **Turnamen diakhiri di fase grup:** pasangan yang belum main sama sekali tampil "Belum main" tanpa nomor dan tidak
+     naik podium (2026-11-17).
+106. **Caption match gugur yang tidak dimainkan** dengan sisi belum diketahui menulis sumbernya ("Pemenang SF2"), bukan
+     "?" (2026-11-17).
+107. **Frame 19s benar, catatannya diperbaiki** (2026-11-17): contoh sebagian = Andi · Budi dan Citra · Dewi ke A,
+     Indra · Joko ke B → "5 pasangan tanpa grup".
+108. **Pseudocode round-robin 3.3 diperbaiki** (2026-11-17): pasangan dalam = `rotate[i] vs rotate[n-3-i]`; versi lama
+     memasangkan `rotate[last]` dua kali. Kode (`round_robin_generator.dart`) sudah benar, perilaku tidak berubah.
 
 ---
 
@@ -1637,8 +1647,8 @@ Q1–Q2 disetujui sesuai rekomendasi (keputusan 54–55).
 
 > **Arah diputuskan host 2026-11-17** (keputusan 93–102, §10), rencana rilis **3.8.0 (MINOR)**. Usulan PM GU1–GU16
 > (16.13) dan rekomendasi 16.14 **disetujui host 2026-11-17** (keputusan 102); hi-fi 19a–22r disetujui (keputusan 103).
-> Belum ada spec `logic.md` maupun task. Round-robin
-> Fixed, Mixed, Mexicano, dan Sparing tidak berubah.
+> Spec `design/spec/logic.md` §18, bentuk data `docs/data.md` → Grup + Gugur, task GG-n di `docs/tasks.md`; pertanyaan
+> lanjutan dijawab host 2026-11-17 (keputusan 104–108). Round-robin Fixed, Mixed, Mexicano, dan Sparing tidak berubah.
 
 Grup + Gugur = turnamen Fixed dua fase: **fase grup** (round-robin di dalam tiap grup, 3.3) lalu **fase gugur** (bagan
 dengan 2 besar tiap grup; kalah langsung tersingkir) sampai final.
@@ -1706,7 +1716,7 @@ dengan 2 besar tiap grup; kalah langsung tersingkir) sampai final.
 
 - Konfigurasi (5.3): di bawah mode Fixed ada pilihan format turnamen (Round-robin / Grup + Gugur) dan jumlah grup (2 / 4;
   4 hanya mulai 12 pasangan). Format skor yang ada = format fase grup. Format babak gugur + juara 3 diatur di
-  Konfigurasi dan bisa diubah sampai babak itu punya skor (GU9). Letak dan bentuk oleh designer.
+  Konfigurasi (GU9); mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104).
 - Estimasi di tombol Lanjut **pasti** (seperti Fixed sparing, keputusan 19): round fase grup (16.3) + round gugur
   (GU10), dan "lewat booking hh:mm" kalau melewati booking terpendek.
 - Grup + Gugur tidak memakai "Tambah round" (3.3a) maupun Atur pasangan (04f–04h): turnamen selesai di Final.
@@ -2009,7 +2019,8 @@ Keputusan host 2026-11-17: 93–101 di §10 (jangan dibuka ulang).
   bukan hanya batas 2 vs 3.
 - **GU8.** Metode lolos = default format grup (keputusan 21), Klasemen grup tanpa toggle (Q1).
 - **GU9.** Format babak gugur default = format grup; N genap (Best of/Americano) jadi N + 1; gugur hanya N ganjil.
-  Format babak dan juara 3 bisa diubah sampai babak itu punya skor.
+  Format babak dan juara 3 bisa diubah sampai babak itu punya skor — **ditunda ke 3.8.x** (keputusan 104): di 3.8.0
+  format babak dan juara 3 hanya diatur di Konfigurasi.
 - **GU10.** Court & round gugur 16.6: urut bagan di Court 1, 2, …; Final di Court 1, juara 3 di Court 2; 1 court →
   juara 3 dulu.
 - **GU11.** Ubah skor gugur yang membalik pemenang hanya kalau match lanjutannya masih Belum.
