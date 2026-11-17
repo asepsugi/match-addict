@@ -27,8 +27,8 @@ class RoundRobinGenerator {
     if (pairs.length < 2 || courts.isEmpty) {
       return const FixedSchedule(matches: [], byePairIdByRound: {});
     }
-    final schedule = _Packer(firstRound: 1, courtsFor: (_) => courts);
-    for (final circleRound in _circleRounds(pairs)) {
+    final schedule = RoundPacker(firstRound: 1, courtsFor: (_) => courts);
+    for (final circleRound in circleRounds(pairs)) {
       schedule.add(circleRound);
     }
     return schedule.result;
@@ -65,7 +65,7 @@ class RoundRobinGenerator {
       for (final (i, c) in courts.indexed)
         if (roundsLeft[i] == fit) c,
     ];
-    final schedule = _Packer(
+    final schedule = RoundPacker(
       firstRound: firstRound,
       courtsFor: (r) {
         final open = [
@@ -76,7 +76,7 @@ class RoundRobinGenerator {
       },
     );
 
-    final circle = pairs.length.isEven ? _circleRounds(pairs).toList() : const <_CircleRound>[];
+    final circle = pairs.length.isEven ? circleRounds(pairs).toList() : const <CircleRound>[];
     var putaran = 0;
     while (schedule.rounds < fit) {
       final k = putaranDone + putaran;
@@ -131,8 +131,9 @@ class RoundRobinGenerator {
     );
   }
 
-  /// Putaran circle method: tiap putaran berisi pertandingan yang saling lepas.
-  static Iterable<_CircleRound> _circleRounds(List<Pair> pairs) sync* {
+  /// Putaran circle method: tiap putaran berisi pertandingan yang saling lepas. Publik karena fase grup Grup + Gugur
+  /// (`GroupStage.schedule`) memakai urutan yang sama per grup.
+  static Iterable<CircleRound> circleRounds(List<Pair> pairs) sync* {
     // Pair dummy (null) dipakai kalau jumlahnya ganjil — lawannya berarti bye.
     final slots = <Pair?>[...pairs];
     if (slots.length.isOdd) slots.add(null);
@@ -152,7 +153,7 @@ class RoundRobinGenerator {
         }
         games.add((a, b));
       }
-      yield _CircleRound(games, bye);
+      yield CircleRound(games, bye);
 
       // Putar semua kecuali elemen pertama.
       arrangement = [arrangement.first, arrangement.last, ...arrangement.sublist(1, n - 1)];
@@ -163,7 +164,7 @@ class RoundRobinGenerator {
   /// sisanya di lingkaran; jalur zig-zag i, i+1, i−1, i+2, …, i+m dibagi jadi dua putaran yang masing-masing
   /// mengistirahatkan satu pasangan (pusat, lalu ujung jalur), ditutup satu match antara keduanya. Tiap pasangan
   /// main dua kali, dan m siklus berturut-turut memuat setiap lawan tepat sekali.
-  static List<_CircleRound> _hamiltonCycle(List<Pair> pairs, int k) {
+  static List<CircleRound> _hamiltonCycle(List<Pair> pairs, int k) {
     final hub = pairs.last;
     final m = (pairs.length - 1) ~/ 2;
     final ring = 2 * m;
@@ -175,31 +176,31 @@ class RoundRobinGenerator {
       at(i + m),
     ];
     return [
-      _CircleRound([for (var t = 0; t < ring - 1; t += 2) (path[t], path[t + 1])], hub),
-      _CircleRound([for (var t = 1; t < ring - 1; t += 2) (path[t], path[t + 1]), (hub, path.first)], path.last),
-      _CircleRound([(hub, path.last)], null),
+      CircleRound([for (var t = 0; t < ring - 1; t += 2) (path[t], path[t + 1])], hub),
+      CircleRound([for (var t = 1; t < ring - 1; t += 2) (path[t], path[t + 1]), (hub, path.first)], path.last),
+      CircleRound([(hub, path.last)], null),
     ];
   }
 }
 
-class _CircleRound {
+class CircleRound {
   final List<(Pair, Pair)> games;
   final Pair? bye;
-  const _CircleRound(this.games, this.bye);
+  const CircleRound(this.games, this.bye);
 }
 
 /// Memotong putaran jadi round sebesar court yang tersedia di round itu ([courtsFor], r mulai 1). Tiap putaran
-/// mulai di round baru.
-class _Packer {
+/// mulai di round baru. Publik untuk `GroupStage.schedule` (grup dengan court sendiri).
+class RoundPacker {
   final int firstRound;
   final List<Court> Function(int r) courtsFor;
   final _matches = <MatchGame>[];
   final _byes = <int, String>{};
   int rounds = 0;
 
-  _Packer({required this.firstRound, required this.courtsFor});
+  RoundPacker({required this.firstRound, required this.courtsFor});
 
-  void add(_CircleRound group) {
+  void add(CircleRound group) {
     for (var i = 0; i < group.games.length;) {
       rounds++;
       final courts = courtsFor(rounds);

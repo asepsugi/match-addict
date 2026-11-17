@@ -244,7 +244,11 @@ class StandingEntry {
   /// nomor berikutnya melanjutkan (1, 2, 2, 3). Null = belum main (grup "Belum main" di Klasemen, tanpa nomor).
   final int? position;
 
-  const StandingEntry({required this.players, required this.standing, required this.position});
+  /// Grup + Gugur: babak yang dicapai di peringkat akhir ("Juara", "Grup A · 3", GU16). Null di semua turnamen lain,
+  /// jadi baris, poster, dan caption lama tidak berubah.
+  final String? stage;
+
+  const StandingEntry({required this.players, required this.standing, required this.position, this.stage});
 
   /// "Andi Pratama + Budi Santoso" — nama lengkap, sama dengan baris match di Jadwal: homonim harus terbaca.
   String get label => players.map((p) => p.name).join(' + ');
