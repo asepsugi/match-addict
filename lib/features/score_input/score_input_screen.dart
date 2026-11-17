@@ -103,7 +103,8 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
         : null;
     final blocked = flip is FlipBlocked ? flip : null;
     final oldWinner = match.winnerPairId == match.pair1.id ? match.pair1 : match.pair2;
-    // Gugur selalu butuh pemenang: skor seri tidak bisa disimpan (controller juga menolaknya).
+    // Pengaman saja: format gugur (Race to / Best of) tidak bisa seri, tapi gugur selalu butuh pemenang, jadi kalau
+    // verdict seri tetap jangan bisa disimpan (controller juga menolaknya).
     final canSave = score != null && blocked == null && !(knockout != null && verdict is ScoreDraw);
     final typed = switch (verdict) {
       ScoreWin(:final winnerSide, :final winnerScore, :final loserScore) =>

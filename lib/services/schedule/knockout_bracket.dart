@@ -91,6 +91,14 @@ class KnockoutBracket {
     };
   }
 
+  /// Dua sumber sisi match [m] kalau dia match gugur di turnamen Grup + Gugur; null untuk match lain. Satu pintu untuk
+  /// layar/teks yang menulis sisi belum diketahui dari asalnya ("Pemenang SF1"), bukan dari pasangan kosong.
+  static (SideSource, SideSource)? sourcesOf(TournamentConfig config, MatchGame m) {
+    final phase = m.phase;
+    final gk = config.groupKnockout;
+    return phase is KnockoutPhase && gk != null ? sources(phase, groupCount: gk.groupCount) : null;
+  }
+
   /// "SF1", "PF2", "Juara 3", "Final": kode baris match dan isi tab yang memecah satu babak (21a, 21s).
   static String code(KnockoutPhase phase) => switch (phase.round.codePrefix) {
     final prefix? => '$prefix${phase.slot}',
@@ -274,13 +282,20 @@ class KnockoutBracket {
 
   /// Match yang sisinya diisi oleh [phase]: PF → SF-nya; SF → Final dan Juara 3 (kalau ada); Final dan Juara 3 →
   /// tidak ada. Urutan = urutan pesan 21l ("Final dan Juara 3 sudah ada skor").
-  static List<KnockoutPhase> dependents(GroupKnockout gk, KnockoutPhase phase) => switch (phase.round) {
-    KnockoutRound.quarterfinal => [KnockoutPhase(KnockoutRound.semifinal, phase.slot <= 2 ? 1 : 2)],
-    KnockoutRound.semifinal => [
-      const KnockoutPhase(KnockoutRound.finalRound, 1),
-      if (gk.thirdPlace) const KnockoutPhase(KnockoutRound.thirdPlace, 1),
-    ],
-    KnockoutRound.thirdPlace || KnockoutRound.finalRound => const [],
+  static List<KnockoutPhase> dependents(GroupKnockout gk, KnockoutPhase phase) {
+    final next = advancesTo(phase);
+    return [
+      if (next != null) next,
+      if (phase.round == KnockoutRound.semifinal && gk.thirdPlace) const KnockoutPhase(KnockoutRound.thirdPlace, 1),
+    ];
+  }
+
+  /// Match tempat pemenang [phase] maju: PF → SF-nya, SF → Final; Final dan Juara 3 → null (pemenang = juara / juara 3).
+  /// Tidak butuh config, jadi bisa dipakai teks yang hanya punya fase.
+  static KnockoutPhase? advancesTo(KnockoutPhase phase) => switch (phase.round) {
+    KnockoutRound.quarterfinal => KnockoutPhase(KnockoutRound.semifinal, phase.slot <= 2 ? 1 : 2),
+    KnockoutRound.semifinal => const KnockoutPhase(KnockoutRound.finalRound, 1),
+    KnockoutRound.thirdPlace || KnockoutRound.finalRound => null,
   };
 
   /// Ubah skor gugur (GU11) sebelum disimpan. Pemenang sama, atau match belum punya pemenang → selalu boleh, tanpa

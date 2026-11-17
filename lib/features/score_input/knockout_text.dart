@@ -18,13 +18,13 @@ String? knockoutWalkoverSubtitle(ActiveTournament a, MatchGame m) => switch (m.p
 };
 
 /// Kalimat akibat WO di gugur (21n): pemenang masuk babak berikutnya; nilai WO tidak ditulis (peringkat dari babak).
-String knockoutWalkoverNote(KnockoutPhase p, String winner) =>
-    '$winner menang WO dan ${switch (p.round) {
-      KnockoutRound.quarterfinal => 'masuk ${KnockoutRound.semifinal.label}',
-      KnockoutRound.semifinal => 'masuk ${KnockoutRound.finalRound.label}',
-      KnockoutRound.finalRound => 'juara',
-      KnockoutRound.thirdPlace => 'juara 3',
-    }}.';
+String knockoutWalkoverNote(KnockoutPhase p, String winner) {
+  final next = KnockoutBracket.advancesTo(p);
+  final outcome = next != null
+      ? 'masuk ${next.round.label}'
+      : (p.round == KnockoutRound.thirdPlace ? 'juara 3' : 'juara');
+  return '$winner menang WO dan $outcome.';
+}
 
 /// Pesan tolak ganti pemenang (21l): "Final sudah ada skor · pemenang SF1 tetap Andi & Budi"; dua babak →
 /// "Final dan Juara 3 sudah ada skor · …". [oldWinner] = nama pemenang tersimpan.
@@ -38,16 +38,15 @@ String knockoutFlipTitle(KnockoutPhase p) => 'Ganti pemenang ${KnockoutBracket.c
 /// Isi dialog 21k: susunan baru tiap match yang berganti, "Final: Maya · Nanda vs Citra · Dewi". Sisi yang belum
 /// diketahui ditulis dari asalnya ("Pemenang SF2").
 String knockoutFlipMessage(ActiveTournament a, List<MatchGame> preview) {
-  final gk = a.config.groupKnockout;
   return [
     for (final m in preview)
-      if (m.phase case final KnockoutPhase p when gk != null) _previewLine(a, m, p, gk.groupCount),
+      if (m.phase case final KnockoutPhase p when KnockoutBracket.sourcesOf(a.config, m) != null)
+        _previewLine(a, m, p, KnockoutBracket.sourcesOf(a.config, m)!),
   ].join('\n');
 }
 
-String _previewLine(ActiveTournament a, MatchGame m, KnockoutPhase p, int groupCount) {
-  final (s1, s2) = KnockoutBracket.sources(p, groupCount: groupCount);
+String _previewLine(ActiveTournament a, MatchGame m, KnockoutPhase p, (SideSource, SideSource) sources) {
   String side(Pair pair, SideSource source) =>
       pair.isTbd ? KnockoutBracket.sourceLabel(source) : pair.playerIds.map(a.playerName).join(' · ');
-  return '${KnockoutBracket.code(p)}: ${side(m.pair1, s1)} vs ${side(m.pair2, s2)}';
+  return '${KnockoutBracket.code(p)}: ${side(m.pair1, sources.$1)} vs ${side(m.pair2, sources.$2)}';
 }

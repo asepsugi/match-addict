@@ -138,7 +138,6 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     final restingClubs = clubScore == null ? null : _restingByClub(active, selected);
 
     void openScore(MatchGame m) => context.push('/score-input', extra: m.id);
-    final readOnly = watching || locked;
 
     Widget faded(double opacity, Widget child) => locked ? Opacity(opacity: opacity, child: child) : child;
 
@@ -216,8 +215,10 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
                             active: active,
                             match: m,
                             now: now,
-                            onTap: readOnly ? null : () => openScore(m),
-                            onFill: readOnly || m.status != MatchStatus.pending ? null : () => openScore(m),
+                            onTap: watching || !active.canOpenScore(m) ? null : () => openScore(m),
+                            onFill: watching || !active.canOpenScore(m) || m.status != MatchStatus.pending
+                                ? null
+                                : () => openScore(m),
                           ),
                         ],
                       ],

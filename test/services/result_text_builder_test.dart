@@ -4,6 +4,8 @@ import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/ranking/ranking_calculator.dart';
 import 'package:match_addict/services/share/result_text_builder.dart';
 
+import '../hifi/screens/grup_gugur_fixture.dart';
+
 const _players = [
   Player(id: 'a', name: 'Andi P'),
   Player(id: 'b', name: 'Budi S'),
@@ -135,6 +137,40 @@ void main() {
         _match(status: MatchStatus.done, sets: const [SetScore(side1: 6, side2: 0)]),
       ]);
       expect(ResultTextBuilder.summaryLine(ActiveTournament(tournament: clean)), '1 round · 1 match · 14 Sep 2026');
+    });
+  });
+
+  // Grup + Gugur (PRD 16E/16F): baris Hasil per Round berlabel babak; sisi belum diketahui = sumbernya (keputusan 106).
+  group('Grup + Gugur', () {
+    setUpAll(() => initializeDateFormatting('id'));
+
+    String caption(ActiveTournament a) =>
+        ResultTextBuilder.build(active: a, standings: const [], format: ShareFormat.lengkap, now: at21f);
+
+    test('Hasil per Round berlabel Grup A · / Semifinal · / Final · / Juara 3 ·', () {
+      final lines = caption(gg21i()).split('\n');
+      final i = lines.indexOf('Hasil per Round');
+      expect(lines[i + 1], '· Round 1');
+      expect(lines[i + 2], '  Grup A · Andi+Budi vs Gita+Hadi → 4-6');
+      expect(lines[i + 3], '  Grup B · Indra+Joko vs Oki+Putri → 6-1');
+      expect(lines.sublist(lines.indexOf('· Round 7')), [
+        '· Round 7',
+        '  Semifinal · Andi+Budi vs Maya+Nanda → 6-4',
+        '  Semifinal · Indra+Joko vs Citra+Dewi → 4-6',
+        '· Round 8',
+        '  Final · Andi+Budi vs Citra+Dewi → 7-9',
+        '  Juara 3 · Maya+Nanda vs Indra+Joko → 4-2',
+        '',
+        '8 round · 16 match · 17 Nov 2026',
+      ]);
+    });
+
+    test('K106: match gugur cancelled bersisi tbd menulis sumber ("Pemenang SF2")', () {
+      final text = caption(gg21c().finish());
+      expect(text, contains('  Semifinal · Indra+Joko vs Citra+Dewi → tidak dimainkan'));
+      expect(text, contains('  Final · Andi+Budi vs Pemenang SF2 → tidak dimainkan'));
+      expect(text, contains('  Juara 3 · Maya+Nanda vs Kalah SF2 → tidak dimainkan'));
+      expect(text, isNot(contains('?')));
     });
   });
 }

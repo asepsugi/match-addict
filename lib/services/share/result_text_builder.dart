@@ -123,9 +123,7 @@ class ResultTextBuilder {
         .name;
     // Sisi gugur yang belum diketahui ditulis dari asalnya ("Pemenang SF2"), bukan nama kosong (keputusan 106).
     final phase = m.phase;
-    final sources = phase is KnockoutPhase && config.groupKnockout != null
-        ? KnockoutBracket.sources(phase, groupCount: config.groupKnockout!.groupCount)
-        : null;
+    final sources = KnockoutBracket.sourcesOf(config, m);
     String pair(Pair p, SideSource? source) =>
         p.isTbd && source != null ? KnockoutBracket.sourceLabel(source) : p.playerIds.map(name).join('+');
 
