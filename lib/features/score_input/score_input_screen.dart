@@ -7,9 +7,12 @@ import '../../core/theme/mabar_icons.dart';
 import '../../core/theme/mabar_theme.dart';
 import '../../core/time_text.dart';
 import '../../core/widgets/mabar_controls.dart';
+import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
+import '../../services/schedule/knockout_bracket.dart';
 import '../../services/scoring/score_entry.dart';
 import '../schedule/tournament_controller.dart';
+import 'knockout_text.dart';
 import 'walkover_sheet.dart';
 import 'widgets/score_board.dart';
 
@@ -46,12 +49,27 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
     super.dispose();
   }
 
-  /// Skor tersimpan (juga skor lama match WO) dibuka terisi, belum ada kotak aktif sampai diketuk.
+  /// Skor tersimpan (juga skor lama match WO) dibuka terisi, belum ada kotak aktif sampai diketuk. Match gugur memakai
+  /// format babaknya (`formatFor`, 21g/21h).
   ScoreEntry _initial(ActiveTournament active, MatchGame match) => match.sets.isEmpty
-      ? ScoreEntry.start(active.config.format)
-      : ScoreEntry.edit(active.config.format, match.sets.first);
+      ? ScoreEntry.start(active.config.formatFor(match))
+      : ScoreEntry.edit(active.config.formatFor(match), match.sets.first);
 
-  void _save(MatchGame match, SetScore score) {
+  /// Gugur: pemenang berganti dan match lain ikut berganti → dialog susunan baru dulu (21k); Batal = tetap di papan.
+  Future<bool> _confirmFlip(ActiveTournament active, MatchGame match, FlipCheck flip) async {
+    final phase = match.phase;
+    if (flip is! FlipAllowed || flip.preview.isEmpty || phase is! KnockoutPhase) return true;
+    return showMabarConfirm(
+      context,
+      title: knockoutFlipTitle(phase),
+      message: knockoutFlipMessage(active, flip.preview),
+      confirmLabel: 'Ganti',
+    );
+  }
+
+  Future<void> _save(ActiveTournament active, MatchGame match, SetScore score, FlipCheck? flip) async {
+    if (flip != null && !await _confirmFlip(active, match, flip)) return;
+    if (!mounted) return;
     ref.read(tournamentProvider.notifier).submitScore(match.id, [score]);
     context.pop();
   }
@@ -59,6 +77,8 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
   Future<void> _walkover(ActiveTournament active, MatchGame match) async {
     final result = await showWalkoverSheet(context, active: active, match: match);
     if (result == null || !mounted) return;
+    final winner = result.loserPairId == match.pair1.id ? match.pair2.id : match.pair1.id;
+    if (!await _confirmFlip(active, match, KnockoutBracket.flipCheck(active, match.id, winner)) || !mounted) return;
     ref.read(tournamentProvider.notifier).markWalkover(match.id, loserPairId: result.loserPairId, reason: result.reason);
     context.pop();
   }
@@ -72,17 +92,29 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
     final entry = _entry ??= _initial(active, match);
     List<String> names(Pair pair) => pair.playerIds.map(active.playerName).toList();
     String team(Pair pair) => names(pair).join(' & ');
+    final format = active.config.formatFor(match);
     final score = entry.score;
     final verdict = entry.verdict;
-    final feedback = switch (verdict) {
+    // Gugur (GU11, AC-G9): pemenang yang diketik dicek sebelum disimpan; ditolak → pesan merah, tombol mati (21l).
+    final knockout = match.phase is KnockoutPhase ? match.phase! as KnockoutPhase : null;
+    final typedWinner = verdict is ScoreWin ? (verdict.winnerSide == 1 ? match.pair1 : match.pair2) : null;
+    final flip = knockout != null && typedWinner != null
+        ? KnockoutBracket.flipCheck(active, match.id, typedWinner.id)
+        : null;
+    final blocked = flip is FlipBlocked ? flip : null;
+    final oldWinner = match.winnerPairId == match.pair1.id ? match.pair1 : match.pair2;
+    // Gugur selalu butuh pemenang: skor seri tidak bisa disimpan (controller juga menolaknya).
+    final canSave = score != null && blocked == null && !(knockout != null && verdict is ScoreDraw);
+    final typed = switch (verdict) {
       ScoreWin(:final winnerSide, :final winnerScore, :final loserScore) =>
         '${team(winnerSide == 1 ? match.pair1 : match.pair2)} menang '
             // Americano: yang berarti selisihnya; skornya sudah besar di papan.
-            '${active.config.format.method == ScoringMethod.americano ? '+${winnerScore - loserScore}' : '$winnerScore–$loserScore'}',
+            '${format.method == ScoringMethod.americano ? '+${winnerScore - loserScore}' : '$winnerScore–$loserScore'}',
       ScoreDraw() => 'Seri',
       ScoreInvalid(:final message) => message,
       null => null,
     };
+    final feedback = blocked != null ? knockoutBlockedMessage(blocked, knockout!, team(oldWinner)) : typed;
 
     // Sisa booking court ini, hanya untuk match di round yang sedang berjalan; kurang dari satu match → clay.
     final court = active.courtById(match.courtId);
@@ -101,7 +133,9 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
         children: [
           MabarAppBar(
             title: court.name,
-            subtitle: 'Round ${match.roundNumber} · ${active.config.format.label}${left != null && !short ? ' · $left' : ''}',
+            subtitle:
+                '${knockoutScoreSubtitle(active, match) ?? 'Round ${match.roundNumber} · ${format.label}'}'
+                '${left != null && !short ? ' · $left' : ''}',
             subtitleAlert: short ? left : null,
             onBack: () => context.pop(),
             actions: [
@@ -121,7 +155,7 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: Text(
                 feedback,
-                style: verdict is ScoreInvalid
+                style: verdict is ScoreInvalid || blocked != null
                     ? MabarType.body.copyWith(fontSize: 15, fontWeight: FontWeight.w600, color: MabarColors.clay)
                     : MabarType.body.copyWith(fontSize: 15, color: MabarColors.ink2),
               ),
@@ -131,8 +165,8 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: MabarButton(
               label: match.status == MatchStatus.pending ? 'Simpan skor' : 'Perbarui skor',
-              icon: score == null ? null : MabarIcons.check,
-              onPressed: score == null ? null : () => _save(match, score),
+              icon: canSave ? MabarIcons.check : null,
+              onPressed: canSave ? () => _save(active, match, score, flip) : null,
             ),
           ),
           ScoreKeypad(entry: entry, onChanged: (next) => setState(() => _entry = next)),
