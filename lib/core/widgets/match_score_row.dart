@@ -62,6 +62,9 @@ class MatchScoreRow extends StatelessWidget {
 
   /// `.note-r` di kanan: "Seri", "Tidak dimainkan".
   final String? note;
+
+  /// `.gg-babak` — nama babak di atas baris atas ("Grup A", "Final · Race to 9"); riwayat Detail Grup + Gugur (22j).
+  final String? label;
   final bool cancelled;
   final bool compact;
   final VoidCallback? onTap;
@@ -80,6 +83,7 @@ class MatchScoreRow extends StatelessWidget {
     required this.bottom,
     this.trailing,
     this.note,
+    this.label,
     this.cancelled = false,
     this.compact = false,
     this.onTap,
@@ -137,7 +141,21 @@ class MatchScoreRow extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [_line(top), const SizedBox(height: 8), _line(bottom)],
+                  children: [
+                    if (label != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Text(
+                          label!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MabarType.label.copyWith(fontSize: 13, height: 1.25, color: MabarColors.ink3),
+                        ),
+                      ),
+                    _line(top),
+                    const SizedBox(height: 8),
+                    _line(bottom),
+                  ],
                 ),
               ),
             ),

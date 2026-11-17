@@ -9,6 +9,8 @@ import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
 import '../../models/models.dart';
 import '../../services/ranking/club_score.dart';
+import '../../services/ranking/group_knockout_ranking.dart';
+import '../../services/schedule/knockout_bracket.dart';
 import '../../services/ranking/ranking_calculator.dart';
 import '../live/live_view_controller.dart';
 import '../schedule/club_score_view.dart';
@@ -22,6 +24,18 @@ String rankingStatus(ActiveTournament active, DateTime now) => active.isFinal(no
     ? 'Final · ${active.playedRoundCount} round · ${active.playedMatchCount} match'
     : 'Sementara · R${active.currentRound} · ${active.playedMatchCount} dari ${active.matches.length} match';
 
+/// Mode di subjudul Klasemen. Grup + Gugur menulis fase yang berjalan selama Sementara ("Fase grup", "Gugur") dan
+/// "Grup + Gugur" setelah Final (20d, 22a, 22d); mode lain tetap `mode.label`.
+String rankingModeLabel(ActiveTournament active, DateTime now) {
+  final config = active.config;
+  if (!config.isGroupKnockout) return config.mode.label;
+  if (active.isFinal(now)) return 'Grup + Gugur';
+  return active.hasBracket ? 'Gugur' : 'Fase grup';
+}
+
+/// Tab Klasemen Grup + Gugur setelah bagan dibuat atau turnamen diakhiri (22a, 22b, 22g).
+enum _GroupTab { standing, groups }
+
 /// Screen 09 · Peringkat — tabel rapat, status di subjudul. Metode yang dipilih di sini juga dipakai Detail
 /// dan Bagikan ([rankingMethodProvider]). Baris diketuk → Detail.
 class LeaderboardScreen extends ConsumerStatefulWidget {
@@ -33,6 +47,7 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
 
 class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   bool _scrolled = false;
+  _GroupTab _tab = _GroupTab.standing;
 
   /// Garis bawah app bar begitu isi tergulir ke bawahnya (13o, 14p), sama dengan Konfigurasi.
   bool _onScroll(ScrollNotification n) {
@@ -53,41 +68,57 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     final config = active.config;
     final format = config.format;
     final fixed = config.mode == PartnerMode.fixed;
+    final groupKnockout = config.isGroupKnockout;
 
     // Sparing: papan skor klub tetap di atas dan satu tabel per klub, nomor mulai #1 di tiap klub (PRD §13, K3).
     final clubResult = ref.watch(clubScoreProvider);
     final clubGroups = clubResult == null ? const <ClubStandings>[] : ref.watch(clubStandingEntriesProvider);
     // Nomor lintas klub tidak dipakai di sparing, jadi provider ini hanya dibaca untuk turnamen biasa.
     final entries = clubResult == null ? ref.watch(standingEntriesProvider) : const <StandingEntry>[];
+    // Grup + Gugur: satu tabel per grup; `finalEntries` (lewat standingEntriesProvider) hanya untuk tab Peringkat.
+    final groupTables = groupKnockout ? ref.watch(groupTablesProvider) : const <GroupTable>[];
+    // Sebelum bagan dan belum diakhiri: hanya tabel grup, tanpa tab (20d, 20f, 20n).
+    final showTabs = groupKnockout && (active.hasBracket || active.tournament.isFinished);
+    final showStanding = groupKnockout && showTabs && _tab == _GroupTab.standing;
 
     String record(PlayerStanding s) => format.canDraw ? '${s.wins}–${s.losses}–${s.draws}' : '${s.wins}–${s.losses}';
     final unit = format.unit;
 
-    Widget table(List<StandingEntry> entries) => StandingTable(
-      subjectLabel: fixed ? 'Pasangan' : 'Pemain',
-      recordLabel: format.canDraw ? 'W–L–D' : 'W–L',
-      valueLabel: method == RankingMethod.winPercent ? 'Win %' : '${unit[0].toUpperCase()}${unit.substring(1)}',
-      rows: [
-        for (final e in entries)
-          if (e.position case final position?)
-            StandingTableRow(
-              position: position,
-              names: [for (final p in e.players) p.name],
-              played: e.standing.matchesPlayed,
-              record: record(e.standing),
-              diff: e.standing.diffLabel,
-              value: method == RankingMethod.winPercent
-                  ? '${e.standing.winPercent.round()}'
-                  : '${e.standing.totalPoint}',
-              // Fixed: anggota pertama mewakili pasangannya (statistiknya sama).
-              onTap: () => context.push('/detail-player', extra: e.players.first.id),
-            ),
-      ],
-      idleNames: [
+    // [tableMethod]: tabel grup memakai metode default format (keputusan 21), bukan pilihan host. [slotPairIds]: id pasangan per baris → kode lolos
+    // A1/A2 di kanan nama (22b). [stage]: peringkat akhir, kolom Babak mengganti angka (22a).
+    Widget table(List<StandingEntry> entries, {RankingMethod? tableMethod, List<String>? slotPairIds, bool stage = false}) {
+      final shown = tableMethod ?? method;
+      final idle = [
         for (final e in entries)
           if (e.position == null) [for (final p in e.players) p.name],
-      ],
-    );
+      ];
+      return StandingTable(
+        subjectLabel: fixed ? 'Pasangan' : 'Pemain',
+        recordLabel: format.canDraw ? 'W–L–D' : 'W–L',
+        valueLabel: shown == RankingMethod.winPercent ? 'Win %' : '${unit[0].toUpperCase()}${unit.substring(1)}',
+        stageLabel: stage ? 'Babak' : null,
+        rows: [
+          for (final (i, e) in entries.indexed)
+            if (e.position case final position?)
+              StandingTableRow(
+                position: position,
+                names: [for (final p in e.players) p.name],
+                played: e.standing.matchesPlayed,
+                record: record(e.standing),
+                diff: e.standing.diffLabel,
+                value: shown == RankingMethod.winPercent
+                    ? '${e.standing.winPercent.round()}'
+                    : '${e.standing.totalPoint}',
+                tag: slotPairIds == null ? null : KnockoutBracket.seedOf(active, slotPairIds[i]),
+                stage: stage ? e.stage : null,
+                // Fixed: anggota pertama mewakili pasangannya (statistiknya sama).
+                onTap: () => context.push('/detail-player', extra: e.players.first.id),
+              ),
+        ],
+        idleNames: idle,
+      );
+    }
+
     final notes = [
       for (final (status, label) in [(MatchStatus.wo, 'match WO'), (MatchStatus.cancelled, 'match tidak dimainkan')])
         if (active.matches.where((m) => m.status == status).length case final n when n > 0) '$n $label',
@@ -100,7 +131,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         children: [
           MabarAppBar(
             title: 'Klasemen',
-            subtitle: '${config.sport.label} · ${config.mode.label} · ${rankingStatus(active, ref.read(clockProvider)())}',
+            subtitle: '${config.sport.label} · ${rankingModeLabel(active, ref.read(clockProvider)())} · ${rankingStatus(active, ref.read(clockProvider)())}',
             scrolled: _scrolled,
             onBack: () => context.pop(),
           ),
@@ -108,21 +139,50 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           if (clubResult != null)
             Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: clubScoreOf(clubResult)),
           if (clubResult != null) const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: MabarSegmented<RankingMethod>(
-              options: const [(RankingMethod.totalGames, 'Total Point'), (RankingMethod.winPercent, 'Win %')],
-              selected: method,
-              onChanged: (m) => ref.read(rankingMethodProvider.notifier).state = m,
+          if (showTabs)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: MabarSegmented<_GroupTab>(
+                options: const [(_GroupTab.standing, 'Peringkat'), (_GroupTab.groups, 'Fase grup')],
+                selected: _tab,
+                onChanged: (t) => setState(() => _tab = t),
+              ),
+            )
+          else if (!groupKnockout)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: MabarSegmented<RankingMethod>(
+                options: const [(RankingMethod.totalGames, 'Total Point'), (RankingMethod.winPercent, 'Win %')],
+                selected: method,
+                onChanged: (m) => ref.read(rankingMethodProvider.notifier).state = m,
+              ),
             ),
-          ),
           Expanded(
             child: NotificationListener<ScrollNotification>(
               onNotification: _onScroll,
               child: ListView(
                 padding: EdgeInsets.only(top: 12, bottom: 16 + (watching ? MediaQuery.paddingOf(context).bottom : 0)),
                 children: [
-                  if (clubResult == null)
+                  if (showStanding)
+                    Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: table(entries, stage: true))
+                  else if (groupKnockout)
+                    for (final (i, group) in groupTables.indexed)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16, i == 0 ? 0 : 10, 16, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            MabarGroupHeader.text('Grup ${GroupKnockout.letter(group.group)}'),
+                            const SizedBox(height: 2),
+                            table(
+                              group.entries,
+                              tableMethod: group.method,
+                              slotPairIds: active.hasBracket ? group.pairIds : null,
+                            ),
+                          ],
+                        ),
+                      )
+                  else if (clubResult == null)
                     Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: table(entries))
                   else
                     for (final (i, group) in clubGroups.indexed)

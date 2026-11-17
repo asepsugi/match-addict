@@ -20,14 +20,23 @@ class StandingTableRow {
   final String value;
   final VoidCallback? onTap;
 
+  /// Fase grup Grup + Gugur: slot lolos ("A1") di kanan nama (22b). Null = tanpa tanda.
+  final String? tag;
+
+  /// Peringkat akhir Grup + Gugur: babak yang dicapai ("Juara", "Grup A · 3"), mengganti kolom Main sampai nilai
+  /// (GU16). Non-null hanya kalau tabelnya memakai [StandingTable.stageLabel].
+  final String? stage;
+
   const StandingTableRow({
     required this.position,
     required this.names,
-    required this.played,
-    required this.record,
-    required this.diff,
-    required this.value,
+    this.played = 0,
+    this.record = '',
+    this.diff = '',
+    this.value = '',
     this.onTap,
+    this.tag,
+    this.stage,
   });
 }
 
@@ -46,6 +55,9 @@ class StandingTable extends StatelessWidget {
   final List<StandingTableRow> rows;
   final List<List<String>> idleNames;
 
+  /// Non-null = tabel peringkat akhir Grup + Gugur: tiga kolom (# · nama · [stageLabel] "Babak"), tanpa angka (22a).
+  final String? stageLabel;
+
   const StandingTable({
     super.key,
     required this.subjectLabel,
@@ -53,6 +65,7 @@ class StandingTable extends StatelessWidget {
     required this.valueLabel,
     required this.rows,
     this.idleNames = const [],
+    this.stageLabel,
   });
 
   @override
@@ -64,10 +77,14 @@ class StandingTable extends StatelessWidget {
         cells: [
           Text('#', style: _head, textAlign: TextAlign.left),
           Text(subjectLabel, style: _head),
-          Text('Main', style: _head, textAlign: TextAlign.right),
-          Text(recordLabel, style: _head, textAlign: TextAlign.right),
-          Text('+/−', style: _head, textAlign: TextAlign.right),
-          Text(valueLabel, style: _head, textAlign: TextAlign.right),
+          if (stageLabel case final label?)
+            Text(label, style: _head, textAlign: TextAlign.right)
+          else ...[
+            Text('Main', style: _head, textAlign: TextAlign.right),
+            Text(recordLabel, style: _head, textAlign: TextAlign.right),
+            Text('+/−', style: _head, textAlign: TextAlign.right),
+            Text(valueLabel, style: _head, textAlign: TextAlign.right),
+          ],
         ],
       ),
       for (final r in rows) _ranked(r),
@@ -75,7 +92,11 @@ class StandingTable extends StatelessWidget {
         _row(
           minHeight: 32,
           color: _subBackground,
-          cells: [const SizedBox(), Text('Belum main', style: _head), for (var i = 0; i < 4; i++) const SizedBox()],
+          cells: [
+            const SizedBox(),
+            Text('Belum main', style: _head),
+            for (var i = 0; i < _columns - 2; i++) const SizedBox(),
+          ],
         ),
         for (final names in idleNames) _idle(names),
       ],
@@ -93,7 +114,9 @@ class StandingTable extends StatelessWidget {
                 children[i]
               else
                 DecoratedBox(
-                  decoration: const BoxDecoration(border: Border(top: BorderSide(color: MabarColors.line))),
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: MabarColors.line)),
+                  ),
                   child: Padding(padding: const EdgeInsets.only(top: 1), child: children[i]),
                 ),
           ],
@@ -108,6 +131,11 @@ class StandingTable extends StatelessWidget {
 
   /// Lebar kolom grid: # · nama (sisa) · Main · W–L–D · +/− · nilai.
   static const _widths = <double?>[30, null, 30, 52, 36, 44];
+
+  /// Peringkat akhir: # · nama · babak (sisa lebar, rata kanan).
+  static const _stageWidths = <double?>[30, null, 160];
+
+  int get _columns => stageLabel == null ? _widths.length : _stageWidths.length;
 
   /// Kolom grid [_widths], jarak 6, padding samping 14. Tinggi minimal termasuk garis atas 1 pt (border-box),
   /// jadi baris setelah garis dikurangi 1.
@@ -128,7 +156,10 @@ class StandingTable extends StatelessWidget {
             children: [
               for (final (i, cell) in cells.indexed) ...[
                 if (i > 0) const SizedBox(width: 6),
-                if (_widths[i] case final width?) SizedBox(width: width, child: cell) else Expanded(child: cell),
+                if ((stageLabel == null ? _widths : _stageWidths)[i] case final width?)
+                  SizedBox(width: width, child: cell)
+                else
+                  Expanded(child: cell),
               ],
             ],
           ),
@@ -155,23 +186,67 @@ class StandingTable extends StatelessWidget {
               child: Text('1', style: MabarType.numM.copyWith(fontSize: 17, height: 1, color: MabarColors.ink)),
             ),
           )
-        : Text('${r.position}', textAlign: TextAlign.center, style: MabarType.numM.copyWith(fontSize: 20, color: MabarColors.ink2));
+        : Text(
+            '${r.position}',
+            textAlign: TextAlign.center,
+            style: MabarType.numM.copyWith(fontSize: 20, color: MabarColors.ink2),
+          );
+    final names = Text(
+      r.names.join('\n'),
+      maxLines: r.names.length,
+      overflow: TextOverflow.ellipsis,
+      style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink),
+    );
     return _row(
       // Pasangan Fixed: dua nama ditumpuk, baris 62 (09c).
       minHeight: r.names.length > 1 ? 62 : MabarSize.rankRow,
       onTap: r.onTap,
       cells: [
         number,
-        Text(
-          r.names.join('\n'),
-          maxLines: r.names.length,
-          overflow: TextOverflow.ellipsis,
-          style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink),
-        ),
-        for (final small in ['${r.played}', r.record, r.diff])
-          Text(small, textAlign: TextAlign.right, style: MabarType.numM.copyWith(fontSize: 18, color: MabarColors.ink2)),
-        Text(r.value, textAlign: TextAlign.right, style: MabarType.numM.copyWith(color: MabarColors.ink)),
+        if (r.tag case final tag?)
+          Row(
+            children: [
+              Expanded(child: names),
+              Text(
+                tag,
+                style: MabarType.label.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: MabarColors.ink3),
+              ),
+            ],
+          )
+        else
+          names,
+        if (r.stage case final stage?)
+          _stage(stage)
+        else ...[
+          for (final small in ['${r.played}', r.record, r.diff])
+            Text(
+              small,
+              textAlign: TextAlign.right,
+              style: MabarType.numM.copyWith(fontSize: 18, color: MabarColors.ink2),
+            ),
+          Text(
+            r.value,
+            textAlign: TextAlign.right,
+            style: MabarType.numM.copyWith(color: MabarColors.ink),
+          ),
+        ],
       ],
+    );
+  }
+
+  /// Kolom Babak (22a): "Juara" tinta tebal, babak gugur tinta kedua, posisi grup ("Grup A · 3") abu.
+  Widget _stage(String stage) {
+    final (color, weight) = switch (stage) {
+      'Juara' => (MabarColors.ink, FontWeight.w800),
+      final s when s.startsWith('Grup ') => (MabarColors.ink3, FontWeight.w500),
+      _ => (MabarColors.ink2, FontWeight.w700),
+    };
+    return Text(
+      stage,
+      textAlign: TextAlign.right,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: MabarType.body.copyWith(fontSize: 18, fontWeight: weight, color: color),
     );
   }
 
@@ -180,9 +255,18 @@ class StandingTable extends StatelessWidget {
     return _row(
       minHeight: names.length > 1 ? 62 : MabarSize.rankRow,
       cells: [
-        Text('–', textAlign: TextAlign.center, style: MabarType.numM.copyWith(fontSize: 20, color: _idleNumber)),
-        Text(names.join('\n'), maxLines: names.length, overflow: TextOverflow.ellipsis, style: MabarType.body.copyWith(color: MabarColors.ink3)),
-        for (var i = 0; i < 4; i++) Text('–', textAlign: TextAlign.right, style: dash),
+        Text(
+          '–',
+          textAlign: TextAlign.center,
+          style: MabarType.numM.copyWith(fontSize: 20, color: _idleNumber),
+        ),
+        Text(
+          names.join('\n'),
+          maxLines: names.length,
+          overflow: TextOverflow.ellipsis,
+          style: MabarType.body.copyWith(color: MabarColors.ink3),
+        ),
+        for (var i = 0; i < _columns - 2; i++) Text('–', textAlign: TextAlign.right, style: dash),
       ],
     );
   }
