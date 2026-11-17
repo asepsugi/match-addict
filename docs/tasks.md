@@ -78,6 +78,13 @@ Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — b
   ("PF1–2", "PF3–4"), 4 grup 3 court ("PF1–3", "PF4"); `ranking_calculator_test`/`ranking_v2_test` lolos tanpa diubah.
 - **Bergantung:** GG-1.
 
+- **Review GG-2 (2026-11-17): Approve.** Tindak lanjut opsional (belum ada pemilik, ambil di task yang menyentuh
+  file itu): (1) properti `knockout_bracket_property_test` sebagian tautologis — tambah pembanding independen sisi
+  Final/SF/J3 dari match sumber, cek `FlipBlocked`/`FlipAllowed` terhadap dependent, id `finalEntries` unik; (2)
+  komentar kelas `knockout_bracket.dart:58` kecualikan `build` (melempar); (3) `_withSides` pakai
+  `MatchGame.copyWith(pair1:, pair2:)` (dititipkan ke GG-4); (4) `flipCheck` dengan id bukan sisi match → penjaga; (5)
+  test contoh PF berganti pemenang setelah SF berskor → `FlipBlocked([semifinal])`. `pairById('')` → null masuk GG-4.
+
 ## GG-3 · Codec + aturan baca — sonnet
 
 - **Tujuan:** bentuk dan aturan baca final GG-0 di `TournamentCodec` (`encode`, `decode`, `canEncode`) + pengaturan
