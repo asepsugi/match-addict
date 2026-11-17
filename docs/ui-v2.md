@@ -89,7 +89,7 @@ hi-fi baru, bukan teks versi lama.
 ## Layar (langkah 5, semua selesai)
 
 01 Beranda, 02 Pemain, 03 Konfigurasi, 04 Pasangan, 05 Jadwal Fixed, 06 Jadwal Mixed, 07 Pemain, court & lanjutkan,
-08 Input Skor, 09 Peringkat, 10 Detail, 11 Bagikan. Batas yang tidak tergambar di frame: durasi match maks 180 mnt,
+08 Input Skor, 09 Peringkat, 10 Detail, 11 Bagikan; 19–22 Grup + Gugur (bagian terakhir di bawah). Batas yang tidak tergambar di frame: durasi match maks 180 mnt,
 booking 1–12 jam per court.
 
 ### Umum
@@ -183,6 +183,43 @@ booking 1–12 jam per court.
   `toImage(pixelRatio: 3)` di dalam `tester.runAsync`, dan simpan PNG-nya. Wajib `loadHifiFonts()`
   (`test/hifi/hifi_golden.dart`, memuat Archivo + font ikon `PhosphorBold`) dan tema `MabarTheme.light()` (Pitfalls `CLAUDE.md`).
   `Image.asset` memang tidak ikut ter-render di test.
+
+### Grup + Gugur (3.8.0, frame 19–22)
+
+Spec layar `design/spec/screens/19–22-*.md` + PNG; aturan `logic.md` §18, mesin `docs/architecture.md` → Grup + Gugur. Golden
+per frame di `test/hifi/screens/grup_gugur_*_test.dart` (data bersama `grup_gugur_fixture.dart`, jam dari `clockProvider`).
+Teks yang tidak butuh widget ada di fungsi murni (`gk_labels.dart`, `knockout_text.dart`), jadi dites tanpa render.
+
+- **Konfigurasi 19a–19l** (`konfigurasi/konfigurasi_screen.dart`): segmented Round-robin / Grup + Gugur (hanya Fixed non-Sparing,
+  `GroupStage.groupCountsFor`), baris Fase grup + Gugur membuka sheet; estimasi dari `GroupStage.estimate` +
+  `ConfigSummary.groupKnockoutMeta`. Pengaturan terakhir `last_settings.dart` (kunci `groupKnockout`).
+- **Pasangan + Grup 19m–19y** (`pair_setup/pair_setup_screen.dart` mode grup, `groups/group_screen.dart`, rute `/groups` dengan
+  `extra` `(TournamentConfig, GroupDraft?)`): logika bagi grup di `GroupDraft`, layar hanya menampilkan; Manual (urutan masuk =
+  urutan round-robin) atau Acak; dialog 19y membuat jadwal.
+- **Jadwal fase grup 20a–20q** (`schedule/schedule_fixed_screen.dart`, dipakai juga Fixed biasa): subjudul
+  `gkRoundSubtitle`, label grup di baris match (`MatchScoreRow.label`, `.grp`), tanpa baris Istirahat. Tombol "Buat bagan" muncul
+  saat `canCreateBracket` (20e) → `group_knockout/create_bracket_flow.dart`: `startCreateBracket` (sheet `QualifierPickSheet` kalau
+  ada seri, 20i–20l) → `BuildBracketDialog` (20g/20k/20o) → `createBracket`. Batal di dialog kembali ke sheet dengan pilihan tetap.
+- **Jadwal fase gugur + Bagan 21a–21y** (`schedule_fixed_screen.dart`, `widgets/round_tabs.dart`, `group_knockout/bagan_view.dart`):
+  tab round gugur memakai `KnockoutBracket.roundTab`/`roundTitle`; tab "Bagan" = `RoundTabs.extraTab`, nomornya `roundCount + 1`
+  (state layar `_bagan = -1`), muncul sejak bagan dibuat dan tidak untuk penonton live. `BaganView(active, onOpenMatch)` (`.bagan`):
+  kolom per babak (2 babak = 172 muat tanpa digeser; 3 babak = 160 dengan `_ColumnSnap`, kolom ketiga mengintip 10 pt, 21u), kartu `.m`
+  `_BaganCard` 116 pt, garis penghubung `_LinesPainter`; ketuk hanya kalau `canOpenScore`. Baris gugur memakai `ScheduleMatchRow` dengan
+  `.gg-babak` ("SF1 · Race to 6"), sisi tbd `.gg-tbd` dari `KnockoutBracket.sourceLabel`, kode slot `.gg-seed` dari `seedOf`.
+- **Input Skor + WO gugur 21g–21n** (`score_input/score_input_screen.dart`, `walkover_sheet.dart`, `knockout_text.dart`): subjudul
+  `knockoutScoreSubtitle`; ganti pemenang → dialog 21k (pratinjau `FlipAllowed.preview`) atau 21l (`FlipBlocked`, ditolak); WO memakai
+  kalimat `knockoutWalkoverNote`. Format dari `config.formatFor(m)`.
+- **Klasemen 20d–20n, 22a–22i** (`leaderboard/leaderboard_screen.dart`, `widgets/standing_table.dart`): Fase grup = satu tabel per
+  `GroupTable` (`groupTablesProvider`, A1/A2 di kanan nama); Peringkat = `StandingTable(stageLabel: 'Babak')` tiga kolom (# · nama · Babak,
+  `StandingEntry.stage`; "Grup A · 3" redup), tanpa toggle metode. Nomor dari `standingEntriesProvider`.
+- **Detail 22j–22k** (`detail_player/detail_player_screen.dart`): angka = baris tabel grup; riwayat semua match dengan label grup/babak;
+  tanpa "Beda lawan".
+- **Bagikan 22l–22r** (`share/share_content.dart`, `podium_poster.dart`, `share_poster.dart`): `shareModeLabel` ("Grup + Gugur" bukan "Fixed");
+  kolom kanan poster = `stage` (`SharePosterRow.stage`/`PodiumRowData.stage`, tanpa satuan, `muted` untuk "Grup …"); podium dari
+  `Podium.of(finalEntries)`; tanpa juara 3 = tiga anak tangga #3 kembar. Frame 22q/22r Story ikut `bawahKepala` §17.12 #3 (keputusan 109).
+- **`MatchScoreRow.label` — dua ukuran, jangan disatukan:** Jadwal (non-compact) = `.grp`/`.gg-babak` setinggi 14, font 12/14,
+  menjorok `labelOverlap` (default 4) pt ke jarak 8 pt; Detail (`compact`) = 13 pt, ink3, tanpa tumpang tindih. Angkanya dari hi-fi per layar
+  (Detail 22j tetap 13 pt); satu nilai untuk keduanya membuat salah satu golden meleset.
 
 ## Painter lapangan (langkah 4)
 

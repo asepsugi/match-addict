@@ -1845,6 +1845,9 @@ bagan selalu Sementara walau semua match grup terisi (20f). Cabang baru di `isFi
   pemain sudah tertutup oleh mode Fixed.
 - `submitScore` / `markWalkover`: tolak match grup terkunci; match gugur → `flipCheck` (blocked → tidak berubah) →
   ubah match → `resolve`. Satu `state =`. Jangan menambah `saveActive`/kirim live manual (CLAUDE.md).
+  Pengaman: skor gugur tanpa pemenang (`winnerPairId == null`, seri) ditolak; di sheet Simpan mati (B5, diterima host).
+- Buka skor: `MatchGame.isScorable` (semua mode) + `ActiveTournament.canOpenScore` (kunci round fase grup/gugur);
+  Mixed hanya `isScorable`, sengaja (B5).
 - `finishNow` apa adanya: match gugur pending (termasuk sisi tbd) → cancelled; bagan tidak dibuat kalau masih fase grup.
 - Provider: `standingEntriesProvider` → `finalEntries` untuk Grup + Gugur (Klasemen tab Peringkat, Detail "Peringkat n",
   Bagikan, caption, live membaca nomor yang sama); `groupTablesProvider` (baru) → `groupTables`. `rankingMethodProvider`

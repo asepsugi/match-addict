@@ -66,6 +66,8 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 - State turnamen: Riverpod `tournamentProvider` (`features/schedule/tournament_controller.dart`) — satu-satunya sumber
   kebenaran sejak layar jadwal. Sebelum itu data dioper lewat `extra` router.
 - Mesin per engine, provider, dan invariant: `docs/architecture.md`.
+- Grup + Gugur (3.8.0): `config.groupKnockout` + `MatchGame.phase`; format match lewat `config.formatFor(m)`, bukan
+  `config.format`; peringkat lewat `finalEntries` (`standingEntriesProvider`), bukan `standingsProvider`.
 
 ## Versioning app (PRD §12)
 
@@ -84,7 +86,7 @@ Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point)
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
 sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini"; 3.7.1 (PATCH) = lantai poster
-lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92).
+lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed).
 
 ## Status
 
@@ -117,9 +119,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - PATCH 3.7.1: lantai poster = lapangan utuh L1 + dinding padel, kepala memudar (keputusan 91), ukuran/perataan
   (keputusan 92); geometri `lib/services/share/court_floor.dart` = `tool/hifi_court_floor.py`. Branch
   rilis 3.7.1 di `main` (527b0ab).
-- Grup + Gugur 3.8.0 (MINOR, rencana): PRD §16 + keputusan 93–103, hi-fi 19a–22r (artifact v93), spec layar
-  `design/spec/screens/19–22`; branch `grup-gugur`. Berikutnya: spec `logic.md` + task (tech-lead) dan bentuk data
-  (dba; kalau `schemaVersion` naik → MAJOR, tanya host).
+- Grup + Gugur 3.8.0 (MINOR): PRD §16 + keputusan 93–109, hi-fi 19a–22r (artifact v95), spec `logic.md` §18, data
+  `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Branch `grup-gugur` siap rilis 3.8.0+24 (GG-11, suite 1753
+  lolos); merge ke `main` menunggu host. Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
 
 ## Area docs
 
@@ -142,5 +144,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Nomor peringkat selalu dari `standingEntriesProvider` / `StandingEntry.position`, jangan menomori dengan indeks.
 - Render di `flutter test` memakai font Ahem kecuali `loadHifiFonts()` + `MabarTheme.light()`: jangan menilai tata
   letak dari render tanpa itu.
+- Mutasi skor/WO gugur: `flipCheck` sebelum mutasi, lalu `KnockoutBracket.resolve` di `state =` yang sama.
+  `MatchGame.copyWith`/`TournamentConfig.copyWith` wajib membawa `phase`/`groupKnockout`, kalau tidak jadi match biasa.
 - Kode web (`.toJS`, `web/index.html`, back browser, service worker) tidak teruji `flutter test`: cek dengan
   `tool/build_web.sh` + Chrome (`docs/infra.md`).

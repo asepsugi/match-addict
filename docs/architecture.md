@@ -156,6 +156,55 @@ dipakai ulang; tidak ada generator atau layar kedua.
 - **Konfigurasi** (keputusan 33–38): satu layar baris Skor/Court + sheet; pengaturan terakhir per olahraga di
   `services/storage/last_settings.dart` (kunci Hive sendiri, di luar `TournamentCodec`), ditulis saat turnamen dimulai.
 
+## Grup + Gugur (3.8.0)
+
+Format ketiga untuk Fixed: fase grup round-robin per grup, lalu bagan gugur (PRD §16, keputusan 93–109; aturan, data test,
+invariant, dan jebakan `design/spec/logic.md` §18; simpanan `docs/data.md` → Grup + Gugur). Hanya Fixed turnamen biasa
+(bukan Sparing); semua cabang dimulai dari `config.isGroupKnockout`, jalur lain byte-sama (AC-G16). Ubah format babak /
+juara 3 **setelah** jadwal dibuat (GU9) ditunda ke 3.8.x: tidak ada kodenya.
+- **Model** (`models.dart`): `GroupKnockout` (`groupCount` 2/4, `groups` = id pasangan per grup berurutan, `formats` per
+  `KnockoutRound`, `thirdPlace`) di `TournamentConfig.groupKnockout`; `MatchGame.phase` (`GroupPhase` / `KnockoutPhase`,
+  `code` "A"/"SF2"/"F"/"J3"); `Pair.tbd` untuk sisi gugur yang belum diketahui; `StandingEntry.stage`;
+  `TournamentConfig.formatFor(m)` = **satu-satunya** jalan ke format sebuah match. `ActiveTournament`: `hasBracket`,
+  `isGroupKnockoutLocked`, `canCreateBracket`, `canOpenScore`, `isFinal` bercabang, `canAddRounds` false.
+  `byePairIdByRound` selalu kosong (tanpa baris Istirahat).
+- **Service** (Dart murni, tes `test/services/group_knockout_*`): `schedule/group_stage.dart` (`GroupStage.sizes`,
+  `groupCountsFor`, `courtsOfGroups`, `schedule`, `estimate`); `pairing/group_draft.dart` (draf layar Grup, pola
+  `PairDraft`); `ranking/group_knockout_ranking.dart` (`groupTables`, `qualifierPlan` → `QualifierPlan.withPicks`,
+  `finalEntries`); `schedule/knockout_bracket.dart` (`layout`, `build`, `resolve`, `flipCheck`, `sources`, `sourceLabel`,
+  `seedOf`, `roundTab`/`roundTitle`/`matchLabel`, `advancesTo`).
+- **Alur:** Konfigurasi (segmented Round-robin / Grup + Gugur, sheet Fase grup & Gugur) → Pasangan (Acak/Manual) → layar
+  Grup (`/groups`, bagi pasangan ke grup) → `startIfNeeded` membuat jadwal fase grup (`GroupStage.schedule`) → Jadwal
+  per round, kunci round seperti Fixed → semua match grup terisi → "Buat bagan": `qualifierPlan` (head-to-head hanya untuk
+  siapa lolos; seri yang tersisa = sheet pilih slot) → dialog → `createBracket(picks)` menambah semua match gugur dalam satu
+  `state =` → tab Bagan; skor gugur memajukan pemenang lewat `resolve` → Final → Klasemen = peringkat akhir.
+- **Invariant:** (1) skor grup terkunci begitu bagan ada (`isGroupKnockoutLocked`, `_groupKnockoutUpdate` menolak); (2)
+  match bersisi tbd tidak bisa diisi dan hanya boleh pending/cancelled, jadi ranking/`PlayerProfile` (hanya done/WO) aman;
+  (3) gugur selalu punya pemenang (skor seri ditolak); (4) ganti pemenang gugur: `flipCheck` **sebelum** mutasi
+  (`FlipBlocked` kalau babak berikutnya sudah ada hasil, `FlipAllowed(preview)` untuk dialog 21k), lalu `resolve` di `state =`
+  yang sama — WO lewat jalur yang sama (`markWalkover`); (5) dua pasangan satu grup paling cepat bertemu di Final (AC-G8);
+  (6) round gugur selalu sesudah round grup terakhir, court dari `config.courts` (bukan court kunci grup); (7) nomor
+  peringkat akhir dari `finalEntries.position` (peringkat rapat dari kunci tingkat; tingkat kosong tidak memakan nomor).
+- **Selesai/diakhiri:** `isFinal` = diakhiri, atau `hasBracket` dan tidak ada match pending (sebelum bagan selalu Sementara).
+  `finishNow` apa adanya: match gugur pending (termasuk sisi tbd) → cancelled; peringkat akhir: cancelled di Juara 3 berlabel
+  "Semifinal", match yang tidak dimainkan bukan babak yang dicapai (`logic.md` §18.9).
+- **Buka skor:** `MatchGame.isScorable` (bukan cancelled, tanpa sisi tbd) + `ActiveTournament.canOpenScore(m)` (`isScorable`
+  dan round tidak terkunci: ≤ `currentRound` atau turnamen diakhiri). Satu aturan untuk baris Jadwal dan kartu Bagan.
+  Mixed/Mexicano tetap hanya `isScorable` (tanpa kunci round), sengaja.
+- **Provider:** `standingEntriesProvider` → `finalEntries` untuk Grup + Gugur (Klasemen, Detail, Bagikan, caption, live
+  satu sumber); `groupTablesProvider` → `groupTables`. `standingsProvider` (semua match, satu format) dan
+  `rankingMethodProvider` **tidak berlaku** di sini (toggle metode tidak tampil). Teks Jadwal/Input Skor/WO dari fungsi murni
+  `gk_labels.dart` dan `score_input/knockout_text.dart` (bisa dites tanpa render).
+- **Live:** payload = simpanan (codec); penonton memakai Jadwal round gugur + Klasemen, tanpa tab Bagan dan tanpa aksi
+  (`BaganView.onOpenMatch` null). Relay tidak berubah.
+- **Simpanan:** `schemaVersion` tetap 2; penanda `bye.gg = "1"` membuat app ≤ 3.7.x menolak (GU15); 17 aturan baca GR1–GR17
+  di `docs/data.md`.
+- **Jebakan:** `MatchGame.copyWith`/`_with` dan `TournamentConfig.copyWith` wajib membawa `phase`/`groupKnockout` (lupa →
+  match gugur jadi match biasa / `addRounds` menghapus Grup + Gugur); jangan `config.format` untuk match gugur (pakai
+  `formatFor`); jangan menulis bye ke `byePairIdByRound`; `Pair.tbd` jangan bocor ke `pairById('')`/caption/live (tulis
+  `sourceLabel`, "Pemenang SF2"); posisi grup punya dua rumus (sebelum vs sesudah bagan); urutan dalam grup = urutan di
+  `groups`, bukan `fixedPairs`; Konfigurasi memakai P = ⌊pemain ÷ 2⌋. Daftar penuh: `logic.md` §18.12.
+
 ## Ranking & klasemen
 
 - `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang

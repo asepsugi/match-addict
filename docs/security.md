@@ -24,7 +24,7 @@ live/relay, atau menambah dependensi.
 | 3 | Info | Nama klub tanpa batas panjang saat baca; semua tampilan `maxLines` + elipsis, caption teks biasa. | Tidak perlu. |
 | 4 | Info (sejak 2.5.0) | `roundNumber` raksasa (mis. 10⁹) di payload live membuat tab penonton membeku (`latePlayerIds`, `currentRound` mengulang 1..roundCount). Tidak memengaruhi host/data. | **Selesai 3.3.2**: decode (dan encode) menolak `roundNumber` di luar 1..1000. |
 
-## Grup + Gugur (3.8.0, rencana — dari GG-0 dba, 2026-11-17)
+## Grup + Gugur (3.8.0 — dari GG-0 dba, dicek di rilis GG-11 2026-11-17)
 
 Bentuk dan aturan baca GR1–GR17: `docs/data.md` → Grup + Gugur. Yang wajib dijaga di kode dan review:
 
