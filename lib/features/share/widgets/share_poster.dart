@@ -18,12 +18,18 @@ class SharePosterRow {
   final String? detail;
   final String diff;
 
+  /// Grup + Gugur (GU16): [value] = babak yang dicapai, [diff] kosong; [muted] = posisi grup ("Grup A · 3").
+  final bool stage;
+  final bool muted;
+
   const SharePosterRow({
     required this.position,
     required this.names,
     required this.value,
     this.detail,
     required this.diff,
+    this.stage = false,
+    this.muted = false,
   });
 }
 
@@ -239,12 +245,13 @@ class _LengkapPanel extends StatelessWidget {
     // Nama paling besar = baris kecil kepala (keputusan 91); kn mengecilkan dari situ.
     final nameBase = min(sz.name * s, posterNameMax(story ? PodiumPosterTarget.story : PodiumPosterTarget.feed));
     // Kolom nilai/keterangan selebar yang terpanjang di seluruh poster (keputusan 91).
+    final stageRows = data.allRows.any((r) => r.stage);
     final (valCol, restCol) = posterValueColumns(
       data.allRows.map((r) => (r.value, _rest(r, sz))),
-      _valueStyle(sz, s, theme),
+      stageRows ? _stageStyle(nameBase, false, theme) : _valueStyle(sz, s, theme),
       _restStyle(sz, s, theme),
     );
-    final valW = valCol + 3 * s + restCol;
+    final valW = valCol + (restCol > 0 ? 3 * s + restCol : 0);
     final kn = _nameScale(sz, s, colW, nameBase, valW);
 
     Widget cell(LengkapCell c) => switch (c) {
@@ -262,6 +269,7 @@ class _LengkapPanel extends StatelessWidget {
         sizes: sz,
         s: s,
         name: nameBase * kn,
+        stageSize: nameBase,
         valueWidth: valCol,
         restWidth: restCol,
         theme: theme,
@@ -359,6 +367,9 @@ class _Row extends StatelessWidget {
 
   /// Ukuran nama sesudah batas dan kn.
   final double name;
+
+  /// Ukuran huruf babak (`.pt.gg-bk`): nama sebelum kn.
+  final double stageSize;
   final double valueWidth, restWidth;
   final PodiumTheme theme;
 
@@ -369,6 +380,7 @@ class _Row extends StatelessWidget {
     required this.sizes,
     required this.s,
     required this.name,
+    required this.stageSize,
     required this.valueWidth,
     required this.restWidth,
     required this.theme,
@@ -412,7 +424,7 @@ class _Row extends StatelessWidget {
           PosterValue(
             value: row.value,
             rest: _rest(row, sizes),
-            valueStyle: _valueStyle(sizes, s, theme),
+            valueStyle: row.stage ? _stageStyle(stageSize, row.muted, theme) : _valueStyle(sizes, s, theme),
             restStyle: _restStyle(sizes, s, theme),
             valueWidth: valueWidth,
             restWidth: restWidth,
@@ -477,7 +489,10 @@ class _ClubHead extends StatelessWidget {
 }
 
 /// Teks kecil sesudah nilai: feed1 bersatuan "game · +18" (Win %: "· +8"), susunan lain "· +31".
-String _rest(SharePosterRow r, _Sizes sz) => sz.unit && r.detail != null ? '${r.detail} · ${r.diff}' : '· ${r.diff}';
+String _rest(SharePosterRow r, _Sizes sz) {
+  if (r.stage) return '';
+  return sz.unit && r.detail != null ? '${r.detail} · ${r.diff}' : '· ${r.diff}';
+}
 
 TextStyle _nameStyle(double size, bool gold, PodiumTheme theme) => posterStyle(
   size: size,
@@ -485,6 +500,15 @@ TextStyle _nameStyle(double size, bool gold, PodiumTheme theme) => posterStyle(
   stretch: 88,
   height: 1.2,
   color: theme.panelText,
+);
+
+/// `.pt.gg-bk`: babak sebesar nama (batas baris kecil kepala), tebal 800 lebar 88%; posisi grup 600 warna teks kedua.
+TextStyle _stageStyle(double size, bool muted, PodiumTheme theme) => posterStyle(
+  size: size,
+  weight: muted ? FontWeight.w600 : FontWeight.w800,
+  stretch: 88,
+  height: 1.2,
+  color: muted ? theme.panelText2 : theme.panelText,
 );
 
 TextStyle _valueStyle(_Sizes sz, double s, PodiumTheme theme) =>

@@ -50,6 +50,11 @@ class PodiumRowData {
   final String value;
   final String detail;
 
+  /// Grup + Gugur (GU16): [value] = babak yang dicapai ("Juara", "Semifinal"), tanpa [detail]; [muted] = posisi grup
+  /// ("Grup A · 3"), warna teks kedua dan tebal 600 (`.val.gg-bk.g`).
+  final bool stage;
+  final bool muted;
+
   const PodiumRowData({
     required this.badge,
     this.hash = true,
@@ -57,6 +62,8 @@ class PodiumRowData {
     required this.names,
     required this.value,
     required this.detail,
+    this.stage = false,
+    this.muted = false,
   });
 }
 
@@ -986,7 +993,20 @@ class _Panel extends StatelessWidget {
     TextStyle smallStyle() => posterStyle(size: valSmall, weight: FontWeight.w600, color: theme.panelText2);
     // Nilai rata kanan dan keterangan rata kiri di kolom selebar yang terpanjang, supaya angka dan "·" sejajar
     // walau jumlah digit selisih berbeda (keputusan 91).
-    final (valCol, restCol) = posterValueColumns(data.rows.map((r) => (r.value, r.detail)), bStyle(), smallStyle());
+    // Babak (`.val.gg-bk`): Archivo 13,5 (Story 17) tebal 800 lebar 88%; posisi grup tebal 600 warna teks kedua.
+    TextStyle stageStyle(bool muted) => posterStyle(
+      size: story ? 17 : 13.5,
+      weight: muted ? FontWeight.w600 : FontWeight.w800,
+      stretch: 88,
+      height: 1.2,
+      color: muted ? theme.panelText2 : theme.panelText,
+    );
+    final stageRows = data.rows.any((r) => r.stage);
+    final (valCol, restCol) = posterValueColumns(
+      data.rows.map((r) => (r.value, r.detail)),
+      stageRows ? stageStyle(false) : bStyle(),
+      smallStyle(),
+    );
     final valW = valCol + (restCol > 0 ? 4 + restCol : 0);
 
     // Nama mengecil bersama (langkah 0,5) sampai semua muat di kolomnya; batas bawah 11,5, lalu elipsis per nama.
@@ -1062,7 +1082,7 @@ class _Panel extends StatelessWidget {
                     PosterValue(
                       value: r.value,
                       rest: r.detail,
-                      valueStyle: bStyle(),
+                      valueStyle: r.stage ? stageStyle(r.muted) : bStyle(),
                       restStyle: smallStyle(),
                       valueWidth: valCol,
                       restWidth: restCol,
