@@ -98,6 +98,11 @@ Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — b
   salinan aturan decoder 3.7.1 → null (test seperti `sparing_codec_test`).
 - **Bergantung:** GG-0, GG-2 (`layout`/`resolve` untuk validasi sisi).
 
+- **Review GG-3 (2026-11-17): Request changes → selesai di main session** (literal Mexicano 3.7.x di AC-G16).
+  Opsional: `canEncode` false untuk GR13–GR16 (terutama Final done tanpa pemenang); test ukuran pakai id panjang UUID
+  dan tulis angkanya di komentar; properti acak skor/WO → `canEncode` + round trip (cek di review GG-4). Risiko: kalau
+  kelak Atur pasangan/tukar pemain dibuka untuk Grup + Gugur, sisi match ≠ `fixedPairs` → encode gagal.
+
 ## GG-4 · Controller + provider + fixture golden bersama — opus
 
 - **Tujuan:** §18.10: `startIfNeeded` cabang Grup + Gugur, `createBracket(picks)`, `submitScore`/`markWalkover` (kunci

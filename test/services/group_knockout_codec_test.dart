@@ -77,6 +77,14 @@ void main() {
     for (final (name, raw) in [
       ('Fixed + extraPutaran + bye', _lit('fixed', '{"1":"A","2":"B"}', '{}', '[]', 1)),
       ('Mixed + resting + withdrawn', _lit('mixed', '{}', '{"1":["p1"]}', '["p2"]', 0)),
+      // Mexicano 3.4–3.7.x: Americano 21, resting terisi, satu withdrawn (review GG-3).
+      (
+        'Mexicano + resting + withdrawn',
+        _lit('mixed', '{}', '{"1":["p1"]}', '["p2"]', 0)
+            .replaceFirst('"mode":"mixed"', '"mode":"mexicano"')
+            .replaceFirst('"scoring":"raceTo","target":6', '"scoring":"americano","target":21')
+            .replaceFirst('{"side1":6,"side2":3}', '{"side1":12,"side2":9}'),
+      ),
     ]) {
       test(name, () {
         final a = TournamentCodec.decode(raw)!;
