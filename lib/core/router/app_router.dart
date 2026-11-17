@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/groups/group_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/konfigurasi/konfigurasi_screen.dart';
 import '../../features/pair_setup/pair_setup_screen.dart';
@@ -13,6 +14,7 @@ import '../../features/share/share_result_screen.dart';
 import '../../features/score_input/score_input_screen.dart';
 import '../../features/setup_peserta/setup_peserta_screen.dart';
 import '../../models/models.dart';
+import '../../services/pairing/group_draft.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -35,6 +37,13 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/pair-setup',
       builder: (_, state) => PairSetupScreen(config: state.extra as TournamentConfig),
+    ),
+    GoRoute(
+      path: '/groups',
+      builder: (_, state) {
+        final (config, draft) = state.extra as (TournamentConfig, GroupDraft?);
+        return GroupScreen(config: config, initial: draft);
+      },
     ),
     GoRoute(
       path: '/schedule',

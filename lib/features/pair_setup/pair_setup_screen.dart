@@ -11,6 +11,7 @@ import '../../core/widgets/mabar_inputs.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../core/widgets/numbered_lists.dart';
 import '../../models/models.dart';
+import '../../services/pairing/group_draft.dart';
 import '../../services/pairing/pair_generator.dart';
 
 /// Screen 04 · Pasangan (Fixed) — satu daftar pasangan bernomor. Acak langsung saat dibuka; Manual
@@ -36,6 +37,12 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
   /// Manual: pemain yang sudah diketuk dan menunggu pasangannya.
   Player? _picked;
 
+  /// Grup + Gugur (19m–19q): dibuka Manual, tombol "Lanjut" ke layar Grup, bukan kunci.
+  bool get _groupMode => widget.config.isGroupKnockout;
+
+  /// Pembagian grup dari kunjungan ke layar Grup sebelumnya; disesuaikan ke pasangan terbaru saat Lanjut (19o).
+  GroupDraft? _groupDraft;
+
   List<Player> get _players => widget.config.players;
 
   List<Club>? get _clubs => widget.config.clubs;
@@ -43,7 +50,8 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
   @override
   void initState() {
     super.initState();
-    _pairs = _shuffled();
+    _manual = _groupMode;
+    _pairs = _groupMode ? const [] : _shuffled();
   }
 
   List<Pair> _shuffled() {
@@ -93,6 +101,15 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
   void _editPlayers() => Navigator.of(context)
     ..pop()
     ..pop();
+
+  /// Grup + Gugur: ke layar Grup, tanpa dialog (kunci ada di layar Grup, 19y). Pasangan yang berubah sejak kunjungan
+  /// lalu keluar dari grupnya, yang lain tetap (19o).
+  Future<void> _toGroups() async {
+    final config = widget.config.copyWith(fixedPairs: _pairs);
+    final draft = _groupDraft?.reconcile(_pairs);
+    final back = await context.push<GroupDraft>('/groups', extra: (config, draft));
+    if (back != null) _groupDraft = back;
+  }
 
   Future<void> _create() async {
     final ok = await showMabarConfirm(
@@ -211,6 +228,8 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
     );
   }
 
+  String get _nextLabel => _groupMode ? 'Lanjut' : 'Buat jadwal';
+
   @override
   Widget build(BuildContext context) {
     final clubs = _clubs;
@@ -233,7 +252,8 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
 
     final pairSection = MabarSection(
       header: MabarGroupHeader.text(
-        _manual ? '${_pairs.length} dari $slots pasangan' : '${_pairs.length} pasangan',
+        // Grup + Gugur: lengkap tinggal jumlahnya (19o, 19q).
+        _manual && !(_groupMode && remaining == 0) ? '${_pairs.length} dari $slots pasangan' : '${_pairs.length} pasangan',
         trailing: _manual
             ? MabarTextButton(
                 label: 'Urungkan',
@@ -284,7 +304,8 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
                   const SizedBox(height: 16),
                   if (clubs != null) _sparingBody(clubs) else pairSection,
                   if (clubs == null && chips.isNotEmpty) ...[
-                    const SizedBox(height: 16),
+                    // Belum ada pasangan (19m): label chip menempel di bawah header, tanpa kartu kosong di antaranya.
+                    SizedBox(height: _pairs.isEmpty ? 0 : 16),
                     MabarSection(
                       header: MabarGroupLabel('${chips.length} belum berpasangan'),
                       note: MabarGroupNote(
@@ -309,17 +330,19 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
               Expanded(
                 child: remaining > 0
                     ? MabarButton(
-                        label: 'Buat jadwal',
+                        label: _nextLabel,
                         meta: '· $remaining pasangan lagi',
                         variant: MabarButtonVariant.wait,
                       )
                     : unpairedCount > 0
                     ? MabarButton(
-                        label: 'Buat jadwal',
+                        label: _nextLabel,
                         meta: '· $unpairedCount pemain tanpa pasangan',
                         variant: MabarButtonVariant.wait,
                       )
-                    : MabarButton(label: 'Buat jadwal', icon: MabarIcons.lockSimple, onPressed: _create),
+                    : _groupMode
+                    ? MabarButton(label: _nextLabel, onPressed: _toGroups)
+                    : MabarButton(label: _nextLabel, icon: MabarIcons.lockSimple, onPressed: _create),
               ),
             ],
           ),
