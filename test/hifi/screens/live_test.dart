@@ -14,6 +14,7 @@ import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/services/live/live_relay.dart';
 
 import '../hifi_golden.dart';
+import 'grup_gugur_fixture.dart';
 import 'live_fixture.dart';
 import 'ranking_fixture.dart';
 import 'schedule_fixture.dart';
@@ -199,6 +200,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(LeaderboardScreen), findsNothing);
     expect(find.text('Live tidak ditemukan'), findsOneWidget);
+  });
+
+  // AC-G17: penonton Grup + Gugur melihat Jadwal round dan Klasemen, tanpa tab Bagan dan tanpa aksi.
+  testWidgets('AC-G17 penonton Grup + Gugur: tanpa tab Bagan, tanpa aksi', (tester) async {
+    final active = gg21c();
+    expect(active.hasBracket, isTrue);
+    await tester.pumpWidget(watch(LiveView(LiveViewStatus.live, active), elapsed: const Duration(minutes: 96)));
+    await tester.pumpAndSettle();
+    expect(find.text('Bagan'), findsNothing);
+    expect(find.text('Buat bagan'), findsNothing);
+    expect(find.text('Isi skor'), findsNothing);
+    expect(find.bySemanticsLabel('Menu'), findsNothing);
   });
 
   testWidgets('12o memuat', (tester) async {

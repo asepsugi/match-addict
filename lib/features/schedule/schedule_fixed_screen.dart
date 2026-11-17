@@ -122,7 +122,9 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     final live = !finished && !active.isRoundComplete(current);
     // Grup + Gugur: tab Bagan = nomor tab setelah round terakhir; isinya bukan daftar match round.
     final gk = active.config.isGroupKnockout;
-    final onBagan = gk && active.hasBracket && _selectedRound == _bagan;
+    // Penonton live tanpa tab Bagan (AC-G17): hanya Jadwal per round + Klasemen.
+    final showBagan = gk && active.hasBracket && !watching;
+    final onBagan = showBagan && _selectedRound == _bagan;
     final picked = _selectedRound == _bagan ? null : _selectedRound;
     final selected = onBagan ? active.roundCount + 1 : (picked ?? current).clamp(1, active.roundCount);
     final locked = !onBagan && !finished && selected > current;
@@ -177,7 +179,7 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
               isFuture: finished ? null : (r) => r > current && r <= active.roundCount,
               meta: onBagan ? gkBaganMeta(active) : '$played/${matches.length} match',
               labelOf: gk ? (r) => KnockoutBracket.roundTab(active, r) : null,
-              extraTab: gk && active.hasBracket ? 'Bagan' : null,
+              extraTab: showBagan ? 'Bagan' : null,
             ),
             // Titik sambung GG-9: tab Bagan mengisi seluruh badan; daftar round di bawah tidak dipakai di tab ini.
             if (onBagan)
