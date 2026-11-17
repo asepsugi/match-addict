@@ -3,8 +3,8 @@
 **Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
 ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–47), app 3.4.0, hi-fi 03a–03q dan 16a–16g;
 Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–59), rencana app 3.5.0, hi-fi 17a–17r;
-Grup + Gugur (§16) diputuskan host 2026-11-17 (keputusan 93–102), rencana app 3.8.0, belum
-ada di hi-fi
+Grup + Gugur (§16) diputuskan host 2026-11-17 (keputusan 93–103), rencana app 3.8.0, hi-fi
+19a–22r
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -421,7 +421,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 | Detail Pemain | 10a–10d |
 | Bagikan | 11a–11l |
 | Live score: menu, dialog, sheet di HP host; halaman penonton (Jadwal, Klasemen, Detail) | 12a–12o |
-| Grup + Gugur (§16, rencana 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, Klasemen grup + peringkat akhir | Belum ada frame |
+| Grup + Gugur (§16, rencana 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, Klasemen grup + peringkat akhir | 19a–19y, 20a–20q, 21a–21y, 22a–22r |
 
 State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen berjalan", "Match tidak ditemukan",
 "Pemain tidak ditemukan", spinner saat Jadwal membuat round pertama.
@@ -472,7 +472,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 | MVP (1.x) | Setup, pairing, RR & Mixed, input skor, peringkat, share teks+gambar, simpan lokal, PWA | Selesai, live di web |
 | 2.0 | Redesain v2 + format skor Race to/Best of/Americano + WO per format + perbaikan logika (`logic.md`) | Sedang dikerjakan |
 | Berikutnya | Rilis Play Store (keystore sendiri), history banyak turnamen, multi-device | Belum |
-| 3.8.0 (rencana) | Grup + Gugur (Fixed, §16): 2 atau 4 grup, court dikunci per grup, 2 besar tiap grup lolos ke bagan silang, format skor per babak, perebutan juara 3. Diusulkan host 2026-11-12 (backlog), dibuka lagi 2026-11-17 (keputusan 93–101); usulan GU1–GU16 + Q1–Q4 disetujui (keputusan 102), belum ada desain | Dirancang (PRD) |
+| 3.8.0 (rencana) | Grup + Gugur (Fixed, §16): 2 atau 4 grup, court dikunci per grup, 2 besar tiap grup lolos ke bagan silang, format skor per babak, perebutan juara 3. Diusulkan host 2026-11-12 (backlog), dibuka lagi 2026-11-17 (keputusan 93–101); usulan GU1–GU16 + Q1–Q4 disetujui (keputusan 102); hi-fi 19a–22r disetujui (keputusan 103) | Dirancang (PRD + hi-fi) |
 | Backlog | Monetisasi: buka ke publik, login Google (hanya untuk membuka fitur berbayar; app tetap jalan offline tanpa login), langganan per host, histori pertandingan milik host. Web/PWA dulu → Play Store → iOS kalau Android ramai. Usulan fitur terkunci: tambah pemain/jam/court setelah turnamen mulai, Sparing, Live Score, pilihan Total Point. Arah teknis: Firebase (Auth + Firestore + Functions), pembayaran Midtrans QRIS bayar di muka per periode. Dibahas host 2026-11-12, belum diputuskan | Belum |
 
 ---
@@ -717,6 +717,15 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
      default format grup tanpa tab metode (Q1), skor grup dikunci saat Buat bagan (Q2), peringkat akhir per babak/posisi
      grup dan baris menulis babak, termasuk poster (Q3; tampilan poster didesain ulang di fitur ini), court sisa ke grup
      yang paling lama selesai (Q4).
+103. **Hi-fi Grup + Gugur 19a–22r** disetujui host 2026-11-17 ("setuju"), termasuk usulan desainer yang belum ada di
+     §16 (daftar lengkap di hi-fi → Cakupan): pilihan format hanya Fixed ≥ 12 pemain; baris "Fase grup" + "Gugur"
+     di Konfigurasi, gugur mengikuti format grup sampai diubah, juara 3 "Ada / Tidak ada"; layar Grup dengan chip A–D
+     tanpa Urungkan, kelebihan "5 dari 4", Acak → Manual mengosongkan grup; label "Grup A" di baris match (95 pt);
+     sheet "Pilih A2" / "Pilih A1 dan A2" saat seri; tab Bagan terakhir di strip, tab babak memakai kode ("PF1–2",
+     "SF1", round Final + Juara 3 = "Final"), format skor di label match; bagan 8 tim digeser per babak; dialog
+     "Ganti pemenang SF1?" dan penolakan kalau babak berikut sudah ada skor; Klasemen "Peringkat | Fase grup" dengan
+     kolom # · Pasangan · Babak; podium #1 #2 #3 #3 tanpa Juara 3; Detail tanpa "Beda lawan". Poster selama fase grup
+     dan halaman penonton live mengikuti aturan 22g, frame dibuat kalau host minta.
 
 ---
 
@@ -1627,7 +1636,8 @@ Q1–Q2 disetujui sesuai rekomendasi (keputusan 54–55).
 ## 16. Grup + Gugur (Fixed)
 
 > **Arah diputuskan host 2026-11-17** (keputusan 93–102, §10), rencana rilis **3.8.0 (MINOR)**. Usulan PM GU1–GU16
-> (16.13) dan rekomendasi 16.14 **disetujui host 2026-11-17** (keputusan 102). Belum ada desain (hi-fi), spec `logic.md`, maupun task. Round-robin
+> (16.13) dan rekomendasi 16.14 **disetujui host 2026-11-17** (keputusan 102); hi-fi 19a–22r disetujui (keputusan 103).
+> Belum ada spec `logic.md` maupun task. Round-robin
 > Fixed, Mixed, Mexicano, dan Sparing tidak berubah.
 
 Grup + Gugur = turnamen Fixed dua fase: **fase grup** (round-robin di dalam tiap grup, 3.3) lalu **fase gugur** (bagan

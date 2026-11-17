@@ -12,7 +12,8 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 - `PRD.md` — produk, algoritma, aturan skor & ranking; sejalan dengan hi-fi v2 (diselaraskan 2026-10-22); §13
   Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y; §14
   Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
-  2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t.
+  2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t; §16 Grup + Gugur
+  (keputusan 93–103, 2026-11-17), hi-fi 19a–22r.
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 247 frame layar 390×844 +
   12 lembar gambar (per 2026-11-12) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2 MB (per
   2026-11-13; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
@@ -115,7 +116,10 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   `docs/tasks.md`.
 - PATCH 3.7.1: lantai poster = lapangan utuh L1 + dinding padel, kepala memudar (keputusan 91), ukuran/perataan
   (keputusan 92); geometri `lib/services/share/court_floor.dart` = `tool/hifi_court_floor.py`. Branch
-  `poster-patch-3-7-1`, suite lolos, belum push (menunggu host).
+  rilis 3.7.1 di `main` (527b0ab).
+- Grup + Gugur 3.8.0 (MINOR, rencana): PRD §16 + keputusan 93–103, hi-fi 19a–22r (artifact v93), spec layar
+  `design/spec/screens/19–22`; branch `grup-gugur`. Berikutnya: spec `logic.md` + task (tech-lead) dan bentuk data
+  (dba; kalau `schemaVersion` naik → MAJOR, tanya host).
 
 ## Area docs
 
