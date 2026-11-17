@@ -411,20 +411,27 @@ class MatchGame {
     this.phase,
   });
 
-  MatchGame copyWith({List<SetScore>? sets, MatchStatus? status, String? woLoserPairId, WoReason? woReason}) =>
-      MatchGame(
-        id: id,
-        roundNumber: roundNumber,
-        matchNumberInRound: matchNumberInRound,
-        courtId: courtId,
-        pair1: pair1,
-        pair2: pair2,
-        sets: sets ?? this.sets,
-        status: status ?? this.status,
-        woLoserPairId: woLoserPairId ?? this.woLoserPairId,
-        woReason: woReason ?? this.woReason,
-        phase: phase,
-      );
+  /// [pair1]/[pair2]: sisi gugur yang diisi pemenang maju (`KnockoutBracket.resolve`).
+  MatchGame copyWith({
+    List<SetScore>? sets,
+    MatchStatus? status,
+    String? woLoserPairId,
+    WoReason? woReason,
+    Pair? pair1,
+    Pair? pair2,
+  }) => MatchGame(
+    id: id,
+    roundNumber: roundNumber,
+    matchNumberInRound: matchNumberInRound,
+    courtId: courtId,
+    pair1: pair1 ?? this.pair1,
+    pair2: pair2 ?? this.pair2,
+    sets: sets ?? this.sets,
+    status: status ?? this.status,
+    woLoserPairId: woLoserPairId ?? this.woLoserPairId,
+    woReason: woReason ?? this.woReason,
+    phase: phase,
+  );
 
   /// Skor disimpan: status selesai, sisa WO lama (pasangan & alasan) dibuang — membuka match WO di Input
   /// Skor lalu menyimpan skor mengubahnya jadi match biasa.
@@ -837,9 +844,12 @@ class ActiveTournament {
   MatchGame? matchById(String id) => matches.where((m) => m.id == id).firstOrNull;
 
   /// Pasangan Fixed sekarang, atau pasangan lama yang sudah diatur ulang (masih tercatat di match-nya).
-  Pair? pairById(String id) =>
-      config.fixedPairs?.where((p) => p.id == id).firstOrNull ??
-      matches.expand((m) => [m.pair1, m.pair2]).where((p) => p.id == id).firstOrNull;
+  /// Id kosong = sisi gugur yang belum diketahui ([Pair.tbd]): bukan pasangan (logic.md §18.12 #6).
+  Pair? pairById(String id) {
+    if (id.isEmpty) return null;
+    return config.fixedPairs?.where((p) => p.id == id).firstOrNull ??
+        matches.expand((m) => [m.pair1, m.pair2]).where((p) => p.id == id).firstOrNull;
+  }
 
   /// Fixed: pasangan yang anggotanya selalu main bersama — satu baris di Klasemen, Detail, dan poster. Pasangan yang
   /// diatur ulang sebelum round tambahan (04f) tidak termasuk; anggotanya, juga pemain yang tidak ikut lagi, tampil

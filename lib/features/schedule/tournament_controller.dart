@@ -5,8 +5,11 @@ import 'package:uuid/uuid.dart';
 
 import '../../models/models.dart';
 import '../../services/pairing/player_name_parser.dart';
+import '../../services/ranking/group_knockout_ranking.dart';
 import '../../services/ranking/ranking_calculator.dart';
 import '../../services/schedule/endless_round_generator.dart';
+import '../../services/schedule/group_stage.dart';
+import '../../services/schedule/knockout_bracket.dart';
 import '../../services/schedule/player_swap.dart';
 import '../../services/schedule/round_robin_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
@@ -62,7 +65,20 @@ class TournamentController extends Notifier<ActiveTournament?> {
             courts: config.courts,
           )
         : null;
-    final schedule = sparing != null
+    // Grup + Gugur (logic.md §18.10): round-robin per grup, urutan `groups` (bukan `fixedPairs`), tanpa bye (GU5).
+    final groupStage = config.groupKnockout != null && config.mode == PartnerMode.fixed
+        ? GroupStage.schedule(
+            groups: [
+              for (final ids in config.groupKnockout!.groups)
+                [
+                  for (final id in ids)
+                    if (config.fixedPairs?.where((p) => p.id == id).firstOrNull case final pair?) pair,
+                ],
+            ],
+            courts: config.courts,
+          )
+        : null;
+    final schedule = sparing != null || groupStage != null
         ? null
         : config.mode == PartnerMode.fixed
         ? RoundRobinGenerator.generate(pairs: config.fixedPairs ?? const [], courts: config.courts)
@@ -73,7 +89,7 @@ class TournamentController extends Notifier<ActiveTournament?> {
         id: const Uuid().v4(),
         createdAt: ref.read(clockProvider)(),
         config: config,
-        matches: sparing?.matches ?? schedule!.matches,
+        matches: groupStage ?? sparing?.matches ?? schedule!.matches,
       ),
       byePairIdByRound: schedule?.byePairIdByRound ?? const {},
       restingPairIdsByRound: sparing?.restingPairIdsByRound ?? const {},
@@ -321,14 +337,64 @@ class TournamentController extends Notifier<ActiveTournament?> {
   void markWalkover(String matchId, {required String loserPairId, WoReason? reason}) =>
       _updateMatch(matchId, (m) => m.asWalkover(loserPairId: loserPairId, reason: reason));
 
-  void _updateMatch(String matchId, MatchGame Function(MatchGame) change) => _update(
-    (t) => t.copyWith(
-      matches: [
-        for (final m in t.matches)
-          if (m.id == matchId) change(m) else m,
-      ],
-    ),
-  );
+  void _updateMatch(String matchId, MatchGame Function(MatchGame) change) {
+    final current = state;
+    if (current != null && current.config.isGroupKnockout) {
+      final next = _groupKnockoutUpdate(current, matchId, change);
+      if (next != null) state = next;
+      return;
+    }
+    _update(
+      (t) => t.copyWith(
+        matches: [
+          for (final m in t.matches)
+            if (m.id == matchId) change(m) else m,
+        ],
+      ),
+    );
+  }
+
+  /// Grup + Gugur (logic.md §18.8, 18.10): null = ditolak, state tidak berubah. Skor grup terkunci setelah bagan
+  /// (AC-G12); match bersisi tbd belum bisa diisi; ganti pemenang gugur dicek `flipCheck` sebelum mutasi (AC-G9), lalu
+  /// pemenang maju lewat `resolve` di `state =` yang sama (jebakan #7).
+  static ActiveTournament? _groupKnockoutUpdate(
+    ActiveTournament current,
+    String matchId,
+    MatchGame Function(MatchGame) change,
+  ) {
+    final m = current.matchById(matchId);
+    if (m == null || current.isGroupKnockoutLocked(m) || m.pair1.isTbd || m.pair2.isTbd) return null;
+    final updated = change(m);
+    if (m.phase is KnockoutPhase) {
+      // Gugur selalu punya pemenang (I9): skor seri/kosong yang lolos dari Input Skor tidak boleh tersimpan.
+      final winner = updated.winnerPairId;
+      if (winner == null) return null;
+      if (KnockoutBracket.flipCheck(current, matchId, winner) is FlipBlocked) return null;
+    }
+    final matches = [
+      for (final x in current.matches)
+        if (x.id == matchId) updated else x,
+    ];
+    return current.copyWith(
+      tournament: current.tournament.copyWith(matches: KnockoutBracket.resolve(current.config, matches)),
+    );
+  }
+
+  /// Grup + Gugur: "Buat bagan" (20g/20k). [picks] = pilihan host per grup untuk slot yang seri (sheet 20i–20l),
+  /// kosong kalau tidak ada. Semua match gugur ditambahkan dalam satu `state =`; false = tidak berubah (belum boleh,
+  /// atau pilihan tidak lengkap/tidak sah, AC-G7).
+  bool createBracket([Map<int, List<String>> picks = const {}]) {
+    final current = state;
+    if (current == null || !current.canCreateBracket) return false;
+    final qualifiers = GroupKnockoutRanking.qualifierPlan(current).withPicks(picks);
+    if (qualifiers == null) return false;
+    state = current.copyWith(
+      tournament: current.tournament.copyWith(
+        matches: [...current.matches, ...KnockoutBracket.build(current, qualifiers)],
+      ),
+    );
+    return true;
+  }
 
   /// Tutup turnamen aktif dan kembali ke keadaan awal. Hasilnya tidak dihapus,
   /// hanya pindah ke slot "turnamen terakhir selesai".
@@ -488,6 +554,8 @@ final rankingMethodProvider = StateProvider<RankingMethod>((ref) {
 final standingEntriesProvider = Provider<List<StandingEntry>>((ref) {
   final active = ref.watch(tournamentProvider);
   if (active == null) return const [];
+  // Grup + Gugur: peringkat akhir dari babak (logic.md §18.9); `standingsProvider` (satu format) tidak berlaku di sini.
+  if (active.config.isGroupKnockout) return GroupKnockoutRanking.finalEntries(active);
   return standingEntries(
     standings: ref.watch(standingsProvider),
     method: ref.watch(rankingMethodProvider),
@@ -505,4 +573,11 @@ final standingsProvider = Provider<List<PlayerStanding>>((ref) {
     method: ref.watch(rankingMethodProvider),
     format: active.config.format,
   );
+});
+
+/// Grup + Gugur: satu tabel per grup (Klasemen fase grup 20d, 22b; Detail GU13). Kosong di turnamen lain.
+final groupTablesProvider = Provider<List<GroupTable>>((ref) {
+  final active = ref.watch(tournamentProvider);
+  if (active == null || !active.config.isGroupKnockout) return const [];
+  return GroupKnockoutRanking.groupTables(active);
 });

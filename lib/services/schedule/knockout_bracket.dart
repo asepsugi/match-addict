@@ -270,19 +270,7 @@ class KnockoutBracket {
   /// Done/WO = ada hasil; cancelled (diakhiri) dihitung tanpa hasil.
   static bool _hasResult(MatchGame m) => m.status == MatchStatus.done || m.status == MatchStatus.wo;
 
-  static MatchGame _withSides(MatchGame m, Pair pair1, Pair pair2) => MatchGame(
-    id: m.id,
-    roundNumber: m.roundNumber,
-    matchNumberInRound: m.matchNumberInRound,
-    courtId: m.courtId,
-    pair1: pair1,
-    pair2: pair2,
-    sets: m.sets,
-    status: m.status,
-    woLoserPairId: m.woLoserPairId,
-    woReason: m.woReason,
-    phase: m.phase,
-  );
+  static MatchGame _withSides(MatchGame m, Pair pair1, Pair pair2) => m.copyWith(pair1: pair1, pair2: pair2);
 
   /// Match yang sisinya diisi oleh [phase]: PF → SF-nya; SF → Final dan Juara 3 (kalau ada); Final dan Juara 3 →
   /// tidak ada. Urutan = urutan pesan 21l ("Final dan Juara 3 sudah ada skor").
