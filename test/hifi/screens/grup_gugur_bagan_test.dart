@@ -111,6 +111,22 @@ void main() {
       expect(opened, [gg21f().byCode('F').id]);
     });
 
+    testWidgets('21u: PF3 di R8 bersisi lengkap tidak bisa diketuk selama R7 berjalan', (tester) async {
+      final active = gg21u();
+      expect(active.byCode('PF3').pair1.isTbd || active.byCode('PF3').pair2.isTbd, isFalse);
+      final opened = await pumpRouted(tester, active);
+      await tester.tap(card('Indra'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(opened, isEmpty);
+    });
+
+    testWidgets('21t: setelah diakhiri, SF1 yang sudah berskor tetap bisa diketuk', (tester) async {
+      final opened = await pumpRouted(tester, gg21t());
+      await tester.tap(card('Andi').first);
+      await tester.pumpAndSettle();
+      expect(opened, [gg21t().byCode('SF1').id]);
+    });
+
     testWidgets('21t: kartu "Tidak dimainkan" tidak bisa diketuk', (tester) async {
       final opened = await pumpRouted(tester, gg21t());
       expect(card('Tidak dimainkan'), findsNWidgets(2));

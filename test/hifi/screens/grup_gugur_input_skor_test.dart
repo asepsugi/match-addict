@@ -221,6 +221,42 @@ void main() {
       expect([for (var i = 0; i < after.length; i++) identical(after[i], before[i])], everyElement(isTrue));
     });
 
+    /// WO yang membalik pemenang SF1 saat R8 belum ada skor: boleh, dialog 21k muncul sesudah sheet.
+    Future<ProviderContainer> flipByWo(WidgetTester tester) async {
+      final container = await pumpRouted(tester, gg21f(), 'SF1');
+      await tester.tap(find.text('WO'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Andi · Budi'));
+      await tester.pump();
+      await tester.tap(find.text('Simpan WO'));
+      await tester.pumpAndSettle();
+      expect(find.text('Ganti pemenang SF1?'), findsOneWidget);
+      return container;
+    }
+
+    testWidgets('WO yang membalik pemenang: Ganti → slot Final dan Juara 3 berganti', (tester) async {
+      final container = await flipByWo(tester);
+      await tester.tap(find.text('Ganti'));
+      await tester.pumpAndSettle();
+      expect(find.text('Jadwal'), findsOneWidget);
+      final active = container.read(tournamentProvider)!;
+      expect(active.byCode('SF1').winnerPairId, 'Maya');
+      expect(active.byCode('F').pair1.id, 'Maya');
+      expect(active.byCode('J3').pair1.id, 'Andi');
+    });
+
+    testWidgets('WO yang membalik pemenang: Batal → state tidak berubah', (tester) async {
+      final before = gg21f();
+      final container = await flipByWo(tester);
+      await tester.tap(find.text('Batal'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ScoreInputScreen), findsOneWidget);
+      final active = container.read(tournamentProvider)!;
+      expect(active.byCode('SF1').winnerPairId, 'Andi');
+      expect(active.byCode('SF1').status, before.byCode('SF1').status);
+      expect(active.byCode('F').pair1.id, before.byCode('F').pair1.id);
+    });
+
     testWidgets('WO yang membalik pemenang ditolak di sheet kalau Final sudah ada skor', (tester) async {
       final container = await pumpRouted(tester, finalPlayed(), 'SF1');
       await tester.tap(find.text('WO'));
