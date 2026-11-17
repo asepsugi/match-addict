@@ -736,6 +736,9 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
      Indra · Joko ke B → "5 pasangan tanpa grup".
 108. **Pseudocode round-robin 3.3 diperbaiki** (2026-11-17): pasangan dalam = `rotate[i] vs rotate[n-3-i]`; versi lama
      memasangkan `rotate[last]` dua kali. Kode (`round_robin_generator.dart`) sudah benar, perilaku tidak berubah.
+109. **Frame 22q/22r Story dibetulkan ke aturan bawahKepala** (2026-11-17, "setuju"): baris kecil yang dikecilkan
+     (15 → 12,5) memakai ukuran sesudah dikecilkan untuk garis belakang, podium mini, dan panel (logic.md §17.12 #3,
+     sama dengan 11m); frame lama menurunkannya 3 pt. Kode tidak berubah.
 
 ---
 
