@@ -26,7 +26,11 @@ class DetailPlayerScreen extends ConsumerWidget {
     final clubPos = ref.watch(playerClubPositionProvider(playerId));
     final clubEntry = clubPos == null
         ? null
-        : ref.watch(clubStandingEntriesProvider).expand((g) => g.entries).where((e) => e.hasPlayer(playerId)).firstOrNull;
+        : ref
+              .watch(clubStandingEntriesProvider)
+              .expand((g) => g.entries)
+              .where((e) => e.hasPlayer(playerId))
+              .firstOrNull;
     final entry = clubEntry ?? ref.watch(standingEntriesProvider).where((e) => e.hasPlayer(playerId)).firstOrNull;
     if (active == null || entry == null) {
       return Scaffold(
@@ -45,7 +49,12 @@ class DetailPlayerScreen extends ConsumerWidget {
     final profile = PlayerProfile.of(playerId: playerId, matches: active.matches);
     final totals = coverageTotals(config, playerId, partnerCount: profile.partnerIds.length);
     final unit = '${format.unit[0].toUpperCase()}${format.unit.substring(1)}';
+    final groupKnockout = config.isGroupKnockout;
     final woPerWin = _woPointsPerWin(s, profile, playerId);
+    // Grup + Gugur (22j): "Grup A · Race to 6" di atas angka; angka = baris tabel grup (GU13).
+    final groupTable = groupKnockout
+        ? ref.watch(groupTablesProvider).where((t) => t.entries.any((e) => e.hasPlayer(playerId))).firstOrNull
+        : null;
 
     final stats = <StatLineItem>[
       (value: played ? '${s.totalPoint}' : '–', unit: null, label: unit),
@@ -55,11 +64,7 @@ class DetailPlayerScreen extends ConsumerWidget {
         unit: null,
         label: format.canDraw ? 'W–L–D' : 'W–L',
       ),
-      (
-        value: played ? s.diffLabel : '–',
-        unit: null,
-        label: 'Selisih ${format.unit}',
-      ),
+      (value: played ? s.diffLabel : '–', unit: null, label: 'Selisih ${format.unit}'),
     ];
 
     Widget count(String text) => Text(text, style: MabarType.numM.copyWith(fontSize: 20, color: MabarColors.ink));
@@ -73,10 +78,10 @@ class DetailPlayerScreen extends ConsumerWidget {
             title: entry.players.map((p) => p.name).join(' · '),
             subtitle: [
               played ? 'Peringkat ${entry.position}' : 'Belum main',
+              if (entry.stage case final stage?) stage,
               if (clubPos != null) clubPos.club.name,
               config.sport.label,
-              config.mode.label,
-              format.label,
+              if (groupKnockout) 'Grup + Gugur' else ...[config.mode.label, format.label],
             ].join(' · '),
             onBack: () => context.pop(),
           ),
@@ -84,14 +89,25 @@ class DetailPlayerScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
               children: [
+                if (groupTable != null) ...[
+                  MabarGroupLabel('Grup ${GroupKnockout.letter(groupTable.group)} · ${format.label}'),
+                  const SizedBox(height: 6),
+                ],
                 StatLine(items: stats),
                 const SizedBox(height: 16),
                 MabarGroup(
                   children: [
                     // Di Fixed biasanya 1, jadi hanya tampil kalau pasangannya pernah diatur ulang (10d).
                     if (!fixed || profile.partnerIds.length > 1)
-                      MabarRow(title: 'Beda partner', trailing: count('${profile.partnerIds.length} / ${totals.partners}')),
-                    MabarRow(title: 'Beda lawan', trailing: count('${profile.opponentIds.length} / ${totals.opponents}')),
+                      MabarRow(
+                        title: 'Beda partner',
+                        trailing: count('${profile.partnerIds.length} / ${totals.partners}'),
+                      ),
+                    if (!groupKnockout)
+                      MabarRow(
+                        title: 'Beda lawan',
+                        trailing: count('${profile.opponentIds.length} / ${totals.opponents}'),
+                      ),
                     MabarRow(title: 'Kalah WO', trailing: count('${s.woLosses}')),
                   ],
                 ),
@@ -133,7 +149,8 @@ class DetailPlayerScreen extends ConsumerWidget {
   /// Nilai satu kemenangan WO; semua kemenangan WO bernilai sama (rata-rata dari seluruh match sendiri).
   static int _woPointsPerWin(PlayerStanding s, PlayerProfile profile, String playerId) {
     final wins = profile.playedMatches.where((m) {
-      if (m.status != MatchStatus.wo) return false;
+      // Grup + Gugur: hanya WO fase grup yang bernilai (match gugur tanpa nilai, tidak masuk angka Detail).
+      if (m.status != MatchStatus.wo || m.phase is KnockoutPhase) return false;
       final own = m.pair1.contains(playerId) ? m.pair1 : m.pair2;
       return m.woLoserPairId != own.id;
     }).length;
@@ -160,6 +177,13 @@ class _HistoryRow extends StatelessWidget {
     required this.pairRow,
   });
 
+  /// `.gg-babak` (22j): "Grup A" untuk match grup, "Final · Race to 9" untuk match gugur; null di turnamen lain.
+  String? _babak() => switch (match.phase) {
+    final GroupPhase p => 'Grup ${GroupKnockout.letter(p.group)}',
+    final KnockoutPhase p => '${p.round.shortLabel} · ${active.config.formatFor(match).label}',
+    null => null,
+  };
+
   @override
   Widget build(BuildContext context) {
     final ownIsPair1 = match.pair1.contains(playerId);
@@ -172,10 +196,14 @@ class _HistoryRow extends StatelessWidget {
 
     final winner = match.winnerPairId;
     final MatchScoreSide top, bottom;
+    final knockout = match.phase is KnockoutPhase;
     if (match.status == MatchStatus.wo) {
       final won = winner == own.id;
       top = won
-          ? MatchScoreSide(names: ownNames, scores: ['+$woPoints'], tone: MatchScoreTone.credit, win: true)
+          // Match gugur tanpa nilai WO (hanya fase grup yang masuk angka).
+          ? knockout
+                ? MatchScoreSide(names: ownNames, win: true)
+                : MatchScoreSide(names: ownNames, scores: ['+$woPoints'], tone: MatchScoreTone.credit, win: true)
           : MatchScoreSide(names: ownNames, tag: 'WO');
       bottom = won
           ? MatchScoreSide(names: otherNames, prefix: 'vs ', tag: 'WO')
@@ -201,6 +229,7 @@ class _HistoryRow extends StatelessWidget {
       top: top,
       bottom: bottom,
       note: match.status == MatchStatus.done && winner == null ? 'Seri' : null,
+      label: _babak(),
     );
   }
 }

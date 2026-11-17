@@ -23,3 +23,17 @@ live/relay, atau menambah dependensi.
 | 2 | Info | Id pemain duplikat lintas klub lolos decode → tampil di dua tabel (hanya tab penonton room penyerang). | **Selesai 3.6.1**: decode (dan encode) sparing menolak id pemain duplikat. |
 | 3 | Info | Nama klub tanpa batas panjang saat baca; semua tampilan `maxLines` + elipsis, caption teks biasa. | Tidak perlu. |
 | 4 | Info (sejak 2.5.0) | `roundNumber` raksasa (mis. 10⁹) di payload live membuat tab penonton membeku (`latePlayerIds`, `currentRound` mengulang 1..roundCount). Tidak memengaruhi host/data. | **Selesai 3.3.2**: decode (dan encode) menolak `roundNumber` di luar 1..1000. |
+
+## Grup + Gugur (3.8.0 — dari GG-0 dba, dicek di rilis GG-11 2026-11-17)
+
+Bentuk dan aturan baca GR1–GR17: `docs/data.md` → Grup + Gugur. Yang wajib dijaga di kode dan review:
+
+| # | Butir | Penjaga |
+|---|---|---|
+| G1 | Permukaan decode baru: id kembar, `phase` tak dikenal, indeks grup di luar jangkauan, `null` di sisi match | GR1–GR17 → `decode` null; widget tidak pernah menerima sisi tbd di luar pending/cancelled |
+| G2 | Jumlah match gugur dari payload | GR12 (≤ 8); `resolve` tanpa loop terbuka |
+| G3 | Pasangan lolos tidak sesuai klasemen (pilihan host) tidak bisa diverifikasi | Diterima: sah menurut desain, dampaknya hanya salah tampil di tab penonton |
+| G4 | Penonton/host app ≤ 3.7.x | Penanda `bye.gg = "1"` (GU15) wajib dipertahankan codec; app lama → null ("Live tidak bisa dibuka") |
+| G5 | Downgrade host | Simpanan tidak ditimpa sampai turnamen baru dimulai |
+| G6 | Satu validator | `_isValidGroupKnockout` dipakai `decode` dan `canEncode` (pola temuan #1) |
+| G7 | `LastSettings` kunci `groupKnockout` | Tetap ≤ 16 KB; entri tak valid dibuang utuh |

@@ -28,6 +28,13 @@ class MatchScoreSide {
   final String? tag;
   final VoidCallback? onSwap;
 
+  /// `.gg-seed` — kode slot lolos ("A1") di kolom tetap 22 pt sebelum nama (match gugur). Null = tanpa kolom; kosong
+  /// = kolom tetap ada supaya nama sejajar (sisi yang belum diketahui).
+  final String? seed;
+
+  /// `.team.gg-tbd` — sisi yang belum diketahui ("Pemenang SF1"): nama tinta-3, berat 500.
+  final bool tbd;
+
   const MatchScoreSide({
     required this.names,
     this.prefix = '',
@@ -36,6 +43,8 @@ class MatchScoreSide {
     this.win = false,
     this.tag,
     this.onSwap,
+    this.seed,
+    this.tbd = false,
   });
 }
 
@@ -62,6 +71,13 @@ class MatchScoreRow extends StatelessWidget {
 
   /// `.note-r` di kanan: "Seri", "Tidak dimainkan".
   final String? note;
+
+  /// `.gg-babak` — nama babak di atas baris atas ("Grup A", "Final · Race to 9"); riwayat Detail Grup + Gugur (22j).
+  final String? label;
+
+  /// Jadwal (bukan [compact]): label `.grp` / `.gg-babak` setinggi 14 yang menjorok [labelOverlap] pt ke jarak 8 pt di
+  /// bawahnya (`.grp` 4, `.gg-babak` 2). Riwayat Detail ([compact]) memakai ukuran sendiri di bawah.
+  final double labelOverlap;
   final bool cancelled;
   final bool compact;
   final VoidCallback? onTap;
@@ -80,6 +96,8 @@ class MatchScoreRow extends StatelessWidget {
     required this.bottom,
     this.trailing,
     this.note,
+    this.label,
+    this.labelOverlap = 4,
     this.cancelled = false,
     this.compact = false,
     this.onTap,
@@ -137,7 +155,38 @@ class MatchScoreRow extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [_line(top), const SizedBox(height: 8), _line(bottom)],
+                  children: [
+                    if (label != null && compact)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Text(
+                          label!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MabarType.label.copyWith(fontSize: 13, height: 1.25, color: MabarColors.ink3),
+                        ),
+                      )
+                    else if (label != null) ...[
+                      SizedBox(
+                        height: 14,
+                        child: Text(
+                          label!,
+                          maxLines: 1,
+                          softWrap: false,
+                          style: MabarType.body.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            height: 14 / 12,
+                            color: MabarColors.ink3,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8 - labelOverlap),
+                    ],
+                    _line(top),
+                    const SizedBox(height: 8),
+                    _line(bottom),
+                  ],
                 ),
               ),
             ),
@@ -186,7 +235,7 @@ class MatchScoreRow extends StatelessWidget {
   Widget _team(MatchScoreSide side) {
     final name = MabarType.body.copyWith(
       color: cancelled ? MabarColors.faint : (side.win ? MabarColors.ink : MabarColors.ink2),
-      fontWeight: side.win && !cancelled ? FontWeight.w700 : FontWeight.w400,
+      fontWeight: side.win && !cancelled ? FontWeight.w700 : (side.tbd ? FontWeight.w500 : FontWeight.w400),
       decoration: cancelled ? TextDecoration.lineThrough : null,
       decorationColor: MabarColors.faint,
     );
@@ -214,7 +263,17 @@ class MatchScoreRow extends StatelessWidget {
                 )
               : null,
         ),
-      Expanded(child: _TeamNames(side, name)),
+      if (side.seed != null)
+        SizedBox(
+          width: 22,
+          child: Text(
+            side.seed!,
+            maxLines: 1,
+            softWrap: false,
+            style: MabarType.numM.copyWith(fontSize: 14, color: MabarColors.ink3),
+          ),
+        ),
+      Expanded(child: _TeamNames(side, side.tbd && !cancelled ? name.copyWith(color: MabarColors.ink3) : name)),
       if (side.scores.isNotEmpty)
         Row(
           mainAxisSize: MainAxisSize.min,

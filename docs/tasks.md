@@ -1,4 +1,257 @@
-# Task — Poster Lengkap arah B "Podium mini" (rencana 3.7.0, MINOR)
+# Task — Grup + Gugur (rencana 3.8.0, MINOR)
+
+Pemilik: tech-lead. Branch `grup-gugur`. Produk: PRD §16 (keputusan 93–103). Spec: `design/spec/logic.md` §18 (aturan,
+data test, invariant I1–I12, jebakan 18.12). Layar: `design/spec/screens/19-…`–`22-…` + PNG frame. ID test = ID PRD
+(`AC-G9 16E …`) + id frame (`20o …`), tanpa tabel pemetaan.
+
+Aturan semua task: logika hanya di `lib/services/**` (wajib test), widget tidak menghitung ulang; `dart format` hanya
+file baru/hunk sendiri (lebar 120); `flutter analyze` tidak menambah peringatan; test berkas yang disentuh lulus dan
+**semua test + golden lama lolos tanpa diubah** (AC-G16 — jalur round-robin/sparing/Mixed/Mexicano byte-sama). Golden
+layar = `expectMatchesHifi` per frame dengan data persis frame (`design/spec/README.md` → Aturan golden; jam dari
+`clockProvider`). Tanpa dependensi baru, tanpa naik versi (main session di GG-11), tanpa `saveActive`/kirim live manual.
+**DBA wajib** (GG-0: bentuk simpanan + penanda GU15). `schemaVersion` tetap 2 (§18.11); kalau dba menyimpulkan harus
+naik → berhenti, itu MAJOR dan kembali ke host. Tidak ada perubahan build/deploy (tanpa tech-infra); relay tidak berubah.
+
+## Urutan batch
+
+| Batch | Task | Model / effort | Paralel | Dicek oleh |
+|---|---|---|---|---|
+| 1 | GG-0 bentuk simpanan + aturan baca + penanda GU15 (docs) | dba | ya, dengan GG-1 | tech-lead |
+| 1 | GG-1 model + jadwal fase grup + estimasi | **opus / high** | ya, dengan GG-0 | tech-lead |
+| 2 | GG-2 bagan, lolos, peringkat akhir, label round | **opus / high** | ya, dengan GG-5 | tech-lead |
+| 2 | GG-5 Konfigurasi 19a–19l (+ pengaturan terakhir) | sonnet / medium | ya, dengan GG-2 | tech-lead |
+| 3 | GG-3 codec + aturan baca (bentuk GG-0) | sonnet / medium | ya, dengan GG-4 (merge GG-3 dulu) | tech-lead |
+| 3 | GG-4 controller + provider + fixture golden bersama | **opus / medium** | ya, dengan GG-3 | tech-lead |
+| 4 | GG-6 Pasangan Manual + layar Grup 19m–19y | sonnet / medium | ya (maks 3) | main session |
+| 4 | GG-7 Jadwal fase grup + Buat bagan + baris gugur | sonnet / high | ya (maks 3) | tech-lead |
+| 4 | GG-8 Klasemen grup + Peringkat akhir + Detail | sonnet / medium | ya (maks 3) | main session |
+| 5 | GG-9 Bagan + Input Skor/WO gugur | **opus / high** | ya, dengan GG-10 | tech-lead |
+| 5 | GG-10 Bagikan + caption + live | sonnet / medium | ya, dengan GG-9 | main session |
+| 6 | GG-11 rilis: versi, docs, full test, build web | main session + tech-lead | — | — |
+
+Tidak masuk batch: ubah format babak / juara 3 setelah jadwal dibuat (GU9) — belum ada frame (`logic.md` 18.13 #1).
+
+### Status (2026-11-17, GG-11)
+
+- Rilis siap di `grup-gugur`: versi 3.8.0+24, docs (`architecture.md`, `ui-v2.md`, `logic.md` §18.10, `security.md`,
+  `CLAUDE.md`), suite penuh 1753 lolos (1 skip), `tool/build_web.sh` OK, smoke Chrome (v3.8.0, konsol bersih; branch
+  tidak menyentuh kode web). Berikutnya: merge ke `main` (= deploy web) setelah host bilang go; uji HP alur 16A (AC-G19).
+
+### Status (2026-11-17, akhir sesi B5)
+
+- GG-9 + GG-10 selesai di `grup-gugur` (HEAD setelah merge a2e4564): review fresh tech-lead → test tambahan (69a0e53)
+  + saran rapikan (a2e4564: `ActiveTournament.canOpenScore`, `MatchGame.isScorable`, `KnockoutBracket.sourcesOf` /
+  `advancesTo`, test caption di `test/services`). Keputusan 109: frame 22q/22r Story ikut §17.12 #3 (763fd4b, hi-fi
+  v95). Suite penuh 1753 lolos, 1 skip.
+- Diterima host: WO yang membalik pemenang ditolak di sheet kalau babak berikut sudah berskor; Simpan mati saat seri
+  di gugur (pengaman, tidak terjadi). Mixed tetap hanya `isScorable` (tanpa kunci round), sengaja.
+- Berikutnya: GG-11 (sesi baru): versi 3.8.0, docs, build web + Chrome, lalu merge ke `main` setelah host bilang go.
+
+### Status (2026-11-17, akhir sesi B1–B4)
+
+- Selesai di branch `grup-gugur` (90485e8): GG-0…GG-8. Review fresh tech-lead: GG-1, GG-2, GG-3, GG-4 (temuan sudah
+  diperbaiki); layar GG-5…GG-8 dicek main session. `flutter test` penuh: 1692 lolos, 1 skip.
+- Berikutnya B5: GG-9 (Bagan + Input Skor/WO gugur; opus/high; isi `BaganView(active, onOpenMatch)` di
+  `lib/features/schedule/group_knockout/bagan_view.dart`, dialog 21k/21l via `KnockoutBracket.flipCheck`) paralel
+  GG-10 (Bagikan, caption, live). Lalu review layar oleh main session, GG-11 rilis.
+- `MatchScoreRow.label`: Jadwal (non-compact) 12/14 + `labelOverlap`, Detail (compact) 13 pt — jangan disatukan.
+- Pertanyaan host dijawab 2026-11-17 (semua rekomendasi disetujui, PRD keputusan 104–108): GU9 ubah format babak
+  setelah jadwal **ditunda ke 3.8.x** (tidak dikerjakan); "Belum main" tanpa nomor; caption "Pemenang SF2"; frame 19s
+  benar (catatan diperbaiki); pseudocode PRD 3.3 diperbaiki.
+- Asumsi tanpa frame (laporkan ke host saat review): WO gugur tanpa "+n"; subjudul Detail sebelum bagan; sheet pilih
+  slot beberapa grup ("Pilih A2 dan C2"); subjudul round gugur "· diakhiri"; setelah finishNow SF masih bisa diubah.
+
+## GG-0 · dba — bentuk simpanan Grup + Gugur
+
+- **Tujuan:** putuskan bentuk JSON kebutuhan `logic.md` §18.11 (config `groupKnockout`, `phase` per match, sisi tbd),
+  penanda GU15 supaya app ≤ 3.7.x menolak (usulan `bye.gg`, pola `bye.sparing`), daftar aturan baca (semua = `decode`
+  null), apakah hasil Buat bagan cukup dari sisi babak pertama, dan kunci opsional pengaturan terakhir (19i).
+- **Baca:** `logic.md` §18.1, 18.8, 18.11; `docs/data.md` (Riwayat bentuk, Sparing → Risiko app lama, Mexicano);
+  `lib/services/storage/tournament_codec.dart`, `last_settings.dart`.
+- **Sentuh:** `docs/data.md` (bagian baru "Grup + Gugur (3.8.0, MINOR)" + baris Riwayat), `logic.md` §18.11 (tandai
+  "Final (dba)"). Tanpa kode.
+- **Kriteria terima:** tiap aturan baca punya contoh payload yang ditolak; bukti (baris kode 3.7.1) bahwa decoder lama
+  menolak payload dengan penanda; encode turnamen lain byte-sama; daftar test wajib untuk GG-3. Butir untuk
+  `docs/security.md` dilaporkan ke main session (bukan ditulis dba).
+- **Bergantung:** tidak ada.
+
+## GG-1 · Model + jadwal fase grup + estimasi — opus
+
+- **Tujuan:** §18.1 (semua tipe/field/helper model, termasuk `copyWith` yang membawa `phase`/`groupKnockout`,
+  `formatFor`, `forKnockout`, `isValidKnockout`, `Pair.tbd`, `StandingEntry.stage`, `hasBracket`), §18.2–18.5
+  (`GroupStage.sizes`, `groupCountsFor`, `courtsOfGroups`, `schedule`, `estimate`). Circle method dan `_Packer` dipakai
+  ulang dari `round_robin_generator.dart` (refaktor tanpa ubah perilaku), bukan disalin.
+- **Baca:** `logic.md` §18.1–18.5, 18.12 #1 #3 #10 #11; `round_robin_generator.dart`; `models.dart` (MatchGame,
+  TournamentConfig, ActiveTournament).
+- **Sentuh:** `lib/models/models.dart`, `lib/services/schedule/group_stage.dart` (baru),
+  `lib/services/schedule/round_robin_generator.dart`; test baru `test/services/group_stage_test.dart`,
+  `group_stage_property_test.dart`, kasus baru di `test/services/score_format_test.dart`.
+- **Kriteria terima:** tabel 18.2, 18.3, 18.4, 18.5 lolos dengan nama `AC-G3 16A …`, `AC-G4 16B …`, `AC-G5 16C …`,
+  `19k …`; I1–I6 sebagai properti (P 6–15 × G × C 1–10, suite biasa, cepat); `withScore`/`asWalkover`/`copyWith`
+  mempertahankan `phase`, `config.copyWith(players: …)` mempertahankan `groupKnockout`; `forKnockout` (Best of 6 → 7,
+  Americano 98 → 99, Race to tetap); `round_robin_generator_test.dart` dan `fixed_extra_rounds_test.dart` lolos tanpa
+  diubah; tidak meng-import `package:flutter` di service.
+- **Bergantung:** tidak ada.
+
+## GG-2 · Bagan, lolos, peringkat akhir, label round — opus
+
+- **Tujuan:** `services/schedule/knockout_bracket.dart` (topologi, `sources`, `sourceLabel`, `seedOf`, `layout`, `build`,
+  `resolve`, `dependents`, `flipCheck`, `roundTab`/`roundTitle`) dan `services/ranking/group_knockout_ranking.dart`
+  (`groupTables`, `qualifierPlan` + `withPicks`, `finalEntries`); getter model `canCreateBracket`, cabang Grup + Gugur
+  di `isFinal` dan `canAddRounds` (§18.9 Status, 18.10).
+- **Baca:** `logic.md` §18.6–18.10, 18.12; `ranking_calculator.dart` (`rank`, `compare`, `standingEntries`).
+- **Sentuh:** dua file service baru, `lib/models/models.dart` (hanya tiga getter), test baru
+  `test/services/knockout_bracket_test.dart`, `knockout_bracket_property_test.dart`, `group_knockout_ranking_test.dart`.
+- **Kriteria terima:** semua tabel 18.6–18.9 (16D-i/ii/iii, 20l, 20o, 16E, 16B 21w–21y, 16F + tiga varian, 22d, 22e, 22g,
+  22h–22i), AC-G6, AC-G7 (tanpa pilihan → `withPicks` null), AC-G8 properti paruh, AC-G9, AC-G10 (lewat `formatFor`),
+  AC-G11, AC-G13, AC-G14; I7–I12 properti; label round 21b ("Semifinal"), 21s ("SF1", "SF2", "Juara 3", "Final"), 21v
+  ("PF1–2", "PF3–4"), 4 grup 3 court ("PF1–3", "PF4"); `ranking_calculator_test`/`ranking_v2_test` lolos tanpa diubah.
+- **Bergantung:** GG-1.
+
+- **Review GG-2 (2026-11-17): Approve.** Tindak lanjut opsional (belum ada pemilik, ambil di task yang menyentuh
+  file itu): (1) properti `knockout_bracket_property_test` sebagian tautologis — tambah pembanding independen sisi
+  Final/SF/J3 dari match sumber, cek `FlipBlocked`/`FlipAllowed` terhadap dependent, id `finalEntries` unik; (2)
+  komentar kelas `knockout_bracket.dart:58` kecualikan `build` (melempar); (3) `_withSides` pakai
+  `MatchGame.copyWith(pair1:, pair2:)` (dititipkan ke GG-4); (4) `flipCheck` dengan id bukan sisi match → penjaga; (5)
+  test contoh PF berganti pemenang setelah SF berskor → `FlipBlocked([semifinal])`. `pairById('')` → null masuk GG-4.
+
+## GG-3 · Codec + aturan baca — sonnet
+
+- **Tujuan:** bentuk dan aturan baca final GG-0 di `TournamentCodec` (`encode`, `decode`, `canEncode`) + pengaturan
+  terakhir kalau GG-0 memutuskannya.
+- **Baca:** `docs/data.md` → Grup + Gugur (GG-0); `logic.md` §18.11; `tournament_codec.dart`, `last_settings.dart`.
+- **Sentuh:** `lib/services/storage/tournament_codec.dart`, `lib/services/storage/last_settings.dart` (kalau GG-0);
+  test baru `test/services/group_knockout_codec_test.dart`.
+- **Kriteria terima:** round-trip `encode`→`decode` identik di tiga keadaan AC-G15 (fase grup 20b, setelah Buat bagan
+  21a, tengah gugur 21c) dan setelah diakhiri (21t); tiap aturan baca GG-0 punya payload ditolak; fixture literal
+  3.7.x (round-robin, sparing, Mexicano) terbaca dan ter-encode byte-sama (AC-G16); payload dengan penanda didecode oleh
+  salinan aturan decoder 3.7.1 → null (test seperti `sparing_codec_test`).
+- **Bergantung:** GG-0, GG-2 (`layout`/`resolve` untuk validasi sisi).
+
+- **Review GG-3 (2026-11-17): Request changes → selesai di main session** (literal Mexicano 3.7.x di AC-G16).
+  Opsional: `canEncode` false untuk GR13–GR16 (terutama Final done tanpa pemenang); test ukuran pakai id panjang UUID
+  dan tulis angkanya di komentar; properti acak skor/WO → `canEncode` + round trip (cek di review GG-4). Risiko: kalau
+  kelak Atur pasangan/tukar pemain dibuka untuk Grup + Gugur, sisi match ≠ `fixedPairs` → encode gagal.
+
+## GG-4 · Controller + provider + fixture golden bersama — opus
+
+- **Tujuan:** §18.10: `startIfNeeded` cabang Grup + Gugur, `createBracket(picks)`, `submitScore`/`markWalkover` (kunci
+  grup, `flipCheck`, `resolve`, satu `state =`), `standingEntriesProvider` → `finalEntries`, `groupTablesProvider` baru.
+  Fixture bersama untuk semua golden layar: `test/hifi/screens/grup_gugur_fixture.dart` (16A: awal 20a, 20b, 20e/16D-ii,
+  16D-iii 20h, 20l, 20q diakhiri R4, bagan 21a, 21c SF1, 21f, 21i selesai, 21q tanpa juara 3, 21t diakhiri R7, 21s 1
+  court; 16B: 20m, 20o, 21u, 21w, 21x, 21y; 16C: 20p) — data, nama, jam persis frame.
+- **Baca:** `logic.md` §18.8, 18.10, 18.12 #2 #6 #7; `tournament_controller.dart`; frame catatan 20–22 (data saja).
+- **Sentuh:** `lib/features/schedule/tournament_controller.dart`, fixture baru, test baru
+  `test/services/group_knockout_flow_test.dart`.
+- **Kriteria terima:** alur penuh 16A lewat controller: start → isi R1–R6 → `canCreateBracket` (AC-G6) → `createBracket`
+  → SF → ubah SF1 (allowed/blocked AC-G9) → Final → `isFinal` (AC-G14); match grup ditolak setelah bagan (AC-G12); 16D-iii
+  tanpa pilihan tidak mengubah state (AC-G7); kill + buka lagi di tiga keadaan sama persis (AC-G15, setelah GG-3 di-merge);
+  `fixed_add_rounds_test`, `sparing_fixed_flow_test`, `resume_tournament_test` lolos tanpa diubah.
+- **Bergantung:** GG-1, GG-2; GG-3 hanya untuk test kill/buka (merge GG-3 dulu).
+
+- **Review GG-4 (2026-11-17): Request changes → selesai di main session** (penjaga `generateNextRound`/`withdrawPlayer`
+  di Grup + Gugur; test alur cek `canEncode` di tiap `read()`). Untuk GG-7/GG-9: setelah `finishNow`, mengubah SF1
+  sampai pemenang berganti masih boleh dan sisi Final cancelled ikut berganti (sesuai §18.8, tanpa frame) — layar
+  mengikuti perilaku turnamen diakhiri yang sudah ada; kalau frame bertentangan, tanya host. Jam fixture 20h, 20l,
+  21u, 21w–21y diambil dari frame terdekat: kalau golden beda, tambah konstanta `at…` baru, jangan ubah yang ada.
+  Opsional: `startIfNeeded` pakai `config.isGroupKnockout` + assert id grup ada di `fixedPairs`.
+
+## GG-5 · Konfigurasi 19a–19l — sonnet
+
+- **Tujuan:** segmented Round-robin / Grup + Gugur (hanya Fixed biasa, `groupCountsFor`), baris Fase grup / Gugur,
+  sheet Fase grup (2/4 grup), sheet Gugur + sheet babak (stepper ganjil), juara 3 Ada / Tidak ada, ringkasan baris Gugur
+  ("Race to 4–9", "· tanpa Juara 3"), tombol dengan `GroupStage.estimate`; config keluar membawa `GroupKnockout` (groups
+  kosong). Rangkai teks ringkasan di fungsi murni yang di-test (pola `ConfigSummary`). Pengaturan terakhir sesuai GG-0.
+- **Baca:** `screens/19-grup-gugur-persiapan.md` 19a–19l; `logic.md` §18.1 (`forKnockout`), 18.2, 18.5, 14.5;
+  `konfigurasi_screen.dart`.
+- **Sentuh:** `lib/features/konfigurasi/**`, `lib/services/schedule/config_summary.dart`,
+  `lib/services/storage/last_settings.dart` (bagian pengaturan, koordinasi dengan GG-3 kalau keduanya menyentuh);
+  test `test/hifi/screens/grup_gugur_konfigurasi_test.dart` (baru), `test/services/config_summary_test.dart`.
+- **Kriteria terima:** golden 19a–19l lolos; golden 03a–03q, 13h–13j, 14f–14g lolos tanpa diubah (8 pemain = tanpa
+  segmented); AC-G1 (10/22/24 pemain, Sparing/Mixed/Mexicano tanpa segmented); tombol 19b "· 8 round · 16 match", 19i
+  dan 19k lewat booking; 19h Best of 6 → babak Best of 7, stepper 7 → 5/9.
+- **Bergantung:** GG-1; bagian pengaturan terakhir: GG-0.
+
+## GG-6 · Pasangan Manual + layar Grup 19m–19y — sonnet
+
+- **Tujuan:** Pasangan dibuka Manual untuk Grup + Gugur, tombol "Lanjut" ke layar Grup baru; `GroupDraft` (§18.14);
+  layar Grup (chip A–D, label "n dari t", alasan di tombol, Acak, gulir 19w/19x); dialog kunci 19y → `/schedule` dengan
+  `config.copyWith(groupKnockout: … groups)`.
+- **Baca:** `screens/19-…` 19m–19y; `logic.md` §18.14, 18.2; `pair_setup_screen.dart`, `services/pairing/pair_draft.dart`
+  (pola); router.
+- **Sentuh:** `lib/features/pair_setup/**`, `lib/features/groups/` (baru), `lib/services/pairing/group_draft.dart` (baru),
+  router (satu rute); test `test/services/group_draft_test.dart`, `test/hifi/screens/grup_gugur_grup_test.dart` (baru).
+- **Kriteria terima:** golden 19m–19y; data test 18.14; AC-G2; golden Pasangan lama 04a–04h dan sparing lolos tanpa
+  diubah; config yang dioper ke Jadwal lewat `copyWith` (Pitfall `identical`).
+- **Bergantung:** GG-1, GG-4.
+
+## GG-7 · Jadwal fase grup + Buat bagan + baris gugur — sonnet
+
+- **Tujuan:** Jadwal Grup + Gugur: label `.grp` "Grup A", subjudul fase, tanpa Istirahat, court tanpa match tidak
+  tampil, "Buat bagan" (pola 06v) → sheet pilih slot (20i–20l, dari `qualifierPlan`) → dialog (20g/20k/20o) →
+  `createBracket`; tab round gugur dengan `roundTab`/`roundTitle`, baris gugur "SF1 · Race to 6" + kode slot, sisi tbd
+  "Pemenang SF1", tab "Bagan" di ujung kanan (isi = widget kosong yang diisi GG-9), strip tab memudar kiri-kanan (21v).
+- **Baca:** `screens/20-…` (20a–20c, 20e, 20g, 20i–20m, 20o–20q), `screens/21-…` (21b, 21c, 21e, 21f, 21i, 21o, 21q,
+  21s, 21v); `logic.md` §18.7, 18.10; `schedule_fixed_screen.dart`, `widgets/schedule_match_row.dart`, `round_tabs.dart`.
+- **Sentuh:** `lib/features/schedule/schedule_fixed_screen.dart`, `lib/features/schedule/widgets/**`,
+  `lib/features/schedule/group_knockout/` (baru: sheet, dialog, stub Bagan); test
+  `test/hifi/screens/grup_gugur_jadwal_test.dart` (baru).
+- **Kriteria terima:** golden semua frame di atas; AC-G6 (Buat bagan hilang kalau satu match Belum), AC-G7 (Batal/
+  tutup app → tanpa perubahan); golden Jadwal Fixed/sparing/tambah round lama lolos tanpa diubah.
+- **Bergantung:** GG-4.
+
+## GG-8 · Klasemen grup + Peringkat akhir + Detail — sonnet
+
+- **Tujuan:** Klasemen Grup + Gugur: sebelum bagan tabel per grup tanpa tab metode; setelah bagan tab Peringkat
+  (`finalEntries`, kolom Babak = `stage`) + Fase grup (tabel + slot A1/A2 dari `seedOf`); subjudul "Grup + Gugur".
+  Detail: angka fase grup, label "Grup A · Race to 6", riwayat semua match dengan label babak, tanpa "Beda lawan".
+- **Baca:** `screens/20-…` 20d, 20f, 20h, 20n; `screens/22-…` 22a–22k; `logic.md` §18.6, 18.9, 18.10 (Detail);
+  `leaderboard_screen.dart`, `detail_player_screen.dart`.
+- **Sentuh:** `lib/features/leaderboard/**`, `lib/features/detail_player/**`; test
+  `test/hifi/screens/grup_gugur_klasemen_test.dart` (baru).
+- **Kriteria terima:** golden 20d, 20f, 20h, 20n, 22a–22k; nomor dari `position` (bukan indeks); golden Peringkat/
+  Detail lama lolos tanpa diubah.
+- **Bergantung:** GG-4.
+
+## GG-9 · Bagan + Input Skor/WO gugur — opus
+
+- **Tujuan:** widget Bagan (`.bagan`: 2 grup dua kolom 172/14; 4 grup geser per kolom 160/14 dengan intip 10 pt,
+  posisi geser awal; kartu, garis penghubung tinta/abu, titik bola, WO di kolom skor, Final/Juara 3 tanpa kode; ketuk →
+  Input Skor kalau bisa diisi); Jadwal terbuka di tab Bagan setelah Buat bagan (21a). Input Skor/WO memakai
+  `formatFor` (keypad, subjudul babak), `flipCheck` (dialog 21k, pesan 21l, tanpa dialog 21m), teks WO per babak (21n).
+- **Baca:** `screens/21-…` 21a, 21d, 21g, 21h, 21j–21n, 21p, 21r, 21t, 21u, 21w–21y; CSS `.bagan` hanya ada di
+  `design/hifi.html` (`grep -n '\.bagan' design/hifi.html`, baris ±676; baca blok itu saja, jangan file utuh) dan
+  `.gg-*` di `components.md`; `logic.md` §18.8, 18.12 #4 #7; `score_input_screen.dart`, `walkover_sheet.dart`.
+- **Sentuh:** `lib/features/schedule/group_knockout/bagan_view.dart` (+ widget kartu), `lib/features/score_input/**`;
+  test `test/hifi/screens/grup_gugur_bagan_test.dart`, `grup_gugur_input_skor_test.dart` (baru).
+- **Kriteria terima:** golden semua frame di atas; AC-G9, AC-G10 (21h 6–2 tidak bisa diketik), AC-G11 lewat layar;
+  golden Input Skor lama (07a–07o) dan sparing lolos tanpa diubah.
+- **Bergantung:** GG-7.
+
+## GG-10 · Bagikan + caption + live — sonnet
+
+- **Tujuan:** poster Ringkas/Lengkap dari `finalEntries` dengan kolom kanan `stage` (22l–22r), fakta "8 pasangan · 8
+  round · 16 match", baris kecil "Padel · Grup + Gugur · tanggal"; caption "n. A + B — Juara" dan "Hasil per Round" dengan
+  label babak (sisi tbd → `sourceLabel`); live penonton: Jadwal + Klasemen Grup + Gugur tanpa tab Bagan dan tanpa aksi
+  (AC-G17).
+- **Baca:** `screens/22-…` 22l–22r; `logic.md` §18.9, 18.10 (Bagikan, Live), §16, §17; `share_content.dart`,
+  `result_text_builder.dart`, `features/live/**`.
+- **Sentuh:** `lib/features/share/**`, `lib/services/share/result_text_builder.dart`, `lib/features/live/**` (hanya
+  sembunyikan Bagan/aksi); test `test/hifi/screens/grup_gugur_bagikan_test.dart` (baru), kasus baru di
+  `test/services/result_text_builder_test.dart`, `test/hifi/screens/live_test.dart` (kasus baru).
+- **Kriteria terima:** golden 22l–22r; caption 22l dan 22p persis; AC-G18 (podium 16F, tanpa juara 3 empat anak tangga);
+  golden Bagikan lama (11a–11m, 13q–13w, 18a–18t) dan test caption lama lolos tanpa diubah.
+- **Bergantung:** GG-4 (layar Jadwal live mengikuti GG-7 — kalau GG-7 belum merge, kerjakan bagian live terakhir).
+
+## GG-11 · Rilis 3.8.0 — main session + tech-lead
+
+- Versi 3.8.0 + `appVersion` (MINOR); `docs/architecture.md` (bagian Grup + Gugur), `docs/ui-v2.md` (frame 19–22, nama
+  widget), `CLAUDE.md` (Arsitektur/Pitfalls oleh tech-lead; Status oleh main session); `docs/security.md` butir decode
+  (main session); full `flutter test` + golden semua frame; `tool/build_web.sh` + Chrome untuk live (Pitfalls web).
+- Uji di HP (host): alur 16A penuh offline (AC-G19).
+
+
+# (lama) Task — Poster Lengkap arah B "Podium mini" (rencana 3.7.0, MINOR)
 
 Pemilik: tech-lead. Daftar task sebelumnya (Poster podium PP-n, selesai, rilis 3.6.0) ada di riwayat git:
 `git show 3a95d55:docs/tasks.md`.

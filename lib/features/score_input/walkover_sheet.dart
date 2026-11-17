@@ -5,6 +5,8 @@ import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
+import '../../services/schedule/knockout_bracket.dart';
+import 'knockout_text.dart';
 
 class WalkoverResult {
   final String loserPairId;
@@ -24,7 +26,7 @@ Future<WalkoverResult?> showWalkoverSheet(
   return showMabarSheet<WalkoverResult>(
     context,
     title: 'Walkover',
-    subtitle: 'Round ${match.roundNumber} · $court',
+    subtitle: knockoutWalkoverSubtitle(active, match) ?? 'Round ${match.roundNumber} · $court',
     builder: (_) => _Walkover(active: active, match: match),
   );
 }
@@ -49,7 +51,10 @@ class _WalkoverState extends State<_Walkover> {
   /// Nilai menang WO ikut format (PRD 4.4): Race to N → N game; Best of / Americano → rata-rata sendiri,
   /// minimal skor menang terkecil.
   String _winnerNote(Pair winner) {
-    final format = widget.active.config.format;
+    final format = widget.active.config.formatFor(widget.match);
+    final phase = widget.match.phase;
+    // Gugur (21n): akibatnya = babak berikutnya, tanpa nilai WO (peringkat gugur dari babak, 16.7).
+    if (phase is KnockoutPhase) return knockoutWalkoverNote(phase, _names(winner, ' & '));
     final who = '${_names(winner, ' & ')} menang WO dan dapat';
     return format.method == ScoringMethod.raceTo
         ? '$who ${format.target} ${format.unit}.'
@@ -61,6 +66,17 @@ class _WalkoverState extends State<_Walkover> {
     final match = widget.match;
     final loser = _loserPairId;
     final winner = loser == null ? null : (loser == match.pair1.id ? match.pair2 : match.pair1);
+    // Gugur: WO yang membalik pemenang ditolak kalau babak berikutnya sudah ada skor (GU11), sama dengan 21l.
+    final flip = winner == null || match.phase is! KnockoutPhase
+        ? null
+        : KnockoutBracket.flipCheck(widget.active, match.id, winner.id);
+    final blocked = flip is FlipBlocked
+        ? knockoutBlockedMessage(
+            flip,
+            match.phase! as KnockoutPhase,
+            _names(match.winnerPairId == match.pair1.id ? match.pair1 : match.pair2, ' & '),
+          )
+        : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -76,7 +92,9 @@ class _WalkoverState extends State<_Walkover> {
             onTap: () => setState(() => _loserPairId = pair.id),
           ),
         ],
-        if (winner != null) ...[const SizedBox(height: 16), MabarGroupNote(_winnerNote(winner))],
+        if (blocked != null)
+          ...[const SizedBox(height: 16), MabarGroupNote(blocked, error: true)]
+        else if (winner != null) ...[const SizedBox(height: 16), MabarGroupNote(_winnerNote(winner))],
         const SizedBox(height: 16),
         const MabarGroupLabel('Alasan'),
         const SizedBox(height: 8),
@@ -112,7 +130,7 @@ class _WalkoverState extends State<_Walkover> {
                   child: MabarButton(
                     label: 'Simpan WO',
                     variant: MabarButtonVariant.danger,
-                    onPressed: loser == null
+                    onPressed: loser == null || blocked != null
                         ? null
                         : () => Navigator.pop(context, WalkoverResult(loserPairId: loser, reason: _reason)),
                   ),

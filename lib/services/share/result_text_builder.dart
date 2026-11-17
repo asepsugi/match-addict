@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../models/models.dart';
 import '../ranking/club_score.dart';
 import '../ranking/ranking_calculator.dart';
+import '../schedule/knockout_bracket.dart';
 
 enum ShareFormat { ringkas, lengkap }
 
@@ -82,6 +83,11 @@ class ResultTextBuilder {
     for (final entry in standings) {
       final position = entry.position;
       if (position == null) continue;
+      // Grup + Gugur (GU16): babak yang dicapai, tanpa poin dan Win %.
+      if (entry.stage case final stage?) {
+        buffer.writeln('$position. ${entry.label} — $stage');
+        continue;
+      }
       final s = entry.standing;
       final diff = s.gameDiff;
       buffer.writeln(
@@ -115,11 +121,25 @@ class ResultTextBuilder {
           orElse: () => const Player(id: '', name: '?'),
         )
         .name;
-    String pair(Pair p) => p.playerIds.map(name).join('+');
+    // Sisi gugur yang belum diketahui ditulis dari asalnya ("Pemenang SF2"), bukan nama kosong (keputusan 106).
+    final phase = m.phase;
+    final sources = KnockoutBracket.sourcesOf(config, m);
+    String pair(Pair p, SideSource? source) =>
+        p.isTbd && source != null ? KnockoutBracket.sourceLabel(source) : p.playerIds.map(name).join('+');
 
-    final left = pair(m.pair1);
-    final right = pair(m.pair2);
+    final prefix = switch (phase) {
+      GroupPhase() => 'Grup ${phase.code} · ',
+      KnockoutPhase() => '${phase.round.shortLabel} · ',
+      null => '',
+    };
+    final left = pair(m.pair1, sources?.$1);
+    final right = pair(m.pair2, sources?.$2);
 
+    final line = _statusLine(m, left, right);
+    return '$prefix$line';
+  }
+
+  static String _statusLine(MatchGame m, String left, String right) {
     switch (m.status) {
       case MatchStatus.done:
         final score = m.sets.map((s) => '${s.side1}-${s.side2}').join(' ');

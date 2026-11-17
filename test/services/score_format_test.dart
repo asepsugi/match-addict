@@ -281,4 +281,28 @@ void main() {
       expect(e.next().active, 1);
     });
   });
+
+  group('babak gugur Grup + Gugur (logic.md §18.1, GU9)', () {
+    test('forKnockout: Best of 6 → 7, Americano 98 → 99, Americano 24 → 25, Race to tetap, ganjil tetap', () {
+      expect(bestOf6.forKnockout, const ScoreFormat(ScoringMethod.bestOf, 7));
+      expect(const ScoreFormat(ScoringMethod.americano, 98).forKnockout, const ScoreFormat(ScoringMethod.americano, 99));
+      expect(americano24.forKnockout, const ScoreFormat(ScoringMethod.americano, 25));
+      expect(const ScoreFormat(ScoringMethod.raceTo, 4).forKnockout, const ScoreFormat(ScoringMethod.raceTo, 4));
+      expect(race6.forKnockout, race6);
+      expect(bestOf5.forKnockout, bestOf5);
+      expect(americano21.forKnockout, americano21);
+    });
+
+    test('isValidKnockout: tidak bisa seri dan dalam batas', () {
+      expect(race6.isValidKnockout, isTrue);
+      expect(bestOf5.isValidKnockout, isTrue);
+      expect(bestOf6.isValidKnockout, isFalse);
+      expect(americano21.isValidKnockout, isTrue);
+      expect(americano24.isValidKnockout, isFalse);
+      expect(const ScoreFormat(ScoringMethod.americano, 101).isValidKnockout, isFalse);
+      for (final f in [bestOf6, americano24, const ScoreFormat(ScoringMethod.americano, 98)]) {
+        expect(f.forKnockout.isValidKnockout, isTrue, reason: f.label);
+      }
+    });
+  });
 }

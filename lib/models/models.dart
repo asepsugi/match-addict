@@ -139,6 +139,14 @@ class ScoreFormat {
   ScoreFormat get forMexicano =>
       method == ScoringMethod.americano ? this : const ScoreFormat(ScoringMethod.americano, 21);
 
+  /// Format babak gugur (GU9): match gugur harus punya pemenang, jadi Best of / Americano N genap naik ke N + 1
+  /// (Best of 6 → 7, Americano 98 → 99); Race to tidak pernah seri, tetap.
+  ScoreFormat get forKnockout =>
+      method == ScoringMethod.raceTo || target.isOdd ? this : ScoreFormat(method, target + 1);
+
+  /// Sah untuk babak gugur: sah biasa dan tidak bisa seri.
+  bool get isValidKnockout => isValid && (method == ScoringMethod.raceTo || target.isOdd);
+
   @override
   bool operator ==(Object other) => other is ScoreFormat && other.method == method && other.target == target;
 
@@ -174,6 +182,124 @@ extension WoReasonX on WoReason {
     WoReason.timeOut => 'Waktu habis',
     WoReason.other => 'Lainnya',
   };
+}
+
+/// Babak gugur Grup + Gugur (logic.md §18.1); urutan = urutan main.
+enum KnockoutRound { quarterfinal, semifinal, thirdPlace, finalRound }
+
+extension KnockoutRoundX on KnockoutRound {
+  String get label => switch (this) {
+    KnockoutRound.quarterfinal => 'Perempat final',
+    KnockoutRound.semifinal => 'Semifinal',
+    KnockoutRound.thirdPlace => 'Perebutan juara 3',
+    KnockoutRound.finalRound => 'Final',
+  };
+
+  /// Label pendek (GU1): hanya Perebutan juara 3 yang dipendekkan.
+  String get shortLabel => this == KnockoutRound.thirdPlace ? 'Juara 3' : label;
+
+  /// Kode baris match ("PF1", "SF2"); Final dan Juara 3 hanya satu match, jadi tanpa kode (21a).
+  String? get codePrefix => switch (this) {
+    KnockoutRound.quarterfinal => 'PF',
+    KnockoutRound.semifinal => 'SF',
+    KnockoutRound.thirdPlace || KnockoutRound.finalRound => null,
+  };
+}
+
+/// Grup + Gugur (PRD §16): pembagian grup dan format tiap babak gugur. Format fase grup = `config.format`.
+@immutable
+class GroupKnockout {
+  /// 2 atau 4.
+  final int groupCount;
+
+  /// Id pasangan per grup, indeks 0..3 = Grup A..D. Urutan di dalam grup = urutan round-robin (urutan masuk di layar
+  /// Grup, 19s), bukan urutan `fixedPairs`. Kosong sampai layar Grup selesai.
+  final List<List<String>> groups;
+
+  /// Satu format per babak yang dimainkan. Juara 3 tetap ada walau [thirdPlace] false, supaya "Ada" lagi memulihkan
+  /// formatnya (19g).
+  final Map<KnockoutRound, ScoreFormat> formats;
+
+  final bool thirdPlace;
+
+  const GroupKnockout({
+    required this.groupCount,
+    this.groups = const [],
+    required this.formats,
+    required this.thirdPlace,
+  });
+
+  /// Konfigurasi/layar Grup mengganti isi; [groupCount] ikut apa adanya.
+  GroupKnockout copyWith({List<List<String>>? groups, Map<KnockoutRound, ScoreFormat>? formats, bool? thirdPlace}) =>
+      GroupKnockout(
+        groupCount: groupCount,
+        groups: groups ?? this.groups,
+        formats: formats ?? this.formats,
+        thirdPlace: thirdPlace ?? this.thirdPlace,
+      );
+
+  /// 'A'..'D'.
+  static String letter(int group) => String.fromCharCode(0x41 + group);
+
+  /// Indeks grup pasangan ini, null kalau tidak di grup mana pun.
+  int? groupOfPair(String pairId) {
+    for (final (g, ids) in groups.indexed) {
+      if (ids.contains(pairId)) return g;
+    }
+    return null;
+  }
+
+  /// Babak yang dimainkan, urut main = urutan baris sheet Gugur (19e).
+  List<KnockoutRound> get rounds => [
+    if (groupCount == 4) KnockoutRound.quarterfinal,
+    KnockoutRound.semifinal,
+    if (thirdPlace) KnockoutRound.thirdPlace,
+    KnockoutRound.finalRound,
+  ];
+}
+
+/// Fase sebuah match Grup + Gugur; null di semua turnamen lain.
+sealed class MatchPhase {
+  const MatchPhase();
+
+  /// Kode internal: 'A'..'D' / 'PF1' / 'SF2' / 'F' / 'J3'. Teks UI dari label babak, bukan dari sini.
+  String get code;
+}
+
+final class GroupPhase extends MatchPhase {
+  /// Indeks grup, 0 = Grup A.
+  final int group;
+  const GroupPhase(this.group);
+
+  @override
+  String get code => GroupKnockout.letter(group);
+
+  @override
+  bool operator ==(Object other) => other is GroupPhase && other.group == group;
+
+  @override
+  int get hashCode => group.hashCode;
+}
+
+final class KnockoutPhase extends MatchPhase {
+  final KnockoutRound round;
+
+  /// 1-basis: PF1..PF4, SF1..SF2; Final dan Juara 3 = 1.
+  final int slot;
+  const KnockoutPhase(this.round, this.slot);
+
+  @override
+  String get code => switch (round) {
+    KnockoutRound.quarterfinal || KnockoutRound.semifinal => '${round.codePrefix}$slot',
+    KnockoutRound.thirdPlace => 'J3',
+    KnockoutRound.finalRound => 'F',
+  };
+
+  @override
+  bool operator ==(Object other) => other is KnockoutPhase && other.round == round && other.slot == slot;
+
+  @override
+  int get hashCode => Object.hash(round, slot);
 }
 
 @immutable
@@ -236,6 +362,12 @@ class Pair {
   final String player2Id;
   const Pair({required this.id, required this.player1Id, required this.player2Id});
 
+  /// Sisi match gugur yang belum diketahui ("Pemenang SF1"). Hanya di match `KnockoutPhase` pending/cancelled (I7);
+  /// teksnya dari bagan, bukan dari nama pemain.
+  static const tbd = Pair(id: '', player1Id: '', player2Id: '');
+
+  bool get isTbd => id.isEmpty;
+
   bool contains(String playerId) => player1Id == playerId || player2Id == playerId;
   List<String> get playerIds => [player1Id, player2Id];
 }
@@ -261,6 +393,10 @@ class MatchGame {
   final String? woLoserPairId; // pair yang WO (kalah); pemenang = pair sebelahnya
   final WoReason? woReason;
 
+  /// Grup + Gugur saja; null di semua turnamen lain. Wajib dibawa [copyWith] dan [_with], kalau tidak menyimpan skor
+  /// mengubah match gugur jadi match biasa (logic.md §18.12 #1).
+  final MatchPhase? phase;
+
   const MatchGame({
     required this.id,
     required this.roundNumber,
@@ -272,21 +408,34 @@ class MatchGame {
     this.status = MatchStatus.pending,
     this.woLoserPairId,
     this.woReason,
+    this.phase,
   });
 
-  MatchGame copyWith({List<SetScore>? sets, MatchStatus? status, String? woLoserPairId, WoReason? woReason}) =>
-      MatchGame(
-        id: id,
-        roundNumber: roundNumber,
-        matchNumberInRound: matchNumberInRound,
-        courtId: courtId,
-        pair1: pair1,
-        pair2: pair2,
-        sets: sets ?? this.sets,
-        status: status ?? this.status,
-        woLoserPairId: woLoserPairId ?? this.woLoserPairId,
-        woReason: woReason ?? this.woReason,
-      );
+  /// [pair1]/[pair2]: sisi gugur yang diisi pemenang maju (`KnockoutBracket.resolve`).
+  MatchGame copyWith({
+    List<SetScore>? sets,
+    MatchStatus? status,
+    String? woLoserPairId,
+    WoReason? woReason,
+    Pair? pair1,
+    Pair? pair2,
+  }) => MatchGame(
+    id: id,
+    roundNumber: roundNumber,
+    matchNumberInRound: matchNumberInRound,
+    courtId: courtId,
+    pair1: pair1 ?? this.pair1,
+    pair2: pair2 ?? this.pair2,
+    sets: sets ?? this.sets,
+    status: status ?? this.status,
+    woLoserPairId: woLoserPairId ?? this.woLoserPairId,
+    woReason: woReason ?? this.woReason,
+    phase: phase,
+  );
+
+  /// Bisa dibuka ke Input Skor dari sisi match sendiri: bukan "Tidak dimainkan" (cancelled) dan kedua sisi sudah
+  /// diketahui (gugur: sisi "tbd" menunggu hasil match sebelumnya).
+  bool get isScorable => status != MatchStatus.cancelled && !pair1.isTbd && !pair2.isTbd;
 
   /// Skor disimpan: status selesai, sisa WO lama (pasangan & alasan) dibuang — membuka match WO di Input
   /// Skor lalu menyimpan skor mengubahnya jadi match biasa.
@@ -309,6 +458,7 @@ class MatchGame {
         status: status,
         woLoserPairId: woLoserPairId,
         woReason: woReason,
+        phase: phase,
       );
 
   int get pair1TotalGames => sets.fold(0, (sum, s) => sum + s.side1);
@@ -355,6 +505,10 @@ class TournamentConfig {
   /// turnamen biasa; setiap cabang sparing dimulai dari [isSparing].
   final List<Club>? clubs;
 
+  /// Grup + Gugur (Fixed turnamen biasa saja). Null = round-robin dan semua mode lain; setiap cabang Grup + Gugur
+  /// dimulai dari [isGroupKnockout].
+  final GroupKnockout? groupKnockout;
+
   const TournamentConfig({
     required this.sport,
     required this.mode,
@@ -365,9 +519,22 @@ class TournamentConfig {
     this.format = ScoreFormat.standard,
     this.name,
     this.clubs,
+    this.groupKnockout,
   });
 
   bool get isSparing => clubs != null;
+
+  bool get isGroupKnockout => groupKnockout != null;
+
+  /// Satu-satunya jalan ke format sebuah match (Input Skor, keypad, WO, label baris, caption): match gugur memakai
+  /// format babaknya, selain itu [format]. Rilis tetap total (babak tanpa format → [format]) seperti helper klub di
+  /// bawah; `assert` menangkap config gugur yang lupa format babaknya saat debug/test.
+  ScoreFormat formatFor(MatchGame m) {
+    final phase = m.phase;
+    if (phase is! KnockoutPhase) return format;
+    assert(groupKnockout?.formats[phase.round] != null, 'format babak ${phase.round} tidak ada');
+    return groupKnockout?.formats[phase.round] ?? format;
+  }
 
   /// Batas nama turnamen: muat dua baris di poster Story.
   static const maxNameLength = 40;
@@ -422,8 +589,15 @@ class TournamentConfig {
       if (clubOfPair(pair)?.id == clubId) pair,
   ];
 
-  // `clubs` ikut tanpa parameter: klub tidak berubah selama turnamen (Pitfall copyWith di CLAUDE.md).
-  TournamentConfig copyWith({List<Player>? players, List<Court>? courts, List<Pair>? fixedPairs}) => TournamentConfig(
+  // `clubs` ikut tanpa parameter: klub tidak berubah selama turnamen (Pitfall copyWith di CLAUDE.md). `groupKnockout`
+  // wajib ikut juga, kalau tidak Kelola court dsb. diam-diam mengubah turnamen jadi round-robin. Akibatnya copyWith
+  // tidak bisa mengosongkan `groupKnockout` (null = tetap); turnamen round-robin dibuat dengan konstruktor.
+  TournamentConfig copyWith({
+    List<Player>? players,
+    List<Court>? courts,
+    List<Pair>? fixedPairs,
+    GroupKnockout? groupKnockout,
+  }) => TournamentConfig(
     sport: sport,
     mode: mode,
     matchDurationMinutes: matchDurationMinutes,
@@ -433,6 +607,7 @@ class TournamentConfig {
     format: format,
     name: name,
     clubs: clubs,
+    groupKnockout: groupKnockout ?? this.groupKnockout,
   );
 }
 
@@ -624,6 +799,11 @@ class ActiveTournament {
     return late;
   }
 
+  /// Match [m] boleh dibuka ke Input Skor: [MatchGame.isScorable] dan round-nya tidak terkunci (round depan
+  /// terkunci selama turnamen belum diakhiri; setelah diakhiri semua round terbuka). Satu aturan untuk tab round
+  /// Fixed/Grup + Gugur dan kartu Bagan. Tidak butuh jam, jadi tanpa `now`.
+  bool canOpenScore(MatchGame m) => m.isScorable && (tournament.isFinished || m.roundNumber <= currentRound);
+
   /// Round dianggap selesai kalau tidak ada lagi match yang menunggu skor.
   bool isRoundComplete(int round) => matchesOfRound(round).every((m) => m.status != MatchStatus.pending);
 
@@ -650,6 +830,8 @@ class ActiveTournament {
   bool isFinal(DateTime now) {
     if (tournament.isFinished) return true;
     if (matches.isEmpty) return false;
+    // Grup + Gugur (AC-G14): fase grup lengkap tetap Sementara sampai bagan dibuat dan dimainkan habis.
+    if (config.isGroupKnockout) return hasBracket && matches.every((m) => m.status != MatchStatus.pending);
     return config.mode.isEndless
         ? courtsAvailableAt(now).isEmpty && isRoundComplete(roundCount)
         : matches.every((m) => m.status != MatchStatus.pending);
@@ -671,9 +853,12 @@ class ActiveTournament {
   MatchGame? matchById(String id) => matches.where((m) => m.id == id).firstOrNull;
 
   /// Pasangan Fixed sekarang, atau pasangan lama yang sudah diatur ulang (masih tercatat di match-nya).
-  Pair? pairById(String id) =>
-      config.fixedPairs?.where((p) => p.id == id).firstOrNull ??
-      matches.expand((m) => [m.pair1, m.pair2]).where((p) => p.id == id).firstOrNull;
+  /// Id kosong = sisi gugur yang belum diketahui ([Pair.tbd]): bukan pasangan (logic.md §18.12 #6).
+  Pair? pairById(String id) {
+    if (id.isEmpty) return null;
+    return config.fixedPairs?.where((p) => p.id == id).firstOrNull ??
+        matches.expand((m) => [m.pair1, m.pair2]).where((p) => p.id == id).firstOrNull;
+  }
 
   /// Fixed: pasangan yang anggotanya selalu main bersama — satu baris di Klasemen, Detail, dan poster. Pasangan yang
   /// diatur ulang sebelum round tambahan (04f) tidak termasuk; anggotanya, juga pemain yang tidak ikut lagi, tampil
@@ -836,10 +1021,25 @@ class ActiveTournament {
     );
   }
 
+  /// Grup + Gugur: bagan sudah dibuat (ada match gugur).
+  bool get hasBracket => matches.any((m) => m.phase is KnockoutPhase);
+
+  /// Grup + Gugur: skor fase grup dikunci begitu bagan dibuat (GU6).
+  bool isGroupKnockoutLocked(MatchGame m) => hasBracket && m.phase is GroupPhase;
+
+  /// Grup + Gugur: "Buat bagan" tersedia setelah semua match grup Selesai/WO, sebelum bagan, belum diakhiri (AC-G6).
+  bool get canCreateBracket =>
+      config.isGroupKnockout &&
+      !hasBracket &&
+      !tournament.isFinished &&
+      matches.any((m) => m.phase is GroupPhase) &&
+      matches.every((m) => m.phase is! GroupPhase || m.status == MatchStatus.done || m.status == MatchStatus.wo);
+
   /// Fixed: round tambahan (06v, `RoundRobinGenerator.extraRounds`) boleh dibuat setelah semua match terisi, selama
   /// belum diakhiri.
   bool get canAddRounds =>
       config.mode == PartnerMode.fixed &&
+      !config.isGroupKnockout && // tanpa Tambah round (PRD 16.2)
       !tournament.isFinished &&
       matches.isNotEmpty &&
       matches.every((m) => m.status != MatchStatus.pending);

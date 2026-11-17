@@ -117,12 +117,16 @@ class MabarOption extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
+  /// `.opt .slot` — slot yang didapat pilihan ini ("A2"), bola di kanan baris terpilih (sheet Buat bagan, 20j).
+  final String? slot;
+
   const MabarOption({
     super.key,
     required this.label,
     this.sublabel,
     this.selected = false,
     this.onTap,
+    this.slot,
   });
 
   static const _radioOff = Color(0xFFB9C4CE);
@@ -182,6 +186,7 @@ class MabarOption extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (slot != null) Text(slot!, style: MabarType.numM.copyWith(fontSize: 20, color: MabarColors.ball)),
                 ],
               ),
             ),

@@ -37,11 +37,16 @@ class LastSettings {
   final int matchDurationMinutes;
   final List<LastCourt> courts;
 
+  /// Grup + Gugur terakhir (19i): jumlah grup, format tiap babak, juara 3; `groups` selalu kosong (anggota grup tidak
+  /// ikut pengaturan). Null = round-robin. Konfigurasi yang menurunkannya saat dibaca (4 grup di bawah 24 pemain → 2).
+  final GroupKnockout? groupKnockout;
+
   const LastSettings({
     required this.mode,
     required this.format,
     required this.matchDurationMinutes,
     required this.courts,
+    this.groupKnockout,
   });
 
   /// Nama court sama dengan label bawaan "Court n" → null (nama bawaan ditulis ke config saat kosong, jadi yang
@@ -58,13 +63,20 @@ class LastSettings {
           bookingMinutes: c.bookingDurationMinutes,
         ),
     ],
+    groupKnockout: config.groupKnockout == null
+        ? null
+        : GroupKnockout(
+            groupCount: config.groupKnockout!.groupCount,
+            formats: config.groupKnockout!.formats,
+            thirdPlace: config.groupKnockout!.thirdPlace,
+          ),
   );
 
   /// Konfigurasi Sparing: Mexicano tidak ditawarkan (keputusan 27), jadi jatuh ke Mixed dengan format dan court yang
-  /// sama; mode lain tetap.
-  LastSettings forSparing() => mode == PartnerMode.mexicano
+  /// sama; Grup + Gugur juga tidak (GU14) dan dibuang; mode lain tetap.
+  LastSettings forSparing() => mode == PartnerMode.mexicano || groupKnockout != null
       ? LastSettings(
-          mode: PartnerMode.mixed,
+          mode: mode == PartnerMode.mexicano ? PartnerMode.mixed : mode,
           format: format,
           matchDurationMinutes: matchDurationMinutes,
           courts: courts,
@@ -80,7 +92,53 @@ class LastSettings {
     'courts': [
       for (final c in courts) {'name': c.name, 'colorIndex': c.colorIndex, 'bookingMinutes': c.bookingMinutes},
     ],
+    // Kunci opsional, v tetap 1 (docs/data.md): round-robin ter-encode byte-sama dengan 3.7.x.
+    if (groupKnockout != null) 'groupKnockout': _knockoutJson(groupKnockout!),
   });
+
+  // Urutan PF, SF, J3, F; J3 selalu ditulis walau juara 3 mati, supaya "Ada" lagi memulihkan formatnya (19g).
+  static const _roundKeys = {
+    KnockoutRound.quarterfinal: 'PF',
+    KnockoutRound.semifinal: 'SF',
+    KnockoutRound.thirdPlace: 'J3',
+    KnockoutRound.finalRound: 'F',
+  };
+
+  static Map<String, Object> _knockoutJson(GroupKnockout g) => {
+    'groupCount': g.groupCount,
+    'thirdPlace': g.thirdPlace,
+    'formats': {
+      for (final r in KnockoutRound.values)
+        if (g.formats[r] != null)
+          _roundKeys[r]!: {'scoring': g.formats[r]!.method.name, 'target': g.formats[r]!.target},
+    },
+  };
+
+  /// Aturan baca docs/data.md → Grup + Gugur: mode fixed, 2 atau 4 grup, `formats` persis {SF, J3, F} (+ PF iff 4 grup)
+  /// dan tiap format sah untuk gugur. Pelanggaran = null, dan `read` membuang seluruh entri.
+  static GroupKnockout? _readKnockout(Object? raw, PartnerMode mode) {
+    if (raw is! Map || mode != PartnerMode.fixed) throw const FormatException('groupKnockout');
+    final count = raw['groupCount'], third = raw['thirdPlace'], formats = raw['formats'];
+    if (count is! int || (count != 2 && count != 4) || third is! bool || formats is! Map) {
+      throw const FormatException('groupKnockout');
+    }
+    final wanted = {
+      for (final r in KnockoutRound.values)
+        if (r != KnockoutRound.quarterfinal || count == 4) _roundKeys[r]!: r,
+    };
+    if (formats.length != wanted.length || !formats.keys.every(wanted.containsKey)) {
+      throw const FormatException('groupKnockout.formats');
+    }
+    final result = <KnockoutRound, ScoreFormat>{};
+    for (final MapEntry(key: key, value: round) in wanted.entries) {
+      final f = formats[key];
+      if (f is! Map) throw const FormatException('groupKnockout.format');
+      final format = ScoreFormat(ScoringMethod.values.byName(f['scoring'] as String), f['target'] as int);
+      if (!format.isValidKnockout) throw const FormatException('groupKnockout.format');
+      result[round] = format;
+    }
+    return GroupKnockout(groupCount: count, formats: result, thirdPlace: third);
+  }
 
   /// Null = tidak ada, tak terbaca, atau di luar batas: layar memakai default. Tidak pernah melempar.
   static LastSettings? read(String? raw) {
@@ -112,7 +170,15 @@ class LastSettings {
           LastCourt(name: custom == null || custom.isEmpty ? null : name, colorIndex: color, bookingMinutes: booking),
         );
       }
-      return LastSettings(mode: mode, format: format, matchDurationMinutes: duration, courts: courts);
+      // Kunci tidak ada = round-robin; ada tapi cacat = seluruh entri tak terbaca (dilempar → catch di bawah).
+      final knockout = j.containsKey('groupKnockout') ? _readKnockout(j['groupKnockout'], mode) : null;
+      return LastSettings(
+        mode: mode,
+        format: format,
+        matchDurationMinutes: duration,
+        courts: courts,
+        groupKnockout: knockout,
+      );
     } catch (_) {
       return null;
     }

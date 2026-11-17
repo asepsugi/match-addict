@@ -2,7 +2,9 @@
 
 **Versi dokumen:** 3.0 — sejalan dengan hi-fi v2 (`design/hifi.html`, disetujui host 2026-10-21; Kelola court 2026-10-22; nama turnamen dan batas 30 pemain 2026-10-23; live score 2026-10-24; nama lengkap di baris match, Akhiri di Beranda, dan pemain telat menyusul 2026-10-25; Best of/Americano berhenti lebih awal 2026-10-26; nama Match Addict dan peringkat dengan selisih 2026-11-02; round tambahan Fixed 2026-11-03; default metode Klasemen ikut format skor 2026-11-11) dan app **3.1.0**; Sparing (§13) disetujui host 2026-11-04, rencana app 3.2.0, belum
 ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–47), app 3.4.0, hi-fi 03a–03q dan 16a–16g;
-Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–59), rencana app 3.5.0, hi-fi 17a–17r
+Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–59), rencana app 3.5.0, hi-fi 17a–17r;
+Grup + Gugur (§16) diputuskan host 2026-11-17 (keputusan 93–103), rencana app 3.8.0, hi-fi
+19a–22r
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -78,6 +80,8 @@ biasa. Mode ketiga **Mexicano** (pasangan dari klasemen tiap round, hanya Americ
   dengan jumlah yang sama, dari sisa booking + jam tambahan per court. Sebelumnya pasangan bisa diatur ulang dan pemain
   pengganti dimasukkan (pemain yang pulang tidak ikut, poinnya tertinggal).
 - Fixed **tidak bisa dilanjutkan** setelah diakhiri; yang pulang di tengah round-robin tetap WO.
+- Format turnamen Fixed kedua, **Grup + Gugur** (fase grup lalu bagan gugur; keputusan 93–101, rencana 3.8.0): §16.
+  Aturan di atas berlaku untuk format round-robin; yang berbeda di Grup + Gugur ditulis di §16.
 
 #### B. Mixed Partner (Pasangan Berganti, "endless")
 
@@ -103,7 +107,7 @@ function generateRoundRobin(pairs):
     if n ganjil: tambah dummy "bye"
     fixed = pairs[0]; rotate = pairs[1..n-1]
     for round in 0..n-2:
-        matches = [fixed vs rotate[last]] + [rotate[i] vs rotate[n-2-i] for i in 0..n/2-2]
+        matches = [fixed vs rotate[last]] + [rotate[i] vs rotate[n-3-i] for i in 0..n/2-2]
         rotate = [rotate[last]] + rotate[0..last-1]
         yield matches
 ```
@@ -417,6 +421,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 | Detail Pemain | 10a–10d |
 | Bagikan | 11a–11l |
 | Live score: menu, dialog, sheet di HP host; halaman penonton (Jadwal, Klasemen, Detail) | 12a–12o |
+| Grup + Gugur (§16, rencana 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, Klasemen grup + peringkat akhir | 19a–19y, 20a–20q, 21a–21y, 22a–22r |
 
 State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen berjalan", "Match tidak ditemukan",
 "Pemain tidak ditemukan", spinner saat Jadwal membuat round pertama.
@@ -455,6 +460,9 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 | 26 | 78 match | 14 match |
 | 30 | 105 match | 14 match |
 
+- Grup + Gugur (§16): 6–15 pasangan (12–30 pemain); 2 grup mulai 6 pasangan, 4 grup mulai 12 pasangan. Terpanjang:
+  30 pemain, 2 grup, 1 court → 49 round fase grup + 4 round gugur = 53 round (16.4).
+
 ---
 
 ## 9. Fase Development
@@ -464,7 +472,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 | MVP (1.x) | Setup, pairing, RR & Mixed, input skor, peringkat, share teks+gambar, simpan lokal, PWA | Selesai, live di web |
 | 2.0 | Redesain v2 + format skor Race to/Best of/Americano + WO per format + perbaikan logika (`logic.md`) | Sedang dikerjakan |
 | Berikutnya | Rilis Play Store (keystore sendiri), history banyak turnamen, multi-device | Belum |
-| Backlog | Turnamen grup + babak gugur (Fixed): pasangan dibagi n grup, tiap grup di court sendiri saling bertemu, top-n tiap grup lanjut ke perempat final / semifinal / final (host memilih babak awal). Diusulkan host 2026-11-12, ditunda | Belum |
+| 3.8.0 (rencana) | Grup + Gugur (Fixed, §16): 2 atau 4 grup, court dikunci per grup, 2 besar tiap grup lolos ke bagan silang, format skor per babak, perebutan juara 3. Diusulkan host 2026-11-12 (backlog), dibuka lagi 2026-11-17 (keputusan 93–101); usulan GU1–GU16 + Q1–Q4 disetujui (keputusan 102); hi-fi 19a–22r disetujui (keputusan 103) | Dirancang (PRD + hi-fi) |
 | Backlog | Monetisasi: buka ke publik, login Google (hanya untuk membuka fitur berbayar; app tetap jalan offline tanpa login), langganan per host, histori pertandingan milik host. Web/PWA dulu → Play Store → iOS kalau Android ramai. Usulan fitur terkunci: tambah pemain/jam/court setelah turnamen mulai, Sparing, Live Score, pilihan Total Point. Arah teknis: Firebase (Auth + Firestore + Functions), pembayaran Midtrans QRIS bayar di muka per periode. Dibahas host 2026-11-12, belum diputuskan | Belum |
 
 ---
@@ -685,6 +693,52 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     dalam kolom selebar nilai terpanjang se-poster, supaya poin dan selisih sejajar walau jumlah digit beda; kaki lebih
     kecil satu tingkat (wordmark 11,5 → 10,5, bola 13 → 12, fakta 10,5 → 9,5); Lengkap Feed dua kolom: baris mengisi
     ruang panel (batas tinggi baris 26 → 40, huruf tetap) sehingga tidak ada celah antara kepala dan panel.
+93. **Grup + Gugur** (§16) hanya untuk mode **Fixed** (pasangan tetap): pilihan format baru di bawah Fixed, round-robin
+    biasa tetap ada (2026-11-17).
+94. **2 besar tiap grup** lolos ke gugur. Jumlah grup **2 atau 4** saja (→ semifinal / perempat final, tanpa bye);
+    minimal 3 pasangan per grup; batas 30 pemain tetap (2026-11-17).
+95. **Pasangan dan grup diatur host secara default.** Host: "default untuk mode turnamen panjang ini pasangan diatur oleh
+    host" dan "ya pembentukan pasangan nya manual secara default". Di Grup + Gugur, pembentukan pasangan **dan**
+    penempatan pasangan ke grup sama-sama manual secara default, bukan undi acak. Tidak habis dibagi → ukuran grup
+    selisih ≤ 1 (2026-11-17).
+96. **Court dikunci per grup.** Host: "untuk court bisa dikunci 1 group main di court yang sama. tapi 1 court bisa
+    bergantian dengan group lain." Satu grup main di court yang tetap; grup lebih banyak dari court → beberapa grup
+    bergantian di satu court (2026-11-17).
+97. **Bagan silang**: A1–B2 dan B1–A2; dengan 4 grup bagan diatur supaya pasangan dari grup yang sama paling cepat
+    bertemu di final (2026-11-17).
+98. **Peringkat grup** memakai metode Klasemen yang ada (nilai metode + selisih, 4.2–4.3). Seri di batas lolos
+    (peringkat 2 vs 3) → head-to-head → masih seri: host memilih (2026-11-17).
+99. **Format skor gugur per babak.** Host: "untuk fase gugur format skor boleh berbeda/berganti tiap tingkat". Race
+    to / Best of / Americano + N diatur per babak: perempat final, semifinal, perebutan juara 3, final (2026-11-17).
+100. **Perebutan juara 3** adalah opsi, **default nyala**, supaya poster podium tetap punya tempat ke-3 (2026-11-17).
+101. **Bagan di Jadwal** saat fase gugur: skor terisi, pemenang maju otomatis setelah skor diinput. Bagan di poster
+     Bagikan dan di live score: belum sekarang (2026-11-17).
+102. **Usulan GU1–GU16 dan rekomendasi Q1–Q4 §16** disetujui host 2026-11-17 ("setuju semua"): lolos memakai metode
+     default format grup tanpa tab metode (Q1), skor grup dikunci saat Buat bagan (Q2), peringkat akhir per babak/posisi
+     grup dan baris menulis babak, termasuk poster (Q3; tampilan poster didesain ulang di fitur ini), court sisa ke grup
+     yang paling lama selesai (Q4).
+103. **Hi-fi Grup + Gugur 19a–22r** disetujui host 2026-11-17 ("setuju"), termasuk usulan desainer yang belum ada di
+     §16 (daftar lengkap di hi-fi → Cakupan): pilihan format hanya Fixed ≥ 12 pemain; baris "Fase grup" + "Gugur"
+     di Konfigurasi, gugur mengikuti format grup sampai diubah, juara 3 "Ada / Tidak ada"; layar Grup dengan chip A–D
+     tanpa Urungkan, kelebihan "5 dari 4", Acak → Manual mengosongkan grup; label "Grup A" di baris match (95 pt);
+     sheet "Pilih A2" / "Pilih A1 dan A2" saat seri; tab Bagan terakhir di strip, tab babak memakai kode ("PF1–2",
+     "SF1", round Final + Juara 3 = "Final"), format skor di label match; bagan 8 tim digeser per babak; dialog
+     "Ganti pemenang SF1?" dan penolakan kalau babak berikut sudah ada skor; Klasemen "Peringkat | Fase grup" dengan
+     kolom # · Pasangan · Babak; podium #1 #2 #3 #3 tanpa Juara 3; Detail tanpa "Beda lawan". Poster selama fase grup
+     dan halaman penonton live mengikuti aturan 22g, frame dibuat kalau host minta.
+104. **Ubah format babak / juara 3 setelah jadwal dibuat (GU9) ditunda ke 3.8.x** (2026-11-17, "setuju"): belum ada
+     frame; di 3.8.0 hanya diatur di Konfigurasi.
+105. **Turnamen diakhiri di fase grup:** pasangan yang belum main sama sekali tampil "Belum main" tanpa nomor dan tidak
+     naik podium (2026-11-17).
+106. **Caption match gugur yang tidak dimainkan** dengan sisi belum diketahui menulis sumbernya ("Pemenang SF2"), bukan
+     "?" (2026-11-17).
+107. **Frame 19s benar, catatannya diperbaiki** (2026-11-17): contoh sebagian = Andi · Budi dan Citra · Dewi ke A,
+     Indra · Joko ke B → "5 pasangan tanpa grup".
+108. **Pseudocode round-robin 3.3 diperbaiki** (2026-11-17): pasangan dalam = `rotate[i] vs rotate[n-3-i]`; versi lama
+     memasangkan `rotate[last]` dua kali. Kode (`round_robin_generator.dart`) sudah benar, perilaku tidak berubah.
+109. **Frame 22q/22r Story dibetulkan ke aturan bawahKepala** (2026-11-17, "setuju"): baris kecil yang dikecilkan
+     (15 → 12,5) memakai ukuran sesudah dikecilkan untuk garis belakang, podium mini, dan panel (logic.md §17.12 #3,
+     sama dengan 11m); frame lama menurunkannya 3 pt. Kode tidak berubah.
 
 ---
 
@@ -704,6 +758,9 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     Sparing dan pemain telat di Mexicano ditunda (2026-11-11, §14)
 11. Tukar pemain manual di Mixed: hanya round terakhir dan match yang belum diisi, satu lawan satu, fairness dari
     riwayat, Sparing sesama klub, Mexicano dikunci (2026-11-12, §15)
+12. Grup + Gugur untuk Fixed: 2 atau 4 grup, 2 besar lolos ke bagan silang, pasangan dan grup diatur host secara
+    default, court dikunci per grup, format skor per babak, perebutan juara 3 default nyala, bagan di Jadwal
+    (2026-11-17, §16)
 
 ---
 
@@ -1586,3 +1643,407 @@ Q1–Q2 disetujui sesuai rekomendasi (keputusan 54–55).
   tapi belum jelas apakah dia boleh ditukar masuk ke round yang sedang berjalan. Rekomendasi: boleh (TU2); kalau itu R1,
   dia dihitung hadir sejak awal (bukan "pemain telat", yaitu pemain yang menyusul dengan jeda istirahat), dan ini satu-satunya
   cara karena R1 tidak bisa dibatalkan.
+
+---
+
+## 16. Grup + Gugur (Fixed)
+
+> **Arah diputuskan host 2026-11-17** (keputusan 93–102, §10), rencana rilis **3.8.0 (MINOR)**. Usulan PM GU1–GU16
+> (16.13) dan rekomendasi 16.14 **disetujui host 2026-11-17** (keputusan 102); hi-fi 19a–22r disetujui (keputusan 103).
+> Spec `design/spec/logic.md` §18, bentuk data `docs/data.md` → Grup + Gugur, task GG-n di `docs/tasks.md`; pertanyaan
+> lanjutan dijawab host 2026-11-17 (keputusan 104–108). Round-robin Fixed, Mixed, Mexicano, dan Sparing tidak berubah.
+
+Grup + Gugur = turnamen Fixed dua fase: **fase grup** (round-robin di dalam tiap grup, 3.3) lalu **fase gugur** (bagan
+dengan 2 besar tiap grup; kalah langsung tersingkir) sampai final.
+
+### 16.0 Situasi nyata
+
+- Turnamen klub yang "serius": 12–30 pemain datang dengan pasangan yang sudah didaftarkan, 1–4 court dibooking 2–4 jam,
+  satu HP host, offline. Round-robin penuh terlalu panjang (15 pasangan = 105 match, 8), dan semua menunggu satu
+  momen: **final** dan siapa juaranya.
+- Host biasanya sudah tahu siapa berpasangan dengan siapa dan ingin menyebar pasangan kuat ke grup berbeda, jadi
+  pasangan dan grup diatur sendiri (keputusan 95), bukan diundi.
+- Satu grup memakai satu court supaya pemain grup itu berkumpul di pinggir court yang sama dan tahu kapan gilirannya
+  (keputusan 96). Court sering lebih sedikit dari grup.
+- Di akhir hari yang dibagikan ke grup WhatsApp: juara 1–3 (podium) dan bagannya; bagan di poster belum sekarang
+  (keputusan 101).
+
+### 16.1 Aturan inti
+
+- **G1.** Hanya mode **Fixed** (keputusan 93), turnamen biasa (Sparing: GU14). Format turnamen Fixed: **Round-robin**
+  (seperti sekarang) atau **Grup + Gugur**.
+- **G2.** Jumlah grup **2 atau 4** (keputusan 94). Tiap grup minimal 3 pasangan, ukuran antar grup selisih ≤ 1
+  (keputusan 95), jadi ukuran grup = ⌊P ÷ G⌋ atau ⌈P ÷ G⌉ (P = jumlah pasangan, G = jumlah grup).
+  - 2 grup: 6–15 pasangan (12–30 pemain). 4 grup: 12–15 pasangan (24–30 pemain). Di bawah 6 pasangan Grup + Gugur
+    tidak tersedia.
+  - Contoh: 7 pasangan / 2 grup → 4 + 3; 13 / 4 → 4 + 3 + 3 + 3; 15 / 4 → 4 + 4 + 4 + 3. Grup ditulis A, B, C, D;
+    ukuran tiap grup ditetapkan app, yang lebih besar mendapat huruf lebih awal (GU2); host mengisi anggotanya.
+- **G3.** Pasangan dibentuk host secara **manual** sebagai default (keputusan 95): layar Pasangan dibuka dalam mode
+  Manual, bukan acak otomatis seperti round-robin (3.2 A). Acak tetap bisa dipilih. Pemain ganjil tetap menahan "Buat
+  jadwal" (04c).
+- **G4.** Host **menempatkan tiap pasangan ke grup** secara manual (keputusan 95). Buat jadwal aktif hanya kalau semua
+  pasangan sudah punya grup dan ukuran grup memenuhi G2. Pasangan dan grup dikunci saat jadwal dibuat (dialog seperti
+  keputusan 1).
+- **G5.** Fase grup = round-robin penuh **di dalam tiap grup** (circle method 3.3, bye kalau pasangan ganjil). Tidak ada
+  match antar grup di fase grup.
+- **G6.** Court dikunci per grup (keputusan 96): semua match satu grup dimainkan di court yang sama (atau kumpulan
+  court yang sama, GU3). Grup lebih banyak dari court → beberapa grup bergantian di satu court (GU4).
+- **G7.** Klasemen grup: per grup, metode Klasemen yang ada (nilai metode → selisih, nomor sama kalau keduanya sama,
+  4.3, keputusan 98). Hanya match grup itu yang dihitung. Nomor di tabel tetap aturan 4.3 (keputusan 17); head-to-head
+  hanya dipakai untuk menentukan **siapa lolos dan urutannya** (G8), bukan nomor.
+- **G8.** Lolos = 2 besar tiap grup (keputusan 94). Kalau nomor grup tidak memastikan siapa peringkat 1 dan 2 grup itu
+  (seri di batas 2 vs 3, keputusan 98; seri di #1 untuk urutan A1/A2, GU7): **head-to-head** di antara pasangan yang
+  seri → masih seri → **host memilih**.
+- **G9.** Bagan silang (keputusan 97):
+  - 2 grup → **Semifinal**: SF1 = A1 vs B2, SF2 = B1 vs A2.
+  - 4 grup → **Perempat final**: PF1 = A1 vs B2, PF2 = C1 vs D2, PF3 = B1 vs A2, PF4 = D1 vs C2; SF1 = pemenang PF1 vs
+    pemenang PF2, SF2 = pemenang PF3 vs pemenang PF4. A1, B2, C1, D2 di paruh atas; B1, A2, D1, C2 di paruh bawah, jadi
+    pasangan dari grup yang sama paling cepat bertemu di final.
+  - **Final** = pemenang SF1 vs pemenang SF2. **Perebutan juara 3** = kalah SF1 vs kalah SF2 (opsi, default nyala,
+    keputusan 100).
+  - A1 = peringkat 1 Grup A, A2 = peringkat 2 Grup A, dst.
+- **G10.** Gugur **tidak ada seri** dan tidak ada round tambahan: tiap match gugur punya pemenang (skor atau WO).
+- **G11.** Format skor per babak (keputusan 99): fase grup satu format; Perempat final, Semifinal, Perebutan juara 3,
+  dan Final masing-masing Race to / Best of / Americano + N sendiri (GU9).
+- **G12.** Pemenang maju otomatis ke slot berikutnya di bagan begitu skor/WO match gugur disimpan (keputusan 101).
+- **G13.** Wording ikut `CLAUDE.md`: pemain, court, round, match; nama babak dan label lain di GU1 (usulan).
+
+### 16.2 Konfigurasi & alur
+
+```
+[Pemain] → [Konfigurasi] Fixed · Grup + Gugur, jumlah grup, format grup, format per babak gugur, juara 3, court
+        → [Pasangan] (Manual) → [Grup] (tempatkan pasangan) → dialog kunci → [Jadwal fase grup]
+        → semua match grup terisi → Buat bagan (+ pilih yang lolos kalau seri) → dialog kunci → [Jadwal gugur + bagan]
+        → Final terisi → Final → [Klasemen] → [Bagikan]
+```
+
+- Konfigurasi (5.3): di bawah mode Fixed ada pilihan format turnamen (Round-robin / Grup + Gugur) dan jumlah grup (2 / 4;
+  4 hanya mulai 12 pasangan). Format skor yang ada = format fase grup. Format babak gugur + juara 3 diatur di
+  Konfigurasi (GU9); mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104).
+- Estimasi di tombol Lanjut **pasti** (seperti Fixed sparing, keputusan 19): round fase grup (16.3) + round gugur
+  (GU10), dan "lewat booking hh:mm" kalau melewati booking terpendek.
+- Grup + Gugur tidak memakai "Tambah round" (3.3a) maupun Atur pasangan (04f–04h): turnamen selesai di Final.
+
+### 16.3 Jadwal fase grup (court dikunci)
+
+Rumus per grup: g pasangan → g(g−1)/2 match; putaran circle r = g − 1 (g genap) atau g (g ganjil, satu pasangan bye
+tiap putaran); match per putaran m = ⌊g ÷ 2⌋. Grup dengan k court → **r × ⌈m ÷ k⌉ round** (invariant 3.3: putaran circle
+dipotong per k court, dua putaran tidak digabung). k = 1 → round = jumlah match grup.
+
+**Round** tetap = satu batch court dipakai paralel sekali (3.0), bernomor terus R1, R2, … lintas fase. Jumlah round fase
+grup = round terbanyak di antara court. Court yang grupnya sudah habis kosong sampai fase grup selesai.
+
+Pembagian court (GU3, usulan) dan urutan di court bersama (GU4, usulan):
+- **Court ≥ grup:** Court 1 → Grup A, Court 2 → Grup B, dst. Court sisanya, urut nomor, masing-masing diberikan ke grup
+  yang roundnya paling banyak **dan** berkurang kalau mendapat court itu (seri → huruf lebih awal). Tidak ada grup yang
+  berkurang → court itu tidak dipakai di fase grup.
+- **Court < grup:** grup urut huruf, masing-masing ke court yang jumlah match grupnya paling sedikit sejauh ini (seri →
+  nomor court terkecil).
+- Satu court dipakai beberapa grup → **bergantian satu match per round**, urut huruf (A, C, A, C, …); grup yang habis
+  dilewati, grup lain lanjut. Urutan match di dalam satu grup = urutan round-robin 3.3.
+
+**Contoh 16A — 2 grup, 2 court (satu grup satu court).** Padel, 15 menit, 2 court × 2 jam (18.00–20.00), 16 pemain.
+Format grup Race to 6 (Win %); Semifinal Race to 6, Perebutan juara 3 Race to 4, Final Race to 9.
+
+| Grup | Pasangan | Court |
+|------|----------|-------|
+| A | Andi · Budi, Citra · Dewi, Eko · Fajar, Gita · Hadi | Court 1 |
+| B | Indra · Joko, Kiki · Lina, Maya · Nanda, Oki · Putri | Court 2 |
+
+- Tiap grup 4 pasangan → 6 match (r = 3, m = 2, k = 1 → 6 round). Fase grup **R1–R6**: tiap round Court 1 satu match
+  Grup A, Court 2 satu match Grup B. Tiap pasangan 3 match.
+- Gugur: R7 = SF1 (Court 1) + SF2 (Court 2); R8 = Final (Court 1) + Perebutan juara 3 (Court 2). Total **8 round ×
+  15 menit = 120 menit**, pas booking (selesai 20.00).
+- Varian 1 court (2 jam): Court 1 bergantian A, B, A, B, … → fase grup R1–R12; R13 SF1, R14 SF2, R15 Perebutan juara 3,
+  R16 Final → 16 round = 240 menit, "lewat booking 02:00".
+
+**Contoh 16B — 4 grup, 2 court (bergantian).** Tennis, 20 menit, 2 court × 3 jam, 24 pemain = 12 pasangan → 4 grup ×
+3 pasangan (3 match per grup, tiap pasangan 2 match).
+
+- Pembagian: A → Court 1, B → Court 2, C → Court 1 (keduanya 3 match, seri → court terkecil), D → Court 2.
+
+| Round | Court 1 | Court 2 |
+|-------|---------|---------|
+| R1, R3, R5 | Grup A (match 1, 2, 3) | Grup B (match 1, 2, 3) |
+| R2, R4, R6 | Grup C (match 1, 2, 3) | Grup D (match 1, 2, 3) |
+
+- Tidak ada pasangan yang main di dua round beruntun (main di R1/R3/R5 atau R2/R4/R6).
+- Gugur: R7 = PF1 (A1–B2, Court 1) + PF2 (C1–D2, Court 2); R8 = PF3 (B1–A2) + PF4 (D1–C2); R9 = SF1 + SF2; R10 = Final
+  (Court 1) + Perebutan juara 3 (Court 2). Total **10 round × 20 menit = 200 menit** → "lewat booking 00:20".
+- Varian 3 court, 13 pasangan (A 4, B 3, C 3, D 3): A (6 match) → Court 1, B → Court 2, C → Court 3, D → Court 2 (Court 2
+  dan 3 sama-sama 3 match, seri → Court 2). Court 1: A 6 round; Court 2: B, D bergantian 6 round; Court 3: C 3 round
+  lalu kosong. Fase grup **6 round**.
+
+**Contoh 16C — court lebih banyak dari grup (usulan GU3).**
+- 30 pemain = 15 pasangan → A 8, B 7; Padel 15 menit, 4 court. Awal: Court 1 → A (r 7 × m 4 = 28 round), Court 2 → B
+  (7 × 3 = 21). Court 3 → A (paling banyak, 28 → 7 × ⌈4/2⌉ = 14). Court 4 → B (21 → 7 × ⌈3/2⌉ = 14). Fase grup
+  **14 round**: Grup A di Court 1 + 3 (2 match tiap round), Grup B di Court 2 + 4 (putaran 3 match dipotong 2 + 1, jadi
+  Court 4 kosong selang satu round). Gugur: R15 SF1 + SF2 (Court 1–2), R16 Final + Perebutan juara 3 → **16 round =
+  240 menit**.
+- 12 pemain = 6 pasangan → 2 grup × 3, 3 court: tiap putaran grup 3 pasangan hanya 1 match, court tambahan tidak
+  mengurangi round → **Court 3 tidak dipakai di fase grup**. Fase grup R1–R3, R4 SF1 + SF2, R5 Final + Perebutan juara 3
+  (Court 1–2). Court 3 tidak dipakai sama sekali.
+
+### 16.4 Batas & kasus ekstrem
+
+| Kasus | Hasil |
+|-------|-------|
+| 10 pemain (5 pasangan) | Grup + Gugur tidak tersedia (2 grup × 3 butuh 6 pasangan) |
+| 12 pemain, 2 grup | 3 + 3; 3 match per grup; tiap pasangan 2 match grup |
+| 22 pemain, 4 grup | Tidak tersedia (11 pasangan < 12); 2 grup → 6 + 5 |
+| 14 pemain, 2 grup | 4 + 3; Grup B ganjil → bye tiap putaran |
+| 30 pemain, 2 grup, 1 court | A 28 + B 21 match bergantian → B habis di R42, A lanjut R43–R49; R50–R51 SF, R52 Perebutan juara 3, R53 Final |
+| 30 pemain, 4 grup, 1 court | 4 + 4 + 4 + 3 → 6 + 6 + 6 + 3 = 21 round grup; R22–R25 PF, R26–R27 SF, R28–R29 → 29 round |
+| Host menempatkan 5 + 2 (7 pasangan) | Buat jadwal mati: grup < 3 pasangan dan selisih > 1 |
+
+### 16.5 Transisi grup → gugur (usulan GU6–GU8)
+
+- **Kapan:** begitu **semua** match grup Selesai atau WO dan turnamen belum diakhiri, Jadwal menampilkan "Buat bagan".
+  Satu match grup masih Belum → tidak ada Buat bagan. Tidak ada gugur yang dimulai per grup.
+- **Seri di lolos:** untuk tiap grup, kalau nomor grup tidak memastikan siapa peringkat 1 dan 2 (G8):
+  1. Head-to-head = jumlah menang (seri ½, WO = menang) **hanya dari match di antara pasangan yang seri**. Satu kali,
+     tidak diulang untuk sisa yang masih seri.
+  2. Masih belum pasti → host memilih pasangan yang lolos (dan siapa peringkat 1 kalau itu juga belum pasti) di langkah
+     Buat bagan.
+- **Metode yang menentukan lolos** = default format grup (keputusan 21: Race to / Best of → Win %, Americano → Total
+  Point); Klasemen grup tanpa toggle metode (GU8, pertanyaan Q1).
+- **Dikunci** (dialog konfirmasi, seperti kunci pasangan): siapa lolos, A1/A2 dst., dan **skor fase grup** (tidak bisa
+  diubah lagi, GU6, pertanyaan Q2). Pilihan host disimpan; app ditutup sebelum konfirmasi → belum ada yang berubah.
+- Setelah dikunci, round gugur ditambahkan ke Jadwal dan bagan tampil.
+
+**Contoh 16D — seri di Grup A** (data 16A, Race to 6, Win %, 6 match).
+
+*16D-i, seri di batas 2 vs 3 (dua pasangan):* Andi · Budi – Citra · Dewi 6–4, Andi · Budi – Eko · Fajar 6–3, Andi ·
+Budi – Gita · Hadi 6–3, Citra · Dewi – Eko · Fajar 6–4, Eko · Fajar – Gita · Hadi 6–3, Gita · Hadi – Citra · Dewi 6–4.
+
+| # | Pasangan | W–L | +/− | Win % |
+|---|----------|-----|-----|-------|
+| 1 | Andi · Budi | 3–0 | +8 | 100% |
+| 2 | Citra · Dewi | 1–2 | −2 | 33% |
+| 2 | Eko · Fajar | 1–2 | −2 | 33% |
+| 3 | Gita · Hadi | 1–2 | −4 | 33% |
+
+→ Head-to-head Citra · Dewi menang 6–4 atas Eko · Fajar → **A1 Andi · Budi, A2 Citra · Dewi**. Nomor di tabel tetap
+1, 2, 2, 3.
+
+*16D-ii, seri di #1 (urutan A1/A2):* Andi · Budi – Citra · Dewi 6–4, Andi · Budi – Eko · Fajar 6–3, Gita · Hadi – Andi ·
+Budi 6–4, Citra · Dewi – Eko · Fajar 6–3, Citra · Dewi – Gita · Hadi 6–4, Eko · Fajar – Gita · Hadi 6–2.
+
+| # | Pasangan | W–L | +/− | Win % |
+|---|----------|-----|-----|-------|
+| 1 | Andi · Budi | 2–1 | +3 | 67% |
+| 1 | Citra · Dewi | 2–1 | +3 | 67% |
+| 2 | Eko · Fajar | 1–2 | −2 | 33% |
+| 3 | Gita · Hadi | 1–2 | −4 | 33% |
+
+→ Keduanya lolos; head-to-head Andi · Budi menang → **A1 Andi · Budi, A2 Citra · Dewi**. (Data ini dipakai 16E.)
+
+*16D-iii, seri tiga pasangan berputar:* Andi · Budi menang 6–3 atas ketiganya; Citra · Dewi – Eko · Fajar 6–4, Eko ·
+Fajar – Gita · Hadi 6–4, Gita · Hadi – Citra · Dewi 6–4. Citra · Dewi, Eko · Fajar, Gita · Hadi: 1–2, −3, 33% → nomor
+2, 2, 2. Head-to-head di antara ketiganya 1–1 semua → **host memilih** satu sebagai A2.
+
+### 16.6 Bagan, babak gugur & pemenang maju
+
+- **Court & round gugur (GU10):** match satu babak diisi ke round baru urut bagan (PF1, PF2, PF3, PF4 / SF1, SF2) di
+  Court 1, 2, … (court kunci grup tidak berlaku lagi). Babak berikutnya selalu di round sesudahnya. Round terakhir:
+  Final di Court 1 + Perebutan juara 3 di Court 2; 1 court → Perebutan juara 3 satu round lebih dulu, Final terakhir.
+- **Kunci round** sama dengan Fixed (3.2 A): round berikutnya terbuka setelah semua match round sebelumnya terisi.
+- **Slot belum diketahui:** match gugur yang salah satu sisinya belum punya pemenang tidak bisa dibuka ke Input Skor;
+  tampilannya ("Pemenang SF1" atau sejenisnya) oleh designer.
+- **Bagan tampil di Jadwal** selama fase gugur (keputusan 101): semua babak, nama pasangan, skor yang terisi, pemenang
+  maju otomatis. Bentuk visual oleh designer.
+- **Ubah skor gugur (GU11):** skor yang tidak membalik pemenang selalu boleh diubah. Yang membalik pemenang hanya boleh
+  selama **semua match yang diisi oleh match itu** (babak berikutnya, juga Perebutan juara 3 untuk SF) masih Belum;
+  slot di sana langsung berganti. Sudah ada skor → ditolak dengan pesan (teks oleh designer).
+- **Format per babak (GU9):** validasi Input Skor (4.1) memakai format babak match itu. Di gugur, Best of dan Americano
+  hanya N ganjil, jadi skor penuh tidak pernah seri; Race to memang tidak bisa seri.
+
+**Contoh 16E — bagan 16A** (Grup A = 16D-ii; Grup B: Indra · Joko – Maya · Nanda 6–4, Indra · Joko – Kiki · Lina 6–2,
+Indra · Joko – Oki · Putri 6–1, Maya · Nanda – Kiki · Lina 6–3, Maya · Nanda – Oki · Putri 6–2, Kiki · Lina – Oki ·
+Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1–2, Oki · Putri 0–3).
+
+| Round | Court 1 | Court 2 |
+|-------|---------|---------|
+| R7 Semifinal (Race to 6) | SF1 Andi · Budi (A1) **6**–4 Maya · Nanda (B2) | SF2 Indra · Joko (B1) 4–**6** Citra · Dewi (A2) |
+| R8 | Final (Race to 9): Andi · Budi 7–**9** Citra · Dewi | Perebutan juara 3 (Race to 4): Maya · Nanda **4**–2 Indra · Joko |
+
+- Simpan SF1 6–4 → slot Final atas = Andi · Budi, slot juara 3 atas = Maya · Nanda, langsung.
+- Andi · Budi dan Citra · Dewi (sama-sama Grup A) baru bertemu di Final.
+- Ubah SF1 jadi 4–6 **sebelum** R8 ada skor → Final: Maya · Nanda vs Citra · Dewi; Perebutan juara 3: Andi · Budi vs
+  Indra · Joko. **Sesudah** Final 7–9 disimpan → ditolak. Ubah SF1 jadi 6–5 → boleh (pemenang sama).
+- Skor 6–6 di SF tidak bisa disimpan (Race to); Americano 21 di gugur: total 21 tidak bisa dibagi sama.
+
+### 16.7 WO di gugur
+
+- Alur WO sama (4.4): pasangan yang tidak bisa main kalah, lawannya **maju** seperti menang skor (G12).
+- Nilai WO (Total Point) tidak berpengaruh di gugur, karena peringkat gugur dari babak, bukan poin (16.8).
+- Dua pasangan sama-sama tidak datang: tidak ada aksi khusus; host memilih salah satu sebagai WO (belum sekarang: WO
+  ganda).
+- WO di fase grup: aturan 4.4 apa adanya, ikut Klasemen grup dan head-to-head (WO = menang).
+
+### 16.8 Klasemen & peringkat akhir (usulan GU12, GU13, GU16)
+
+- **Klasemen grup:** satu tabel per grup (kolom 5.7), metode tetap (GU8), tanda pasangan yang lolos setelah bagan dibuat.
+- **Peringkat akhir** (dipakai Klasemen setelah bagan, poster podium/Lengkap, caption, penonton live). Tingkat dari atas:
+  1. Menang Final · 2. Kalah Final · 3. Menang Perebutan juara 3 · 4. Kalah Perebutan juara 3 (tanpa match juara 3:
+     kedua kalah SF satu tingkat) · 5. Kalah Perempat final · 6. Tidak lolos, per **posisi grup** 3, 4, ….
+  - Posisi grup pasangan tidak lolos = 3 + jumlah pasangan tidak lolos di grupnya yang nomornya lebih kecil; posisi sama
+    di grup mana pun = tingkat sama.
+  - Satu tingkat = nomor sama; nomor rapat seperti 4.3 (#1, #2, #2, #3). Tingkat kosong tidak memakan nomor.
+  - Pasangan yang masih di babak tanpa hasil (Sementara, atau diakhiri) ada di tingkat tepat di atas yang kalah di babak
+    itu, bernomor sama satu sama lain.
+  - Sebelum bagan dibuat: urut posisi grup = 1 + jumlah pasangan di grupnya yang nomornya lebih kecil (semua posisi 1
+    lintas grup satu tingkat, dst.).
+- Nomor akhir ditentukan babak, bukan nilai metode, jadi baris peringkat akhir menulis **babak yang dicapai** ("Juara",
+  "Final", "Juara 3", "Semifinal", "Perempat final", "Grup A · 3") sebagai alasan nomornya, bukan "nilai · selisih" (GU16,
+  pertanyaan Q3). Keputusan 17 (nomor dari angka yang tampil) tetap berlaku di Klasemen grup.
+- **Status (4.6):** Final setelah Final (dan Perebutan juara 3 kalau nyala) terisi, atau setelah diakhiri. Selain itu
+  Sementara.
+
+**Contoh 16F — peringkat akhir 16E:**
+
+| # | Pasangan | Babak |
+|---|----------|-------|
+| 1 | Citra · Dewi | Juara |
+| 2 | Andi · Budi | Final |
+| 3 | Maya · Nanda | Juara 3 |
+| 4 | Indra · Joko | Semifinal |
+| 5 | Eko · Fajar, Kiki · Lina | Posisi grup 3 |
+| 6 | Gita · Hadi, Oki · Putri | Posisi grup 4 |
+
+- Tanpa Perebutan juara 3: #1 Citra · Dewi, #2 Andi · Budi, #3 Maya · Nanda + Indra · Joko, #4 posisi 3, #5 posisi 4.
+  Podium: #1, #2, #3, #3 (4 anak tangga, keputusan 65).
+- Diakhiri setelah R7 (R8 Tidak dimainkan): #1 Andi · Budi + Citra · Dewi, #2 Maya · Nanda + Indra · Joko, #3 posisi 3,
+  #4 posisi 4.
+- Diakhiri setelah R3 (fase grup): urut posisi grup Sementara saat itu; tidak ada bagan.
+- 4 grup: kalah perempat final berempat di satu nomor (#5 dengan Perebutan juara 3).
+
+### 16.9 Interaksi dengan fitur yang ada
+
+| Fitur | Perilaku di Grup + Gugur |
+|-------|--------------------------|
+| Pasangan Acak/Manual (3.2 A, 04a–04e) | Dibuka Manual (G3, keputusan 95); Acak tetap ada. Ditambah langkah penempatan grup (G4). |
+| Round tambahan + Atur pasangan (3.3a) | Tidak ada. Pemain pulang di tengah turnamen → WO (fase grup: 4.4; gugur: lawan maju). |
+| Sparing (§13) | Tidak menawarkan Grup + Gugur (GU14). |
+| Mixed, Mexicano, Tukar pemain (§14, §15) | Tidak berlaku (keputusan 93). |
+| Akhiri | Boleh kapan saja; match Belum → Tidak dimainkan; bagan tidak dibuat kalau masih fase grup; peringkat akhir 16.8. |
+| Lanjutkan turnamen | Tidak ada, seperti Fixed (3.2 A); tidak tampil di riwayat Beranda. |
+| Resume (5.10) | App ditutup di fase grup, saat memilih yang lolos (belum konfirmasi), atau di gugur → dibuka lagi di keadaan tersimpan terakhir. |
+| Klasemen toggle (4.2) | Tidak ada di Grup + Gugur (GU8, Q1). |
+| Detail Pemain (5.8) | Baris statistik = fase grup saja (format bisa beda per babak, poin dan game tidak dijumlah); riwayat semua match dengan nama babak (GU13). |
+| Live score (5.11) | Penonton melihat match gugur sebagai daftar round dengan nama babak, tanpa bagan (keputusan 101); Klasemen grup + peringkat akhir seperti host. Relay tidak berubah. |
+| Bagikan (5.9) | Podium dan Lengkap dari peringkat akhir; aturan podium 64–65, 68–69 tetap. Isi baris (babak, GU16) perlu desain + persetujuan host. Bagan di poster belum sekarang. |
+| Kelola court | Tidak ada (sama seperti Fixed). |
+
+### 16.10 Data & versi
+
+Kebutuhan data (bentuknya diputuskan dba/tech lead):
+- Format turnamen Fixed (round-robin / grup + gugur), jumlah grup, anggota tiap grup (urutan), court per grup (disimpan
+  supaya jadwal tidak bergeser kalau aturan GU3 berubah).
+- Tiap match: fase (grup + huruf, atau babak + nomor slot bagan).
+- Format skor per babak gugur + juara 3 nyala/mati.
+- Hasil Buat bagan: yang lolos per grup dan urutannya (termasuk pilihan host), penanda skor grup terkunci.
+- Decode menolak data tidak konsisten (pasangan di dua grup, ukuran grup di luar G2, slot bagan berisi pasangan yang
+  tidak lolos) → masuk `docs/security.md`.
+
+Versi:
+- **MINOR → 3.8.0.** Turnamen round-robin Fixed, Mixed, Mexicano, Sparing persis seperti 3.7.x; simpanan 3.7.x terbaca
+  sebagai round-robin.
+- Simpanan dan payload live Grup + Gugur **ditolak** app ≤ 3.7.x (GU15, seperti keputusan 46). `schemaVersion` tetap 2
+  kalau kolom baru opsional; kalau dba perlu menaikkannya, kategorinya MAJOR dan harus kembali ke host.
+
+### 16.11 Kriteria penerimaan
+
+- **AC-G1** Grup + Gugur hanya ada di Fixed biasa: 2 grup mulai 12 pemain, 4 grup mulai 24 pemain; 10 pemain → tidak
+  tersedia; 22 pemain → hanya 2 grup; Sparing, Mixed, Mexicano tidak menawarkan.
+- **AC-G2** Layar Pasangan dibuka Manual; Acak bisa dipilih. Buat jadwal mati selama ada pasangan tanpa grup atau
+  ukuran grup di luar G2 (7 pasangan 5 + 2 ditolak, 4 + 3 diterima; 13 pasangan 4 grup hanya 4 + 3 + 3 + 3).
+- **AC-G3** 16A: R1–R6 Court 1 hanya Grup A, Court 2 hanya Grup B; tiap pasangan 3 match grup; estimasi 8 round, tidak
+  lewat booking. Varian 1 court: 16 round, "lewat booking 02:00".
+- **AC-G4** 16B: Court 1 A/C bergantian, Court 2 B/D; fase grup 6 round, total 10, "lewat booking 00:20"; tidak ada
+  pasangan main di dua round beruntun. Varian 3 court 13 pasangan: Court 2 = B + D, fase grup 6 round.
+- **AC-G5** 16C: Grup A di Court 1 + 3, Grup B di Court 2 + 4, fase grup 14 round, total 16. 6 pasangan 3 court: Court 3
+  tanpa match.
+- **AC-G6** Buat bagan tidak tersedia selama satu match grup masih Belum; tersedia setelah semua Selesai/WO.
+- **AC-G7** 16D-i → A2 Citra · Dewi lewat head-to-head, nomor tabel 1, 2, 2, 3. 16D-ii → A1 Andi · Budi. 16D-iii → host
+  diminta memilih A2 dari tiga pasangan; tanpa pilihan bagan tidak bisa dibuat; app ditutup sebelum konfirmasi →
+  pilihan tidak tersimpan.
+- **AC-G8** Bagan 2 grup = A1–B2, B1–A2; 4 grup = A1–B2, C1–D2, B1–A2, D1–C2 dengan SF1 dari PF1/PF2. Untuk setiap
+  huruf, peringkat 1 dan 2 grup itu ada di paruh berbeda.
+- **AC-G9** 16E: pemenang maju begitu skor disimpan; match Final tidak bisa dibuka sebelum kedua SF terisi; ubah SF1 jadi
+  4–6 sebelum R8 ada skor → Final dan juara 3 berganti sesuai 16E; sesudah Final terisi → ditolak; 6–5 → diterima.
+- **AC-G10** Format per babak: Input Skor Final 16E menerima 9–7 (Race to 9), Perebutan juara 3 menolak 6–2 (Race to 4).
+  Gugur Best of/Americano hanya menawarkan N ganjil.
+- **AC-G11** WO di SF → lawan masuk Final; Klasemen grup tidak berubah.
+- **AC-G12** Skor fase grup tidak bisa diubah setelah bagan dibuat (kalau GU6 disetujui).
+- **AC-G13** 16F: peringkat akhir persis tabel 16F dan ketiga variannya (tanpa juara 3, diakhiri setelah R7, 4 grup).
+- **AC-G14** Status Final setelah Final + Perebutan juara 3 terisi (atau Final saja kalau juara 3 mati); Sementara
+  sebelumnya.
+- **AC-G15** App di-kill di fase grup, setelah Buat bagan, dan di tengah gugur → dibuka lagi sama persis.
+- **AC-G16** Simpanan 3.7.x dimuat sebagai round-robin; simpanan dan payload Grup + Gugur ditolak app 3.7.x tanpa crash.
+  Semua test dan golden yang ada lulus tanpa diubah.
+- **AC-G17** Live: penonton melihat match gugur dengan nama babak dan peringkat akhir, tanpa bagan dan tanpa aksi.
+- **AC-G18** Bagikan: podium 16F = Citra · Dewi, Andi · Budi, Maya · Nanda; tanpa juara 3 = 4 anak tangga (#3 kembar).
+- **AC-G19** Semua kriteria jalan offline (kecuali live).
+
+### 16.12 Belum sekarang
+
+- Grup + Gugur di Mixed, Mexicano, atau Sparing (keputusan 93, GU14).
+- 3, 8, atau jumlah grup lain; bye di bagan; lebih dari 2 lolos per grup; peringkat 3 terbaik lintas grup.
+- Unggulan (seed) otomatis; undi grup sebagai default (keputusan 95).
+- Host memilih court per grup sendiri; urutan match yang menjamin tidak ada round beruntun di grup satu court.
+- Gugur mulai per grup sebelum semua grup selesai; match gugur terbuka per match, bukan per round.
+- Membuka lagi fase grup setelah bagan dibuat (kalau GU6 disetujui).
+- Durasi match berbeda per babak (estimasi memakai satu durasi).
+- Bagan di poster Bagikan dan di live score (keputusan 101).
+- Seri di gugur (tiebreak/golden point dengan N genap); WO ganda.
+- Round tambahan, Atur pasangan, pemain pengganti, Lanjutkan turnamen.
+- Round-robin ganda di grup; grup + gugur tanpa court terkunci.
+
+### 16.13 Keputusan & usulan
+
+Keputusan host 2026-11-17: 93–101 di §10 (jangan dibuka ulang).
+
+**Usulan PM — disetujui host 2026-11-17 (keputusan 102):**
+
+- **GU1. Istilah:** format "Round-robin" / "Grup + Gugur"; fase "Fase grup" / "Gugur"; babak "Perempat final",
+  "Semifinal", "Final", "Perebutan juara 3" (pendek "Juara 3"); grup "Grup A–D"; slot "A1", "B2"; bracket = "Bagan";
+  tombol transisi "Buat bagan".
+- **GU2.** Grup urut ukuran (yang lebih besar huruf lebih awal). Penempatan grup juga punya Acak (opsional, bukan
+  default).
+- **GU3.** Pembagian court 16.3: court ≥ grup → court sisa ke grup yang paling lama dan berkurang roundnya; tidak ada →
+  court itu kosong di fase grup. Court < grup → grup ke court yang match-nya paling sedikit.
+- **GU4.** Grup yang berbagi court bergantian satu match per round, urut huruf.
+- **GU5.** Round bernomor terus lintas fase dengan kunci round Fixed; tab round gugur memakai nama babak; fase grup tanpa
+  baris Istirahat (banyak pasangan memang menunggu); grup tiap match terbaca di Jadwal (bentuk oleh designer).
+- **GU6.** Gugur dibuat lewat "Buat bagan" setelah semua match grup terisi, dengan dialog kunci; skor grup terkunci
+  sesudahnya (Q2).
+- **GU7.** Head-to-head satu kali, jumlah menang di antara yang seri saja; berlaku juga untuk seri di #1 (penentu A1/A2),
+  bukan hanya batas 2 vs 3.
+- **GU8.** Metode lolos = default format grup (keputusan 21), Klasemen grup tanpa toggle (Q1).
+- **GU9.** Format babak gugur default = format grup; N genap (Best of/Americano) jadi N + 1; gugur hanya N ganjil.
+  Format babak dan juara 3 bisa diubah sampai babak itu punya skor — **ditunda ke 3.8.x** (keputusan 104): di 3.8.0
+  format babak dan juara 3 hanya diatur di Konfigurasi.
+- **GU10.** Court & round gugur 16.6: urut bagan di Court 1, 2, …; Final di Court 1, juara 3 di Court 2; 1 court →
+  juara 3 dulu.
+- **GU11.** Ubah skor gugur yang membalik pemenang hanya kalau match lanjutannya masih Belum.
+- **GU12.** Peringkat akhir per tingkat babak, sisanya per posisi grup (16.8, Q3).
+- **GU13.** Detail: statistik fase grup saja; riwayat semua match dengan nama babak.
+- **GU14.** Sparing tidak menawarkan Grup + Gugur.
+- **GU15.** App ≤ 3.7.x menolak simpanan/payload Grup + Gugur.
+- **GU16.** Baris peringkat akhir (Klasemen, poster, caption) menulis babak yang dicapai, bukan nilai · selisih (Q3).
+
+### 16.14 Pertanyaan untuk host (dijawab 2026-11-17: rekomendasi disetujui, keputusan 102)
+
+- **Q1.** Saya pahami 2 besar grup ditentukan metode Klasemen, tapi sekarang host bisa mengganti tab Total Point / Win %
+  dan urutan grup bisa berubah karenanya. Rekomendasi: lolos selalu memakai default format grup (Race to/Best of → Win
+  %, Americano → Total Point) dan tab metode tidak ditampilkan di Klasemen grup, supaya yang tampil = yang lolos (GU8).
+- **Q2.** Kalau skor grup diubah setelah bagan dibuat, yang lolos atau lawan di bagan bisa berubah padahal match gugur
+  mungkin sudah jalan. Rekomendasi: skor grup dikunci saat Buat bagan dengan dialog konfirmasi; salah ketik ditemukan
+  sebelum menekan Buat bagan (GU6).
+- **Q3.** Juara 1–4 jelas dari bagan; yang belum jelas pasangan sisanya dan apa yang ditulis di barisnya. Rekomendasi:
+  kalah perempat final satu nomor bersama, yang tidak lolos dikelompokkan per posisi grup (semua peringkat 3 grup satu
+  nomor, dst.), dan tiap baris menulis babaknya ("Juara", "Semifinal", "Grup A · 3"), bukan poin (GU12, GU16).
+- **Q4.** Kalau court lebih banyak dari grup (mis. 2 grup, 4 court), aturan "satu grup satu court" membuat court sisa
+  menganggur. Rekomendasi: court sisa diberikan ke grup yang paling lama selesai, sehingga satu grup bisa memakai dua
+  court tetap miliknya; kalau tidak mempercepat, court itu kosong di fase grup (GU3, 16C).

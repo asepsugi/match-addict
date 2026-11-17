@@ -12,6 +12,10 @@ String _dateOf(ActiveTournament active) {
   return '${created.day} ${_months[created.month - 1]} ${created.year}';
 }
 
+/// Mode di subjudul Bagikan dan baris kecil poster: Grup + Gugur menulis "Grup + Gugur" (22l, 22p), bukan mode
+/// pasangannya ("Fixed").
+String shareModeLabel(TournamentConfig config) => config.isGroupKnockout ? 'Grup + Gugur' : config.mode.label;
+
 /// Kepala kedua poster (16.2 "Kepala"): bernama → nama + "Klasemen akhir|sementara · {tanggal}"; tanpa nama →
 /// "Klasemen akhir|sementara" + "{olahraga} · {mode} · {tanggal}".
 (String, String) _headOf(ActiveTournament active, bool isFinal) {
@@ -20,9 +24,12 @@ String _dateOf(ActiveTournament active) {
   final date = _dateOf(active);
   return (
     config.name ?? 'Klasemen $state',
-    config.name != null ? 'Klasemen $state · $date' : '${config.sport.label} · ${config.mode.label} · $date',
+    config.name != null ? 'Klasemen $state · $date' : '${config.sport.label} · ${shareModeLabel(config)} · $date',
   );
 }
+
+/// Posisi grup ("Grup A · 3") = tidak lolos; ditulis redup, sama dengan kolom Babak Klasemen.
+bool _isGroupPosition(String stage) => stage.startsWith('Grup ');
 
 /// Blok podium dari [Podium.of] — satu pemetaan untuk podium Ringkas dan podium mini Lengkap (logic.md §17.2):
 /// anak tangga per slot, Kerumunan satu blok lebar ([wide]), dua blok skor klub, Kosong tanpa blok. [pairSize] =
@@ -62,6 +69,17 @@ SharePosterData sharePosterData({
   final mini = podiumBlocks(podium);
 
   SharePosterRow row(StandingEntry e) {
+    // Grup + Gugur (GU16): kolom kanan = babak, bukan nilai metode + selisih.
+    if (e.stage case final stage?) {
+      return SharePosterRow(
+        position: e.position!,
+        names: [for (final p in e.players) p.name],
+        value: stage,
+        diff: '',
+        stage: true,
+        muted: _isGroupPosition(stage),
+      );
+    }
     final s = e.standing;
     final total = method == RankingMethod.totalGames;
     return SharePosterRow(
@@ -127,6 +145,18 @@ PodiumPosterData podiumPosterData({
   }
 
   PodiumRowData rowOf(StandingEntry e) {
+    // Grup + Gugur (GU16): kolom kanan = babak, tanpa satuan.
+    if (e.stage case final stage?) {
+      return PodiumRowData(
+        badge: '${e.position}',
+        gold: e.position == 1,
+        names: [for (final p in e.players) p.name],
+        value: stage,
+        detail: '',
+        stage: true,
+        muted: _isGroupPosition(stage),
+      );
+    }
     final (value, detail) = valueOf(e);
     return PodiumRowData(
       badge: '${e.position}',
