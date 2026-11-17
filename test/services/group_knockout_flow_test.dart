@@ -357,5 +357,5 @@ void main() {
       expect(reopened.config.groupKnockout?.formats, state.config.groupKnockout?.formats);
       expect(TournamentCodec.encode(reopened), TournamentCodec.encode(state));
     }
-  }, skip: 'menunggu GG-3 (codec Grup + Gugur)');
+  });
 }
