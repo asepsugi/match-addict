@@ -105,7 +105,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`, `ClubScore`
 
-- Latar = 13k. Dialog sama dengan 06e: skor klub saat itu (6 – 4) jadi skor akhir, tanpa kalimat tambahan.
+- Latar = 13k. Dialog sama dengan 06e (isi Fixed): skor klub saat itu (6 – 4) jadi skor akhir, tanpa kalimat tambahan.
 
 ## 14l · Jadwal Fixed sparing · diakhiri
 
@@ -113,7 +113,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
-- Diakhiri saat R6 (14k): dua match R6 "Tidak dimainkan", tanpa titik live dan hitung mundur, Lihat klasemen jadi tombol utama (06c). Fixed yang diakhiri tidak bisa dilanjutkan.
+- Diakhiri saat R6 (14k): dua match R6 "Tidak dimainkan", tanpa titik live dan hitung mundur, "Klasemen" jadi tombol utama (06c). Fixed yang diakhiri tidak bisa dilanjutkan.
 - Skor klub final 6 – 4, Total Point 45 – 43: Klasemen menulis "Final · 5 round · 10 match" dengan angka 13n. Bola tetap di klub yang unggul.
 - Menu ⋯ tinggal Live score (12f).
 

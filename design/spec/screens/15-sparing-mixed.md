@@ -75,7 +75,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`, `ClubScore`
 
-- Latar = 15b. Dialog sama dengan 06e.
+- Latar = 15b. Dialog sama dengan 06e, isi Mixed: "Match yang belum main tidak dihitung." (bisa dilanjutkan, 15i).
 
 ## 15i · Jadwal Mixed sparing · diakhiri · bisa dilanjutkan
 
@@ -86,7 +86,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Diakhiri saat R4 (15h): R4 "Tidak dimainkan", skor klub akhir 4 – 2. Sama dengan 06m: tombol Pemain hilang, strip tanpa kotak jam, Lanjutkan turnamen → sheet (15j); menu ⋯ tinggal Live score dan Cara kerja Mixed.
 - Setelah dilanjutkan, match R4 kembali bisa diisi dan Prioritas main di R5 tetap per klub.
 
-## 15j · Sheet · lanjutkan turnamen sparing
+## 15j · Sheet · tambah jam sparing
 
 ![15j](../../frames/15j.png)
 
@@ -112,7 +112,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
 
 - Latar = 13m (R3 berjalan). Tambah wajib memilih klub (AC-S12): dua chip nama klub di bawah kotak nama, tanpa pilihan awal; Tambah mati sampai nama terisi dan satu klub dipilih. Oki → Matcha Club.
-- Daftar per klub dengan label "klub · n aktif" (· n keluar kalau ada); nama dicek terhadap kedua klub ("Andi sudah ada di PB Garuda"). Kalimat penjelas sama dengan 08a.
+- Daftar per klub dengan label "klub · n aktif" (· n keluar kalau ada); nama dicek terhadap kedua klub ("Andi sudah ada di PB Garuda"). Tanpa kalimat penjelas, sama dengan 08a.
 - Pemain telat ikut aturan 3.4 per klub: Oki diprioritaskan dengan jeda k = max(2, slot klub ÷ istirahat klub + 1) = max(2, 4 ÷ 3 + 1) = 2 (15n). PB Garuda tidak terpengaruh.
 - Sheet setinggi 92%, daftar digulir di dalam (08a).
 

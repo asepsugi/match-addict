@@ -14,9 +14,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
   2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t; §16 Grup + Gugur
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r.
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 247 frame layar 390×844 +
-  12 lembar gambar (per 2026-11-12) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2 MB (per
-  2026-11-13; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 299 frame layar 390×844 +
+  36 lembar gambar (per 2026-11-18) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,5 MB (per
+  2026-11-18; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
   lebih ringkas baca `design/spec/screens/<alur>.md` + PNG frame-nya.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu
   `tokens.json`, `components.md`, `logic.md` (aturan logika yang berubah + data test), `screens/*.md` (per alur).

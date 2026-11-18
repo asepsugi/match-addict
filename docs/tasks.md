@@ -34,6 +34,14 @@ versi sampai UX-5. Ikon tukar tetap 44 × 42 (keputusan 48–57). Wording UI dan
 - **Jebakan UX-2:** `tool/hifi_extract.py` menulis ulang `components.md` utuh → bagian Semantics baru hilang. Ubah
   extractor supaya menyalin tabel dari panel `#semantics` hi-fi, lalu cek diff `components.md`.
 - Berikutnya: UX-1 dengan agen **baru** (agen UX-0 sudah 208k konteks), brief menyebut keputusan 1 di atas.
+- **UX-1 selesai** (hi-fi teks P3 + K3, frame baru 20r/21z, A-6 tepi `edge` semua isian tidak fokus). Keputusan host
+  2026-11-18 atas pertanyaan UX-1 (setuju semua rekomendasi): label sheet Tambah jam/Lanjutkan "Jam booking"; Akhiri saat
+  Perempat final / Semifinal belum lengkap menyebut babak yang batal saja ("Semifinal, Final, dan Juara 3 tidak
+  dimainkan."), tanpa "#1"; kotak nama court `.inline-field` ikut tepi `edge`; 01i langkah 2–3 tanpa keterangan
+  (langkah 2 tetap "Add to Home Screen"). Tebakan agen dipakai: "Klasemen" di 06c + 9 frame "seperti 06c"; 08d/15j
+  ikut "Tambah jam". PRD menyusul di UX-5.
+- Jebakan UX-2 diperbaiki: `tool/hifi_extract.py` menyalin tabel `#semantics` ke `components.md`.
+- UX-4 wajib: `docs/ui-v2.md` → Input Skor "Americano menulis selisih" diganti (semua format "menang 13–8").
 
 ---
 

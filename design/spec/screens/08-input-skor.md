@@ -65,6 +65,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `S
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `ScoreBoard / ScoreKeypad`
 
 - Poin reli. Isi satu sisi, kotak lawan yang masih kosong terisi `total − x`; total boleh kurang dari 21 kalau match dihentikan lebih awal (07m). Kalimat "Isi salah satu, skor lawan terisi otomatis" dihapus.
+- Kalimat hasil memakai pola yang sama dengan Race to dan Best of: nama pemenang + "menang" + skor pemenang–kalah ("menang 13–8"), bukan selisih (PATCH 3.8.1, B-15).
 
 ## 07h · Americano · batas total di keypad
 
@@ -83,7 +84,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `S
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `ScoreBoard / ScoreKeypad`
 
 - Skor tersimpan diisi otomatis, belum ada kotak aktif sampai diketuk. Tombol jadi "Perbarui skor".
-- Selama belum ada kotak aktif semua angka mati; ketuk salah satu kotak (atau →) untuk mulai mengubah (keputusan host 2026-10-22).
+- Selama belum ada kotak aktif semua angka dan ⌫ mati; ketuk salah satu kotak (atau →) untuk mulai mengubah (keputusan host 2026-10-22; ⌫ mati sejak PATCH 3.8.1).
 - Match WO dibuka di sini juga: skor lama (kalau ada) terisi; menyimpan skor mengubahnya dari WO jadi selesai.
 - Best of dan Americano: skor tersimpan tidak diisi ulang otomatis; mengubah satu sisi membiarkan sisi lain (07n).
 

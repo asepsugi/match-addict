@@ -51,7 +51,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`
 
-- Dipakai Fixed dan Mixed. "Akhiri" mengubah semua match kosong jadi tidak dimainkan, menandai turnamen selesai, lalu membuka Klasemen.
+- Isi per mode, judul dan tombol sama (PATCH 3.8.1, A-2, C-1): Fixed (frame ini, 14k) "Match yang belum main tidak dihitung. Turnamen tidak bisa dilanjutkan." · Mixed dan Mexicano (06i, 15h) tetap "Match yang belum main tidak dihitung." karena bisa dilanjutkan (06m) · Grup + Gugur di fase grup 20r · di fase gugur sebelum Final 21z.
+- "Akhiri" mengubah semua match kosong jadi tidak dimainkan, menandai turnamen selesai, lalu membuka Klasemen.
 
 ## 06v · Semua match terisi · tambah round
 

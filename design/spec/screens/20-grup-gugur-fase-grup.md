@@ -177,6 +177,15 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`
 
-- Data 20b, lalu R3 Court 2 Indra · Joko 6–4 Maya · Nanda dan R4 Court 1 Gita · Hadi 4–6 Citra · Dewi; host memilih Akhiri (06e) saat R4 Court 2 belum diisi.
-- Sama dengan 06c: match Belum (R4 Court 2, R5, R6) jadi "Tidak dimainkan", tanpa hitung mundur dan titik live, "Lihat klasemen" jadi tombol utama. Bagan tidak dibuat dan tidak ada "Buat bagan" (16.9).
+- Data 20b, lalu R3 Court 2 Indra · Joko 6–4 Maya · Nanda dan R4 Court 1 Gita · Hadi 4–6 Citra · Dewi; host memilih Akhiri (dialog 20r) saat R4 Court 2 belum diisi.
+- Sama dengan 06c: match Belum (R4 Court 2, R5, R6) jadi "Tidak dimainkan", tanpa hitung mundur dan titik live, "Klasemen" jadi tombol utama. Bagan tidak dibuat dan tidak ada "Buat bagan" (16.9).
 - Peringkat akhir = urut posisi grup Sementara saat diakhiri (16.8); tampilan Klasemen setelah diakhiri di fase grup belum digambar.
+
+## 20r · Dialog · akhiri turnamen di fase grup
+
+![20r](../../frames/20r.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`, `showMabarConfirm`
+
+- Latar = 20b (R3, 5 dari 12 match), lewat menu ⋯ → Akhiri turnamen. Judul dan tombol sama dengan 06e; isinya menyebut akibat khusus fase grup (PATCH 3.8.1, C-1).
+- Akhiri: match Belum jadi "Tidak dimainkan", bagan tidak dibuat, peringkat akhir = urut posisi grup Sementara (16.8, 16.9), hasilnya seperti 20q. Grup + Gugur tidak bisa dilanjutkan, sama dengan Fixed.

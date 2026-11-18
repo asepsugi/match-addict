@@ -120,8 +120,9 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
 
-- Final (diakhiri, atau syarat Final 09f/09c): tag "Live" hilang, "Lihat klasemen" jadi tombol utama seperti host Fixed (06c).
+- Final (diakhiri, atau syarat Final 09f/09c): tag "Live" hilang, "Klasemen" jadi tombol utama seperti host Fixed (06c).
 - Tetap dicek tiap menit: kalau host Lanjutkan (Mixed), tag dan jadwal kembali.
+- Istirahat ditulis tanpa "Prioritas main di R…": penonton turnamen yang diakhiri tidak tahu apakah R6 akan dimainkan. Host 06m tetap menulisnya (PATCH 3.8.1, B-20).
 
 ## 12m · Live · HP penonton offline
 
@@ -129,7 +130,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarActionBar`, `MabarGroup / MabarRow
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `LiveTag`
 
-- Cek gagal dua kali berturut-turut (±20 detik) → tag "Offline" abu-abu; data terakhir tetap tampil. Kembali "Live" begitu cek berhasil.
+- Cek gagal dua kali berturut-turut (±20 detik) → tag "Offline · 19.48" abu-abu, jam = cek terakhir yang berhasil (PATCH 3.8.1); data terakhir tetap tampil. Kembali "Live" begitu cek berhasil.
 - Host yang offline tidak kelihatan dari sini: jadwal hanya berhenti berubah (12d).
 
 ## 12n · Live · link tidak ditemukan

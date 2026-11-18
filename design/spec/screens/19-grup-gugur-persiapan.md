@@ -176,7 +176,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Layar baru setelah Pasangan (PRD 16.2, G4). Dibuka Manual (keputusan 95); Acak opsional (GU2, 19u). Subjudul = olahraga · jumlah pasangan.
 - Label tiap grup = ukuran yang ditetapkan app ("0 dari 4"): 8 / 2 = 4 + 4. Grup kosong hanya labelnya.
-- Tiap baris pasangan punya chip huruf grup (`.chip`, 34 pt, area sentuh 44): ketuk "A" → pasangan pindah ke daftar Grup A, chip A gelap. Ketuk huruf lain → pindah grup; ketuk huruf yang sama → kembali ke "belum masuk grup". Tanpa Urungkan: tiap langkah dibalik dengan satu ketukan.
+- Tiap baris pasangan punya chip huruf grup (`.chip` 40 × 40, jarak 8, area ketuk 48 × 52 setinggi baris; PATCH 3.8.1): ketuk "A" → pasangan pindah ke daftar Grup A, chip A gelap. Ketuk huruf lain → pindah grup; ketuk huruf yang sama → kembali ke "Tanpa grup". Tanpa Urungkan: tiap langkah dibalik dengan satu ketukan.
 - Nama pasangan satu baris "Andi · Budi" (pola PRD), elipsis kalau terlalu panjang.
 
 ## 19s · Grup · Manual · sebagian

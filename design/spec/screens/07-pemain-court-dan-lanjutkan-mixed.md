@@ -16,6 +16,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 - Tombol Tambah 48 pt, sama tinggi dengan kolom nama di sebelahnya.
 - "Keluarkan" dan "Kembalikan" memakai `.rowact`. Keluarkan sengaja netral, bukan merah: bisa dibatalkan lewat Kembalikan, dan merah di setiap baris membuat daftar ramai.
 - "Keluarkan" langsung tanpa konfirmasi; pemain tidak dihapus, hanya keluar dari round berikutnya. Match yang sudah terjadwal tetap ada (bisa ditandai WO).
+- Tanpa kalimat penjelas di bawah kotak nama; "Berlaku mulai R4" di subjudul sudah cukup. Pemain yang keluar ditulis "Keluar"; skornya tetap dihitung (PATCH 3.8.1, A-10).
 - Pemain baru/kembali (absen di round sebelumnya) diprioritaskan sampai jumlah match-nya menyusul yang paling banyak main, tapi istirahat 1 round setelah main k round beruntun: k = 2, atau satu lebih dari ritme pemain lain kalau 2 belum cukup untuk menyusul (12 pemain / 2 court: pemain lain main 2 dari 3 round → k = 3). Prioritas jadwal saja, tidak ikut ranking. Kalau semua pemain main tiap round (12 pemain / 3 court), selisihnya memang tidak bisa dikejar.
 
 ## 08b · Kelola · nama sudah ada · batas minimum
@@ -27,21 +28,21 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 - Pesan error lain: "Nama tidak boleh kosong" · "Eko M sudah ada — pakai "Kembalikan" di bawah" (nama pemain yang keluar) · "Maksimal 30 pemain aktif" (saat Tambah atau Kembalikan).
 - Aktif ≤ 4: semua "Keluarkan" mati.
 
-## 08c · Sheet · lanjutkan turnamen
+## 08c · Sheet · tambah jam
 
 ![08c](../../frames/08c.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarStepper`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `CourtColorPicker`
 
-- Dibuka dari 06l, 06m, atau Beranda 01a / 01c. Tambahan jam per court 0–6, dihitung dari sekarang kalau booking-nya sudah lewat: `max(booking, menit berjalan) + tambahan`.
+- Dibuka dari 06l, 06m, atau Beranda 01a / 01c. Judul dan tombol mengikuti pemicunya (PATCH 3.8.1, A-17): dari 06l (turnamen belum berhenti) "Tambah jam" + ikon jam, seperti frame ini; dari 06m dan Beranda "Lanjutkan turnamen" + tombol "Lanjutkan" (ikon play, contoh di Komponen). Isi sheet sama. Tambahan jam per court 0–6, dihitung dari sekarang kalau booking-nya sudah lewat: `max(booking, menit berjalan) + tambahan`.
 - Keterangan per court: "Waktu habis", atau "Sisa 00:45" kalau booking-nya belum lewat (turnamen diakhiri lebih awal, 06m, atau sisa kurang dari satu match). Setelah ditambah: "→ 01:00". Format sama dengan kotak jam di strip (jam:menit, 2026-10-22; dulu "45m", "→ 1j").
 - Hitungan estimasi (sama dengan `capacityAhead`), n = round terakhir: ① sisa tiap court = max(0, booking − menit berjalan sejak turnamen dimulai) ② round tiap court k = ⌊(sisa + tambahan) ÷ durasi⌋ ③ jumlah round = k terbesar; court di round ke-r = jumlah court dengan k ≥ r ④ match = Σ min(court di round r, ⌊pemain aktif ÷ 4⌋) → angka besar.
 - Contoh frame ini: durasi 15 mnt, n = 8, booking 2 jam, sudah berjalan 2j 4m. Court 1: sisa 0 + 1 jam = 60 mnt → k = 4. Court VIP: sisa 0 + 0 → k = 0. Jadi 4 round (R9–R12) dengan 1 court; 10 pemain aktif = maks 2 match per round; 4 × min(1, 2) = **4 match**.
 - Kalimat di bawah angka: "4 round (R9–R12)" (satu round: "1 round (R9)") · "1 court" kalau jumlah court sama di semua round, atau "2 court, berkurang mulai R11" kalau ada court yang habis lebih dulu · "maks 1 match per round (6 pemain)" kalau pemain yang membatasi. Baris terpisah kalau ada: "2 match yang belum dimainkan bisa diisi lagi".
 - Beda dengan kode sekarang: kode menulis "mulai R… court berkurang" setiap kali ada court yang tidak ikut sampai akhir, termasuk court yang sudah habis sejak awal (di frame ini akan tertulis "mulai R9 court berkurang"). Yang dihitung "berkurang" hanya court yang masih main di R*n+1* lalu habis di tengah.
-- Lanjutkan: match "Tidak dimainkan" kembali kosong, turnamen aktif lagi. Dari Beranda, app lalu membuka Jadwal.
+- Tambah jam / Lanjutkan: match "Tidak dimainkan" kembali kosong, turnamen aktif lagi. Dari Beranda, app lalu membuka Jadwal.
 
-## 08d · Lanjutkan · belum ada tambahan
+## 08d · Tambah jam · belum ada tambahan
 
 ![08d](../../frames/08d.png)
 

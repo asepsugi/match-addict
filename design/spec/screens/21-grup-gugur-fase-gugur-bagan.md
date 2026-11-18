@@ -24,7 +24,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`
 
-- Tab round gugur memakai nama babak (GU5): R7 = "Semifinal" (SF1 + SF2), R8 = "Final" (Final + Juara 3). Judul = nama babak lengkap; subjudul = nomor round · olahraga (format pindah ke baris match).
+- Tab round gugur memakai nama babak (GU5): R7 = "Semifinal" (SF1 + SF2), R8 = "Final" (Final + Juara 3). Judul = nama babak lengkap; subjudul = olahraga · nomor round, seperti subjudul Jadwal lain (format pindah ke baris match; PATCH 3.8.1, C-14).
 - Tiap baris gugur diberi label kode match · format babak di atas nama ("SF1 · Race to 6"), karena satu round bisa berisi dua babak dengan format berbeda (R8, 21f). Kode slot di kolom tetap 22 pt di depan nama.
 - Court urut bagan (GU10): SF1 Court 1, SF2 Court 2; court kunci grup tidak berlaku lagi. Hitung mundur 00:24 = booking 2 jam − 96 mnt (aturan 06p).
 - Fase gugur tanpa baris Istirahat. Tab R1–R6 tetap bisa dibuka (skor grup terkunci, lihat alur fase grup).
@@ -90,7 +90,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `S
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`
 
-- Final dan Perebutan juara 3 terisi → status Final (16.8): tidak ada titik live, hitung mundur hilang, tombol jadi "Lihat klasemen" seperti 06c. Tidak ada "Tambah round" (16.2).
+- Final dan Perebutan juara 3 terisi → status Final (16.8): tidak ada titik live, hitung mundur hilang, tombol "Klasemen" jadi tombol utama seperti 06c. Tidak ada "Tambah round" (16.2).
 - Peringkat akhir 16F: #1 Citra · Dewi, #2 Andi · Budi, #3 Maya · Nanda, #4 Indra · Joko.
 
 ## 21j · Bagan · 2 grup · selesai
@@ -190,7 +190,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
 
-- Akhiri (06e) setelah R7: Final dan Juara 3 jadi "Tidak dimainkan", nama dicoret dan pudar seperti 06c; garis SF tetap tinta karena SF punya pemenang.
+- Akhiri (dialog 21z) setelah R7: Final dan Juara 3 jadi "Tidak dimainkan", nama dicoret dan pudar seperti 06c; garis SF tetap tinta karena SF punya pemenang.
 - Peringkat akhir 16F varian "diakhiri setelah R7": #1 Andi · Budi + Citra · Dewi, #2 Maya · Nanda + Indra · Joko.
 - Tab Final (R8) menampilkan dua baris "Tidak dimainkan" seperti 06c.
 
@@ -241,3 +241,13 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Final 9–6: Andi · Budi juara; Juara 3 4–3: Vina · Wawan. Peringkat akhir: #1 Andi · Budi, #2 Tono · Umi, #3 Vina · Wawan, #4 Indra · Joko, #5 Gita · Hadi, Maya · Nanda, Citra · Dewi, Rudi · Sari (kalah perempat final, satu nomor), lalu posisi grup 3.
 - Semua match terisi → geseran awal tetap ujung kanan (babak terakhir).
+
+## 21z · Dialog · akhiri turnamen sebelum Final
+
+![21z](../../frames/21z.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`, `showMabarConfirm`
+
+- Latar = 21o (Semifinal lengkap, SF2 WO), lewat menu ⋯ → Akhiri turnamen. Judul dan tombol sama dengan 06e; isinya menyebut babak yang tidak dimainkan dan pasangan yang berbagi #1, yaitu pemenang SF1 dan SF2 (PATCH 3.8.1, C-1).
+- Akhiri saat Perempat final, atau Semifinal belum lengkap: isinya cukup babak yang batal, mis. "Semifinal, Final, dan Juara 3 tidak dimainkan.", tanpa kalimat "#1" (keputusan host 2026-11-18).
+- Akhiri → 21t: Final dan Juara 3 "Tidak dimainkan"; peringkat akhir #1 Andi · Budi + Citra · Dewi, #2 Maya · Nanda + Indra · Joko (16F varian diakhiri setelah R7). Tidak bisa dilanjutkan.
