@@ -799,3 +799,29 @@ Dipakai di frame: 12n, 12o
 .centermsg { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 0 32px 80px; text-align: center; }
 .centermsg h2 { margin: 0; font-size: 21px; font-weight: 800; font-stretch: 95%; }
 ```
+
+## Semantics (label aksesibilitas)
+
+PATCH 3.8.1 (keputusan host 110–112; temuan A-11, B-4, C-5). Sumber: hi-fi → Komponen → "Label aksesibilitas → `Semantics`" (`#semantics`).
+Bagian ini ditulis tangan: `tool/hifi_extract.py` menulis ulang file ini, jadi salin lagi dari hi-fi kalau extractor belum membawanya.
+
+| Komponen | Label (contoh) | Flag |
+|---|---|---|
+| `.icbtn` → `MabarIconButton` | "Kembali" · "Menu" · "Klasemen" · "Pemain, 10 aktif" (jumlah di tombol ikut dibaca) | `button: true` |
+| `.team .w.swap` ikon tukar | "Tukar pemain <tim>" | `button: true`; area 44 × 42 (keputusan 48–57) |
+| `.tabs` → `RoundTabs` | "R3, berjalan" · "R4, terkunci" | Tab terkunci tetap bisa diketuk |
+| `.bug` → `MatchScoreRow` | Tim: "Andi P · Budi S, menang, 6" · strip court: "Court 1, sisa 1 jam 15 menit" | Status menang dibaca, bukan dari warna/bola |
+| `.stepper` | "Kurangi durasi, 15 menit" · "Tambah durasi" | `button: true` |
+| `.swatch` warna court (03k) | "Warna 2, terpilih" | `selected` |
+| `.modes` → `ModePicker`, tile olahraga | Nama mode / olahraga | `selected: true` di yang terpilih |
+| `.board` → `ScoreBoard` kotak skor | "Skor Eko M & Fajar K, 6, dipilih" | `selected` di kotak aktif |
+| `.keypad` | Angka, "Hapus", "Kotak berikutnya", "Simpan skor" | Tombol mati `enabled: false` |
+| `.feedback`, `.feedback.err`, `.toast` → `MabarToast` | Teks pesannya | `liveRegion: true` |
+| `.rank .rrow` → `StandingTable` | "Peringkat 1, Andi P, main 3, 3 menang 0 kalah 0 seri, selisih +12, 42 poin" | Satu baris dibaca utuh |
+| `.hist` riwayat Detail | Diawali "Menang" / "Kalah" / "Seri" / "WO" | — |
+| `.livetag` → `LiveTag` | "Live" · "Offline · 19.48" | `liveRegion: true` |
+| `.clubscore` → `ClubScore` | "PB Garuda 6, Matcha Club 4, PB Garuda unggul" · seri: "… seri" | Satu label untuk seluruh papan |
+| `.bagan .m` → `KnockoutBracket` | "SF1, Round 7, Court 1. A1 Andi dan Budi 6, menang. B2 Maya dan Nanda 4" · slot kosong: "Pemenang SF1, belum ada" | `MergeSemantics` per kartu; `.lines` `ExcludeSemantics`; kartu yang bisa diisi `button: true`, terkunci `enabled: false`; bagan geser `customSemanticsActions` "Geser ke Final" |
+| `.pr.gg-pick .chip` chip grup | "Andi · Budi ke Grup A" | `button: true`, `selected`, `inMutuallyExclusiveGroup: true` |
+| `.opt` Pilih A1/A2 | Value "A1" | `selected` |
+| Poster Bagikan | Caption = teks pengganti (sudah ada) | — |

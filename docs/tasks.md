@@ -21,6 +21,20 @@ versi sampai UX-5. Ikon tukar tetap 44 × 42 (keputusan 48–57). Wording UI dan
 | UX-5 | Audit PRD ↔ catatan hi-fi (permintaan host): bandingkan per bagian, kode = kebenaran bila keduanya beda; konflik yang kodenya tidak jelas → tanya host | product-manager opus/high, per bagian PRD, maks 3 paralel | main session |
 | UX-6 | Rilis: 3.8.1+25 + `appVersion`, full test sekali, merge ke `main`, push (deploy), publish ulang hi-fi, status CLAUDE.md + memory | main session | — |
 
+### Status (2026-11-18, akhir sesi UX-0)
+
+- **UX-0 selesai** (hi-fi CSS/Fondasi/Komponen/Cakupan, `tokens.json`, `components.md`), di-commit di branch ini.
+  Frame terdampak praktis semua (226) → UX-2 render ulang semua.
+- Keputusan host 2026-11-18 atas pertanyaan UX-0 (semua usulan disetujui):
+  1. A-6: tepi `edge` #7D8A96 untuk **semua isian yang tidak fokus** (terisi maupun kosong), bukan hanya yang kosong →
+     belum diterapkan di hi-fi; kerjakan bersama UX-1 (Fondasi isian + catatan), di kode = `enabledBorder`.
+  2. B-17: tag "Offline · 19.48" di 12m diterima; subjudul terpotong elipsis tidak apa-apa.
+  3. B-19: tepi tema lembut tinta 20% tetap sesuai usulan reviewer (dekoratif, < 3:1 diterima).
+  4. C-6 usulan kedua (baris tidak pindah saat grup dipilih): ditunda, bahas bersama GU9 (3.8.x).
+- **Jebakan UX-2:** `tool/hifi_extract.py` menulis ulang `components.md` utuh → bagian Semantics baru hilang. Ubah
+  extractor supaya menyalin tabel dari panel `#semantics` hi-fi, lalu cek diff `components.md`.
+- Berikutnya: UX-1 dengan agen **baru** (agen UX-0 sudah 208k konteks), brief menyebut keputusan 1 di atas.
+
 ---
 
 # Task — Grup + Gugur (rencana 3.8.0, MINOR)
