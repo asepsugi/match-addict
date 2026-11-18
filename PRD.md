@@ -381,7 +381,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   nama, nilai metode + selisih dengan satuan di Feed dan Story) + wordmark + baris fakta turnamen. Nomor sama → tinggi
   sama; maksimal 4 anak tangga (keputusan 65). Sparing: dua blok skor klub. Tema bawaan = palet lapangan ikut olahraga,
   10 gradien tetap bisa dipilih.
-- **Sejak rencana 3.7.0 (keputusan 76–88, hi-fi 11b, 11e–11m, 13s–13w): Lengkap = arah B "Podium mini"**, satu keluarga
+- **Sejak 3.7.0 (keputusan 76–88, hi-fi 11b, 11e–11m, 13s–13w): Lengkap = arah B "Podium mini"**, satu keluarga
   dengan poster podium. Judul + baris kecil di kiri, podium mini (angka + bola, tanpa nama) di garis belakang di
   kanannya, semua baris bernomor di panel 86% di atas lantai, kaki wordmark + baris fakta seperti podium. Yang naik
   podium mini = aturan poster podium, termasuk lebih dari 4 di #1 (satu blok emas lebar) dan belum ada match (tanpa
@@ -419,8 +419,10 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   Beranda. "Hapus & mulai baru" menghentikan live turnamen yang dibuang.
 - Penonton membuka link di browser (web Match Addict, tanpa pasang): Jadwal, Klasemen (tanpa Bagikan, metode dipilih
   sendiri), dan Detail, baca saja. Dicek tiap 10 detik selama halaman terlihat, tiap menit setelah Final. Tag "Live" di
-  Jadwal, "Offline" setelah dua kali gagal, hilang saat Final. Subjudul memakai nama turnamen kalau ada. Simpanan
-  turnamen penonton sendiri tidak tersentuh.
+  Jadwal; setelah dua kali gagal berturut-turut "Offline · 19.48" (jam cek terakhir yang berhasil; PATCH 3.8.1, B-17);
+  hilang saat Final. Subjudul memakai nama turnamen kalau ada. Simpanan turnamen penonton sendiri tidak tersentuh.
+- Penonton turnamen yang diakhiri (juga Sparing) melihat judul "Istirahat" saja, tanpa "Prioritas main di R…", karena
+  belum tentu ada round berikutnya; Jadwal host tetap menulisnya (PATCH 3.8.1, B-20, hi-fi 12l).
 - Relay tanpa database: satu salinan terakhir per kode, terhapus 3 hari setelah perubahan terakhir atau saat Hentikan.
   Aturan rinci: `design/spec/logic.md` §11.
 
@@ -1165,7 +1167,7 @@ Jawaban host berikutnya (2026-11-04):
 
 ## 14. Mexicano — Pasangan dari Klasemen
 
-> **Diputuskan host 2026-11-11** (keputusan 23–27, §10), rencana rilis **3.4.0 (MINOR)**. Aturan rinci di bagian ini
+> **Diputuskan host 2026-11-11** (keputusan 23–27, §10), dirilis **3.4.0 (MINOR)** 2026-11-12. Aturan rinci di bagian ini
 > yang tidak tertulis di keputusan itu adalah **usulan PM** (14.11), semuanya disetujui host (U3, U4, U7, U8 = keputusan 44–47).
 > Hi-fi 03a–03q, 16a–16g (keputusan 28–43). Fixed, Mixed, dan Sparing tidak berubah.
 
@@ -1216,8 +1218,9 @@ dibuat (termasuk match WO).
 - Estimasi di tombol sama dengan Mixed (Max Round · Match/Pemain · Court Aktif · Total Match).
 - Mexicano → langsung Jadwal + R1 (tanpa layar Pasangan), seperti Mixed. Jadwal Mexicano memakai kontrol Jadwal Mixed:
   Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen, daftar "Istirahat · Prioritas main di
-  R(n+1)" dan "Istirahat lagi di R(n+1)", menu ⋯ (Kelola court, Akhiri, Live score). Sheet pengganti "Cara kerja Mixed":
-  designer, dan isinya ikut persetujuan host.
+  R(n+1)" dan "Istirahat lagi di R(n+1)", menu ⋯ (Live score, Kelola court, Cara kerja Mexicano, Akhiri turnamen).
+  Sheet "Cara kerja Mexicano" (hi-fi 16c) menggantikan "Cara kerja Mixed": muncul sekali saat R1 dibuat, setelah itu
+  lewat menu ⋯; teksnya keputusan 40 dan 43.
 
 ### 14.3 Urutan Mexicano (dasar memasangkan)
 
@@ -1481,8 +1484,8 @@ Q1–Q3 disetujui host 2026-11-11 sesuai rekomendasi (keputusan 28–30).
 
 ## 15. Tukar Pemain (Mixed)
 
-> **Diputuskan host 2026-11-12** ("setuju semua", keputusan 48–57, §10, termasuk usulan PM TU1–TU4), rencana rilis
-> **3.5.0 (MINOR)**, diimplementasi 2026-11-12. Tampilan disetujui host 2026-11-12 (keputusan 58–59): ikon di kolom bola baris match → sheet "Tukar
+> **Diputuskan host 2026-11-12** ("setuju semua", keputusan 48–57, §10, termasuk usulan PM TU1–TU4), dirilis
+> **3.5.0 (MINOR)** 2026-11-12. Tampilan disetujui host 2026-11-12 (keputusan 58–59): ikon di kolom bola baris match → sheet "Tukar
 > pemain", hi-fi 17a–17r. Fixed dan Mexicano tidak berubah.
 
 Tukar pemain = host mengganti satu pemain di match round terakhir yang belum diisi dengan satu pemain yang sedang
