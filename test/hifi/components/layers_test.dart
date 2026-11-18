@@ -75,7 +75,7 @@ void main() {
         background: const Color(0xFF878E94),
         child: MabarConfirmDialog(
           title: 'Akhiri turnamen?',
-          message: 'Match yang belum main tidak dihitung.',
+          message: 'Match yang belum main tidak dihitung. Turnamen tidak bisa dilanjutkan.',
           confirmLabel: 'Akhiri',
           destructive: true,
           onCancel: () {},

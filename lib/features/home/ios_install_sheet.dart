@@ -34,7 +34,6 @@ class IosInstallSteps extends StatelessWidget {
             titleWidget: InstallStep(
               number: 1,
               text: [const TextSpan(text: 'Ketuk '), InstallStep.bold('Bagikan'), const TextSpan(text: ' '), InstallStep.icon(MabarIcons.export)],
-              sub: 'Kalau tidak kelihatan, ada di dalam menu ···',
             ),
           ),
           MabarRow(
@@ -47,7 +46,7 @@ class IosInstallSteps extends StatelessWidget {
                 const TextSpan(text: ' '),
                 InstallStep.icon(MabarIcons.plusSquare),
               ],
-              sub: 'Add to Home Screen · geser ke bawah kalau belum kelihatan',
+              sub: 'Add to Home Screen',
             ),
           ),
           MabarRow(
@@ -55,7 +54,6 @@ class IosInstallSteps extends StatelessWidget {
             titleWidget: InstallStep(
               number: 3,
               text: [const TextSpan(text: 'Ketuk '), InstallStep.bold('Tambah'), const TextSpan(text: ' di kanan atas')],
-              sub: 'Match Addict muncul di layar utama seperti app biasa',
             ),
           ),
         ],
@@ -65,7 +63,7 @@ class IosInstallSteps extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Text(
-          'Buka di Safari dulu. Kalau link dibuka dari dalam app lain, menu Tambah ke Layar Utama tidak ada.',
+          'Hanya dari Safari',
           style: MabarType.caption,
         ),
       ),

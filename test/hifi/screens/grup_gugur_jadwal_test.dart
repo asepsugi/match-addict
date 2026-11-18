@@ -37,6 +37,13 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Menu ⋯ → Akhiri turnamen (20r, 21z).
+  Future<void> openFinishDialog(WidgetTester tester) async {
+    await tester.tap(find.bySemanticsLabel('Menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Akhiri turnamen'));
+  }
+
   Future<void> tapText(WidgetTester tester, String text) async {
     await tester.tap(find.text(text));
     await tester.pumpAndSettle();
@@ -127,7 +134,16 @@ void main() {
     });
 
     testWidgets('20q turnamen diakhiri', (tester) async {
-      await expectMatchesHifi(tester, screen(gg20q(), at20b), '20q');
+      // Frame menggambar R4 (match yang dimainkan sebelum Akhiri), bukan round berjalan.
+      await expectMatchesHifi(tester, screen(gg20q(), at20b), '20q', act: (t) => t.tap(tab('R4')));
+    });
+
+    testWidgets('20r dialog akhiri di fase grup', (tester) async {
+      await expectMatchesHifi(tester, screen(gg20b(), at20b), '20r', act: openFinishDialog);
+      expect(
+        find.text('Match yang belum main tidak dihitung. Bagan tidak dibuat; peringkat dari posisi grup.'),
+        findsOneWidget,
+      );
     });
   });
 
@@ -158,6 +174,18 @@ void main() {
           if (m.phase?.code == 'SF2') m.asWalkover(loserPairId: 'Indra', reason: WoReason.injury) else m,
       ]);
       await expectMatchesHifi(tester, screen(wo, at21b), '21o');
+    });
+
+    testWidgets('21z dialog akhiri sebelum Final', (tester) async {
+      final wo = gg21c().withMatches([
+        for (final m in gg21c().matches)
+          if (m.phase?.code == 'SF2') m.asWalkover(loserPairId: 'Indra', reason: WoReason.injury) else m,
+      ]);
+      await expectMatchesHifi(tester, screen(wo, at21b), '21z', act: openFinishDialog);
+      expect(
+        find.text('Final dan Juara 3 tidak dimainkan. Andi · Budi dan Citra · Dewi sama-sama #1.'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('21q tanpa Perebutan juara 3', (tester) async {
@@ -263,7 +291,7 @@ void main() {
 
     test('subjudul dan meta Bagan (21a, 21t), subjudul round (20a, 21b, 20q)', () {
       expect(gkRoundSubtitle(gg21a(), 1), 'Padel · Fase grup · Race to 6');
-      expect(gkRoundSubtitle(gg21a(), 7), 'R7 · Padel');
+      expect(gkRoundSubtitle(gg21a(), 7), 'Padel · R7');
       expect(gkRoundSubtitle(gg20q(), 4), 'Padel · Fase grup · Race to 6 · diakhiri');
       expect(gkBaganSubtitle(gg21t()), 'Padel · 4 pasangan lolos · diakhiri');
       expect(gkBaganMeta(gg21a()), '0/4 match');

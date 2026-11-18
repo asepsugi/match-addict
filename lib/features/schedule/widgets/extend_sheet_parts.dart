@@ -10,7 +10,7 @@ import '../../konfigurasi/widgets/config_pickers.dart';
 // Bagian yang sama di sheet Lanjutkan turnamen (Mixed, 08c) dan Tambah round (Fixed, 06w): jam booking per court dan
 // estimasi berangka besar.
 
-/// "Tambah jam booking": tiap court dengan sisa booking-nya dan stepper jam tambahan 0–[maxExtraHours]. Sering cuma
+/// "Jam booking": tiap court dengan sisa booking-nya dan stepper jam tambahan 0–[maxExtraHours]. Sering cuma
 /// sebagian court yang bisa diperpanjang, jadi per court.
 class CourtHoursGroup extends StatelessWidget {
   static const maxExtraHours = 6;
@@ -31,7 +31,7 @@ class CourtHoursGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MabarSection(
-      header: const MabarGroupLabel('Tambah jam booking'),
+      header: const MabarGroupLabel('Jam booking'),
       child: MabarGroup(
         color: MabarColors.paper,
         children: [

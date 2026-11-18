@@ -60,7 +60,7 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
               p.name,
               style: MabarType.body.copyWith(color: MabarColors.faint, decoration: TextDecoration.lineThrough),
             ),
-            const Text('Keluar · skornya tetap dihitung', style: MabarType.caption),
+            const Text('Keluar', style: MabarType.caption),
           ],
         ),
         // Mexicano: sudah melewatkan round → tanpa aksi (keputusan 29, 16g). Disembunyikan, bukan dicegat lewat nilai
@@ -146,16 +146,6 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
               child: Text(
                 _error!,
                 style: small.copyWith(color: MabarColors.clay, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ] else ...[
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                'Pemain baru langsung ikut main dan diprioritaskan sampai jumlah match-nya menyusul, dengan jeda '
-                'istirahat 1 round. Total Point tertinggal; Win % lebih adil untuk pemain baru.',
-                style: small,
               ),
             ),
           ],

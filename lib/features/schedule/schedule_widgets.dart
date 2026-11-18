@@ -4,17 +4,19 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/mabar_icons.dart';
 import '../../core/widgets/mabar_controls.dart';
 import '../../core/widgets/mabar_layers.dart';
+import '../../models/models.dart';
+import '../../services/schedule/finish_notice.dart';
 
-/// Dialog 06e "Akhiri turnamen?" — dipakai Jadwal Fixed dan Mixed.
-Future<bool> confirmFinishTournament(BuildContext context) => showMabarConfirm(
+/// Dialog 06e "Akhiri turnamen?" (+ 20r, 21z) — dipakai Jadwal Fixed dan Mixed; isinya per mode dari [FinishNotice].
+Future<bool> confirmFinishTournament(BuildContext context, ActiveTournament active) => showMabarConfirm(
   context,
   title: 'Akhiri turnamen?',
-  message: 'Match yang belum main tidak dihitung.',
+  message: FinishNotice.message(active),
   confirmLabel: 'Akhiri',
   destructive: true,
 );
 
-/// Tombol Klasemen di action bar Jadwal: tombol utama "Lihat klasemen" setelah Final (06c, 12l), sekunder selama
+/// Tombol Klasemen di action bar Jadwal: tombol utama "Klasemen" setelah Final (06c, 12l), sekunder selama
 /// turnamen berjalan (06a, 12h). Dipakai Jadwal Fixed dan Jadwal penonton.
 class LeaderboardButton extends StatelessWidget {
   final bool isFinal;
@@ -22,7 +24,7 @@ class LeaderboardButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MabarButton(
-    label: isFinal ? 'Lihat klasemen' : 'Klasemen',
+    label: 'Klasemen',
     icon: MabarIcons.ranking,
     variant: isFinal ? MabarButtonVariant.primary : MabarButtonVariant.secondary,
     onPressed: () => context.push('/leaderboard'),

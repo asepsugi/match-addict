@@ -87,7 +87,8 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
       case _MenuAction.live:
         await openLiveScore(context, ref);
       case _MenuAction.finish:
-        if (!await confirmFinishTournament(context)) return;
+        final active = ref.read(tournamentProvider);
+        if (active == null || !await confirmFinishTournament(context, active)) return;
         ref.read(tournamentProvider.notifier).finishNow();
         if (mounted) context.push('/leaderboard');
       case null:

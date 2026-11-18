@@ -118,7 +118,7 @@ void main() {
       },
     );
     expect(find.text('Buat jadwal?'), findsOneWidget);
-    expect(find.text('Pasangan tidak bisa diubah setelah jadwal dibuat.'), findsOneWidget);
+    expect(find.text('Pasangan tidak bisa diubah sampai semua round selesai.'), findsOneWidget);
   });
 
   testWidgets('14e Manual · 30 pemain', (tester) async {

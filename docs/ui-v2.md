@@ -128,8 +128,9 @@ booking 1–12 jam per court.
   jam sisa booking court itu (`countdown`, "01:15", `core/time_text.dart`: ":" durasi, "20.02" jam dinding).
 - Layar Jadwal dan Input Skor ditik lewat `core/minute_ticker.dart` di pergantian menit sejak `createdAt` (bukan
   `Timer.periodic`, yang bisa tertinggal 59 detik dari hasil Buat R…).
-- Dialog Akhiri = `confirmFinishTournament` → `showMabarConfirm`; `schedule_widgets.dart` tinggal
-  `confirmFinishTournament`. Fixed setelah diakhiri: ⋯ tetap aktif, menunya tinggal Live score
+- Dialog Akhiri = `confirmFinishTournament(context, active)` → `showMabarConfirm`; isinya per mode dari
+  `FinishNotice.message` (`services/schedule/finish_notice.dart`: Fixed, Mixed/Mexicano, Grup + Gugur fase grup,
+  gugur sebelum Final; 06e/20r/21z, PATCH 3.8.1). Fixed setelah diakhiri: ⋯ tetap aktif, menunya tinggal Live score
   (12f, lihat `docs/live.md`; sebelum 2.5.0 pudar dan mati, 06c).
 - Kedua layar jadwal memanggil `startIfNeeded` lewat `Future.microtask` (Riverpod melarang mengubah provider di
   `initState`); Mixed memunculkan sheet "Cara kerja Mixed" (`mixed/mixed_guide_sheet.dart`) sekali saat R1 baru dibuat.
@@ -138,7 +139,7 @@ booking 1–12 jam per court.
 ### Input Skor
 
 - `ScoreBoard` + `ScoreKeypad` di atas `ScoreEntry` (skor tersimpan → `ScoreEntry.edit`, "Perbarui skor"); feedback
-  Americano menulis selisih ("menang +5"), format lain skornya.
+  semua format menulis skor ("menang 13–8", Americano juga; PATCH 3.8.1, B-15).
 - Jebakan CSS: dua tombol `flex: 1` / `flex: 2` membagi sisa lebar **setelah** padding tombol (Batal 129, Simpan WO
   219), bukan 1:2 murni.
 

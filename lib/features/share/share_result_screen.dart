@@ -143,7 +143,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
         children: [
           MabarAppBar(
             title: 'Bagikan hasil',
-            subtitle: '${config.sport.label} · ${shareModeLabel(config)} · ${isFinal ? 'akhir' : 'sementara'}',
+            subtitle: '${config.sport.label} · ${shareModeLabel(config)} · ${isFinal ? 'Final' : 'Sementara'}',
             onBack: () => context.pop(),
           ),
           Expanded(

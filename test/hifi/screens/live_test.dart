@@ -147,7 +147,7 @@ void main() {
     );
   });
 
-  testWidgets('12l diakhiri: tanpa tag, Lihat klasemen', (tester) async {
+  testWidgets('12l diakhiri: tanpa tag, Klasemen', (tester) async {
     final ended = mixedTournament([
       mixedR1, mixedR2, mixedR3Running.map((m) => (m.$1, m.$2, m.$3, m.$4, 11, 10)).toList(), mixedR1, //
       const <MatchSpec>[('Andi', 'Gina', 'Budi', 'Indra', 11, 10), ('Citra', 'Eko', 'Hana', 'Joko', null, null)],

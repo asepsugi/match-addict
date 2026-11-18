@@ -78,6 +78,8 @@ class DetailPlayerScreen extends ConsumerWidget {
             title: entry.players.map((p) => p.name).join(' · '),
             subtitle: [
               played ? 'Peringkat ${entry.position}' : 'Belum main',
+              // Metode ikut pilihan di Klasemen (B-6). Sparing dan Grup + Gugur punya subjudul sendiri tanpa metode.
+              if (played && clubPos == null && !groupKnockout) ref.watch(rankingMethodProvider).label,
               if (entry.stage case final stage?) stage,
               if (clubPos != null) clubPos.club.name,
               config.sport.label,
@@ -118,7 +120,7 @@ class DetailPlayerScreen extends ConsumerWidget {
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Text(
-                            'Belum ada match. Muncul setelah skor pertama diisi.',
+                            'Belum ada match',
                             style: MabarType.body.copyWith(color: MabarColors.ink3),
                           ),
                         )

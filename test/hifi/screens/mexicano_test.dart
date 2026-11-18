@@ -128,7 +128,7 @@ void main() {
     await expectMatchesHifi(tester, screen(r3, 36), '16g', act: openPlayers);
     expect(find.text('Kembalikan'), findsNothing);
     expect(find.text('Gita'), findsOneWidget);
-    expect(find.text('Keluar · skornya tetap dihitung'), findsOneWidget);
+    expect(find.text('Keluar'), findsOneWidget);
     expect(find.text('Tambah'), findsNothing);
   });
 

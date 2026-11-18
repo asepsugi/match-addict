@@ -180,7 +180,7 @@ class _GroupScreenState extends State<GroupScreen> {
       section(_groupLabel(g), [for (final id in _draft.groups[g]) _draft.pairById(id)]);
     }
     final rest = _draft.unassigned;
-    if (_manual && rest.isNotEmpty) section(MabarGroupLabel('${rest.length} belum masuk grup'), rest);
+    if (_manual && rest.isNotEmpty) section(MabarGroupLabel('Tanpa grup · ${rest.length} pasangan'), rest);
     return children;
   }
 

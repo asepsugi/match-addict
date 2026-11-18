@@ -145,7 +145,7 @@ void main() {
                       'Kiki A',
                       style: MabarType.body.copyWith(color: MabarColors.faint, decoration: TextDecoration.lineThrough),
                     ),
-                    const Text('Keluar · skornya tetap dihitung', style: MabarType.caption),
+                    const Text('Keluar', style: MabarType.caption),
                   ],
                 ),
                 trailing: MabarRowAction(label: 'Kembalikan', restore: true, onPressed: () {}),

@@ -11,7 +11,7 @@ String _ended(ActiveTournament a) => a.tournament.isFinished ? ' · diakhiri' : 
 String gkRoundSubtitle(ActiveTournament a, int round) {
   final sport = a.config.sport.label;
   final inKnockout = a.matchesOfRound(round).any((m) => m.phase is KnockoutPhase);
-  return inKnockout ? 'R$round · $sport${_ended(a)}' : '$sport · Fase grup · ${a.config.format.label}${_ended(a)}';
+  return inKnockout ? '$sport · R$round${_ended(a)}' : '$sport · Fase grup · ${a.config.format.label}${_ended(a)}';
 }
 
 /// Subjudul tab Bagan: "Padel · 4 pasangan lolos" (21a).

@@ -184,7 +184,7 @@ void main() {
         },
       );
       expect(button(tester).meta, '· 5 pasangan tanpa grup');
-      expect(find.text('5 belum masuk grup'), findsOneWidget);
+      expect(find.text('Tanpa grup · 5 pasangan'), findsOneWidget);
     });
 
     testWidgets('19t Manual · lengkap · 4 + 4', (tester) async {
@@ -295,15 +295,15 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(grup(pairedConfig(padelPairs(8))));
       await tapChip(tester, 'Andi', 'A');
-      expect(find.text('7 belum masuk grup'), findsOneWidget);
+      expect(find.text('Tanpa grup · 7 pasangan'), findsOneWidget);
       await tapChip(tester, 'Andi', 'A');
-      expect(find.text('8 belum masuk grup'), findsOneWidget);
+      expect(find.text('Tanpa grup · 8 pasangan'), findsOneWidget);
       await tester.tap(find.text('Acak'));
       await tester.pump();
       expect(find.text('Grup A · 4 pasangan', findRichText: true), findsOneWidget);
       await tester.tap(find.text('Manual'));
       await tester.pump();
-      expect(find.text('8 belum masuk grup'), findsOneWidget);
+      expect(find.text('Tanpa grup · 8 pasangan'), findsOneWidget);
     });
 
     testWidgets('Buat jadwal → /schedule dengan groupKnockout.groups lewat copyWith (thirdPlace + format terbawa)', (
@@ -390,7 +390,7 @@ void main() {
       // Andi·Budi (A) dan Citra·Dewi (B) tetap; Oki·Putri hilang dari A.
       expect(find.text('Grup A · 1 dari 4', findRichText: true), findsOneWidget);
       expect(find.text('Grup B · 1 dari 4', findRichText: true), findsOneWidget);
-      expect(find.text('6 belum masuk grup'), findsOneWidget);
+      expect(find.text('Tanpa grup · 6 pasangan'), findsOneWidget);
     });
   });
 }

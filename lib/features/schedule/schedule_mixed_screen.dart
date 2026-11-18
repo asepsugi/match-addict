@@ -104,7 +104,7 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
       case _MenuAction.guide:
         await _showGuide(active);
       case _MenuAction.finish:
-        if (!await confirmFinishTournament(context)) return;
+        if (!await confirmFinishTournament(context, active)) return;
         ref.read(tournamentProvider.notifier).finishNow();
         if (mounted) context.push('/leaderboard');
       case null:
@@ -164,6 +164,9 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
 
     // Round terakhir: dari pemain aktif sekarang, dibagi menurut slot R(n+1). Round lewat: catatan saat
     // round itu dibuat.
+    // Penonton turnamen yang diakhiri tidak tahu apakah R${last + 1} akan dimainkan: "Istirahat" tanpa prioritas (B-20,
+    // 12l). Host (06m) tetap menulisnya karena bisa melanjutkan.
+    final plainRest = watching && finished;
     final List<Widget> resting;
     // Sparing: papan skor klub di atas daftar (ikut tergulir, 13m) dan Istirahat per klub dua kolom.
     if (active.config.isSparing) {
@@ -178,8 +181,9 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
         final priority = column((c) => c.priority);
         final later = column((c) => c.later);
         resting = [
-          if (priority.any((c) => c.names.isNotEmpty)) RestingList.clubs(clubs: priority, priorityRound: last + 1),
-          if (later.any((c) => c.names.isNotEmpty))
+          if (priority.any((c) => c.names.isNotEmpty))
+            RestingList.clubs(clubs: priority, priorityRound: plainRest ? null : last + 1),
+          if (later.any((c) => c.names.isNotEmpty) && !plainRest)
             RestingList.clubs(clubs: later, priorityRound: last + 1, later: true),
         ];
       } else {
@@ -193,8 +197,9 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
       final split = EndlessRoundGenerator.restingAfterLastRound(active, now);
       resting = [
         if (split.priority.isNotEmpty)
-          RestingList(names: [for (final p in split.priority) p.name], priorityRound: last + 1),
-        if (split.later.isNotEmpty) RestingList.later(names: [for (final p in split.later) p.name], nextRound: last + 1),
+          RestingList(names: [for (final p in split.priority) p.name], priorityRound: plainRest ? null : last + 1),
+        if (split.later.isNotEmpty && !plainRest)
+          RestingList.later(names: [for (final p in split.later) p.name], nextRound: last + 1),
       ];
     } else {
       final ids = active.restingPlayerIdsByRound[selected] ?? const [];
