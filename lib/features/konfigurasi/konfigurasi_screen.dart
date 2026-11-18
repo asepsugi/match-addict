@@ -289,6 +289,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
         MabarRow(
           title: _targetTitle(method),
           trailing: MabarStepper(
+            semanticName: _targetTitle(method).toLowerCase(),
             value: _format.target,
             min: method.minTarget,
             max: method.maxTarget,
@@ -300,6 +301,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
         MabarRow(
           title: 'Durasi match',
           trailing: MabarStepper(
+            semanticName: 'durasi',
             value: _duration,
             min: TournamentConfig.durationStep,
             max: _maxDuration,
@@ -368,6 +370,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
           MabarRow(
             title: _targetTitle(method),
             trailing: MabarStepper(
+              semanticName: _targetTitle(method).toLowerCase(),
               value: format.target,
               // Americano 2 tidak ganjil: batas bawahnya 3.
               min: odd && method.minTarget.isEven ? method.minTarget + 1 : method.minTarget,
@@ -392,6 +395,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
         MabarRow(
           title: 'Jumlah court',
           trailing: MabarStepper(
+            semanticName: 'jumlah court',
             value: _courts.length,
             min: _minCourts,
             max: TournamentConfig.maxCourts,
@@ -414,6 +418,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
               onChanged: (_) => _change(() {}),
             ),
             trailing: MabarStepper(
+              semanticName: 'booking ${court.name.text.trim().isEmpty ? 'Court ${i + 1}' : court.name.text.trim()}',
               value: court.hours,
               min: 1,
               max: _maxBookingHours,

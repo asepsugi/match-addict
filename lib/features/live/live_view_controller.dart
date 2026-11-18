@@ -33,7 +33,10 @@ enum LiveViewStatus {
 class LiveView {
   final LiveViewStatus status;
   final ActiveTournament? active;
-  const LiveView(this.status, [this.active]);
+
+  /// Jam cek terakhir yang berhasil; dipakai tag "Offline · 19.48" (12m).
+  final DateTime? lastOk;
+  const LiveView(this.status, [this.active, this.lastOk]);
 }
 
 /// Halaman penonton: mengecek relay tiap 10 detik selama halaman terlihat (tiap menit setelah Final, kalau
@@ -44,6 +47,7 @@ class LiveViewController extends Notifier<LiveView?> {
 
   int? _rev;
   int _failures = 0;
+  DateTime? _lastOk;
   bool _hidden = false;
   bool _disposed = false;
   Timer? _timer;
@@ -86,9 +90,11 @@ class LiveViewController extends Notifier<LiveView?> {
             return;
           }
           _rev = rev;
-          state = LiveView(LiveViewStatus.live, next);
+          _lastOk = ref.read(clockProvider)();
+          state = LiveView(LiveViewStatus.live, next, _lastOk);
         case LiveUnchanged():
-          state = LiveView(LiveViewStatus.live, active);
+          _lastOk = ref.read(clockProvider)();
+          state = LiveView(LiveViewStatus.live, active, _lastOk);
         case LiveGone():
           state = const LiveView(LiveViewStatus.gone);
           return;
@@ -97,7 +103,9 @@ class LiveViewController extends Notifier<LiveView?> {
     } catch (_) {
       if (_disposed) return;
       _failures++;
-      if (_failures >= 2) state = LiveView(active == null ? LiveViewStatus.loading : LiveViewStatus.offline, active);
+      if (_failures >= 2) {
+        state = LiveView(active == null ? LiveViewStatus.loading : LiveViewStatus.offline, active, _lastOk);
+      }
     }
     if (_hidden) return;
     final done = state?.active?.isFinal(ref.read(clockProvider)()) ?? false;

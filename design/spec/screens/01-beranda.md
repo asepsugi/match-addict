@@ -100,6 +100,7 @@ Komponen: `MabarButton`, `MabarTextButton`, `showMabarSheet`, `showMabarConfirm`
 Komponen: `MabarButton`, `MabarGroup / MabarRow`, `showMabarSheet`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`, `InstallStep`
 
 - Dari baris pasang di iPhone/iPad (iPad terdeteksi sebagai Mac + layar sentuh). Di tab Safari status terpasang tidak bisa diketahui, jadi barisnya tetap muncul.
+- Baris pasang tanpa subjudul (judulnya sudah aksi). Langkah 1 cukup "Ketuk Bagikan" + ikon; kalau tombolnya tidak kelihatan, Bagikan ada di menu ···. Langkah 2 cukup nama menunya (+ "Add to Home Screen"), langkah 3 tanpa keterangan. Catatan kaki "Hanya dari Safari": link yang dibuka dari dalam app lain tidak punya menu Tambah ke Layar Utama (PATCH 3.8.1, A-16).
 
 ## 01j · Ikon app · dipilih A (garis penuh)
 

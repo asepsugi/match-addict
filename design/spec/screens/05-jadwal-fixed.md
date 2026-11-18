@@ -14,7 +14,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Fixed mendapat hitung mundur yang sama, tanpa Kelola court: court hanya bisa ditambah di Mixed (keputusan host 2026-10-22). Jadwal Fixed dibuat lengkap di awal, jadi waktunya hanya informasi.
 - Tab default = round pertama yang masih ada match kosong. Pilihan tab bertahan; tidak pindah otomatis saat round selesai.
 - Progress bar dihapus; "1/2 match" di ujung tab menggantikannya.
-- Baris "Istirahat" hanya muncul kalau jumlah pasangan ganjil: paling banyak satu pasangan bye per round (`byePairIdByRound`), nama depan dipisah titik tengah.
+- Baris "Istirahat" hanya muncul kalau jumlah pasangan ganjil: paling banyak satu pasangan bye per round (`byePairIdByRound`), nama lengkap dipisah titik tengah (06u).
 - Ketuk baris yang sudah terisi → Input Skor dalam mode ubah (07i). Round sebelumnya tetap bisa diubah.
 
 ## 06b · Membuka round yang belum terbuka
@@ -51,7 +51,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`
 
-- Dipakai Fixed dan Mixed. "Akhiri" mengubah semua match kosong jadi tidak dimainkan, menandai turnamen selesai, lalu membuka Klasemen.
+- Isi per mode, judul dan tombol sama (PATCH 3.8.1, A-2, C-1): Fixed (frame ini, 14k) "Match yang belum main tidak dihitung. Turnamen tidak bisa dilanjutkan." · Mixed dan Mexicano (06i, 15h) tetap "Match yang belum main tidak dihitung." karena bisa dilanjutkan (06m) · Grup + Gugur di fase grup 20r · di fase gugur sebelum Final 21z.
+- "Akhiri" mengubah semua match kosong jadi tidak dimainkan, menandai turnamen selesai, lalu membuka Klasemen.
 
 ## 06v · Semua match terisi · tambah round
 

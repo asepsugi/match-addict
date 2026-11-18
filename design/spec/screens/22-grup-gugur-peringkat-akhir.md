@@ -11,7 +11,7 @@ Peringkat akhir Grup + Gugur (PRD §16.8–16.9, keputusan 93–102, GU12, GU13,
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
 - Data 16E/16F: SF1 Andi · Budi 6–4 Maya · Nanda, SF2 Indra · Joko 4–6 Citra · Dewi, Final Andi · Budi 7–9 Citra · Dewi, Perebutan juara 3 Maya · Nanda 4–2 Indra · Joko. 12 match grup + 4 gugur = 16 match, R1–R8.
-- Setelah bagan dibuat Klasemen punya dua tab: Peringkat (peringkat akhir, terbuka pertama) dan Fase grup (22b). Sebelum bagan hanya tabel grup tanpa tab (20d, 20f).
+- Setelah bagan dibuat Klasemen punya dua tab: Peringkat (peringkat akhir, terbuka pertama) dan Fase grup (22b). Sebelum bagan dan belum diakhiri hanya tabel grup tanpa tab (20d, 20f); diakhiri di fase grup → dua tab (22g).
 - Nomor dari tingkat babak (16.8): Juara, Final, Juara 3, Semifinal, lalu yang tidak lolos per posisi grup. Posisi grup sama = nomor sama (#5 Eko · Fajar dan Kiki · Lina, posisi 3); nomor rapat. Yang senomor urut nama.
 - Kolom Babak menggantikan Main, W–L, +/−, dan nilai (GU16): angka fase grup tidak menentukan nomor, jadi tidak ditampilkan di sini. Pasangan yang tidak lolos menulis grup · posisi grup ("Grup A · 3").
 - Juara 4 menulis "Semifinal" (16F): kalah di Semifinal lalu kalah Perebutan juara 3. #1 diberi bola seperti Klasemen lain. Ketuk baris → Detail pasangan (22j).

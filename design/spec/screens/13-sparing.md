@@ -85,7 +85,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Subjudul: olahraga · klub pertama + jumlah pemainnya · klub kedua + jumlahnya.
 - Estimasi Fixed sparing dihitung dari jadwal, bukan dari jam booking: 4 × 3 pasangan = 12 match, court aktif min(2, 4, 3) = 2, round = ⌈12 ÷ 2⌉ = 6 (contoh 13A). Karena jadwalnya pasti, tombol tanpa "±" (Fixed biasa 03a tetap "±6 round · 12 match" dari booking).
 - Court aktif lebih sedikit dari jumlah court → tombol ditambah "· n court" (14g, 13j). Jadwal lebih panjang dari booking terpendek: 14f.
-- Pengaturan terakhir di HP (03q) juga berlaku di sini; kalau terakhir Mexicano, mode terisi Mixed (asumsi, menunggu host).
+- Pengaturan terakhir di HP (03q) juga berlaku di sini; kalau terakhir Mexicano, mode terisi Mixed (keputusan 38).
 - Lanjut → Pasangan per klub (14a–14e).
 
 ## 13i · Atur turnamen · Mixed sparing

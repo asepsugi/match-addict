@@ -84,7 +84,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
 
 - Mixed yang sudah diakhiri bisa dilanjutkan: "Lanjutkan turnamen" → sheet 08c. Match "Tidak dimainkan" kembali bisa diisi setelah dilanjutkan.
-- Tombol Pemain disembunyikan setelah diakhiri. Menu ⋯ hanya berisi "Cara kerja Mixed": Kelola court juga hilang, jam ditambah lewat Lanjutkan. Strip tanpa kotak jam.
+- Tombol Pemain disembunyikan setelah diakhiri. Menu ⋯ berisi "Live score" dan "Cara kerja Mixed" (12a): Kelola court dan Akhiri hilang, jam ditambah lewat Lanjutkan. Strip tanpa kotak jam.
 - Kalimat "Turnamen sudah diakhiri · tambah jam court untuk main lagi" diringkas ke subjudul "diakhiri".
 
 ## 06n · Banyak round · melihat round awal

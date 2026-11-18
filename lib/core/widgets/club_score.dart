@@ -32,6 +32,23 @@ class ClubScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Satu label untuk seluruh papan; unggul/seri dibaca, bukan hanya terlihat dari bola.
+    final outcome = first.lead && second.lead
+        ? 'seri'
+        : first.lead
+        ? '${first.name} unggul'
+        : second.lead
+        ? '${second.name} unggul'
+        : null;
+    final label = [
+      '${first.name} ${first.score}',
+      '${second.name} ${second.score}',
+      if (outcome != null) outcome,
+    ].join(', ');
+    return Semantics(label: label, excludeSemantics: true, child: _board());
+  }
+
+  Widget _board() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: MabarSpacing.x4),
       decoration: BoxDecoration(color: MabarColors.ink, borderRadius: BorderRadius.circular(MabarRadius.group)),

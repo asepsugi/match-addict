@@ -90,38 +90,35 @@ class _GroupScreenState extends State<GroupScreen> {
     ),
   );
 
-  /// `.chip` huruf grup: 34 pt, area sentuh 44 (tinggi baris).
+  /// `.chip` huruf grup: 40 × 40 (`.pr.gg-pick .chip`), area ketuk 48 × 52 (lebar 4 pt tiap sisi, jarak chip 8).
   Widget _letterChip(Pair pair, int g) {
     final selected = _draft.groupOf(pair.id) == g;
     final letter = GroupKnockout.letter(g);
-    return Semantics(
+    return MabarTouchOutset(
       key: ValueKey('${pair.id}/$letter'),
-      button: true,
-      selected: selected,
-      label: 'Grup $letter',
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => setState(() => _draft = _draft.tap(pair.id, g)),
-        child: SizedBox(
-          width: 34,
-          height: 44,
-          child: Center(
-            child: Container(
-              width: 34,
-              height: 34,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: selected ? MabarColors.ink : MabarColors.card,
-                borderRadius: BorderRadius.circular(MabarRadius.chip),
-                border: selected ? null : Border.all(color: MabarColors.line),
-              ),
-              child: Text(
-                letter,
-                style: MabarType.body.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: selected ? Colors.white : MabarColors.ink,
-                ),
-              ),
+      horizontal: 4,
+      vertical: 6,
+      child: Semantics(
+        button: true,
+        selected: selected,
+        inMutuallyExclusiveGroup: true,
+        label: '${_pairName(pair)} ke Grup $letter',
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => setState(() => _draft = _draft.tap(pair.id, g)),
+          child: Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? MabarColors.ink : MabarColors.card,
+              borderRadius: BorderRadius.circular(MabarRadius.chip),
+              border: selected ? null : Border.all(color: MabarColors.line),
+            ),
+            child: Text(
+              letter,
+              style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: selected ? Colors.white : MabarColors.ink),
             ),
           ),
         ),
@@ -132,7 +129,7 @@ class _GroupScreenState extends State<GroupScreen> {
   Widget _chipRow(Pair pair) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      for (var g = 0; g < _draft.groupCount; g++) ...[if (g > 0) const SizedBox(width: 7), _letterChip(pair, g)],
+      for (var g = 0; g < _draft.groupCount; g++) ...[if (g > 0) const SizedBox(width: 8), _letterChip(pair, g)],
     ],
   );
 
@@ -183,7 +180,7 @@ class _GroupScreenState extends State<GroupScreen> {
       section(_groupLabel(g), [for (final id in _draft.groups[g]) _draft.pairById(id)]);
     }
     final rest = _draft.unassigned;
-    if (_manual && rest.isNotEmpty) section(MabarGroupLabel('${rest.length} belum masuk grup'), rest);
+    if (_manual && rest.isNotEmpty) section(MabarGroupLabel('Tanpa grup · ${rest.length} pasangan'), rest);
     return children;
   }
 

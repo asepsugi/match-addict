@@ -44,7 +44,12 @@ hi-fi baru, bukan teks versi lama.
   SharePoster (`share/widgets/`, `.lk`, target `PodiumPosterTarget` kartu/Feed/Story, ekspor ×3 lewat `lengkapImages`).
 - Komponen jadwal v2 di `lib/features/schedule/widgets/` (RoundTabs, RestingList, ScheduleMatchRow), dipakai Fixed dan
   Mixed.
-- `MabarRowAction` tata letaknya 36 (seperti CSS) dengan area sentuh 44 lewat hit-test yang diperluas.
+- `MabarRowAction` tata letaknya 36 (seperti CSS), area ketuk 48.
+- Area ketuk ≥ 48 (`MabarSize.tapTarget`, PATCH 3.8.1) tanpa mengubah tampilan: `MabarTouchOutset` (`mabar_controls.dart`) memperluas
+  hit-test anaknya. Jebakan: induk mana pun (termasuk `Semantics`, `Row`, viewport gulir) menolak ketukan di luar kotaknya sendiri, jadi
+  pasang di **paling luar** widget dan, kalau induk langsungnya lebih pendek (Row stepper, track segmented, baris tab), bungkus induk itu juga
+  dengan `innerInset` supaya ketukan dibelokkan ke tepinya. Ikon tukar tetap 44 × 42 (keputusan 48–57).
+- Tepi isian = `MabarColors.edge` (1,5 pt, semua isian tidak fokus), placeholder = `ink3`; `faint` hanya chevron/state mati.
 - Tata letak lama sudah habis (`mabar_widgets.dart` dihapus).
 
 ## Golden
@@ -123,8 +128,9 @@ booking 1–12 jam per court.
   jam sisa booking court itu (`countdown`, "01:15", `core/time_text.dart`: ":" durasi, "20.02" jam dinding).
 - Layar Jadwal dan Input Skor ditik lewat `core/minute_ticker.dart` di pergantian menit sejak `createdAt` (bukan
   `Timer.periodic`, yang bisa tertinggal 59 detik dari hasil Buat R…).
-- Dialog Akhiri = `confirmFinishTournament` → `showMabarConfirm`; `schedule_widgets.dart` tinggal
-  `confirmFinishTournament`. Fixed setelah diakhiri: ⋯ tetap aktif, menunya tinggal Live score
+- Dialog Akhiri = `confirmFinishTournament(context, active)` → `showMabarConfirm`; isinya per mode dari
+  `FinishNotice.message` (`services/schedule/finish_notice.dart`: Fixed, Mixed/Mexicano, Grup + Gugur fase grup,
+  gugur sebelum Final; 06e/20r/21z, PATCH 3.8.1). Fixed setelah diakhiri: ⋯ tetap aktif, menunya tinggal Live score
   (12f, lihat `docs/live.md`; sebelum 2.5.0 pudar dan mati, 06c).
 - Kedua layar jadwal memanggil `startIfNeeded` lewat `Future.microtask` (Riverpod melarang mengubah provider di
   `initState`); Mixed memunculkan sheet "Cara kerja Mixed" (`mixed/mixed_guide_sheet.dart`) sekali saat R1 baru dibuat.
@@ -133,7 +139,7 @@ booking 1–12 jam per court.
 ### Input Skor
 
 - `ScoreBoard` + `ScoreKeypad` di atas `ScoreEntry` (skor tersimpan → `ScoreEntry.edit`, "Perbarui skor"); feedback
-  Americano menulis selisih ("menang +5"), format lain skornya.
+  semua format menulis skor ("menang 13–8", Americano juga; PATCH 3.8.1, B-15).
 - Jebakan CSS: dua tombol `flex: 1` / `flex: 2` membagi sisa lebar **setelah** padding tombol (Batal 129, Simpan WO
   219), bukan 1:2 murni.
 
@@ -144,7 +150,9 @@ booking 1–12 jam per court.
   7 match"); golden Fixed 09c dengan jadwal yang cocok 10b.
 - Detail: riwayat terbaru di atas, baris atas = tim sendiri (Mixed: nama sendiri dulu), menang WO "+n" pudar =
   `woPoints` ÷ jumlah menang WO. `MatchScoreRow` mematok tinggi baris tim 22,4 supaya riwayat (tanpa tinggi minimal)
-  tidak bergeser 0,8 pt per baris.
+  tidak bergeser 0,8 pt per baris. Subjudul Detail dibangun dua kali (dengan dan tanpa olahraga); `MabarAppBar` memakai
+  `shorterSubtitle` kalau yang penuh tidak muat satu baris (diukur `TextPainter`, B-6, PATCH 3.8.1). Sparing dan Grup +
+  Gugur tanpa metode (14v, 22j).
 
 ### Bagikan (`features/share/share_result_screen.dart`)
 

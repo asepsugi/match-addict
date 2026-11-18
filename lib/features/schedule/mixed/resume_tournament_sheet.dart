@@ -8,19 +8,23 @@ import '../../../models/models.dart';
 import '../tournament_controller.dart';
 import '../widgets/extend_sheet_parts.dart';
 
-/// Sheet 08c "Lanjutkan turnamen" (Mixed) — tambah jam booking per court (sering cuma sebagian court
+/// Sheet 08c "Tambah jam" / "Lanjutkan turnamen" (Mixed) — tambah jam booking per court (sering cuma sebagian court
 /// yang bisa diperpanjang), lalu turnamen aktif lagi tanpa mengulang. [archived] = dari Beranda, turnamen
 /// sudah ditutup. Mengembalikan true kalau turnamen jadi dilanjutkan.
+/// Judul dan tombol mengikuti pemicunya (A-17): turnamen belum berhenti (06l, 15f) = "Tambah jam"; sudah berhenti
+/// (06m) atau dari Beranda = "Lanjutkan turnamen".
 Future<bool> showResumeTournamentSheet(BuildContext context, ActiveTournament source, {bool archived = false}) async {
   final n = source.roundCount;
   final resumed = await showMabarSheet<bool>(
     context,
-    title: 'Lanjutkan turnamen',
+    title: _resuming(source, archived) ? 'Lanjutkan turnamen' : 'Tambah jam',
     subtitle: 'Skor & klasemen ${n == 1 ? 'R1' : 'R1–R$n'} tetap',
     builder: (_) => _ResumeTournament(source: source, archived: archived),
   );
   return resumed ?? false;
 }
+
+bool _resuming(ActiveTournament source, bool archived) => archived || source.tournament.isFinished;
 
 class _ResumeTournament extends ConsumerStatefulWidget {
   final ActiveTournament source;
@@ -84,8 +88,8 @@ class _ResumeTournamentState extends ConsumerState<_ResumeTournament> {
           SheetEstimateEmpty(unplayedNote ?? 'Tambah jam minimal satu court'),
         const SizedBox(height: 16),
         MabarButton(
-          label: 'Lanjutkan',
-          icon: MabarIcons.play,
+          label: _resuming(_source, widget.archived) ? 'Lanjutkan' : 'Tambah jam',
+          icon: _resuming(_source, widget.archived) ? MabarIcons.play : MabarIcons.clock,
           onPressed: ahead.matches > 0 || unplayed > 0 ? _resume : null,
         ),
       ],

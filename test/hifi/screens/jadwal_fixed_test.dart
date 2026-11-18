@@ -165,7 +165,7 @@ void main() {
     // Tab default = round terakhir setelah diakhiri; R5 belum dimainkan sama sekali.
     expect(find.text('Round 5'), findsOneWidget);
     expect(find.text('Tidak dimainkan'), findsNWidgets(2));
-    expect(find.text('Lihat klasemen'), findsOneWidget);
+    expect(find.text('Klasemen'), findsOneWidget);
     expect(tester.widget<MatchScoreRow>(find.byType(MatchScoreRow).last).onTap, isNull);
     // ⋯ tetap aktif (12f): Akhiri turnamen hilang, Live score tetap ada.
     await tester.tap(find.bySemanticsLabel('Menu'));

@@ -2,7 +2,7 @@
 
 > Dihasilkan `tool/hifi_extract.py` dari `design/hifi.html`. Jangan diedit langsung.
 
-Persiapan turnamen Grup + Gugur (PRD §16.1–16.2, keputusan 93–102, usulan GU1–GU16; dirancang 2026-11-17, menunggu persetujuan host). Hanya Fixed, mulai 12 pemain. Alur: Konfigurasi (format turnamen, jumlah grup, format fase grup, format per babak gugur + Perebutan juara 3, estimasi pasti) → Pasangan dibuka Manual → Grup (tempatkan tiap pasangan ke Grup A–D, Acak opsional) → dialog kunci → Jadwal fase grup (20). Contoh data: 16A (Padel, 16 pemain, 15 menit, 2 court × 2 jam, Race to 6; Semifinal Race to 6, juara 3 Race to 4, Final Race to 9), 16B (Tennis, 24 pemain, 20 menit, 2 court × 3 jam), PRD 16.4.
+Persiapan turnamen Grup + Gugur (PRD §16.1–16.2, keputusan 93–109, GU1–GU16; disetujui host 2026-11-17, keputusan 103). Hanya Fixed, mulai 12 pemain. Alur: Konfigurasi (format turnamen, jumlah grup, format fase grup, format per babak gugur + Perebutan juara 3, estimasi pasti) → Pasangan dibuka Manual → Grup (tempatkan tiap pasangan ke Grup A–D, Acak opsional) → dialog kunci → Jadwal fase grup (20). Contoh data: 16A (Padel, 16 pemain, 15 menit, 2 court × 2 jam, Race to 6; Semifinal Race to 6, juara 3 Race to 4, Final Race to 9), 16B (Tennis, 24 pemain, 20 menit, 2 court × 3 jam), PRD 16.4.
 
 ## 19a · Fixed · Round-robin · 16 pemain
 
@@ -55,7 +55,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Satu baris per babak, urut main: (Perempat final), Semifinal, Perebutan juara 3, Final (keputusan 99, GU1). 2 grup → tiga baris; 4 grup → empat (19j). Ketuk baris → sheet babak di atasnya (19f, 19g).
 - Contoh 16A: Semifinal Race to 6, Perebutan juara 3 Race to 4, Final Race to 9 → baris Gugur di layar "Race to 4–9".
-- Sheet jenis kelola, tanpa footer. Format babak bisa diubah lagi setelah jadwal dibuat sampai babak itu punya skor (GU9); tempatnya di Jadwal (kelompok 20/21), bukan di sini.
+- Sheet jenis kelola, tanpa footer. Format babak dan Perebutan juara 3 hanya diatur di sini; mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104).
 
 ## 19f · Sheet Final · di atas sheet Gugur
 
@@ -176,7 +176,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Layar baru setelah Pasangan (PRD 16.2, G4). Dibuka Manual (keputusan 95); Acak opsional (GU2, 19u). Subjudul = olahraga · jumlah pasangan.
 - Label tiap grup = ukuran yang ditetapkan app ("0 dari 4"): 8 / 2 = 4 + 4. Grup kosong hanya labelnya.
-- Tiap baris pasangan punya chip huruf grup (`.chip`, 34 pt, area sentuh 44): ketuk "A" → pasangan pindah ke daftar Grup A, chip A gelap. Ketuk huruf lain → pindah grup; ketuk huruf yang sama → kembali ke "belum masuk grup". Tanpa Urungkan: tiap langkah dibalik dengan satu ketukan.
+- Tiap baris pasangan punya chip huruf grup (`.chip` 40 × 40, jarak 8, area ketuk 48 × 52 setinggi baris; PATCH 3.8.1): ketuk "A" → pasangan pindah ke daftar Grup A, chip A gelap. Ketuk huruf lain → pindah grup; ketuk huruf yang sama → kembali ke "Tanpa grup". Tanpa Urungkan: tiap langkah dibalik dengan satu ketukan.
 - Nama pasangan satu baris "Andi · Budi" (pola PRD), elipsis kalau terlalu panjang.
 
 ## 19s · Grup · Manual · sebagian

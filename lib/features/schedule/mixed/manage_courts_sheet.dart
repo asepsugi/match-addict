@@ -184,6 +184,7 @@ class _ManageCourtsState extends ConsumerState<_ManageCourts> {
                       onChanged: (_) => setState(() {}),
                     ),
                     trailing: MabarStepper(
+                      semanticName: 'booking',
                       value: _hours,
                       min: 1,
                       max: _maxBookingHours,
@@ -326,6 +327,7 @@ class _CourtDetailState extends ConsumerState<_CourtDetail> {
                     onChanged: (_) => setState(() {}),
                   ),
                   trailing: MabarStepper(
+                    semanticName: 'booking',
                     value: _hours,
                     min: _minHours,
                     max: _maxBookingHours,

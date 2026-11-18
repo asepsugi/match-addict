@@ -108,10 +108,10 @@ void main() {
     );
   });
 
-  testWidgets('14l diakhiri: Tidak dimainkan, skor 6 – 4 tetap, Lihat klasemen', (tester) async {
+  testWidgets('14l diakhiri: Tidak dimainkan, skor 6 – 4 tetap, Klasemen', (tester) async {
     await expectMatchesHifi(tester, screen(sparingEnded(), sparingAt(5)), '14l');
     expect(find.text('Tidak dimainkan'), findsNWidgets(2));
-    expect(find.text('Lihat klasemen'), findsOneWidget);
+    expect(find.text('Klasemen'), findsOneWidget);
     expect(find.text('00:45'), findsNothing);
     expectBoard(garudaR6, matchaR6, balls: 1);
   });

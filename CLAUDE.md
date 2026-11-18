@@ -14,9 +14,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
   2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t; §16 Grup + Gugur
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r.
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 247 frame layar 390×844 +
-  12 lembar gambar (per 2026-11-12) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2 MB (per
-  2026-11-13; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 299 frame layar 390×844 +
+  36 lembar gambar (per 2026-11-18) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,5 MB (per
+  2026-11-18; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
   lebih ringkas baca `design/spec/screens/<alur>.md` + PNG frame-nya.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu
   `tokens.json`, `components.md`, `logic.md` (aturan logika yang berubah + data test), `screens/*.md` (per alur).
@@ -50,7 +50,12 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 
 | Peran | Skill / MCP | Kapan |
 |---|---|---|
-| — | Belum ada skill/MCP eksternal yang dipakai proyek ini | — |
+| ui-ux-designer | `review-ux-ui` (pjt222/agent-almanac @ eb3cc37; `WebFetch` dihapus dari `allowed-tools`) | review UI/UX: heuristik Nielsen, WCAG (terjemahkan ke Semantics Flutter) |
+| ui-ux-designer | `ux-copy` (anthropics/knowledge-work-plugins @ e91a134) | review teks UI; aturan Wording UI di sini + PRD yang menang |
+| ui-ux-designer | `ui-ux-pro-max` (nextlevelbuilder/ui-ux-pro-max-skill @ e59ff37) | referensi saja: `python3 -I .claude/skills/ui-ux-pro-max/scripts/search.py "<kueri>" --domain ux` (atau `--stack flutter`); **jangan** `--design-system --persist/--preview` (bikin tokens/MASTER tandingan hi-fi) |
+
+Skill di `.claude/skills/` disalin dari SHA yang sudah divetting `security` (2026-11-18), tidak update sendiri. Ditolak:
+`design-taste-frontend` (hook Stop + Chrome/jaringan), `uxui-principles` (kirim deskripsi UI ke API pihak ketiga).
 
 ## Arsitektur
 
@@ -86,7 +91,7 @@ Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point)
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
 sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini"; 3.7.1 (PATCH) = lantai poster
-lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed).
+lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed); 3.8.1 (PATCH) = review UX hi-fi (kontras, area ketuk 48 + Semantics, teks).
 
 ## Status
 
@@ -121,6 +126,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   rilis 3.7.1 di `main` (527b0ab).
 - Grup + Gugur 3.8.0 (MINOR): PRD §16 + keputusan 93–109, hi-fi 19a–22r (artifact v95), spec `logic.md` §18, data
   `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Rilis 3.8.0+24 live 2026-11-17 (90ebba2). Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
+- PATCH 3.8.1 review UX hi-fi (keputusan 110–112): temuan di `design/review/`, task UX-0…UX-6 di `docs/tasks.md`,
+  branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di branch, full test lolos.
+  Sisa UX-6: merge ke `main`, push (deploy), publish ulang hi-fi — menunggu go host.
 
 ## Area docs
 
@@ -132,7 +140,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
 | `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
-| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: Poster Lengkap PL-n) | tech-lead |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: PATCH 3.8.1 review UX, UX-n) | tech-lead |
 
 ## Pitfalls (lintas area)
 

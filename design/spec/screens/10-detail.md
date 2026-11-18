@@ -10,7 +10,7 @@ Satu baris angka menggantikan lima kotak statistik. Riwayat match memakai bentuk
 
 Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScoreRow`, `StatLine`
 
-- Avatar inisial bergradien dihapus. Subjudul: peringkat · olahraga · mode · format skor. Angka mengikuti metode yang dipilih di Klasemen.
+- Avatar inisial bergradien dihapus. Subjudul: peringkat · metode · olahraga · mode · format skor. Angka dan metode mengikuti pilihan di Klasemen (09a Total Point → "Peringkat 1 · Total Point"; dibuka dari Win % → "Peringkat n · Win %"). Kalau tidak muat di 390, olahraga yang dibuang dulu (PATCH 3.8.1, B-6). Belum main: "Belum main" tanpa metode (10c).
 - Label statistik mengikuti format skor, bukan mode: "Poin" / "Selisih poin" untuk Americano, "Game" / "Selisih game" untuk Race to dan Best of; W–L–D hanya kalau format bisa seri, selain itu W–L (10b). Format di subjudul yang menjelaskan kenapa labelnya berbeda.
 - "Beda partner/lawan" dibanding semua pemain lain (termasuk yang keluar). "Kalah WO" tetap.
 - Riwayat: terbaru di atas. Baru: Mixed menampilkan partner di tiap match. Baris atas selalu tim pemain ini, ditulis seperti Fixed (10b): nama sendiri dulu lalu partner ("Andi P · Dewant R"), lawan di baris bawah dengan "vs". Hasil: tebal + bola = menang, pudar = kalah, "Seri", "WO" (menang/kalah). Match kosong dan tidak dimainkan tidak masuk. Tidak bisa diketuk.
@@ -32,7 +32,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 
 Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `StatLine`
 
-- Kotak info abu-abu diganti satu kalimat. Pemain tidak ditemukan / tidak ada turnamen: teks tengah "Belum ada turnamen berjalan".
+- Kotak info abu-abu diganti "Belum ada match" (tanpa kalimat kedua, PATCH 3.8.1, B-13); riwayat muncul setelah skor pertama pemain ini diisi. Pemain tidak ditemukan / tidak ada turnamen: teks tengah "Belum ada turnamen berjalan".
 
 ## 10d · Fixed · pasangan berubah
 

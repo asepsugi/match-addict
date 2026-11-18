@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/mabar_icons.dart';
 import '../../../core/theme/mabar_theme.dart';
+import '../../../core/widgets/mabar_controls.dart';
 import '../../../models/models.dart';
 
 /// `.modes` — kartu mode tanpa deskripsi (keputusan 35): ilustrasi dari ikon (orang 30 pt + penghubung 16 pt, `equals`
@@ -91,7 +92,7 @@ class ModePicker extends StatelessWidget {
 }
 
 /// `.swatch` — lingkaran warna court. Dengan [number]: penanda court di baris Konfigurasi (30 pt, nomor
-/// putih 15). [selected] = cincin tinta di luar dengan celah putih, plus centang (sheet warna).
+/// putih 19/800). [selected] = cincin tinta di luar dengan celah putih, plus centang (sheet warna).
 class CourtSwatch extends StatelessWidget {
   final Color color;
   final double size;
@@ -99,7 +100,18 @@ class CourtSwatch extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  const CourtSwatch({super.key, required this.color, this.size = 30, this.number, this.selected = false, this.onTap});
+  /// Label pembaca layar; bawaannya "Warna court n" untuk penanda bernomor.
+  final String? semanticLabel;
+
+  const CourtSwatch({
+    super.key,
+    required this.color,
+    this.size = 30,
+    this.number,
+    this.selected = false,
+    this.onTap,
+    this.semanticLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -119,17 +131,24 @@ class CourtSwatch extends StatelessWidget {
             : null,
       ),
       child: number != null
-          ? Text('$number', style: MabarType.numM.copyWith(fontSize: 15, color: Colors.white))
+          ? Text('$number', style: MabarType.numM.copyWith(fontSize: 19, color: Colors.white))
           : selected
           ? const Icon(MabarIcons.check, size: MabarSize.icon, color: Colors.white)
           : null,
     );
     return onTap == null
         ? circle
-        : Semantics(
-            button: true,
-            selected: selected,
-            child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: circle),
+        // Lingkaran 30 → area ketuk 48 (sheet warna: ±70, tidak perlu).
+        : MabarTouchOutset(
+            horizontal: size >= MabarSize.tapTarget ? 0 : (MabarSize.tapTarget - size) / 2,
+            vertical: size >= MabarSize.tapTarget ? 0 : (MabarSize.tapTarget - size) / 2,
+            child: Semantics(
+              button: true,
+              selected: selected,
+              label: semanticLabel ?? (number == null ? null : 'Warna court $number'),
+              excludeSemantics: semanticLabel != null || number != null,
+              child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: circle),
+            ),
           );
   }
 }
@@ -152,7 +171,13 @@ class CourtColorGrid extends StatelessWidget {
           runSpacing: 12,
           children: [
             for (var i = 0; i < palette.length; i++)
-              CourtSwatch(color: palette[i], size: size, selected: i == selected, onTap: () => onSelect(i)),
+              CourtSwatch(
+                color: palette[i],
+                size: size,
+                selected: i == selected,
+                semanticLabel: 'Warna ${i + 1}${i == selected ? ', terpilih' : ''}',
+                onTap: () => onSelect(i),
+              ),
           ],
         );
       },

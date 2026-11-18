@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../theme/mabar_icons.dart';
 import '../theme/mabar_theme.dart';
+import 'mabar_controls.dart';
 
 /// `.seg` — pilihan segmented. Setiap opsi berbagi lebar sama.
 class MabarSegmented<T> extends StatelessWidget {
@@ -17,16 +18,21 @@ class MabarSegmented<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(color: MabarColors.fill, borderRadius: BorderRadius.circular(MabarRadius.smallButton)),
-      child: Row(
-        children: [
-          for (var i = 0; i < options.length; i++) ...[
-            if (i > 0) const SizedBox(width: 2),
-            Expanded(child: _segment(options[i])),
+    // Track 44 → area ketuk 48; ketukan di luar track dibelokkan ke tepi segmen (padding 3).
+    return MabarTouchOutset(
+      vertical: 2,
+      innerInset: const EdgeInsets.symmetric(vertical: 3),
+      child: Container(
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(color: MabarColors.fill, borderRadius: BorderRadius.circular(MabarRadius.smallButton)),
+        child: Row(
+          children: [
+            for (var i = 0; i < options.length; i++) ...[
+              if (i > 0) const SizedBox(width: 2),
+              Expanded(child: _segment(options[i])),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -82,6 +88,9 @@ class MabarStepper extends StatefulWidget {
   final int Function(int typed)? normalizeTyped;
   final bool error;
 
+  /// Yang diubah ("durasi", "target"): dibaca pembaca layar sebagai "Kurangi durasi, 15 menit" / "Tambah durasi".
+  final String? semanticName;
+
   const MabarStepper({
     super.key,
     required this.value,
@@ -93,6 +102,7 @@ class MabarStepper extends StatefulWidget {
     this.unit,
     this.normalizeTyped,
     this.error = false,
+    this.semanticName,
   });
 
   @override
@@ -137,17 +147,33 @@ class _MabarStepperState extends State<MabarStepper> {
 
   static final _number = MabarType.numM.copyWith(color: MabarColors.ink);
 
+  String _label(String verb, {bool withValue = false}) {
+    final name = widget.semanticName;
+    if (name == null) return verb;
+    final value = widget.value;
+    if (!withValue || value == null) return '$verb $name';
+    final unit = switch (widget.unit) {
+      'mnt' => 'menit',
+      final u? => u,
+      null => '',
+    };
+    return '$verb $name, $value${unit.isEmpty ? '' : ' $unit'}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final value = widget.value;
     final canDown = value != null && value - widget.step >= widget.min;
     final canUp = value == null || value + widget.step <= widget.max;
-    return Row(
+    // Row menolak ketukan di luar tingginya (36), jadi perluasan vertikal ke 48 dipasang di luarnya.
+    return MabarTouchOutset(
+      vertical: 6,
+      child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _StepButton(
           icon: MabarIcons.minus,
-          label: 'Kurangi',
+          label: _label('Kurangi', withValue: true),
           onPressed: canDown ? () => widget.onChanged(value - widget.step) : null,
         ),
         const SizedBox(width: 4),
@@ -210,10 +236,11 @@ class _MabarStepperState extends State<MabarStepper> {
         const SizedBox(width: 4),
         _StepButton(
           icon: MabarIcons.plus,
-          label: 'Tambah',
+          label: _label('Tambah'),
           onPressed: canUp ? () => widget.onChanged(value == null ? widget.min : value + widget.step) : null,
         ),
       ],
+      ),
     );
   }
 }
@@ -226,19 +253,24 @@ class _StepButton extends StatelessWidget {
   const _StepButton({required this.icon, required this.label, required this.onPressed});
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    enabled: onPressed != null,
-    label: label,
-    child: Material(
-      color: MabarColors.fill,
-      borderRadius: BorderRadius.circular(MabarRadius.chip),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onPressed,
-        child: SizedBox.square(
-          dimension: 36,
-          child: Icon(icon, size: MabarSize.iconInButton, color: onPressed == null ? MabarColors.off : MabarColors.ink2),
+  Widget build(BuildContext context) => MabarTouchOutset(
+    // 36 → 48 (`.stepper`); pembungkus Row di [MabarStepper] membelokkan ketukan di luar tinggi Row ke tepinya.
+    horizontal: 6,
+    vertical: 6,
+    child: Semantics(
+      button: true,
+      enabled: onPressed != null,
+      label: label,
+      child: Material(
+        color: MabarColors.fill,
+        borderRadius: BorderRadius.circular(MabarRadius.chip),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onPressed,
+          child: SizedBox.square(
+            dimension: 36,
+            child: Icon(icon, size: MabarSize.iconInButton, color: onPressed == null ? MabarColors.off : MabarColors.ink2),
+          ),
         ),
       ),
     ),
@@ -312,12 +344,11 @@ class MabarField extends StatelessWidget {
       gapPadding: 0,
     );
     final InputBorder rest, focus;
-    if (inline) {
-      rest = focus = ring(MabarColors.paper, 0);
-    } else if (error) {
+    if (error && !inline) {
       rest = focus = ring(MabarColors.clay, 2);
     } else {
-      rest = ring(MabarColors.line, 1.5);
+      // `.field` dan `.inline-field`: tepi `edge` 1,5 saat diam (kosong maupun terisi), fokus court 2.
+      rest = ring(MabarColors.edge, 1.5);
       focus = ring(MabarColors.court, 2);
     }
     return TextField(

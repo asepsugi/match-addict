@@ -87,7 +87,9 @@ class ScoreBoard extends StatelessWidget {
             child: Semantics(
               button: true,
               selected: active,
-              label: 'Skor tim $side',
+              // "Skor Eko M & Fajar K, 6, dipilih"
+              label: 'Skor ${names.join(' & ')}, ${value ?? 'kosong'}${active ? ', dipilih' : ''}',
+              excludeSemantics: true,
               // Aktif: latar putih 9% dan garis bawah bola 3 pt di dalam kotak (`inset 0 -3px 0`).
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(MabarRadius.smallButton),
@@ -129,18 +131,24 @@ class ScoreKeypad extends StatelessWidget {
       for (var d = 1; d <= 9; d++) _digit(d),
       _KeypadKey(
         semanticLabel: 'Hapus',
-        onTap: () => onChanged(entry.backspace()),
-        child: const Icon(MabarIcons.backspace, size: MabarSize.icon, color: MabarColors.ink2),
+        // Belum ada kotak aktif: ⌫ mati seperti angka (PATCH 3.8.1, B-12).
+        onTap: entry.active == null ? null : () => onChanged(entry.backspace()),
+        child: Icon(
+          MabarIcons.backspace,
+          size: MabarSize.icon,
+          color: entry.active == null ? MabarColors.off : MabarColors.ink2,
+        ),
       ),
       _digit(0),
       _KeypadKey(
-        semanticLabel: 'Tim berikutnya',
+        semanticLabel: 'Kotak berikutnya',
         onTap: () => onChanged(entry.next()),
         child: const Icon(MabarIcons.arrowRight, size: MabarSize.icon, color: MabarColors.ink2),
       ),
     ];
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, bottom),
+      // 24 pt dari tombol Simpan (dulu 12): jari yang meleset dari Simpan tidak jatuh ke angka (B-11).
+      padding: EdgeInsets.fromLTRB(16, 24, 16, bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -472,7 +472,7 @@ caption, Live — tidak dihitung ulang di widget.
 
 - Beranda sparing tanpa nama: baris kecil "{klub1} {skor} – {skor} {klub2}" menggantikan "olahraga · mode · n pemain",
   "0 – 0" sebelum ada hasil (14x). Dialog mulai baru: "{klub1} vs {klub2}, Round n" (14y). Sparing bernama: nama di
-  baris kecil, skor klub di baris sendiri — frame 15w/15y (alur Mixed, disetujui host 2026-11-07).
+  baris kecil, skor klub di samping "Round n" (dua baris, rata kanan) — frame 15w/15y (alur Mixed, disetujui host 2026-11-07).
 - Versi app (keputusan 20): "v{appVersion}" di kanan atas banner di semua kondisi Beranda (01a–01f, 01h, 01i). Golden
   2% tidak menangkap teks sekecil ini → test wajib `find.text('v$appVersion')`.
 - Poster Ringkas (13q, sejak 3.6.0): podium dua blok skor klub (§16, keputusan 62, 72). `.pscore`/`.pclub` tidak

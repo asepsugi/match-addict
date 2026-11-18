@@ -115,7 +115,7 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
     final ok = await showMabarConfirm(
       context,
       title: 'Buat jadwal?',
-      message: 'Pasangan tidak bisa diubah setelah jadwal dibuat.',
+      message: 'Pasangan tidak bisa diubah sampai semua round selesai.',
       confirmLabel: 'Buat jadwal',
     );
     if (!ok || !mounted) return;

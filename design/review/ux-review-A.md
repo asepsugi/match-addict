@@ -1,0 +1,79 @@
+# Review UX/UI hi-fi · Kelompok A
+
+Tanggal 2026-11-18 · mode review (hi-fi, frame, tokens, kode tidak diubah) · cakupan: Fondasi, Komponen, alur 01 Beranda,
+02 Pemain, 03 Konfigurasi, 04 Pasangan Fixed, 05 Jadwal Fixed (frame 06a–06e, 06v–06z), 06 Jadwal Mixed (06f–06u),
+07 Pemain/Court/Lanjutkan Mixed (frame 08a–08k).
+
+Bahan: `design/spec/screens/01…07`, `components.md`, `tokens.json`, `design/hifi.html` per bagian (CSS baris 1–781
+hanya lewat grep, Fondasi 782–931, Komponen 932–1150, alur 1151–2622, Cakupan 4925–5108). Frame dilihat lewat 8
+lembar kontak di `design/review/sheets/A-*.png` (80 frame). Kontras dihitung dengan skrip (rumus WCAG 2.1) dari
+`tokens.json` dan warna di CSS hi-fi; target sentuh dari CSS hi-fi. Skill: review-ux-ui (Nielsen, WCAG 2.1, beban
+kognitif), ux-copy, ui-ux-pro-max (referensi: 44 pt iOS / 48 dp Android, Semantics Flutter, konfirmasi aksi hapus).
+
+## 1. Ringkasan
+
+- Kelompok A sudah konsisten dan lengkap variannya: angka contoh cocok satu sama lain (estimasi 03a/03h/06k, 04h/06w/06y,
+  01f "3 dari 10 match"), frame lapisan menggambar layar di belakangnya dengan benar, dan istilah wording terjaga.
+- Masalah terbesar ada di keterbacaan di luar ruangan. Alasan di tombol mati ("· tunggu 1 match") cuma 2,4:1, padahal
+  pola "alasan di tombol" bergantung pada teks itu. Skor tim yang kalah 2,3:1, dan tab round terkunci 1,7:1.
+- Dialog "Akhiri turnamen?" dipakai Fixed dan Mixed dengan isi yang sama. Di Fixed, akhiri tidak bisa dibatalkan, tapi
+  dialognya tidak menyebutkan itu.
+- Banyak target sentuh di bawah 48 dp: tab round, stepper 36, `.rowact` 36/44, segmented 38. Spesifikasi Semantics hanya
+  mencakup 4 ikon.
+- 18 temuan: 3 Tinggi, 8 Sedang, 7 Rendah. Hampir semuanya level 0–1 (teks/tampilan). Tidak ada usulan fitur baru.
+
+## 2. Temuan berperingkat
+
+Level triase: 0 teks · 1 tampilan · 2 aturan/perilaku · 3 fitur. Kontras = rasio WCAG; AA teks biasa 4,5:1, teks besar
+(≥ 18,66 px tebal) 3:1, komponen non-teks 3:1.
+
+| id | Peringkat | Frame / komponen | Masalah (fakta) | Prinsip | Usulan perbaikan | Level | Keyakinan |
+|---|---|---|---|---|---|---|---|
+| A-1 | Tinggi | `MabarButton` varian wait: 04b, 04c, 04e, 06f, 06h–06j, 06n–06u, latar 08a/08b/08e–08k | `.btn .meta { opacity: .62 }` (hifi.html:122) juga berlaku di `.btn-wait` (warna ink-3, :128). Akibatnya bagian alasan "· tunggu 2 match", "· 3 pasangan lagi", "· 1 pemain tanpa pasangan" hanya **2,37:1** di paper (action bar) dan 2,52:1 di card. Label "Buat R5" sendiri 4,72:1. Di Mixed tombol ini terlihat hampir sepanjang turnamen, dan alasan tombol mati hanya ada di teks itu (Fondasi:903). | WCAG 1.4.3; Nielsen #1 (status sistem) | `.btn-wait .meta`: opacity 1 dan warna ink-3 (4,72:1 di paper). Pembeda label dan alasan cukup lewat weight 700 vs 500 yang sudah ada. Pilihan lain: label ink-2 (7,94:1) + meta ink-3. Primary meta (putih 62% di ink = 7,2:1) tidak perlu diubah. | 1 | Tinggi |
+| A-2 | Tinggi | 06e dialog Akhiri (dipakai Fixed via 06d dan Mixed via 06i) | Isinya hanya "Match yang belum main tidak dihitung." (hifi.html:1743). Di Fixed, akhiri bersifat final: tidak ada Lanjutkan/Tambah round (06c), dan turnamen Fixed yang diakhiri tidak tampil di Beranda (01c). Di Mixed, turnamen bisa dilanjutkan (06m). Akibat yang tidak bisa diurungkan tidak tertulis di saat bertindak, padahal aturannya "akibat ditulis di dialog" (Fondasi:904; Komponen:1085). | Nielsen #5 (pencegahan error), #3 | Fixed: "Match yang belum main tidak dihitung. Turnamen tidak bisa dilanjutkan." Mixed tetap. Judul dan tombol tidak berubah. `showMabarConfirm` cukup menerima message berbeda per mode. | 0 | Tinggi |
+| A-3 | Tinggi | `MatchScoreRow` `.team .s.l`: 06a–06z (semua baris berskor), 08b–08k (latar) | Skor tim kalah `#A3AEB8` (hifi.html:232): **2,26:1** di card. Angkanya 22 px/800, jadi masuk teks besar dan butuh 3:1; itu pun gagal. Host membacanya di bawah matahari untuk mencocokkan hasil dengan pemain ("13–8"). Pemenang sudah dibedakan tanpa warna lewat titik bola dan nama tebal. | WCAG 1.4.3; keterbacaan outdoor | Ganti ke ink-3 `#5F6D7A` (5,31:1). Masih jelas lebih terang dari ink (16,9:1), jadi hierarki menang/kalah tetap. Cek juga kelas yang sama di Input Skor (di luar kelompok A). | 1 | Tinggi |
+| A-4 | Sedang | `RoundTabs` `.tabs b.future`: 06b (R3–R5), 06a, 06d, 06e | Tab round Fixed yang belum terbuka memakai `#B3BEC8` (hifi.html:199): **1,68:1** di paper, teks 15 px. Tab ini tetap bisa diketuk untuk melihat lawan berikutnya (06b), jadi termasuk teks yang perlu terbaca, bukan kontrol mati. | WCAG 1.4.3 (bukan pengecualian *inactive*) | Teks ink-3 (4,72:1) + ikon `lock-simple` 12 pt di kiri angka. Ikon ini sudah ada di set dengan arti "round terkunci" (Fondasi:867), jadi status tidak bergantung pada warna. | 1 | Tinggi |
+| A-5 | Sedang | Lingkaran nomor court `.swatch.n` 30 pt + nama default: 03g–03k, 06w–06z, 08c–08k | Nomor 15 px/800 putih (hifi.html:1389) bukan teks besar. Kontrasnya di palet court: Court 1 hijau 4,04, `#C77422` 3,53, `#6B8A2A` 3,97, `#1B8A9A` 4,08, jadi 4 dari 10 di bawah 4,5. Nama court yang kosong ditampilkan sebagai placeholder "Court 1" warna faint (**2,48:1**), padahal nama itulah yang dipakai. Akibatnya identitas court di sheet ini tidak terbaca di luar ruangan. Fondasi:806 ("cukup gelap untuk nomor court putih tebal") hanya berlaku untuk strip Jadwal (19 px). | WCAG 1.4.3 | Nomor dalam lingkaran 19 px/800 seperti strip `.bug .court`. Itu teks besar, dan kontras terendah palet (3,53) lolos 3:1; "10" muat di 30 pt dengan lebar 72. Nama default "Court n" ditulis ink-3 (5,31:1), bukan faint, supaya tetap beda dari nama yang diketik (ink). | 1 | Tinggi |
+| A-6 | Sedang | `MabarField` / `.compose`: 02a, 03a–03q ("Nama turnamen"), 04f/04g ("Nama pemain baru"), 08a, 08e | Placeholder faint **2,48:1** di card. Kotak "Nama turnamen" sengaja tanpa label (03a), jadi placeholder satu-satunya penanda isian. Tepi kotak `line` 1,15:1 terhadap paper dan card vs paper 1,13:1, sehingga di bawah matahari kotak kosong nyaris hilang (1.4.11 minta 3:1 untuk batas komponen). | WCAG 1.4.3, 1.4.11, 3.3.2 | Placeholder ink-3 (5,31:1). Tepi kotak kosong 1,5 pt `#7D8A96` (3,14:1 di paper, 3,53:1 di card). Fokus tetap court 2 pt dan error tetap clay. Ini menyentuh aturan Fondasi ("faint = placeholder") dan perlu persetujuan host. | 1 | Sedang |
+| A-7 | Sedang | Target sentuh: `RoundTabs`, `MabarStepper`, `MabarRowAction`, `MabarSegmented`, `MabarIconButton` | Tab: `.tabs b` padding 6/11 + teks 15 px. Area ketuk ±34 pt tinggi, lebarnya selebar "R1" (±20 pt), jarak antartab 22. Stepper `.stepper i` 36×36 (:160), dipakai di semua sheet Court/Skor/Tambah jam. `.rowact` 36, area 44 (:113). `.seg b` 38 + padding 3. `.icbtn` 44. Android minta 48 dp, dan host sering memakai satu tangan di lapangan. | ui-ux-pro-max Touch Target (44 pt iOS / 48 dp Android); WCAG 2.5.5 | Tampilan tetap, hanya area ketuk yang jadi ≥ 48×48. Tab: lebar label + separuh jarak di tiap sisi, tinggi seluruh baris tab (≥ 48). Stepper: area 48 di dalam baris 52. `.rowact`, segmented, ikon app bar: area 48 (`MaterialTapTargetSize.padded` / `SizedBox` pengetuk). Catat di Fondasi:843 "tinggi sentuh" sebagai area, bukan ukuran gambar. | 1 | Tinggi |
+| A-8 | Sedang | 02b "Hapus semua" (toolbar `.compose`) | "Hapus semua" (clay) langsung mengosongkan sampai 30 nama tanpa konfirmasi dan tanpa urungkan (catatan 02b). Letaknya satu baris dengan "Tempel", tombol yang paling sering diketuk. | Nielsen #3, #5 | Tanpa dialog (dialog hanya untuk yang tidak bisa diurungkan, Komponen:1085). Setelah Hapus semua, toolbar menampilkan "Tempel · Urungkan" (ikon `arrow-counter-clockwise`, sudah ada di set) sampai ada ketikan, baru kemudian "Tempel · Contoh". Toolbar tetap dua tombol. Mengubah catatan 02b. | 2 | Sedang |
+| A-9 | Sedang | 04b Acak ↔ Manual; 04f/04g ← di Atur pasangan | Pindah Manual → Acak membuang semua pasangan manual tanpa konfirmasi, dan Acak → Manual juga mengosongkan semuanya (catatan 04b). Untuk 30 pemain artinya sampai 15 pasangan hilang dengan satu ketukan di segmented. Di Atur pasangan, kembali (←, termasuk gestur back Android) membuang perubahan tanpa tanya (catatan 04g). | Nielsen #3, #5 | Dialog hanya kalau ada yang akan hilang. 04b: "Buang 5 pasangan manual?" · Batal / Buang (bahaya). 04g: "Buang perubahan pasangan?" · Batal / Buang. Tanpa dialog kalau belum ada perubahan. | 2 | Sedang |
+| A-10 | Sedang | 08a sheet Kelola pemain | Ada paragraf penjelas permanen di bawah kotak nama (hifi.html:2295): "Pemain baru langsung ikut main dan diprioritaskan sampai jumlah match-nya menyusul, dengan jeda istirahat 1 round. Total Point tertinggal; Win % lebih adil untuk pemain baru." Ini bertentangan dengan Penulisan (Fondasi:902–904) dan aturan host "tanpa kalimat penjelas". Di Cakupan tidak ditemukan persetujuan host untuk teks UI ini; yang ada hanya perilakunya (Cakupan:5049). | Aturan proyek; Nielsen #8 | Hapus paragrafnya. Fakta yang perlu sudah ada di subjudul "Berlaku mulai R4". Rincian menyusul tetap di catatan frame. Opsional: "Keluar · skornya tetap dihitung" → "Keluar". | 0 | Sedang |
+| A-11 | Sedang | Spesifikasi Semantics (Fondasi:894, `components.md`) | Label aksesibilitas hanya diwajibkan untuk 4 ikon (Kembali, Menu, Klasemen, Pemain). Belum ada label untuk: jumlah di tombol Pemain ("10"), titik bola tab live, tab terkunci, titik pemenang, strip court + hitung mundur, tombol stepper, lingkaran warna 03k (warna saja, tanpa nama), status terpilih kartu mode dan tile olahraga. Kode baru punya `Semantics(` di sebagian widget. | WCAG 1.1.1, 4.1.2, 1.4.1 | Tambah tabel label di `components.md`. Contoh: "Pemain, 10 aktif" · "R3, berjalan" · "R4, terkunci" · "Andi P · Budi S, menang, 6" · "Court 1, sisa 1 jam 15 menit" · "Kurangi durasi, 15 menit" / "Tambah durasi" · "Warna 2, terpilih" · kartu mode `selected: true`. | 1 | Tinggi |
+| A-12 | Rendah | 04d dialog Buat jadwal | "Pasangan tidak bisa diubah setelah jadwal dibuat." (hifi.html:1532) sudah tidak tepat sejak 3.1.0: pasangan bisa diatur ulang sebelum round tambahan (04f–04h, 06w). | Nielsen #2 (sesuai kenyataan) | "Pasangan tidak bisa diubah sampai semua round selesai." | 0 | Sedang |
+| A-13 | Rendah | Tombol mati + ikon: 06z, 08d vs 08h, 08j, 04b, 06f | Pola umumnya: tombol mati tanpa ikon (wait "Buat R4 · …" tanpa +, "Buat jadwal · …" tanpa gembok, off "Simpan" 08h/08j tanpa centang). Tapi off "Buat round" 06z (hifi.html:1897) dan "Lanjutkan" 08d (:2413) tetap memakai ikon. | Konsistensi (Nielsen #4) | Hapus ikon dari dua tombol itu. Aturan di `MabarButton`: varian wait/off tanpa ikon. | 1 | Tinggi |
+| A-14 | Rendah | Alasan "off" di atas tombol: 06z, 08d | "Tambah jam minimal satu court" ink-3 di atas tombol (sesuai aturan sheet aksi, Komponen:1098). Teksnya 13 px dan jauh dari jempol. Isinya sudah benar dan tidak perlu diubah, hanya posisinya. | Nielsen #1 | Tetap sesuai keputusan. Kalau suatu saat dirombak: catatan dirapatkan ke tombol (jarak sekarang belum diukur), supaya terbaca sebagai satu kesatuan. | 1 | Rendah |
+| A-15 | Rendah | Skala teks sistem (semua alur A) | Hi-fi tidak punya aturan atau frame untuk skala teks HP (Android "Ukuran font" 1,15–1,3, sering dipakai pemain klub yang lebih tua). Banyak elemen satu baris tetap: baris match, tab, "Buat R13 · tunggu 1 match" di sisa lebar action bar, Estimasi di tombol 03a. Kode hanya menangani `textScaler` di `match_score_row.dart` dan `court_banner.dart`. | WCAG 1.4.4 | Aturan di Fondasi: dukung sampai 1,3. Prioritas elipsis: nama dulu, lalu meta; tombol wait boleh dua baris (alasan di baris 2) dan jangan memotong alasan. Satu frame uji 06f dan 03a pada 1,3. | 2 | Sedang |
+| A-16 | Rendah | 01a/01b baris pasang, 01i sheet iPhone | Ada kalimat penjelas: subjudul "Buka dari layar utama, tanpa browser" (hifi.html:1159), "Kalau tidak kelihatan, ada di dalam menu ⋯", dan catatan kaki "Buka di Safari dulu. Kalau link dibuka dari dalam app lain, menu Tambah ke Layar Utama tidak ada." (:1226). | Aturan proyek (tanpa penjelas) | Subjudul baris pasang dihapus (judul sudah aksi). Catatan kaki 01i → "Hanya dari Safari". Langkah 1 cukup "Ketuk Bagikan" + ikon. Kalau host menganggap panduan iPhone sebagai pengecualian, abaikan. | 0 | Rendah |
+| A-17 | Rendah | Label aksi vs tujuan: 06l "Tambah jam" → sheet "Lanjutkan turnamen"; 06c "Lihat klasemen" vs "Klasemen" | 06l (turnamen belum diakhiri) membuka sheet berjudul "Lanjutkan turnamen" dengan tombol "Lanjutkan". Kata pemicu dan tujuan berbeda, padahal turnamennya tidak sedang berhenti. Di 06c tombol utama "Lihat klasemen", di frame lain "Klasemen". | Konsistensi (Nielsen #4) | Sheet 08c dibuka dari 06l: judul "Tambah jam", tombol "Tambah jam". Dari 06m/Beranda tetap "Lanjutkan turnamen". 06c: "Klasemen". | 0 | Rendah |
+| A-18 | Rendah | 02c/02d label jumlah + catatan | Di 02d (halaman digulir sampai bawah) catatan clay "Maksimal 30 pemain" ada di ujung daftar 31 nama. Begitu host menggulir ke atas untuk menghapus nama dari kotak teks, catatan itu hilang dan tombol "Lanjut" mati tanpa alasan yang terlihat. Tombol polos adalah keputusan (lihat §3), jadi usulannya bukan di tombol. | Nielsen #1, #9 | Label daftar (yang ikut terlihat dekat kotak teks) ditulis clay saat > 30: "31 pemain · maks 30". Tombol tetap "Lanjut". | 1 | Sedang |
+
+Catatan verifikasi: angka contoh di frame yang saya cek cocok. 03a (120 ÷ 20 = 6 round, 12 match), 03h (±4), 06k
+(Match/Pemain ⌊16 × 4 ÷ 10⌋ = 6), 01f (5 pasangan = 10 match, 3 selesai), 04g/04h (16 + Rizky = 17 = 8 pasangan + Budi),
+06w (sisa 00:30 → 2 round, 1 match lagi tiap pasangan), 06y (5 pasangan, 3 round, lewat booking 00:40), 08c (4 match).
+Tidak ada frame yang bertentangan dengan catatannya sendiri di kelompok A. Hitung mundur di strip (tinta 22%, ≥ 5,0:1,
+06q) dan teks putih di banner padel (4,52:1) lolos.
+
+## 3. Bertentangan dengan keputusan (saran skill yang sengaja tidak diusulkan)
+
+- **Alasan di tombol "Lanjut" yang mati (02c, 02d, 03l, 03p).** Fondasi:903 meminta alasan di tombol, tapi host memutuskan
+  tombol formulir tetap polos ("tombol tetap 'Lanjut' tanpa alasan, sama dengan 02c/02d", Cakupan Sparing; 03l "tombol
+  mati polos"; Tukar "mati tanpa alasan seperti Simpan skor", keputusan 48–59). Bertentangan dengan keputusan host itu.
+  A-18 hanya membahas catatan yang tergulir hilang.
+- **Lanjutkan di Beranda dipindah ke zona jempol / dijadikan tombol utama (01e, 01f).** Bertentangan dengan keputusan v2
+  (Cakupan: "Lanjutkan di banner 46 pt (01e, 01f)"; "Mulai turnamen… tetap tombol utama yang sama").
+- **Pola ux-copy "apa terjadi + kenapa + cara memperbaiki" dan empty state yang menjelaskan (02a kosong, 08b error, 03l).**
+  Bertentangan dengan aturan host "UI hanya fakta + aksi" (Fondasi:902–904).
+- **Konfirmasi sebelum "Keluarkan" (08a) / warna bahaya.** Bertentangan dengan keputusan v2 08a (netral, bisa dibalik lewat
+  Kembalikan).
+- **Konfirmasi dialog untuk "Hapus semua" (ui-ux-pro-max: "confirm before delete").** Diganti Urungkan (A-8), karena
+  Komponen:1085 membatasi dialog untuk aksi yang tidak bisa diurungkan.
+- **Label atau deskripsi di kartu mode dan kotak "Nama turnamen".** Bertentangan dengan keputusan 35 (kartu tanpa deskripsi)
+  dan 03a (kotak nama tanpa label). A-6 hanya mengusulkan kontras placeholder dan tepi.
+- **Badge status / progress bar (Nielsen #1: LIVE, SEMENTARA, progress round).** Bertentangan dengan keputusan v2 (Cakupan
+  "Dihapus": badge LIVE/SEMENTARA/FINAL, progress bar Jadwal).
+- **Bantuan/dokumentasi kontekstual (Nielsen #10) di Konfigurasi atau Jadwal.** Bertentangan dengan aturan tanpa penjelas.
+  Cara kerja hanya di sheet 06k/16c (keputusan v2).
+- **Menyamakan nama mode "Mixed" dengan istilah Indonesia, atau mengganti "court/round/match".** Bertentangan dengan
+  Wording UI (istilah olahraga tetap Inggris).
+- **Tukar pemain lewat menu ⋯ atau Input Skor.** Bertentangan dengan keputusan 58–59 (ikon di kolom bola saja).

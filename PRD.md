@@ -288,8 +288,10 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   turnamen berjalan; Mulai turnamen memindahkannya ke slot terakhir tanpa dialog (2026-10-25).
 - Turnamen bernama: nama menggantikan "olahraga · mode · n pemain" di banner dan baris riwayat (satu baris, elipsis)
   dan "olahraga · mode" di dialog mulai baru.
-- Web/PWA: baris "Pasang Match Addict di HP" (dialog bawaan browser, atau panduan iPhone/iPad).
-- Versi app (`appVersion`) tampil di Beranda (keputusan 20, 2026-11-04; belum ada di hi-fi).
+- Web/PWA: baris "Pasang Match Addict di HP" (dialog bawaan browser, atau sheet "Pasang di iPhone" untuk iPhone/iPad:
+  tiga langkah lewat Bagikan di Safari, catatan kaki "Hanya dari Safari"; 01i).
+- Versi app "v" + `appVersion` (mis. "v3.8.1") di kanan atas banner, tidak bisa diketuk, di semua kondisi Beranda
+  (keputusan 20, 2026-11-04; hi-fi 01b).
 
 ### 5.2 Pemain (02a–02d)
 - Satu kotak teks (tempel dari WhatsApp); parser membuang nomor/bullet, spasi ganda, baris kosong, dan duplikat
@@ -302,13 +304,17 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   bisa diubah setelah turnamen dibuat.
 - Mode Fixed/Mixed (Mexicano: 14.2), format skor (4.1), durasi match (stepper ±5), jumlah court 1–10, per court nama/warna (10 warna
   preset)/booking. Estimasi di tombol. Fixed → Pasangan; Mixed → langsung Jadwal + R1.
+- Satu layar yang selalu muat (keputusan 33): Skor ("Race to 6 · 20 menit") dan Court ("2 court · 2 jam"; booking
+  berbeda "6 court · 1–2 jam") masing-masing satu baris, rinciannya di sheet yang langsung berlaku. Dibuka dengan
+  pengaturan turnamen terakhir per olahraga (keputusan 36, 38); turnamen pertama di HP: Fixed, Race to 6, 20 menit
+  (Padel 15), 2 court × 2 jam.
 
 ### 5.4 Pasangan — Fixed (04a–04h)
 - Acak / Manual (pilih, lepas pilihan, Urungkan), pemain ganjil + "Ubah pemain", dialog kunci pasangan.
 - Atur pasangan sebelum round tambahan (04f–04h): Ubah per pasangan, pemain pengganti, "Simpan pasangan · n tidak
   main", hasilnya di baris Pasangan sheet Tambah round.
 
-### 5.5 Jadwal Fixed (06a–06e, 06v–06z) & Mixed (06f–06o, 06u)
+### 5.5 Jadwal Fixed (06a–06e, 06v–06z) & Mixed (06f–06u)
 - Tab round yang bisa digeser (tepi dipudarkan), label kanan "x/y match" atau "Waktu habis"; ganti round hanya lewat tab.
 - Baris match bergaya scorebug dengan strip court berwarna (42 pt; di round yang sedang berjalan + kotak jam sisa
   booking court itu); ketuk → Input Skor (juga untuk mengubah).
@@ -317,12 +323,19 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   separuh lebar tetap utuh (06u).
 - Istirahat: Fixed paling banyak satu pasangan; Mixed di round terakhir dibagi "Istirahat · Prioritas main di R(n+1)"
   dan "Istirahat lagi di R(n+1)".
-- Menu ⋯: Kelola court (Mixed), Cara kerja Mixed (sheet; muncul otomatis sekali saat R1 dibuat), dan Akhiri turnamen
-  (dialog).
-  Fixed yang sudah diakhiri tidak punya item menu lagi: ikon ⋯ tampil pudar dan tidak bisa diketuk.
+- Menu ⋯: Live score (§5.11), Kelola court (Mixed), Cara kerja Mixed (sheet; muncul otomatis sekali saat R1 dibuat), dan
+  Akhiri turnamen (dialog).
+  Setelah diakhiri: Akhiri dan Kelola court hilang; Fixed tinggal Live score (06c, 12f), Mixed Live score + Cara kerja
+  Mixed (06m).
+- Dialog "Akhiri turnamen?" · tombol "Akhiri"; isinya per mode (PATCH 3.8.1, keputusan 112): Fixed (juga Sparing Fixed)
+  "Match yang belum main tidak dihitung. Turnamen tidak bisa dilanjutkan."; Mixed dan Mexicano "Match yang belum main
+  tidak dihitung." karena bisa dilanjutkan; Grup + Gugur di §16 (20r, 21z).
 - Mixed: Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen.
+- Sheet tambah jam booking (grup "Jam booking", 0–6 jam per court) berjudul dan bertombol menurut pemicunya (PATCH
+  3.8.1): dari Waktu habis (turnamen belum berhenti) "Tambah jam"; setelah diakhiri atau dari Beranda "Lanjutkan
+  turnamen" dengan tombol "Lanjutkan". Isi sama (08c).
 - Mixed (bukan Mexicano/Fixed): tukar pemain di match round terakhir yang belum diisi dengan pemain yang istirahat
-  (§15, keputusan 48–59; rencana 3.5.0, hi-fi 17a–17r: ikon di baris match).
+  (§15, keputusan 48–59; sejak 3.5.0, hi-fi 17a–17r: ikon di baris match).
 - Fixed setelah semua match terisi: ikon Klasemen + "Tambah round" → sheet jam booking per court, baris Pasangan,
   "n match lagi tiap pasangan" dan "Buat R15–R16" (3.3a).
 - Back (tombol ‹, back HP, back browser) selalu ke Beranda, bukan ke Atur turnamen/Pasangan: dari sana "Buat jadwal"
@@ -330,7 +343,9 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 
 ### 5.6 Input Skor & Walkover (07a–07o)
 - Papan skor gelap: nama lengkap satu pemain per baris, satu angka besar per tim, keypad sendiri, pesan validasi,
-  "Perbarui skor" saat mengubah.
+  "Perbarui skor" saat mengubah. Saat mengubah, angka dan ⌫ mati sampai satu kotak diketuk (PATCH 3.8.1).
+- Kalimat hasil sama di semua format: nama pemenang + "menang" + skor pemenang–kalah ("Andi P & Budi S menang 13–8"),
+  bukan selisih (PATCH 3.8.1).
 - Subjudul menulis sisa booking court itu untuk match di round yang sedang berjalan ("· sisa 02:00").
 - WO lewat sheet (4.4).
 
@@ -338,11 +353,18 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · +/− (selisih)
   · nilai metode; peringkat 1 diberi bola.
 - Toggle Total Point / Win %, status di subjudul, catatan WO / tidak dimainkan, ketuk baris → Detail. Tombol Bagikan.
+- Pemain tanpa match selesai/WO di grup "Belum main". Fixed: satu baris per pasangan; pasangan yang berubah, pemain
+  yang tidak ikut lagi, dan pemain pengganti tampil per pemain (09g).
 
 ### 5.8 Detail Pemain (10a–10d)
 - Satu baris statistik (label mengikuti format skor: Poin/Game), beda partner/lawan, kalah WO, riwayat match terbaru
   di atas (Mixed menampilkan partner; menang WO menulis "+N"). Fixed menampilkan "Beda partner" hanya kalau
   pasangannya pernah diatur ulang (10d).
+- Subjudul: "Peringkat n · metode · olahraga · mode · format skor" ("Peringkat 1 · Total Point · Padel · Mixed ·
+  Americano 24"); nomor dan metode mengikuti pilihan di Klasemen (PATCH 3.8.1). Belum main: "Belum main" tanpa
+  metode. Kalau tidak muat satu baris, olahraga dibuang dulu (B-6). Sparing (klub, tanpa metode) dan Grup + Gugur
+  (babak, "Grup + Gugur", tanpa metode dan format) punya subjudul sendiri: §13.7 dan §16.9.
+- Belum ada match: riwayat menulis "Belum ada match" saja (PATCH 3.8.1).
 
 ### 5.9 Bagikan (11a–11m, 18a–18t)
 - Kartu pratinjau + deret tema (11 pilihan: lapangan ikut olahraga sebagai bawaan + 10 gradien, sama di Ringkas dan
@@ -360,7 +382,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   nama, nilai metode + selisih dengan satuan di Feed dan Story) + wordmark + baris fakta turnamen. Nomor sama → tinggi
   sama; maksimal 4 anak tangga (keputusan 65). Sparing: dua blok skor klub. Tema bawaan = palet lapangan ikut olahraga,
   10 gradien tetap bisa dipilih.
-- **Sejak rencana 3.7.0 (keputusan 76–88, hi-fi 11b, 11e–11m, 13s–13w): Lengkap = arah B "Podium mini"**, satu keluarga
+- **Sejak 3.7.0 (keputusan 76–88, hi-fi 11b, 11e–11m, 13s–13w): Lengkap = arah B "Podium mini"**, satu keluarga
   dengan poster podium. Judul + baris kecil di kiri, podium mini (angka + bola, tanpa nama) di garis belakang di
   kanannya, semua baris bernomor di panel 86% di atas lantai, kaki wordmark + baris fakta seperti podium. Yang naik
   podium mini = aturan poster podium, termasuk lebih dari 4 di #1 (satu blok emas lebar) dan belum ada match (tanpa
@@ -398,8 +420,10 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   Beranda. "Hapus & mulai baru" menghentikan live turnamen yang dibuang.
 - Penonton membuka link di browser (web Match Addict, tanpa pasang): Jadwal, Klasemen (tanpa Bagikan, metode dipilih
   sendiri), dan Detail, baca saja. Dicek tiap 10 detik selama halaman terlihat, tiap menit setelah Final. Tag "Live" di
-  Jadwal, "Offline" setelah dua kali gagal, hilang saat Final. Subjudul memakai nama turnamen kalau ada. Simpanan
-  turnamen penonton sendiri tidak tersentuh.
+  Jadwal; setelah dua kali gagal berturut-turut "Offline · 19.48" (jam cek terakhir yang berhasil; PATCH 3.8.1, B-17);
+  hilang saat Final. Subjudul memakai nama turnamen kalau ada. Simpanan turnamen penonton sendiri tidak tersentuh.
+- Penonton turnamen yang diakhiri (juga Sparing) melihat judul "Istirahat" saja, tanpa "Prioritas main di R…", karena
+  belum tentu ada round berikutnya; Jadwal host tetap menulisnya (PATCH 3.8.1, B-20, hi-fi 12l).
 - Relay tanpa database: satu salinan terakhir per kode, terhapus 3 hari setelah perubahan terakhir atau saat Hentikan.
   Aturan rinci: `design/spec/logic.md` §11.
 
@@ -411,20 +435,24 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 |-------|-------|
 | Beranda (+ dialog mulai baru, sheet pasang di iPhone, ikon app) | 01a–01j |
 | Pemain | 02a–02d |
-| Konfigurasi (+ sheet warna court) | 03a–03e |
+| Konfigurasi (+ sheet Skor, sheet Court, sheet warna court) | 03a–03q |
 | Pasangan (Fixed) + Atur pasangan sebelum round tambahan | 04a–04h |
 | Jadwal Fixed + sheet Tambah round | 06a–06e, 06v–06z |
-| Jadwal Mixed (+ sheet Cara kerja Mixed) | 06f–06t |
-| Sheet Kelola pemain, Lanjutkan turnamen, Kelola court + detail court | 08a–08k |
+| Jadwal Mixed (+ sheet Cara kerja Mixed, strip court + hitung mundur) | 06f–06u |
+| Sheet Kelola pemain, Tambah jam / Lanjutkan turnamen, Kelola court + detail court | 08a–08k |
 | Input Skor + sheet Walkover | 07a–07o |
 | Klasemen | 09a–09g |
 | Detail Pemain | 10a–10d |
-| Bagikan | 11a–11l |
+| Bagikan | 11a–11m |
 | Live score: menu, dialog, sheet di HP host; halaman penonton (Jadwal, Klasemen, Detail) | 12a–12o |
-| Grup + Gugur (§16, rencana 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, Klasemen grup + peringkat akhir | 19a–19y, 20a–20q, 21a–21y, 22a–22r |
+| Sparing (§13): umum, Fixed, Mixed | 13a–13w, 14a–14y, 15a–15y |
+| Mexicano (§14) | 03c, 03e, 03q, 16a–16g |
+| Tukar pemain Mixed (§15) | 17a–17r |
+| Poster podium + gambar poster Bagikan (§5.9) | 18a–18t |
+| Grup + Gugur (§16, 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, dialog Akhiri (20r, 21z), Klasemen grup + peringkat akhir | 19a–19y, 20a–20r, 21a–21z, 22a–22r |
 
-State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen berjalan", "Match tidak ditemukan",
-"Pemain tidak ditemukan", spinner saat Jadwal membuat round pertama.
+State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen berjalan" (juga Detail kalau
+pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum ada round) menampilkan layar kosong.
 
 ---
 
@@ -434,8 +462,16 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 - Warna: court `#1E6BB8`, court-deep `#164E8C`, ink `#0F1E2C`, ball `#CDE84A`, paper `#EEF2F5`, card `#FFFFFF`,
   line `#DCE3E9`, clay `#B9482A` (error/hapus/WO), padel `#BC5A33` (permukaan lapangan padel di Beranda saja),
   emas `#E3B341` (lencana #1 di Bagikan saja), 10 warna court.
+- Teks: ink-2 `#3E4B57` (teks kedua, ikon), ink-3 `#5F6D7A` (keterangan kecil, placeholder, alasan di tombol tunggu;
+  ≥ 4,5:1 di paper dan card). faint `#9AA6B1` hanya untuk chevron dan state mati, bukan teks yang harus dibaca dan
+  bukan placeholder. Tepi semua isian yang tidak fokus (kosong maupun terisi) edge `#7D8A96` 1,5 pt; fokus court 2 pt,
+  error clay 2 pt (PATCH 3.8.1, keputusan 112).
 - Huruf Archivo: angka besar condensed (`wdth` 72, tabular), wordmark lebar (`wdth` 125).
-- Ikon Phosphor Bold 24 pt (20 di dalam tombol). Tinggi sentuh minimal 44 pt; tombol utama 52 pt.
+- Ikon Phosphor Bold 24 pt (20 di dalam tombol). Area ketuk minimal 48 × 48 untuk semua kontrol, tampilan tetap
+  (tombol ikon 44, aksi baris 36, aksi teks 44); pengecualian ikon tukar 44 × 42 (keputusan 48–57). Tombol utama 52 pt
+  (PATCH 3.8.1).
+- Label aksesibilitas (`Semantics`) per komponen: tabel di `design/spec/components.md` → Semantics. Status (menang,
+  terpilih, terkunci, mati) ikut dibaca, bukan hanya dari warna atau bola (PATCH 3.8.1).
 - Ikon app: sudut lapangan tennis + bola (opsi A), dari painter yang sama dengan banner Beranda.
 
 ### Prinsip "Tanpa Petunjuk"
@@ -521,7 +557,7 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
     lain. Jumlah pemain klub boleh beda dan klub kecil main lebih sering; Fixed tiap pasangan bertemu tiap pasangan klub
     lain sekali; klub menang dari jumlah match menang (seri ½), lalu Total Point klub; klasemen per klub; dipilih di
     layar Pemain; minimal 2 pemain per klub, total 4–30; round tambahan Fixed per satuan KPK pasangan; poster dan
-    caption dibuka skor klub; poster Ringkas = 3 teratas tiap klub (dikonfirmasi host); Detail menaruh tim sendiri di
+    caption dibuka skor klub; poster Ringkas = 3 teratas tiap klub (dikonfirmasi host; diganti keputusan 62); Detail menaruh tim sendiri di
     atas dengan nama klub di subjudul; estimasi Fixed sparing pasti ("Lanjut · 14 round · lewat booking 01:30");
     pemain ganjil per klub menahan Buat jadwal seperti Fixed biasa; nilai WO klub di Mixed Best of/Americano =
     rata-rata nilai WO kedua pemenang (rincian K1–K13). Turnamen
@@ -739,6 +775,14 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 109. **Frame 22q/22r Story dibetulkan ke aturan bawahKepala** (2026-11-17, "setuju"): baris kecil yang dikecilkan
      (15 → 12,5) memakai ukuran sesudah dikecilkan untuk garis belakang, podium mini, dan panel (logic.md §17.12 #3,
      sama dengan 11m); frame lama menurunkannya 3 pt. Kode tidak berubah.
+110. **Catatan disamakan dengan app** (2026-11-18): menu ⋯ setelah diakhiri = Fixed tinggal Live score, Mixed Live score +
+     Cara kerja (06m); sparing bernama menulis skor klub di samping round (15w). Kode tidak berubah.
+111. **Paragraf penjelas Kelola pemain dihapus** (2026-11-18, K3): "Pemain baru langsung ikut main…" di 08a/15l/15m
+     hilang; aturan menyusul tetap (2.7.0), hanya teks UI.
+112. **PATCH 3.8.1 dari review UX hi-fi** (2026-11-18): paket P1 kontras, P2 area sentuh + Semantics, P3 teks dari
+     `design/review/ux-review.md` dikerjakan sesuai usulan reviewer (rincian per id di `ux-review-A/B/C.md`). P4–P7 belum.
+     Setelah selesai, catatan PRD dan hi-fi diaudit supaya tidak berbeda. **Audit selesai 2026-11-18 (UX-5):** PRD §5,
+     §6, §7, §13–§16 disamakan dengan app 3.8.1; catatan hi-fi yang tertinggal diperbaiki; kode = kebenaran bila beda.
 
 ---
 
@@ -791,8 +835,9 @@ Aturan:
 
 ## 13. Sparing — Dua Klub Bertanding
 
-> **Disetujui host 2026-11-04** (keputusan 19, §10), rencana rilis **3.2.0 (MINOR)**. Bagian lain PRD tidak berubah:
+> **Disetujui host 2026-11-04** (keputusan 19, §10), rilis **3.2.0 (MINOR)**. Bagian lain PRD tidak berubah:
 > turnamen biasa (bukan sparing) tetap persis seperti 3.1.0. Keputusan: 13.11 (K1–K13); verifikasi tech lead: 13.12.
+> Diselaraskan dengan app 3.8.1 dan catatan hi-fi 13a–13w, 14a–14y, 15a–15y (2026-11-18, UX-5).
 
 Ide host (2026-11-04): *"gw ada ide untuk menambahkan fitur sparing. dimana nanti 2 club akan bertanding. untuk mode
 nya tetap bisa fixed maupun mixed partner, yang membedakan adalah pasangan dari club yang sama tidak akan menjadi
@@ -823,16 +868,21 @@ Istilah di bagian ini: **klub pertama** = klub yang diisi pertama di layar Pemai
 
 ### 13.2 Memilih sparing dan mengisi pemain (K4)
 
-- Layar Pemain mendapat pilihan **Mabar / Sparing** di paling atas (label final dari designer). Mabar = layar sekarang.
+- Layar Pemain mendapat pilihan **Mabar / Sparing** di paling atas. Mabar = layar sekarang.
 - Sparing: dua blok, masing-masing = nama klub + kotak nama pemain (parser sama dengan 5.2, termasuk buang duplikat di
-  dalam satu klub).
-- Nama klub wajib, maks 20 karakter, dipangkas. Lanjut **mati** kalau: nama klub kosong; dua nama klub sama (tidak peka
-  huruf besar); satu klub < 2 pemain; total > 30; satu nama pemain ada di kedua klub (pesan validasi menyebut namanya,
-  mis. "Andi ada di dua klub" — boleh karena mencegah salah langkah, Prinsip "Tanpa Petunjuk").
+  dalam satu klub). Kotak nama klub tanpa label, placeholder "Nama klub pertama" / "Nama klub kedua".
+- Nama klub wajib, maks 20 karakter (ketikan ke-21 tidak masuk), dipangkas. Lanjut **mati** kalau: nama klub kosong;
+  dua nama klub sama (tidak peka huruf besar); satu klub < 2 pemain; total > 30; satu nama pemain ada di kedua klub
+  (pesan validasi menyebut namanya — boleh karena mencegah salah langkah, Prinsip "Tanpa Petunjuk").
+- Catatan (13d–13g). Abu-abu (host masih mengetik): "Isi nama klub" di bawah kotak nama klub, hanya kalau blok itu
+  sudah berisi pemain; "Minimal 2 pemain" dan "Duplikat dibuang: …" di bawah daftar klubnya. Clay (salah isi): "Sama
+  dengan klub pertama" di kotak klub kedua; "Maksimal 30 pemain" dan "Andi ada di dua klub" di bawah daftar klub kedua
+  (lebih dari tiga nama: "Andi, Budi, Citra +2 ada di dua klub").
 - Batas (K6): tiap klub **minimal 2** pemain (satu pasangan), total **4–30** (batas 30 yang sama, `maxPlayers`). Fixed
   dan Mixed sama.
-- Konfigurasi tidak berubah: Mode Fixed/Mixed tetap dipilih di sana, nama turnamen tetap opsional dan terpisah dari nama
-  klub. Estimasi di tombol Lanjut: Fixed sparing 13.3 (K10), Mixed sparing 13.4.
+- Konfigurasi tidak berubah kecuali: kartu mode hanya Fixed dan Mixed (tanpa Mexicano, keputusan 27; tanpa Grup +
+  Gugur, GU14); pengaturan terakhir Mexicano → mode terisi Mixed (keputusan 38). Nama turnamen tetap opsional dan
+  terpisah dari nama klub. Estimasi di tombol: Fixed sparing 13.3 (K10), Mixed sparing 13.4.
 - Contoh: PB Garuda = Andi, Budi, Citra, Dewi, Eko, Fajar, Gita, Hadi (8); Matcha Club = Indra, Joko, Kiki, Lina,
   Maya, Nanda (6). Total 14 → Lanjut aktif. Matcha hanya "Indra" → Lanjut mati.
 
@@ -857,7 +907,8 @@ Istilah di bagian ini: **klub pertama** = klub yang diisi pertama di layar Pemai
   kali per round dijaga langsung.
 - Setelah setiap round, selisih jumlah main antar pasangan **satu klub** ≤ 1, juga setelah round tambahan (terbukti
   tech lead 2026-11-04, T1 di 13.12).
-- Istirahat: bisa beberapa pasangan per round, dari kedua klub (turnamen biasa paling banyak satu).
+- Istirahat: bisa beberapa pasangan per round, dari kedua klub (turnamen biasa paling banyak satu). Ditulis dua kolom,
+  kiri klub pertama, kanan klub kedua, nama klub di atas kolomnya; klub tanpa yang istirahat → "–" (13k).
 - Round dibuka berurutan, dialog kunci pasangan, Fixed tidak bisa dilanjutkan setelah diakhiri — sama dengan 3.2 A.
 
 **Estimasi di tombol Lanjut Konfigurasi (K10)** — jadwal Fixed sparing pasti, jadi tanpa "±":
@@ -913,12 +964,19 @@ Ukuran lain (estimasi di Konfigurasi = kolom Match, Round, Court aktif):
 - **Fairness per klub:** selisih jumlah main antar pemain **satu klub** yang hadir sejak awal ≤ 1 setiap saat. Antar klub
   boleh berbeda, mengikuti slot ÷ pemain klub (K1). Tukar pemain sesama klub (§15) bisa membuatnya 2 sementara.
 - Daftar Istirahat di round terakhir ("Istirahat · Prioritas main di R(n+1)" / "Istirahat lagi di R(n+1)") dipisah per
-  klub dan tetap sama persis dengan hasil Buat R(n+1).
-- Estimasi Konfigurasi: Max Round = booking terpendek ÷ durasi; Court Aktif = rumus di atas; Total Match = round × court
-  aktif; Match/Pemain ditulis per klub.
+  klub (dua kolom seperti 13.3, kolom klub yang semua kebagian slot berisi "–") dan tetap sama persis dengan hasil Buat
+  R(n+1). Penonton Live turnamen yang diakhiri: judul "Istirahat" saja, tanpa prioritas (12l, B-20); HP host tetap
+  menulisnya.
+- Estimasi di tombol Konfigurasi: "Mulai Round 1 · ±R round", R = booking terpendek ÷ durasi; court aktif lebih
+  sedikit dari court yang dipesan → tambah "· C' court" (13i, 13j). Label Estimasi di sheet Cara kerja Mixed (15k):
+  Max Round = R; Match/Pemain ditulis per klub ("Match/Pemain · PB Garuda", = Total Match × 2 ÷ pemain klub,
+  dibulatkan ke bawah, dengan "±"); Court Aktif = rumus di atas; Total Match = round × court aktif. Aturan Fairness
+  ketiga: "Selisih match antar pemain satu klub ≤ 1".
 
 **Contoh 13B** — pemain 13.2 (Garuda 8, Matcha 6), Padel 15 menit, 2 court × 2 jam → ±8 round, court aktif
-`min(2, 4, 3) = 2`, slot 4 Garuda + 4 Matcha per round, 2 match per round.
+`min(2, 4, 3) = 2`, slot 4 Garuda + 4 Matcha per round, 2 match per round. Tombol "Mulai Round 1 · ±8 round"; Cara kerja:
+Max Round 8, Match/Pemain ±4 (PB Garuda) dan ±5 (Matcha Club), Court Aktif 2, Total Match 16. Matcha 3 pemain (8 / 3)
+→ "Mulai Round 1 · ±8 round · 1 court".
 - Tiap round: 4 Garuda istirahat, 2 Matcha istirahat. Garuda bergantian penuh tiap 2 round (k = max(2, 4 ÷ 4 + 1) = 2);
   Matcha: 4 dari 6 main, semua +2 tiap 3 round (k = max(2, 4 ÷ 2 + 1) = 3).
 - Setelah R6 (12 match): tiap Garuda 3 match, tiap Matcha 4 match.
@@ -946,8 +1004,11 @@ Ukuran lain, 8 round:
   (14 + 17) ÷ 2 = 15,5 → **16**. Di klasemen pemain tiap pemenang tetap mendapat nilainya sendiri (Andi 14, Budi 17).
   Fixed dan Race to N tidak terpengaruh karena nilai kedua pemenang selalu sama (13C: 6).
 - Urutan: match menang → Total Point klub → sama semua = seri. Hanya angka yang tampil yang menentukan (sejalan 4.3).
-- Status Sementara/Final sama dengan 4.6. Skor klub tampil di Klasemen (di atas tabel), poster, caption, Beranda, dan
-  halaman Live (penempatan oleh designer; tanpa kalimat penjelas).
+- Status Sementara/Final sama dengan 4.6. Skor klub tampil di Jadwal dan Klasemen (papan di atas daftar/tabel, klub
+  pertama di baris atas, bola di klub yang unggul, kedua baris kalau Seri, tanpa bola selama 0 – 0), poster, caption,
+  Beranda, dan halaman Live (tanpa kalimat penjelas). Di kanan nama klub: Total Point klub · selisih ("56 game · +13").
+  Setengah ditulis "½" ("6½ – 5½"), bukan 6,5. Skor klub selalu dari semua match yang sudah terisi, bukan round yang
+  dibuka (14h).
 
 **Contoh 13C** — hasil jadwal 13A (Race to 6):
 
@@ -982,16 +1043,16 @@ Ukuran lain, 8 round:
 
 | Fitur | Perilaku di sparing |
 |-------|-------------------------------|
-| Kelola pemain (Mixed) | Tambah pemain wajib memilih klub. Keluarkan mati kalau klub itu tinggal 2 pemain aktif. Kembalikan = ke klubnya sendiri. Contoh: Nanda keluar setelah R3 → Matcha 5 aktif, court aktif tetap 2, 4 dari 5 Matcha main per round. |
+| Kelola pemain (Mixed) | Daftar per klub, label "PB Garuda · 8 aktif" (· n keluar kalau ada). Tambah pemain wajib memilih klub: dua chip nama klub di bawah kotak nama, tanpa pilihan awal; Tambah mati sampai nama terisi dan satu klub dipilih. Nama dicek terhadap kedua klub ("Andi sudah ada di PB Garuda"). Keluarkan mati kalau klub itu tinggal 2 pemain aktif, alasannya di bawah daftar klub itu: "Butuh minimal 2 pemain per klub". Kembalikan = ke klubnya sendiri. Contoh: Nanda keluar setelah R3 → Matcha 5 aktif, court aktif tetap 2, 4 dari 5 Matcha main per round. |
 | Pemain telat (Mixed) | Aturan 3.4 per klub. Contoh: Oki masuk Matcha setelah R3 → Matcha 7, slot 4, istirahat 3 → k = 2: Oki main R4 dan R5, istirahat R6 kalau masih di bawah yang paling banyak main. Garuda tidak terpengaruh. |
-| Kelola court (Mixed) | Court baru langsung dipakai di round berjalan kalau **tiap klub** punya ≥ 2 pemain istirahat: 2 teratas prioritas tiap klub. Contoh 13B saat R4 berjalan: tambah Court 3 → match baru 2 Garuda + 2 Matcha yang istirahat; R5 court aktif `min(3, 4, 3) = 3`, semua 6 Matcha main. |
+| Kelola court (Mixed) | Court baru langsung dipakai di round berjalan kalau **tiap klub** punya ≥ 2 pemain istirahat: 2 teratas prioritas tiap klub, ditulis "Langsung main di Rn" dengan kolom klub seperti Istirahat. Satu klub kurang dari 2 yang istirahat → court dipakai mulai R(n+1) ("· mulai R(n+1)", 15o). Contoh 13B saat R4 berjalan: tambah Court 3 → match baru 2 Garuda + 2 Matcha yang istirahat; R5 court aktif `min(3, 4, 3) = 3`, semua 6 Matcha main. |
 | Batalkan Rn, Lanjutkan turnamen, Akhiri | Tidak berubah; court aktif dihitung ulang dengan rumus 13.4. |
 | Round tambahan (Fixed, 3.3a) | Satuan = paling sedikit match yang memberi tambahan sama ke semua pasangan satu klub: `L = KPK(p1, p2)` match; klub 1 +L÷p1, klub 2 +L÷p2 per pasangan. Jumlah satuan dibulatkan ke atas dan boleh lewat booking (prinsip keputusan 18). Lawan melanjutkan urutan jadwal awal. Contoh 13A setelah R6, sisa 30 menit = 2 round: satuan 12 match = 6 round (R7–R12), "lewat booking 01:00", Garuda +3, Matcha +4. 8 / 4 pemain (4 / 2 pasangan): satuan 4 match, Garuda +1, Matcha +2. 6 / 6: satuan 3 match, +1. (K5) |
-| Atur pasangan (Fixed) | Pasangan baru harus sesama klub; pemain pengganti diketik ke salah satu klub. Jumlah pasangan klub boleh berubah; satuan round tambahan dihitung dari jumlah baru. |
-| Bagikan (K7) | Poster: skor klub paling atas, lalu daftar per klub (Ringkas: 3 teratas tiap klub; Lengkap: semua). Caption dibuka "🏆 PB Garuda 7–5 Matcha Club · Padel" (nama turnamen, kalau ada, di baris berikutnya). Desain oleh designer. |
-| Live score | Penonton melihat skor klub dan klasemen per klub, angka sama dengan HP host. |
-| Beranda | Turnamen sparing tanpa nama: "PB Garuda vs Matcha Club" menggantikan "olahraga · mode · n pemain". |
-| Detail pemain (K9) | Riwayat tetap menaruh tim pemain itu di baris atas (10a/10b, pengecualian S4); nama klub ditulis di subjudul Detail. "Beda partner" hanya menghitung sesama klub (memang hanya itu yang mungkin). Contoh: Detail Maya (Matcha Club, klub kedua) — di riwayat R2 baris atas "Maya · Nanda", lawan "Eko · Fajar" di bawahnya. |
+| Atur pasangan (Fixed) | Pasangan baru harus sesama klub; pemain pengganti diketik ke salah satu klub (satu bagian per klub). Jumlah pasangan klub boleh berubah; satuan round tambahan dihitung dari jumlah baru. Satu klub tanpa pasangan → tombol mati "· minimal 1 pasangan tiap klub" (14o). |
+| Bagikan (K7) | Ringkas = podium skor klub: dua blok, angka di muka blok = skor klub, klub pertama blok kiri, klub yang unggul emas setinggi #1; tanpa daftar pemain (keputusan 62, 13q). Lengkap = podium mini skor klub + semua pasangan/pemain per klub, nomor mulai 1 tiap klub; kepala klub = nama + "56 game · +13" tanpa angka skor (keputusan 83, 13s–13w). Caption dibuka "🏆 PB Garuda 7–5 Matcha Club · Padel" (nama turnamen, kalau ada, di baris berikutnya); seri setengah "🏆 PB Garuda 6½–5½ Matcha Club · Padel"; menang dan Total Point sama "🏆 PB Garuda 6–6 Matcha Club · Seri · Padel". |
+| Live score | Penonton melihat skor klub dan klasemen per klub, angka sama dengan HP host. Turnamen yang diakhiri: Istirahat tanpa "Prioritas main di R…" (13.4). |
+| Beranda | Turnamen sparing tanpa nama: baris kecil "PB Garuda 6 – 4 Matcha Club" (skor klub menggantikan "vs", sebelum ada hasil "0 – 0") menggantikan "olahraga · mode · n pemain" (14x). Bernama: nama tetap di baris kecil, skor klub dua baris rata kanan di samping "Round n" (15w). Turnamen terakhir Mixed sparing tanpa nama: judul baris sama dengan baris kecil 14x; bernama: nama saja (15x). Dialog mulai turnamen baru menyebut "PB Garuda vs Matcha Club, Round 6" tanpa skor (14y). |
+| Detail pemain (K9) | Riwayat tetap menaruh tim pemain itu di baris atas (10a/10b, pengecualian S4). Subjudul: peringkat di klubnya · nama klub · olahraga · mode · format skor, tanpa metode (beda dengan Detail biasa, B-6). "Beda partner" dihitung dari pemain klub sendiri, "Beda lawan" dari pemain klub lain (14v: 6 / 6 lawan Matcha Club). Contoh: Detail Maya · Nanda (Matcha Club, klub kedua, Final 13C) — subjudul "Peringkat 1 · Matcha Club · Padel · Fixed · Race to 6"; di riwayat R2 baris atas "Maya · Nanda", lawan "Eko · Fajar" di bawahnya. |
 
 ### 13.8 Data & versi
 
@@ -1017,7 +1078,8 @@ Ukuran lain, 8 round:
 - **AC-S6** Fixed 4 / 2 pasangan, 3 court: 8 match, 4 round, Court 3 tidak pernah dapat match. 2 / 2 pasangan, 1 court:
   4 match, 4 round. 14 / 1 pasangan, 2 court: 14 match, 14 round, Court 2 kosong.
 - **AC-S7** Jadwal, Input Skor, WO, dan poster: pasangan klub pertama selalu sisi atas match. Detail Maya (klub kedua):
-  riwayat R2 menaruh "Maya · Nanda" di atas "Eko · Fajar", dan subjudul Detail menulis "Matcha Club".
+  riwayat R2 menaruh "Maya · Nanda" di atas "Eko · Fajar", dan subjudul Detail (Final 13C) = "Peringkat 1 · Matcha
+  Club · Padel · Fixed · Race to 6", tanpa metode.
 - **AC-S7a** Estimasi tombol Lanjut Fixed sparing (Padel 15 menit, court 2 jam): 8 / 6 di 2 court → "Lanjut · 6 round ·
   12 match"; 16 / 14 di 4 court → "Lanjut · 14 round · lewat booking 01:30"; 8 / 4 di 3 court → "Lanjut · 4 round · 8
   match · 2 court"; tidak ada "±" di Fixed sparing.
@@ -1025,7 +1087,8 @@ Ukuran lain, 8 round:
   tiap Garuda 3 match, tiap Matcha 4. Setelah R8 tiap Garuda 4, Matcha dua pemain 6 dan empat 5.
 - **AC-S9** Mixed, test properti 30 round untuk 8/6, 7/6, 8/3, 15/15, 2/2: selisih main antar pemain satu klub yang
   hadir sejak awal ≤ 1 setelah setiap round; nol match sesama klub.
-- **AC-S10** Mixed 8 / 3, 2 court: court aktif 1, Court 2 tidak dapat match; estimasi menulis Court Aktif 1.
+- **AC-S10** Mixed 8 / 3, 2 court: court aktif 1, Court 2 tidak dapat match dan tidak tampil di Jadwal; tombol
+  Konfigurasi "Mulai Round 1 · ±8 round · 1 court", Cara kerja Mixed menulis Court Aktif 1.
 - **AC-S11** Mixed: daftar "Prioritas main di R(n+1)" per klub sama persis dengan hasil Buat R(n+1).
 - **AC-S12** Kelola pemain: menambah pemain tanpa klub tidak bisa; Keluarkan mati untuk pemain di klub yang tinggal 2
   aktif; pemain yang dikembalikan masuk klubnya sendiri.
@@ -1106,7 +1169,7 @@ Jawaban host berikutnya (2026-11-04):
 
 ## 14. Mexicano — Pasangan dari Klasemen
 
-> **Diputuskan host 2026-11-11** (keputusan 23–27, §10), rencana rilis **3.4.0 (MINOR)**. Aturan rinci di bagian ini
+> **Diputuskan host 2026-11-11** (keputusan 23–27, §10), dirilis **3.4.0 (MINOR)** 2026-11-12. Aturan rinci di bagian ini
 > yang tidak tertulis di keputusan itu adalah **usulan PM** (14.11), semuanya disetujui host (U3, U4, U7, U8 = keputusan 44–47).
 > Hi-fi 03a–03q, 16a–16g (keputusan 28–43). Fixed, Mixed, dan Sparing tidak berubah.
 
@@ -1157,8 +1220,9 @@ dibuat (termasuk match WO).
 - Estimasi di tombol sama dengan Mixed (Max Round · Match/Pemain · Court Aktif · Total Match).
 - Mexicano → langsung Jadwal + R1 (tanpa layar Pasangan), seperti Mixed. Jadwal Mexicano memakai kontrol Jadwal Mixed:
   Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen, daftar "Istirahat · Prioritas main di
-  R(n+1)" dan "Istirahat lagi di R(n+1)", menu ⋯ (Kelola court, Akhiri, Live score). Sheet pengganti "Cara kerja Mixed":
-  designer, dan isinya ikut persetujuan host.
+  R(n+1)" dan "Istirahat lagi di R(n+1)", menu ⋯ (Live score, Kelola court, Cara kerja Mexicano, Akhiri turnamen).
+  Sheet "Cara kerja Mexicano" (hi-fi 16c) menggantikan "Cara kerja Mixed": muncul sekali saat R1 dibuat, setelah itu
+  lewat menu ⋯; teksnya keputusan 40 dan 43.
 
 ### 14.3 Urutan Mexicano (dasar memasangkan)
 
@@ -1422,8 +1486,8 @@ Q1–Q3 disetujui host 2026-11-11 sesuai rekomendasi (keputusan 28–30).
 
 ## 15. Tukar Pemain (Mixed)
 
-> **Diputuskan host 2026-11-12** ("setuju semua", keputusan 48–57, §10, termasuk usulan PM TU1–TU4), rencana rilis
-> **3.5.0 (MINOR)**, diimplementasi 2026-11-12. Tampilan disetujui host 2026-11-12 (keputusan 58–59): ikon di kolom bola baris match → sheet "Tukar
+> **Diputuskan host 2026-11-12** ("setuju semua", keputusan 48–57, §10, termasuk usulan PM TU1–TU4), dirilis
+> **3.5.0 (MINOR)** 2026-11-12. Tampilan disetujui host 2026-11-12 (keputusan 58–59): ikon di kolom bola baris match → sheet "Tukar
 > pemain", hi-fi 17a–17r. Fixed dan Mexicano tidak berubah.
 
 Tukar pemain = host mengganti satu pemain di match round terakhir yang belum diisi dengan satu pemain yang sedang
@@ -1652,6 +1716,8 @@ Q1–Q2 disetujui sesuai rekomendasi (keputusan 54–55).
 > (16.13) dan rekomendasi 16.14 **disetujui host 2026-11-17** (keputusan 102); hi-fi 19a–22r disetujui (keputusan 103).
 > Spec `design/spec/logic.md` §18, bentuk data `docs/data.md` → Grup + Gugur, task GG-n di `docs/tasks.md`; pertanyaan
 > lanjutan dijawab host 2026-11-17 (keputusan 104–108). Round-robin Fixed, Mixed, Mexicano, dan Sparing tidak berubah.
+> PATCH 3.8.1 (keputusan 112, jawaban host 2026-11-18): dialog Akhiri per fase (frame 20r, 21z; 16.9), diselaraskan
+> dengan catatan hi-fi dan app 3.8.1.
 
 Grup + Gugur = turnamen Fixed dua fase: **fase grup** (round-robin di dalam tiap grup, 3.3) lalu **fase gugur** (bagan
 dengan 2 besar tiap grup; kalah langsung tersingkir) sampai final.
@@ -1706,7 +1772,7 @@ dengan 2 besar tiap grup; kalah langsung tersingkir) sampai final.
 - **G11.** Format skor per babak (keputusan 99): fase grup satu format; Perempat final, Semifinal, Perebutan juara 3,
   dan Final masing-masing Race to / Best of / Americano + N sendiri (GU9).
 - **G12.** Pemenang maju otomatis ke slot berikutnya di bagan begitu skor/WO match gugur disimpan (keputusan 101).
-- **G13.** Wording ikut `CLAUDE.md`: pemain, court, round, match; nama babak dan label lain di GU1 (usulan).
+- **G13.** Wording ikut `CLAUDE.md`: pemain, court, round, match; nama babak dan label lain di GU1.
 
 ### 16.2 Konfigurasi & alur
 
@@ -1717,8 +1783,8 @@ dengan 2 besar tiap grup; kalah langsung tersingkir) sampai final.
         → Final terisi → Final → [Klasemen] → [Bagikan]
 ```
 
-- Konfigurasi (5.3): di bawah mode Fixed ada pilihan format turnamen (Round-robin / Grup + Gugur) dan jumlah grup (2 / 4;
-  4 hanya mulai 12 pasangan). Format skor yang ada = format fase grup. Format babak gugur + juara 3 diatur di
+- Konfigurasi (5.3): di bawah mode Fixed ada pilihan format turnamen (Round-robin / Grup + Gugur), hanya tampil mulai
+  12 pemain (19a), dan jumlah grup (2 / 4; 4 hanya mulai 12 pasangan). Format skor yang ada = format fase grup. Format babak gugur + juara 3 diatur di
   Konfigurasi (GU9); mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104).
 - Estimasi di tombol Lanjut **pasti** (seperti Fixed sparing, keputusan 19): round fase grup (16.3) + round gugur
   (GU10), dan "lewat booking hh:mm" kalau melewati booking terpendek.
@@ -1733,7 +1799,7 @@ dipotong per k court, dua putaran tidak digabung). k = 1 → round = jumlah matc
 **Round** tetap = satu batch court dipakai paralel sekali (3.0), bernomor terus R1, R2, … lintas fase. Jumlah round fase
 grup = round terbanyak di antara court. Court yang grupnya sudah habis kosong sampai fase grup selesai.
 
-Pembagian court (GU3, usulan) dan urutan di court bersama (GU4, usulan):
+Pembagian court (GU3) dan urutan di court bersama (GU4):
 - **Court ≥ grup:** Court 1 → Grup A, Court 2 → Grup B, dst. Court sisanya, urut nomor, masing-masing diberikan ke grup
   yang roundnya paling banyak **dan** berkurang kalau mendapat court itu (seri → huruf lebih awal). Tidak ada grup yang
   berkurang → court itu tidak dipakai di fase grup.
@@ -1774,7 +1840,7 @@ Format grup Race to 6 (Win %); Semifinal Race to 6, Perebutan juara 3 Race to 4,
   dan 3 sama-sama 3 match, seri → Court 2). Court 1: A 6 round; Court 2: B, D bergantian 6 round; Court 3: C 3 round
   lalu kosong. Fase grup **6 round**.
 
-**Contoh 16C — court lebih banyak dari grup (usulan GU3).**
+**Contoh 16C — court lebih banyak dari grup (GU3).**
 - 30 pemain = 15 pasangan → A 8, B 7; Padel 15 menit, 4 court. Awal: Court 1 → A (r 7 × m 4 = 28 round), Court 2 → B
   (7 × 3 = 21). Court 3 → A (paling banyak, 28 → 7 × ⌈4/2⌉ = 14). Court 4 → B (21 → 7 × ⌈3/2⌉ = 14). Fase grup
   **14 round**: Grup A di Court 1 + 3 (2 match tiap round), Grup B di Court 2 + 4 (putaran 3 match dipotong 2 + 1, jadi
@@ -1796,7 +1862,7 @@ Format grup Race to 6 (Win %); Semifinal Race to 6, Perebutan juara 3 Race to 4,
 | 30 pemain, 4 grup, 1 court | 4 + 4 + 4 + 3 → 6 + 6 + 6 + 3 = 21 round grup; R22–R25 PF, R26–R27 SF, R28–R29 → 29 round |
 | Host menempatkan 5 + 2 (7 pasangan) | Buat jadwal mati: grup < 3 pasangan dan selisih > 1 |
 
-### 16.5 Transisi grup → gugur (usulan GU6–GU8)
+### 16.5 Transisi grup → gugur (GU6–GU8)
 
 - **Kapan:** begitu **semua** match grup Selesai atau WO dan turnamen belum diakhiri, Jadwal menampilkan "Buat bagan".
   Satu match grup masih Belum → tidak ada Buat bagan. Tidak ada gugur yang dimulai per grup.
@@ -1848,13 +1914,21 @@ Fajar – Gita · Hadi 6–4, Gita · Hadi – Citra · Dewi 6–4. Citra · Dew
   Court 1, 2, … (court kunci grup tidak berlaku lagi). Babak berikutnya selalu di round sesudahnya. Round terakhir:
   Final di Court 1 + Perebutan juara 3 di Court 2; 1 court → Perebutan juara 3 satu round lebih dulu, Final terakhir.
 - **Kunci round** sama dengan Fixed (3.2 A): round berikutnya terbuka setelah semua match round sebelumnya terisi.
+- **Tab round gugur (GU5, 21b, 21s, 21v):** round berisi Final → "Final"; satu babak utuh di satu round → nama pendek
+  ("Semifinal", "Juara 3"); babak yang terpecah ke beberapa round → kode match ("SF1", "PF1–2"). Judul layar = nama
+  babak lengkap. Fase gugur juga tanpa baris Istirahat.
 - **Slot belum diketahui:** match gugur yang salah satu sisinya belum punya pemenang tidak bisa dibuka ke Input Skor;
-  tampilannya ("Pemenang SF1" atau sejenisnya) oleh designer.
-- **Bagan tampil di Jadwal** selama fase gugur (keputusan 101): semua babak, nama pasangan, skor yang terisi, pemenang
-  maju otomatis. Bentuk visual oleh designer.
-- **Ubah skor gugur (GU11):** skor yang tidak membalik pemenang selalu boleh diubah. Yang membalik pemenang hanya boleh
-  selama **semua match yang diisi oleh match itu** (babak berikutnya, juga Perebutan juara 3 untuk SF) masih Belum;
-  slot di sana langsung berganti. Sudah ada skor → ditolak dengan pesan (teks oleh designer).
+  sisinya ditulis dari asalnya: "Pemenang SF1" / "Kalah SF1" (21a).
+- **Bagan tampil di Jadwal** selama fase gugur (keputusan 101) sebagai tab "Bagan" paling kanan, setelah round terakhir:
+  semua babak, nama pasangan, skor yang terisi, pemenang maju otomatis. Setelah Buat bagan dikonfirmasi Jadwal terbuka
+  di tab Bagan (21a). Bentuk visual di hi-fi 21.
+- **Ubah skor gugur (GU11):** skor yang tidak membalik pemenang selalu boleh diubah, tanpa dialog. Yang membalik
+  pemenang hanya boleh selama **semua match yang diisi oleh match itu** (babak berikutnya, juga Perebutan juara 3 untuk
+  SF) masih Belum: dialog "Ganti pemenang SF1?" berisi susunan baru (mis. "Final: Maya · Nanda vs Citra · Dewi"),
+  tombol "Ganti" → skor tersimpan dan slot di sana langsung berganti (21k). Final dan Juara 3 tidak mengisi match lain,
+  jadi pemenangnya selalu boleh diganti tanpa dialog. Sudah ada skor → ditolak: pesan "Final sudah ada skor · pemenang
+  SF1 tetap …" (dua babak: "Final dan Juara 3 sudah ada skor · …"), tombol simpan mati (21l). Aturan yang sama berlaku
+  untuk WO yang membalik pemenang.
 - **Format per babak (GU9):** validasi Input Skor (4.1) memakai format babak match itu. Di gugur, Best of dan Americano
   hanya N ganjil, jadi skor penuh tidak pernah seri; Race to memang tidak bisa seri.
 
@@ -1881,10 +1955,13 @@ Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1�
   ganda).
 - WO di fase grup: aturan 4.4 apa adanya, ikut Klasemen grup dan head-to-head (WO = menang).
 
-### 16.8 Klasemen & peringkat akhir (usulan GU12, GU13, GU16)
+### 16.8 Klasemen & peringkat akhir (GU12, GU13, GU16)
 
-- **Klasemen grup:** satu tabel per grup (kolom 5.7), metode tetap (GU8), tanda pasangan yang lolos setelah bagan dibuat.
-- **Peringkat akhir** (dipakai Klasemen setelah bagan, poster podium/Lengkap, caption, penonton live). Tingkat dari atas:
+- **Klasemen grup:** satu tabel per grup (kolom 5.7), metode tetap (GU8); setelah bagan dibuat slot lolos (A1, A2, B1,
+  B2) tertulis di kanan nama (22b).
+- **Tab Klasemen:** sebelum bagan dan belum diakhiri hanya tabel grup tanpa tab (20d). Setelah bagan dibuat **atau**
+  turnamen diakhiri: dua tab "Peringkat" (peringkat akhir, terbuka pertama) dan "Fase grup" (tabel grup) (22a, 22b, 22g).
+- **Peringkat akhir** (dipakai tab Peringkat, poster podium/Lengkap, caption, penonton live). Tingkat dari atas:
   1. Menang Final · 2. Kalah Final · 3. Menang Perebutan juara 3 · 4. Kalah Perebutan juara 3 (tanpa match juara 3:
      kedua kalah SF satu tingkat) · 5. Kalah Perempat final · 6. Tidak lolos, per **posisi grup** 3, 4, ….
   - Posisi grup pasangan tidak lolos = 3 + jumlah pasangan tidak lolos di grupnya yang nomornya lebih kecil; posisi sama
@@ -1893,10 +1970,13 @@ Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1�
   - Pasangan yang masih di babak tanpa hasil (Sementara, atau diakhiri) ada di tingkat tepat di atas yang kalah di babak
     itu, bernomor sama satu sama lain.
   - Sebelum bagan dibuat: urut posisi grup = 1 + jumlah pasangan di grupnya yang nomornya lebih kecil (semua posisi 1
-    lintas grup satu tingkat, dst.).
+    lintas grup satu tingkat, dst.). Pasangan yang belum main: tanpa nomor dan tanpa babak, di bawah.
 - Nomor akhir ditentukan babak, bukan nilai metode, jadi baris peringkat akhir menulis **babak yang dicapai** ("Juara",
-  "Final", "Juara 3", "Semifinal", "Perempat final", "Grup A · 3") sebagai alasan nomornya, bukan "nilai · selisih" (GU16,
-  pertanyaan Q3). Keputusan 17 (nomor dari angka yang tampil) tetap berlaku di Klasemen grup.
+  "Final", "Juara 3", "Semifinal", "Perempat final", "Grup A · 3"; sebelum bagan "Grup A · 1") sebagai alasan nomornya,
+  bukan "nilai · selisih" (GU16, pertanyaan Q3). Pasangan yang match-nya belum ada hasil menulis babak yang sedang
+  dijalani, nama lengkap ("Final", "Semifinal", "Perebutan juara 3", 22e). Diakhiri: finalis Final yang Tidak dimainkan
+  tetap "Final"; Perebutan juara 3 yang Tidak dimainkan tidak dihitung, kedua pasangannya tetap "Semifinal" (22f).
+  Keputusan 17 (nomor dari angka yang tampil) tetap berlaku di Klasemen grup.
 - **Status (4.6):** Final setelah Final (dan Perebutan juara 3 kalau nyala) terisi, atau setelah diakhiri. Selain itu
   Sementara.
 
@@ -1908,8 +1988,8 @@ Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1�
 | 2 | Andi · Budi | Final |
 | 3 | Maya · Nanda | Juara 3 |
 | 4 | Indra · Joko | Semifinal |
-| 5 | Eko · Fajar, Kiki · Lina | Posisi grup 3 |
-| 6 | Gita · Hadi, Oki · Putri | Posisi grup 4 |
+| 5 | Eko · Fajar, Kiki · Lina | Grup A · 3, Grup B · 3 |
+| 6 | Gita · Hadi, Oki · Putri | Grup A · 4, Grup B · 4 |
 
 - Tanpa Perebutan juara 3: #1 Citra · Dewi, #2 Andi · Budi, #3 Maya · Nanda + Indra · Joko, #4 posisi 3, #5 posisi 4.
   Podium: #1, #2, #3, #3 (4 anak tangga, keputusan 65).
@@ -1926,14 +2006,29 @@ Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1�
 | Round tambahan + Atur pasangan (3.3a) | Tidak ada. Pemain pulang di tengah turnamen → WO (fase grup: 4.4; gugur: lawan maju). |
 | Sparing (§13) | Tidak menawarkan Grup + Gugur (GU14). |
 | Mixed, Mexicano, Tukar pemain (§14, §15) | Tidak berlaku (keputusan 93). |
-| Akhiri | Boleh kapan saja; match Belum → Tidak dimainkan; bagan tidak dibuat kalau masih fase grup; peringkat akhir 16.8. |
+| Akhiri | Boleh kapan saja; match Belum → Tidak dimainkan; bagan tidak dibuat kalau masih fase grup; peringkat akhir 16.8; tidak bisa dilanjutkan. Dialog "Akhiri turnamen?" (Batal / Akhiri, seperti 06e) menulis akibat per fase (PATCH 3.8.1): lihat di bawah tabel. |
 | Lanjutkan turnamen | Tidak ada, seperti Fixed (3.2 A); tidak tampil di riwayat Beranda. |
 | Resume (5.10) | App ditutup di fase grup, saat memilih yang lolos (belum konfirmasi), atau di gugur → dibuka lagi di keadaan tersimpan terakhir. |
 | Klasemen toggle (4.2) | Tidak ada di Grup + Gugur (GU8, Q1). |
-| Detail Pemain (5.8) | Baris statistik = fase grup saja (format bisa beda per babak, poin dan game tidak dijumlah); riwayat semua match dengan nama babak (GU13). |
+| Detail Pemain (5.8) | Subjudul "Peringkat n · babak · olahraga · Grup + Gugur" (mis. "Peringkat 1 · Juara · Padel · Grup + Gugur"), tanpa metode dan format skor: metode tetap (GU8) dan format beda per babak (22j). Baris statistik = fase grup saja (format bisa beda per babak, poin dan game tidak dijumlah); riwayat semua match dengan nama babak (GU13). |
 | Live score (5.11) | Penonton melihat match gugur sebagai daftar round dengan nama babak, tanpa bagan (keputusan 101); Klasemen grup + peringkat akhir seperti host. Relay tidak berubah. |
-| Bagikan (5.9) | Podium dan Lengkap dari peringkat akhir; aturan podium 64–65, 68–69 tetap. Isi baris (babak, GU16) perlu desain + persetujuan host. Bagan di poster belum sekarang. |
+| Bagikan (5.9) | Podium dan Lengkap dari peringkat akhir; aturan podium 64–65, 68–69 tetap. Kolom kanan poster dan baris caption menulis babak, bukan nilai · selisih (GU16, hi-fi 22l–22r, keputusan 103), mis. caption "1. Citra + Dewi — Juara", "5. Eko + Fajar — Grup A · 3". Bagan di poster belum sekarang. |
 | Kelola court | Tidak ada (sama seperti Fixed). |
+
+**Dialog Akhiri per fase (PATCH 3.8.1, frame 20r dan 21z).** Judul "Akhiri turnamen?", tombol "Batal" / "Akhiri"; isinya:
+- **Fase grup** (bagan belum dibuat, juga saat "Buat bagan" sudah tersedia): "Match yang belum main tidak dihitung.
+  Bagan tidak dibuat; peringkat dari posisi grup." (20r, latar 20b).
+- **Fase gugur:** babak yang punya match Belum, urut Perempat final, Semifinal, Final, Juara 3, ditulis "… tidak
+  dimainkan.". Kalau kedua Semifinal sudah ada pemenang dan Final masih Belum, ditambah pemenang SF1 dan SF2 yang
+  berbagi #1 (16.8). Contoh:
+  - Data 16E, R7 lengkap (SF2 WO atau 4–6), R8 Belum: "Final dan Juara 3 tidak dimainkan. Andi · Budi dan Citra · Dewi
+    sama-sama #1." (21z, latar 21o).
+  - Semifinal belum lengkap (16E, SF1 6–4, SF2 Belum): "Semifinal, Final, dan Juara 3 tidak dimainkan." tanpa kalimat
+    #1 (jawaban host 2026-11-18). 4 grup di Perempat final: "Perempat final, Semifinal, Final, dan Juara 3 tidak
+    dimainkan."
+  - Tanpa Perebutan juara 3 (atau 1 court dan Juara 3 sudah terisi), 16E dengan SF2 Indra · Joko 6–2 Citra · Dewi:
+    "Final tidak dimainkan. Andi · Budi dan Indra · Joko sama-sama #1."
+  - Final terisi, Juara 3 Belum: "Juara 3 tidak dimainkan."
 
 ### 16.10 Data & versi
 
@@ -1975,7 +2070,7 @@ Versi:
 - **AC-G10** Format per babak: Input Skor Final 16E menerima 9–7 (Race to 9), Perebutan juara 3 menolak 6–2 (Race to 4).
   Gugur Best of/Americano hanya menawarkan N ganjil.
 - **AC-G11** WO di SF → lawan masuk Final; Klasemen grup tidak berubah.
-- **AC-G12** Skor fase grup tidak bisa diubah setelah bagan dibuat (kalau GU6 disetujui).
+- **AC-G12** Skor fase grup tidak bisa diubah setelah bagan dibuat (GU6).
 - **AC-G13** 16F: peringkat akhir persis tabel 16F dan ketiga variannya (tanpa juara 3, diakhiri setelah R7, 4 grup).
 - **AC-G14** Status Final setelah Final + Perebutan juara 3 terisi (atau Final saja kalau juara 3 mati); Sementara
   sebelumnya.
@@ -1985,6 +2080,10 @@ Versi:
 - **AC-G17** Live: penonton melihat match gugur dengan nama babak dan peringkat akhir, tanpa bagan dan tanpa aksi.
 - **AC-G18** Bagikan: podium 16F = Citra · Dewi, Andi · Budi, Maya · Nanda; tanpa juara 3 = 4 anak tangga (#3 kembar).
 - **AC-G19** Semua kriteria jalan offline (kecuali live).
+- **AC-G20** (PATCH 3.8.1) Dialog Akhiri: 16A di R3 (data 20b) → "Match yang belum main tidak dihitung. Bagan tidak
+  dibuat; peringkat dari posisi grup."; 16E R7 lengkap → "Final dan Juara 3 tidak dimainkan. Andi · Budi dan Citra ·
+  Dewi sama-sama #1."; 16E hanya SF1 terisi → "Semifinal, Final, dan Juara 3 tidak dimainkan."; Final terisi, Juara 3
+  Belum → "Juara 3 tidak dimainkan.".
 
 ### 16.12 Belum sekarang
 
@@ -1993,7 +2092,8 @@ Versi:
 - Unggulan (seed) otomatis; undi grup sebagai default (keputusan 95).
 - Host memilih court per grup sendiri; urutan match yang menjamin tidak ada round beruntun di grup satu court.
 - Gugur mulai per grup sebelum semua grup selesai; match gugur terbuka per match, bukan per round.
-- Membuka lagi fase grup setelah bagan dibuat (kalau GU6 disetujui).
+- Membuka lagi fase grup setelah bagan dibuat (GU6).
+- Mengubah format babak gugur dan Perebutan juara 3 setelah jadwal dibuat (GU9, ditunda 3.8.x, keputusan 104).
 - Durasi match berbeda per babak (estimasi memakai satu durasi).
 - Bagan di poster Bagikan dan di live score (keputusan 101).
 - Seri di gugur (tiebreak/golden point dengan N genap); WO ganda.

@@ -105,7 +105,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `showMabarConfirm`, `ClubScore`
 
-- Latar = 13k. Dialog sama dengan 06e: skor klub saat itu (6 – 4) jadi skor akhir, tanpa kalimat tambahan.
+- Latar = 13k. Dialog sama dengan 06e (isi Fixed): skor klub saat itu (6 – 4) jadi skor akhir, tanpa kalimat tambahan.
 
 ## 14l · Jadwal Fixed sparing · diakhiri
 
@@ -113,7 +113,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`
 
-- Diakhiri saat R6 (14k): dua match R6 "Tidak dimainkan", tanpa titik live dan hitung mundur, Lihat klasemen jadi tombol utama (06c). Fixed yang diakhiri tidak bisa dilanjutkan.
+- Diakhiri saat R6 (14k): dua match R6 "Tidak dimainkan", tanpa titik live dan hitung mundur, "Klasemen" jadi tombol utama (06c). Fixed yang diakhiri tidak bisa dilanjutkan.
 - Skor klub final 6 – 4, Total Point 45 – 43: Klasemen menulis "Final · 5 round · 10 match" dengan angka 13n. Bola tetap di klub yang unggul.
 - Menu ⋯ tinggal Live score (12f).
 
@@ -182,7 +182,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Match menang 6 – 6 dan Total Point 58 – 58 → Seri (K2). Bola di kedua baris, sama dengan dua peringkat 1 yang bernomor sama di tabel. Kata "Seri" tidak ditulis di papan; subjudul tetap status turnamen.
 - Match menang sama tapi Total Point beda (mis. 6 – 6, 50 – 48) → klub dengan Total Point lebih besar yang berbola, angkanya tetap 6 – 6.
 - Skor contoh designer di jadwal generator: R1 6–4, 6–5 · R2 3–6, 6–2 · R3 5–6, 2–6 · R4 6–3, 4–6 · R5 6–4, 3–6 · R6 6–4, 5–6.
-- Caption Seri: "🏆 PB Garuda 6–6 Matcha Club · Seri · Padel" (usulan; Bagikan tidak digambar di putaran ini).
+- Caption Seri: "🏆 PB Garuda 6–6 Matcha Club · Seri · Padel".
 
 ## 14u · Klasemen sparing · match seri · 6½–5½
 
@@ -240,7 +240,7 @@ Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 
 - Turnamen sparing tanpa nama: baris kecil di atas round = "klub pertama · skor klub · klub kedua" ("PB Garuda 6 – 4 Matcha Club"), menggantikan "olahraga · mode · n pemain"; skornya menggantikan "vs" (13.7), angka tebal. Sebelum ada hasil: "PB Garuda 0 – 0 Matcha Club". Satu baris, elipsis per nama klub kalau tidak muat.
 - Info round sama dengan 01e: round = round pertama yang masih ada match kosong (R6), "10 dari 12 match", Lanjutkan → Jadwal (13k).
-- Sparing bernama: nama turnamen tetap di baris kecil, skor klub di baris sendiri di bawahnya (belum digambar). Banner mengikuti olahraga turnamen (padel).
+- Sparing bernama: nama turnamen tetap di baris kecil, skor klub di samping round (15w). Banner mengikuti olahraga turnamen (padel).
 
 ## 14y · Dialog · mulai turnamen baru saat sparing berjalan
 

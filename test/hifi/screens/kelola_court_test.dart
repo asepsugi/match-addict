@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/core/widgets/mabar_inputs.dart';
 import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/features/schedule/schedule_mixed_screen.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
@@ -38,7 +39,7 @@ void main() {
     await tester.tap(find.text(name));
     await tester.pumpAndSettle();
     if (plus) {
-      await tester.tap(find.bySemanticsLabel('Tambah').first);
+      await tester.tap(find.descendant(of: find.byType(MabarStepper), matching: find.bySemanticsLabel(RegExp('^Tambah'))).first);
       await tester.pumpAndSettle();
     }
   }
@@ -185,7 +186,7 @@ void main() {
       await pump(tester, screen(s, 124));
       await openCourt(tester, 'Court 1');
       expect(find.text('19.00–21.00 · waktu habis'), findsOneWidget);
-      await tester.tap(find.bySemanticsLabel('Tambah').first);
+      await tester.tap(find.descendant(of: find.byType(MabarStepper), matching: find.bySemanticsLabel(RegExp('^Tambah'))).first);
       await tester.pumpAndSettle();
       expect(find.text('21.04–22.04 · sisa 01:00'), findsOneWidget);
       expect(find.text('Langsung main di R9'), findsOneWidget);

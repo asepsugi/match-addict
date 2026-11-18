@@ -3,6 +3,7 @@
 
     python3 tool/hifi_extract.py            # frame PNG + spesifikasi markdown
     python3 tool/hifi_extract.py --no-png   # markdown saja (cepat)
+    python3 tool/hifi_extract.py --only=20a,20b   # PNG frame tertentu saja (spec + rects tetap semua)
 
 Hasil:
 - design/frames/<id>.png — tiap frame di-render Chrome headless pada 2x (layar app: 780×1688,
@@ -194,7 +195,18 @@ def write_rects(s, flows):
     print(f'  {len(rects)} frame → {os.path.relpath(out, ROOT)}')
 
 
-def write_specs(flows, rules):
+def semantics(s):
+    # Tabel label aksesibilitas (PATCH 3.8.1) disalin dari panel #semantics hi-fi; tanpa ini bagiannya hilang tiap ekstraksi.
+    panel = block(s, s.index('<div class="panel wide" id="semantics">'))
+    lines = ['## Semantics (label aksesibilitas)', '', md(re.search(r'<p>(.*?)</p>', panel, re.S).group(1)) +
+             ' Sumber: hi-fi → Komponen → "Label aksesibilitas → `Semantics`" (`#semantics`).', '',
+             '| Komponen | Label (contoh) | Flag |', '|---|---|---|']
+    for row in re.findall(r'<tr>(.*?)</tr>', panel.split('<tbody>')[1], re.S):
+        lines.append('| ' + ' | '.join(md(c) for c in re.findall(r'<td>(.*?)</td>', row, re.S)) + ' |')
+    return lines + ['']
+
+
+def write_specs(flows, rules, s):
     used = {}
     for flow in flows:
         for f in flow['frames']:
@@ -223,6 +235,7 @@ def write_specs(flows, rules):
         comp += [f'## `{name}`', '', desc, '', 'Kelas hi-fi: ' + ', '.join(f'`{p}`' for p in prefixes) + '  ',
                  'Dipakai di frame: ' + (', '.join(used.get(name, [])) or '— (hanya di bagian Komponen/Fondasi)'), '', '```css']
         comp += [f'{sel} {{ {body} }}' for sel, body in mine] + ['```', '']
+    comp += semantics(s)
     open(os.path.join(DESIGN, 'spec', 'components.md'), 'w', encoding='utf-8').write('\n'.join(comp))
 
 
@@ -267,10 +280,13 @@ def write_poster_data(flows):
 def main():
     s = open(HIFI, encoding='utf-8').read()
     flows = frames(s)
-    write_specs(flows, css_rules())
+    write_specs(flows, css_rules(), s)
     print(sum(len(f['frames']) for f in flows), 'frame,', len(flows), 'alur → design/spec/')
     write_rects(s, flows)
     write_poster_data(flows)
+    only = next((a.split('=', 1)[1].split(',') for a in sys.argv if a.startswith('--only=')), None)
+    if only:  # render ulang PNG frame tertentu saja; spec + rects tetap dari semua frame
+        flows = [dict(f, frames=[x for x in f['frames'] if x['id'] in only]) for f in flows]
     if '--no-png' not in sys.argv:
         render_pngs(s, flows)
 

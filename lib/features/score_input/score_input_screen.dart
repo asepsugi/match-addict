@@ -108,9 +108,7 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
     final canSave = score != null && blocked == null && !(knockout != null && verdict is ScoreDraw);
     final typed = switch (verdict) {
       ScoreWin(:final winnerSide, :final winnerScore, :final loserScore) =>
-        '${team(winnerSide == 1 ? match.pair1 : match.pair2)} menang '
-            // Americano: yang berarti selisihnya; skornya sudah besar di papan.
-            '${format.method == ScoringMethod.americano ? '+${winnerScore - loserScore}' : '$winnerScore–$loserScore'}',
+        '${team(winnerSide == 1 ? match.pair1 : match.pair2)} menang $winnerScore–$loserScore',
       ScoreDraw() => 'Seri',
       ScoreInvalid(:final message) => message,
       null => null,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/core/widgets/mabar_inputs.dart';
 import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/features/pair_edit/pair_edit_screen.dart';
 import 'package:match_addict/features/schedule/schedule_fixed_screen.dart';
@@ -97,9 +98,9 @@ void main() {
   testWidgets('AC-S18: 1 jam di kedua court → tetap 1 satuan, tanpa lewat booking', (tester) async {
     await pump(tester, screen(sparingFull(), sparingAt(6)));
     await openSheet(tester);
-    await tester.tap(find.bySemanticsLabel('Tambah').first);
+    await tester.tap(find.descendant(of: find.byType(MabarStepper), matching: find.bySemanticsLabel(RegExp('^Tambah'))).first);
     await tester.pump();
-    await tester.tap(find.bySemanticsLabel('Tambah').last);
+    await tester.tap(find.descendant(of: find.byType(MabarStepper), matching: find.bySemanticsLabel(RegExp('^Tambah'))).last);
     await tester.pump();
     expect(find.text('6 round (R7–R12) · 2 court'), findsOneWidget);
     expect(find.textContaining('lewat booking'), findsNothing);
