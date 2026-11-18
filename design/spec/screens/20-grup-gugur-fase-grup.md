@@ -179,7 +179,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Data 20b, lalu R3 Court 2 Indra · Joko 6–4 Maya · Nanda dan R4 Court 1 Gita · Hadi 4–6 Citra · Dewi; host memilih Akhiri (dialog 20r) saat R4 Court 2 belum diisi.
 - Sama dengan 06c: match Belum (R4 Court 2, R5, R6) jadi "Tidak dimainkan", tanpa hitung mundur dan titik live, "Klasemen" jadi tombol utama. Bagan tidak dibuat dan tidak ada "Buat bagan" (16.9).
-- Peringkat akhir = urut posisi grup Sementara saat diakhiri (16.8); tampilan Klasemen setelah diakhiri di fase grup belum digambar.
+- Peringkat akhir = urut posisi grup Sementara saat diakhiri (16.8); tampilan Klasemen setelah diakhiri di fase grup: 22g.
 
 ## 20r · Dialog · akhiri turnamen di fase grup
 

@@ -91,7 +91,7 @@ Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point)
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
 sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini"; 3.7.1 (PATCH) = lantai poster
-lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed).
+lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed); 3.8.1 (PATCH) = review UX hi-fi (kontras, area ketuk 48 + Semantics, teks).
 
 ## Status
 
@@ -127,7 +127,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Grup + Gugur 3.8.0 (MINOR): PRD §16 + keputusan 93–109, hi-fi 19a–22r (artifact v95), spec `logic.md` §18, data
   `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Rilis 3.8.0+24 live 2026-11-17 (90ebba2). Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
 - PATCH 3.8.1 review UX hi-fi (keputusan 110–112): temuan di `design/review/`, task UX-0…UX-6 di `docs/tasks.md`,
-  branch `ux-patch-3-8-1`.
+  branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di branch, full test lolos.
+  Sisa UX-6: merge ke `main`, push (deploy), publish ulang hi-fi — menunggu go host.
 
 ## Area docs
 

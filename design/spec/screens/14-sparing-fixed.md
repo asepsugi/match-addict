@@ -182,7 +182,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Match menang 6 – 6 dan Total Point 58 – 58 → Seri (K2). Bola di kedua baris, sama dengan dua peringkat 1 yang bernomor sama di tabel. Kata "Seri" tidak ditulis di papan; subjudul tetap status turnamen.
 - Match menang sama tapi Total Point beda (mis. 6 – 6, 50 – 48) → klub dengan Total Point lebih besar yang berbola, angkanya tetap 6 – 6.
 - Skor contoh designer di jadwal generator: R1 6–4, 6–5 · R2 3–6, 6–2 · R3 5–6, 2–6 · R4 6–3, 4–6 · R5 6–4, 3–6 · R6 6–4, 5–6.
-- Caption Seri: "🏆 PB Garuda 6–6 Matcha Club · Seri · Padel" (usulan; Bagikan tidak digambar di putaran ini).
+- Caption Seri: "🏆 PB Garuda 6–6 Matcha Club · Seri · Padel".
 
 ## 14u · Klasemen sparing · match seri · 6½–5½
 

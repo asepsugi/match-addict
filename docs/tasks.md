@@ -47,8 +47,19 @@ versi sampai UX-5. Ikon tukar tetap 44 × 42 (keputusan 48–57). Wording UI dan
   engineer (belum ditanyakan host, bawa ke UX-5): metode di subjudul Detail tidak ditulis untuk Sparing dan Grup + Gugur
   (Cakupan hanya 10a/10b/10d/12k); B-20 "Istirahat" ikut berlaku di penonton Sparing; aturan "olahraga dibuang dulu
   kalau tidak muat" (B-6) belum diterapkan, subjudul tetap elipsis.
-- **Berikutnya: UX-5** (audit PRD ↔ catatan hi-fi) di sesi baru, lalu UX-6 rilis. Belum ada full test sesudah 15m;
-  full test sekali di UX-6.
+- **UX-5 selesai** (2026-11-18): 4 agen product-manager (opus, worktree terpisah, digabung tanpa konflik) mengaudit PRD
+  §5.1–5.11, §6, §7, §13–§16 terhadap `design/spec/screens/*.md`; kode = kebenaran. PRD disamakan dengan app 3.8.1
+  (dialog Akhiri per mode, "Jam booking", Klasemen, kontras/area ketuk/Semantics di §7, teks UI Sparing/Mexicano/Tukar,
+  label "usulan" yang sudah disetujui dibersihkan). 14 butir catatan hi-fi yang tertinggal diperbaiki
+  (`design/hifi.html` → `tool/hifi_extract.py --no-png`), butir Cakupan "audit PRD ↔ catatan hi-fi" ditambah. Tidak ada
+  pertanyaan yang perlu host: pilihan engineer UX-4 ternyata sudah tertulis di hi-fi (14v Sparing, 22j Grup + Gugur,
+  keputusan 103; B-20 berlaku umum di 12l).
+- Dua celah kode yang ketemu saat audit, diperbaiki dengan test: **B-20** penonton yang diakhiri kehilangan pemain
+  "Istirahat lagi" (sekarang satu daftar "Istirahat" berisi semua; 5790a33, test di `live_test.dart`) dan **B-6**
+  subjudul Detail membuang olahraga dulu kalau tidak muat (`MabarAppBar.shorterSubtitle`, bf38015,
+  `test/core/app_bar_subtitle_test.dart`).
+- **Berikutnya: UX-6** (rilis 3.8.1+25): versi dan `appVersion` sudah dinaikkan; tinggal merge ke `main`, push (deploy),
+  publish ulang hi-fi (artifact `H9ZVDUfYvEBXsoBqih4iov`) — menunggu "go" host.
 
 ---
 

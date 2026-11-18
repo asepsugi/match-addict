@@ -150,7 +150,9 @@ booking 1–12 jam per court.
   7 match"); golden Fixed 09c dengan jadwal yang cocok 10b.
 - Detail: riwayat terbaru di atas, baris atas = tim sendiri (Mixed: nama sendiri dulu), menang WO "+n" pudar =
   `woPoints` ÷ jumlah menang WO. `MatchScoreRow` mematok tinggi baris tim 22,4 supaya riwayat (tanpa tinggi minimal)
-  tidak bergeser 0,8 pt per baris.
+  tidak bergeser 0,8 pt per baris. Subjudul Detail dibangun dua kali (dengan dan tanpa olahraga); `MabarAppBar` memakai
+  `shorterSubtitle` kalau yang penuh tidak muat satu baris (diukur `TextPainter`, B-6, PATCH 3.8.1). Sparing dan Grup +
+  Gugur tanpa metode (14v, 22j).
 
 ### Bagikan (`features/share/share_result_screen.dart`)
 

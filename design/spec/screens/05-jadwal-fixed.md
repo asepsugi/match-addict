@@ -14,7 +14,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Fixed mendapat hitung mundur yang sama, tanpa Kelola court: court hanya bisa ditambah di Mixed (keputusan host 2026-10-22). Jadwal Fixed dibuat lengkap di awal, jadi waktunya hanya informasi.
 - Tab default = round pertama yang masih ada match kosong. Pilihan tab bertahan; tidak pindah otomatis saat round selesai.
 - Progress bar dihapus; "1/2 match" di ujung tab menggantikannya.
-- Baris "Istirahat" hanya muncul kalau jumlah pasangan ganjil: paling banyak satu pasangan bye per round (`byePairIdByRound`), nama depan dipisah titik tengah.
+- Baris "Istirahat" hanya muncul kalau jumlah pasangan ganjil: paling banyak satu pasangan bye per round (`byePairIdByRound`), nama lengkap dipisah titik tengah (06u).
 - Ketuk baris yang sudah terisi → Input Skor dalam mode ubah (07i). Round sebelumnya tetap bisa diubah.
 
 ## 06b · Membuka round yang belum terbuka

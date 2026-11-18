@@ -2,7 +2,7 @@
 
 > Dihasilkan `tool/hifi_extract.py` dari `design/hifi.html`. Jangan diedit langsung.
 
-Persiapan turnamen Grup + Gugur (PRD §16.1–16.2, keputusan 93–102, usulan GU1–GU16; dirancang 2026-11-17, menunggu persetujuan host). Hanya Fixed, mulai 12 pemain. Alur: Konfigurasi (format turnamen, jumlah grup, format fase grup, format per babak gugur + Perebutan juara 3, estimasi pasti) → Pasangan dibuka Manual → Grup (tempatkan tiap pasangan ke Grup A–D, Acak opsional) → dialog kunci → Jadwal fase grup (20). Contoh data: 16A (Padel, 16 pemain, 15 menit, 2 court × 2 jam, Race to 6; Semifinal Race to 6, juara 3 Race to 4, Final Race to 9), 16B (Tennis, 24 pemain, 20 menit, 2 court × 3 jam), PRD 16.4.
+Persiapan turnamen Grup + Gugur (PRD §16.1–16.2, keputusan 93–109, GU1–GU16; disetujui host 2026-11-17, keputusan 103). Hanya Fixed, mulai 12 pemain. Alur: Konfigurasi (format turnamen, jumlah grup, format fase grup, format per babak gugur + Perebutan juara 3, estimasi pasti) → Pasangan dibuka Manual → Grup (tempatkan tiap pasangan ke Grup A–D, Acak opsional) → dialog kunci → Jadwal fase grup (20). Contoh data: 16A (Padel, 16 pemain, 15 menit, 2 court × 2 jam, Race to 6; Semifinal Race to 6, juara 3 Race to 4, Final Race to 9), 16B (Tennis, 24 pemain, 20 menit, 2 court × 3 jam), PRD 16.4.
 
 ## 19a · Fixed · Round-robin · 16 pemain
 
@@ -55,7 +55,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Satu baris per babak, urut main: (Perempat final), Semifinal, Perebutan juara 3, Final (keputusan 99, GU1). 2 grup → tiga baris; 4 grup → empat (19j). Ketuk baris → sheet babak di atasnya (19f, 19g).
 - Contoh 16A: Semifinal Race to 6, Perebutan juara 3 Race to 4, Final Race to 9 → baris Gugur di layar "Race to 4–9".
-- Sheet jenis kelola, tanpa footer. Format babak bisa diubah lagi setelah jadwal dibuat sampai babak itu punya skor (GU9); tempatnya di Jadwal (kelompok 20/21), bukan di sini.
+- Sheet jenis kelola, tanpa footer. Format babak dan Perebutan juara 3 hanya diatur di sini; mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104).
 
 ## 19f · Sheet Final · di atas sheet Gugur
 

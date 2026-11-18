@@ -362,7 +362,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   pasangannya pernah diatur ulang (10d).
 - Subjudul: "Peringkat n · metode · olahraga · mode · format skor" ("Peringkat 1 · Total Point · Padel · Mixed ·
   Americano 24"); nomor dan metode mengikuti pilihan di Klasemen (PATCH 3.8.1). Belum main: "Belum main" tanpa
-  metode.
+  metode. Kalau tidak muat satu baris, olahraga dibuang dulu (B-6). Sparing (klub, tanpa metode) dan Grup + Gugur
+  (babak, "Grup + Gugur", tanpa metode dan format) punya subjudul sendiri: §13.7 dan §16.9.
 - Belum ada match: riwayat menulis "Belum ada match" saja (PATCH 3.8.1).
 
 ### 5.9 Bagikan (11a–11m, 18a–18t)
@@ -451,7 +452,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 | Grup + Gugur (§16, 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, dialog Akhiri (20r, 21z), Klasemen grup + peringkat akhir | 19a–19y, 20a–20r, 21a–21z, 22a–22r |
 
 State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen berjalan" (juga Detail kalau
-pemainnya tidak ada, 10c), "Match tidak ditemukan", spinner saat Jadwal membuat round pertama.
+pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum ada round) menampilkan layar kosong.
 
 ---
 
@@ -556,7 +557,7 @@ pemainnya tidak ada, 10c), "Match tidak ditemukan", spinner saat Jadwal membuat 
     lain. Jumlah pemain klub boleh beda dan klub kecil main lebih sering; Fixed tiap pasangan bertemu tiap pasangan klub
     lain sekali; klub menang dari jumlah match menang (seri ½), lalu Total Point klub; klasemen per klub; dipilih di
     layar Pemain; minimal 2 pemain per klub, total 4–30; round tambahan Fixed per satuan KPK pasangan; poster dan
-    caption dibuka skor klub; poster Ringkas = 3 teratas tiap klub (dikonfirmasi host); Detail menaruh tim sendiri di
+    caption dibuka skor klub; poster Ringkas = 3 teratas tiap klub (dikonfirmasi host; diganti keputusan 62); Detail menaruh tim sendiri di
     atas dengan nama klub di subjudul; estimasi Fixed sparing pasti ("Lanjut · 14 round · lewat booking 01:30");
     pemain ganjil per klub menahan Buat jadwal seperti Fixed biasa; nilai WO klub di Mixed Best of/Americano =
     rata-rata nilai WO kedua pemenang (rincian K1–K13). Turnamen
@@ -780,7 +781,8 @@ pemainnya tidak ada, 10c), "Match tidak ditemukan", spinner saat Jadwal membuat 
      hilang; aturan menyusul tetap (2.7.0), hanya teks UI.
 112. **PATCH 3.8.1 dari review UX hi-fi** (2026-11-18): paket P1 kontras, P2 area sentuh + Semantics, P3 teks dari
      `design/review/ux-review.md` dikerjakan sesuai usulan reviewer (rincian per id di `ux-review-A/B/C.md`). P4–P7 belum.
-     Setelah selesai, catatan PRD dan hi-fi diaudit supaya tidak berbeda.
+     Setelah selesai, catatan PRD dan hi-fi diaudit supaya tidak berbeda. **Audit selesai 2026-11-18 (UX-5):** PRD §5,
+     §6, §7, §13–§16 disamakan dengan app 3.8.1; catatan hi-fi yang tertinggal diperbaiki; kode = kebenaran bila beda.
 
 ---
 
