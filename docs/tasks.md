@@ -41,7 +41,14 @@ versi sampai UX-5. Ikon tukar tetap 44 × 42 (keputusan 48–57). Wording UI dan
   (langkah 2 tetap "Add to Home Screen"). Tebakan agen dipakai: "Klasemen" di 06c + 9 frame "seperti 06c"; 08d/15j
   ikut "Tambah jam". PRD menyusul di UX-5.
 - Jebakan UX-2 diperbaiki: `tool/hifi_extract.py` menyalin tabel `#semantics` ke `components.md`.
-- UX-4 wajib: `docs/ui-v2.md` → Input Skor "Americano menulis selisih" diganti (semua format "menang 13–8").
+- **UX-3 selesai** (1e7a547): kontras, `MabarTouchOutset` area ketuk 48, Semantics + `test/core/ux3_semantics_test.dart`.
+- **UX-4 selesai** (0041d0c): teks P3 + K3, `lib/services/schedule/finish_notice.dart` (dialog Akhiri per mode) + test,
+  golden 20r/21z. Frame 15m dibuat setinggi batas sheet 92% (akibat paragraf K3 dihapus) → golden lolos. Pilihan
+  engineer (belum ditanyakan host, bawa ke UX-5): metode di subjudul Detail tidak ditulis untuk Sparing dan Grup + Gugur
+  (Cakupan hanya 10a/10b/10d/12k); B-20 "Istirahat" ikut berlaku di penonton Sparing; aturan "olahraga dibuang dulu
+  kalau tidak muat" (B-6) belum diterapkan, subjudul tetap elipsis.
+- **Berikutnya: UX-5** (audit PRD ↔ catatan hi-fi) di sesi baru, lalu UX-6 rilis. Belum ada full test sesudah 15m;
+  full test sekali di UX-6.
 
 ---
 

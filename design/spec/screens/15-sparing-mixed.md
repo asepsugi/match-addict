@@ -124,7 +124,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 
 - Latar = 15e (8 / 3). Kiki keluar → Matcha Club tinggal Indra dan Joko: Keluarkan mati di klub itu, alasannya di bawah daftarnya ("Butuh minimal 2 pemain per klub", seperti 08b). PB Garuda tetap bisa dikeluarkan (minimal total 4 tetap berlaku).
 - Kembalikan = ke klubnya sendiri (Kiki ke Matcha Club, AC-S12). Pemain tidak bisa pindah klub (K8).
-- Daftar PB Garuda digulir: frame menampilkan 4 baris pertama.
+- Daftar PB Garuda digulir: sheet setinggi batas 92%, frame menampilkan 4 baris pertama.
 
 ## 15n · Jadwal Mixed sparing · pemain telat main
 
