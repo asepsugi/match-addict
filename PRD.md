@@ -288,8 +288,10 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   turnamen berjalan; Mulai turnamen memindahkannya ke slot terakhir tanpa dialog (2026-10-25).
 - Turnamen bernama: nama menggantikan "olahraga · mode · n pemain" di banner dan baris riwayat (satu baris, elipsis)
   dan "olahraga · mode" di dialog mulai baru.
-- Web/PWA: baris "Pasang Match Addict di HP" (dialog bawaan browser, atau panduan iPhone/iPad).
-- Versi app (`appVersion`) tampil di Beranda (keputusan 20, 2026-11-04; belum ada di hi-fi).
+- Web/PWA: baris "Pasang Match Addict di HP" (dialog bawaan browser, atau sheet "Pasang di iPhone" untuk iPhone/iPad:
+  tiga langkah lewat Bagikan di Safari, catatan kaki "Hanya dari Safari"; 01i).
+- Versi app "v" + `appVersion` (mis. "v3.8.1") di kanan atas banner, tidak bisa diketuk, di semua kondisi Beranda
+  (keputusan 20, 2026-11-04; hi-fi 01b).
 
 ### 5.2 Pemain (02a–02d)
 - Satu kotak teks (tempel dari WhatsApp); parser membuang nomor/bullet, spasi ganda, baris kosong, dan duplikat
@@ -302,13 +304,17 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   bisa diubah setelah turnamen dibuat.
 - Mode Fixed/Mixed (Mexicano: 14.2), format skor (4.1), durasi match (stepper ±5), jumlah court 1–10, per court nama/warna (10 warna
   preset)/booking. Estimasi di tombol. Fixed → Pasangan; Mixed → langsung Jadwal + R1.
+- Satu layar yang selalu muat (keputusan 33): Skor ("Race to 6 · 20 menit") dan Court ("2 court · 2 jam"; booking
+  berbeda "6 court · 1–2 jam") masing-masing satu baris, rinciannya di sheet yang langsung berlaku. Dibuka dengan
+  pengaturan turnamen terakhir per olahraga (keputusan 36, 38); turnamen pertama di HP: Fixed, Race to 6, 20 menit
+  (Padel 15), 2 court × 2 jam.
 
 ### 5.4 Pasangan — Fixed (04a–04h)
 - Acak / Manual (pilih, lepas pilihan, Urungkan), pemain ganjil + "Ubah pemain", dialog kunci pasangan.
 - Atur pasangan sebelum round tambahan (04f–04h): Ubah per pasangan, pemain pengganti, "Simpan pasangan · n tidak
   main", hasilnya di baris Pasangan sheet Tambah round.
 
-### 5.5 Jadwal Fixed (06a–06e, 06v–06z) & Mixed (06f–06o, 06u)
+### 5.5 Jadwal Fixed (06a–06e, 06v–06z) & Mixed (06f–06u)
 - Tab round yang bisa digeser (tepi dipudarkan), label kanan "x/y match" atau "Waktu habis"; ganti round hanya lewat tab.
 - Baris match bergaya scorebug dengan strip court berwarna (42 pt; di round yang sedang berjalan + kotak jam sisa
   booking court itu); ketuk → Input Skor (juga untuk mengubah).
@@ -321,9 +327,15 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   Akhiri turnamen (dialog).
   Setelah diakhiri: Akhiri dan Kelola court hilang; Fixed tinggal Live score (06c, 12f), Mixed Live score + Cara kerja
   Mixed (06m).
+- Dialog "Akhiri turnamen?" · tombol "Akhiri"; isinya per mode (PATCH 3.8.1, keputusan 112): Fixed (juga Sparing Fixed)
+  "Match yang belum main tidak dihitung. Turnamen tidak bisa dilanjutkan."; Mixed dan Mexicano "Match yang belum main
+  tidak dihitung." karena bisa dilanjutkan; Grup + Gugur di §16 (20r, 21z).
 - Mixed: Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen.
+- Sheet tambah jam booking (grup "Jam booking", 0–6 jam per court) berjudul dan bertombol menurut pemicunya (PATCH
+  3.8.1): dari Waktu habis (turnamen belum berhenti) "Tambah jam"; setelah diakhiri atau dari Beranda "Lanjutkan
+  turnamen" dengan tombol "Lanjutkan". Isi sama (08c).
 - Mixed (bukan Mexicano/Fixed): tukar pemain di match round terakhir yang belum diisi dengan pemain yang istirahat
-  (§15, keputusan 48–59; rencana 3.5.0, hi-fi 17a–17r: ikon di baris match).
+  (§15, keputusan 48–59; sejak 3.5.0, hi-fi 17a–17r: ikon di baris match).
 - Fixed setelah semua match terisi: ikon Klasemen + "Tambah round" → sheet jam booking per court, baris Pasangan,
   "n match lagi tiap pasangan" dan "Buat R15–R16" (3.3a).
 - Back (tombol ‹, back HP, back browser) selalu ke Beranda, bukan ke Atur turnamen/Pasangan: dari sana "Buat jadwal"
@@ -331,7 +343,9 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 
 ### 5.6 Input Skor & Walkover (07a–07o)
 - Papan skor gelap: nama lengkap satu pemain per baris, satu angka besar per tim, keypad sendiri, pesan validasi,
-  "Perbarui skor" saat mengubah.
+  "Perbarui skor" saat mengubah. Saat mengubah, angka dan ⌫ mati sampai satu kotak diketuk (PATCH 3.8.1).
+- Kalimat hasil sama di semua format: nama pemenang + "menang" + skor pemenang–kalah ("Andi P & Budi S menang 13–8"),
+  bukan selisih (PATCH 3.8.1).
 - Subjudul menulis sisa booking court itu untuk match di round yang sedang berjalan ("· sisa 02:00").
 - WO lewat sheet (4.4).
 
@@ -339,11 +353,17 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · +/− (selisih)
   · nilai metode; peringkat 1 diberi bola.
 - Toggle Total Point / Win %, status di subjudul, catatan WO / tidak dimainkan, ketuk baris → Detail. Tombol Bagikan.
+- Pemain tanpa match selesai/WO di grup "Belum main". Fixed: satu baris per pasangan; pasangan yang berubah, pemain
+  yang tidak ikut lagi, dan pemain pengganti tampil per pemain (09g).
 
 ### 5.8 Detail Pemain (10a–10d)
 - Satu baris statistik (label mengikuti format skor: Poin/Game), beda partner/lawan, kalah WO, riwayat match terbaru
   di atas (Mixed menampilkan partner; menang WO menulis "+N"). Fixed menampilkan "Beda partner" hanya kalau
   pasangannya pernah diatur ulang (10d).
+- Subjudul: "Peringkat n · metode · olahraga · mode · format skor" ("Peringkat 1 · Total Point · Padel · Mixed ·
+  Americano 24"); nomor dan metode mengikuti pilihan di Klasemen (PATCH 3.8.1). Belum main: "Belum main" tanpa
+  metode.
+- Belum ada match: riwayat menulis "Belum ada match" saja (PATCH 3.8.1).
 
 ### 5.9 Bagikan (11a–11m, 18a–18t)
 - Kartu pratinjau + deret tema (11 pilihan: lapangan ikut olahraga sebagai bawaan + 10 gradien, sama di Ringkas dan
@@ -412,20 +432,24 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 |-------|-------|
 | Beranda (+ dialog mulai baru, sheet pasang di iPhone, ikon app) | 01a–01j |
 | Pemain | 02a–02d |
-| Konfigurasi (+ sheet warna court) | 03a–03e |
+| Konfigurasi (+ sheet Skor, sheet Court, sheet warna court) | 03a–03q |
 | Pasangan (Fixed) + Atur pasangan sebelum round tambahan | 04a–04h |
 | Jadwal Fixed + sheet Tambah round | 06a–06e, 06v–06z |
-| Jadwal Mixed (+ sheet Cara kerja Mixed) | 06f–06t |
-| Sheet Kelola pemain, Lanjutkan turnamen, Kelola court + detail court | 08a–08k |
+| Jadwal Mixed (+ sheet Cara kerja Mixed, strip court + hitung mundur) | 06f–06u |
+| Sheet Kelola pemain, Tambah jam / Lanjutkan turnamen, Kelola court + detail court | 08a–08k |
 | Input Skor + sheet Walkover | 07a–07o |
 | Klasemen | 09a–09g |
 | Detail Pemain | 10a–10d |
-| Bagikan | 11a–11l |
+| Bagikan | 11a–11m |
 | Live score: menu, dialog, sheet di HP host; halaman penonton (Jadwal, Klasemen, Detail) | 12a–12o |
-| Grup + Gugur (§16, rencana 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, Klasemen grup + peringkat akhir | 19a–19y, 20a–20q, 21a–21y, 22a–22r |
+| Sparing (§13): umum, Fixed, Mixed | 13a–13w, 14a–14y, 15a–15y |
+| Mexicano (§14) | 03c, 03e, 03q, 16a–16g |
+| Tukar pemain Mixed (§15) | 17a–17r |
+| Poster podium + gambar poster Bagikan (§5.9) | 18a–18t |
+| Grup + Gugur (§16, 3.8.0): pilihan format + jumlah grup + format per babak di Konfigurasi, penempatan pasangan ke grup, Jadwal fase grup, langkah Buat bagan (+ pilih yang lolos saat seri), bagan gugur di Jadwal, dialog Akhiri (20r, 21z), Klasemen grup + peringkat akhir | 19a–19y, 20a–20r, 21a–21z, 22a–22r |
 
-State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen berjalan", "Match tidak ditemukan",
-"Pemain tidak ditemukan", spinner saat Jadwal membuat round pertama.
+State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen berjalan" (juga Detail kalau
+pemainnya tidak ada, 10c), "Match tidak ditemukan", spinner saat Jadwal membuat round pertama.
 
 ---
 
@@ -435,8 +459,16 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 - Warna: court `#1E6BB8`, court-deep `#164E8C`, ink `#0F1E2C`, ball `#CDE84A`, paper `#EEF2F5`, card `#FFFFFF`,
   line `#DCE3E9`, clay `#B9482A` (error/hapus/WO), padel `#BC5A33` (permukaan lapangan padel di Beranda saja),
   emas `#E3B341` (lencana #1 di Bagikan saja), 10 warna court.
+- Teks: ink-2 `#3E4B57` (teks kedua, ikon), ink-3 `#5F6D7A` (keterangan kecil, placeholder, alasan di tombol tunggu;
+  ≥ 4,5:1 di paper dan card). faint `#9AA6B1` hanya untuk chevron dan state mati, bukan teks yang harus dibaca dan
+  bukan placeholder. Tepi semua isian yang tidak fokus (kosong maupun terisi) edge `#7D8A96` 1,5 pt; fokus court 2 pt,
+  error clay 2 pt (PATCH 3.8.1, keputusan 112).
 - Huruf Archivo: angka besar condensed (`wdth` 72, tabular), wordmark lebar (`wdth` 125).
-- Ikon Phosphor Bold 24 pt (20 di dalam tombol). Tinggi sentuh minimal 44 pt; tombol utama 52 pt.
+- Ikon Phosphor Bold 24 pt (20 di dalam tombol). Area ketuk minimal 48 × 48 untuk semua kontrol, tampilan tetap
+  (tombol ikon 44, aksi baris 36, aksi teks 44); pengecualian ikon tukar 44 × 42 (keputusan 48–57). Tombol utama 52 pt
+  (PATCH 3.8.1).
+- Label aksesibilitas (`Semantics`) per komponen: tabel di `design/spec/components.md` → Semantics. Status (menang,
+  terpilih, terkunci, mati) ikut dibaca, bukan hanya dari warna atau bola (PATCH 3.8.1).
 - Ikon app: sudut lapangan tennis + bola (opsi A), dari painter yang sama dengan banner Beranda.
 
 ### Prinsip "Tanpa Petunjuk"
