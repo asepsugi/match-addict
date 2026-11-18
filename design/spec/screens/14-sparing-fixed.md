@@ -240,7 +240,7 @@ Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 
 - Turnamen sparing tanpa nama: baris kecil di atas round = "klub pertama · skor klub · klub kedua" ("PB Garuda 6 – 4 Matcha Club"), menggantikan "olahraga · mode · n pemain"; skornya menggantikan "vs" (13.7), angka tebal. Sebelum ada hasil: "PB Garuda 0 – 0 Matcha Club". Satu baris, elipsis per nama klub kalau tidak muat.
 - Info round sama dengan 01e: round = round pertama yang masih ada match kosong (R6), "10 dari 12 match", Lanjutkan → Jadwal (13k).
-- Sparing bernama: nama turnamen tetap di baris kecil, skor klub di baris sendiri di bawahnya (belum digambar). Banner mengikuti olahraga turnamen (padel).
+- Sparing bernama: nama turnamen tetap di baris kecil, skor klub di samping round (15w). Banner mengikuti olahraga turnamen (padel).
 
 ## 14y · Dialog · mulai turnamen baru saat sparing berjalan
 

@@ -317,9 +317,10 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   separuh lebar tetap utuh (06u).
 - Istirahat: Fixed paling banyak satu pasangan; Mixed di round terakhir dibagi "Istirahat · Prioritas main di R(n+1)"
   dan "Istirahat lagi di R(n+1)".
-- Menu ⋯: Kelola court (Mixed), Cara kerja Mixed (sheet; muncul otomatis sekali saat R1 dibuat), dan Akhiri turnamen
-  (dialog).
-  Fixed yang sudah diakhiri tidak punya item menu lagi: ikon ⋯ tampil pudar dan tidak bisa diketuk.
+- Menu ⋯: Live score (§5.11), Kelola court (Mixed), Cara kerja Mixed (sheet; muncul otomatis sekali saat R1 dibuat), dan
+  Akhiri turnamen (dialog).
+  Setelah diakhiri: Akhiri dan Kelola court hilang; Fixed tinggal Live score (06c, 12f), Mixed Live score + Cara kerja
+  Mixed (06m).
 - Mixed: Buat R(n+1) / Batalkan Rn / Pemain (n) / Tambah jam / Lanjutkan turnamen.
 - Mixed (bukan Mexicano/Fixed): tukar pemain di match round terakhir yang belum diisi dengan pemain yang istirahat
   (§15, keputusan 48–59; rencana 3.5.0, hi-fi 17a–17r: ikon di baris match).
@@ -739,6 +740,13 @@ State teks sederhana tanpa frame: "Halaman tidak ditemukan", "Belum ada turnamen
 109. **Frame 22q/22r Story dibetulkan ke aturan bawahKepala** (2026-11-17, "setuju"): baris kecil yang dikecilkan
      (15 → 12,5) memakai ukuran sesudah dikecilkan untuk garis belakang, podium mini, dan panel (logic.md §17.12 #3,
      sama dengan 11m); frame lama menurunkannya 3 pt. Kode tidak berubah.
+110. **Catatan disamakan dengan app** (2026-11-18): menu ⋯ setelah diakhiri = Fixed tinggal Live score, Mixed Live score +
+     Cara kerja (06m); sparing bernama menulis skor klub di samping round (15w). Kode tidak berubah.
+111. **Paragraf penjelas Kelola pemain dihapus** (2026-11-18, K3): "Pemain baru langsung ikut main…" di 08a/15l/15m
+     hilang; aturan menyusul tetap (2.7.0), hanya teks UI.
+112. **PATCH 3.8.1 dari review UX hi-fi** (2026-11-18): paket P1 kontras, P2 area sentuh + Semantics, P3 teks dari
+     `design/review/ux-review.md` dikerjakan sesuai usulan reviewer (rincian per id di `ux-review-A/B/C.md`). P4–P7 belum.
+     Setelah selesai, catatan PRD dan hi-fi diaudit supaya tidak berbeda.
 
 ---
 

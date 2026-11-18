@@ -50,7 +50,12 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
 
 | Peran | Skill / MCP | Kapan |
 |---|---|---|
-| — | Belum ada skill/MCP eksternal yang dipakai proyek ini | — |
+| ui-ux-designer | `review-ux-ui` (pjt222/agent-almanac @ eb3cc37; `WebFetch` dihapus dari `allowed-tools`) | review UI/UX: heuristik Nielsen, WCAG (terjemahkan ke Semantics Flutter) |
+| ui-ux-designer | `ux-copy` (anthropics/knowledge-work-plugins @ e91a134) | review teks UI; aturan Wording UI di sini + PRD yang menang |
+| ui-ux-designer | `ui-ux-pro-max` (nextlevelbuilder/ui-ux-pro-max-skill @ e59ff37) | referensi saja: `python3 -I .claude/skills/ui-ux-pro-max/scripts/search.py "<kueri>" --domain ux` (atau `--stack flutter`); **jangan** `--design-system --persist/--preview` (bikin tokens/MASTER tandingan hi-fi) |
+
+Skill di `.claude/skills/` disalin dari SHA yang sudah divetting `security` (2026-11-18), tidak update sendiri. Ditolak:
+`design-taste-frontend` (hook Stop + Chrome/jaringan), `uxui-principles` (kirim deskripsi UI ke API pihak ketiga).
 
 ## Arsitektur
 
@@ -121,6 +126,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   rilis 3.7.1 di `main` (527b0ab).
 - Grup + Gugur 3.8.0 (MINOR): PRD §16 + keputusan 93–109, hi-fi 19a–22r (artifact v95), spec `logic.md` §18, data
   `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Rilis 3.8.0+24 live 2026-11-17 (90ebba2). Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
+- PATCH 3.8.1 review UX hi-fi (keputusan 110–112): temuan di `design/review/`, task UX-0…UX-6 di `docs/tasks.md`,
+  branch `ux-patch-3-8-1`.
 
 ## Area docs
 
@@ -132,7 +139,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
 | `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
-| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: Poster Lengkap PL-n) | tech-lead |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: PATCH 3.8.1 review UX, UX-n) | tech-lead |
 
 ## Pitfalls (lintas area)
 

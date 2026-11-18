@@ -1,3 +1,28 @@
+# Task — PATCH 3.8.1 review UX hi-fi (P1 kontras · P2 sentuh + Semantics · P3 teks)
+
+Pemilik: main session. Branch `ux-patch-3-8-1` (dari `main` 559d69f). Produk: PRD keputusan 110–112. Sumber temuan:
+`design/review/ux-review.md` (paket) + `ux-review-A.md` / `-B.md` / `-C.md` (id, fakta, baris hi-fi, usulan persis).
+Dikerjakan **sesuai usulan reviewer**; P4–P7 di luar lingkup (jangan ikut dikerjakan). Lembar kontak
+`design/review/sheets/` tidak di-commit (6,5 MB).
+
+Aturan semua task: hi-fi dulu, lalu kode; golden `expectMatchesHifi` setelah `python3 tool/hifi_extract.py`
+(`docs/ui-v2.md`); logika tidak berubah (PATCH); `dart format` hanya hunk sendiri; tanpa dependensi baru; tanpa naik
+versi sampai UX-5. Ikon tukar tetap 44 × 42 (keputusan 48–57). Wording UI dan aturan "tanpa kalimat penjelas" berlaku.
+
+## Urutan
+
+| Task | Isi | Siapa | Dicek |
+|---|---|---|---|
+| UX-0 | Hi-fi bagian bersama: CSS/Fondasi/Komponen untuk P1 (A-1, A-3=B-3, A-4=C-8 + gembok, A-5, A-6 aturan "faint = placeholder" diganti, B-19, C-16), aturan area ketuk ≥ 48 di Fondasi + chip grup 40/gap 8 (A-7, B-5, C-6), tabel Semantics di hi-fi Komponen + `design/spec/components.md` (A-11, B-4, C-5), B-11 jarak Simpan 24, B-12 ⌫ mati, B-17 "Offline · 19.48"; Cakupan "Sudah disetujui" | ui-ux-designer opus/high | main session |
+| UX-1 | Hi-fi teks P3 + K3: A-2/C-1 dialog Akhiri per mode (+ frame dialog Grup + Gugur fase grup dan gugur sebelum Final), A-10/K3 hapus paragraf 08a/15l/15m, A-12, A-16, A-17, B-6, B-13, B-14, B-15, B-20, C-13, C-14; catatan + `design/spec/screens/*.md` ikut | ui-ux-designer opus/high (setelah UX-0, file sama) | main session |
+| UX-2 | Render ulang frame (`tool/hifi_extract.py`), cek noise rects | main session | — |
+| UX-3 | Kode P1 + P2: token/warna, `MabarButton` wait meta, `RoundTabs` terkunci, court swatch, field, tema, bagan, area ketuk, Semantics, keypad; golden diperbarui | engineer sonnet/medium | main session (diff + test terkait) |
+| UX-4 | Kode P3 + K3: teks + dialog Akhiri per mode (`confirmFinishTournament`), golden | engineer sonnet/low (bisa digabung UX-3 kalau konteks cukup) | main session |
+| UX-5 | Audit PRD ↔ catatan hi-fi (permintaan host): bandingkan per bagian, kode = kebenaran bila keduanya beda; konflik yang kodenya tidak jelas → tanya host | product-manager opus/high, per bagian PRD, maks 3 paralel | main session |
+| UX-6 | Rilis: 3.8.1+25 + `appVersion`, full test sekali, merge ke `main`, push (deploy), publish ulang hi-fi, status CLAUDE.md + memory | main session | — |
+
+---
+
 # Task — Grup + Gugur (rencana 3.8.0, MINOR)
 
 Pemilik: tech-lead. Branch `grup-gugur`. Produk: PRD §16 (keputusan 93–103). Spec: `design/spec/logic.md` §18 (aturan,
