@@ -58,8 +58,8 @@ versi sampai UX-5. Ikon tukar tetap 44 × 42 (keputusan 48–57). Wording UI dan
   "Istirahat lagi" (sekarang satu daftar "Istirahat" berisi semua; 5790a33, test di `live_test.dart`) dan **B-6**
   subjudul Detail membuang olahraga dulu kalau tidak muat (`MabarAppBar.shorterSubtitle`, bf38015,
   `test/core/app_bar_subtitle_test.dart`).
-- **Berikutnya: UX-6** (rilis 3.8.1+25): versi dan `appVersion` sudah dinaikkan; tinggal merge ke `main`, push (deploy),
-  publish ulang hi-fi (artifact `H9ZVDUfYvEBXsoBqih4iov`) — menunggu "go" host.
+- **UX-6** (rilis 3.8.1+25): versi dan `appVersion` dinaikkan, di-merge ke `main` lokal (a7b506a), hi-fi di-publish ulang
+  (artifact `H9ZVDUfYvEBXsoBqih4iov`, v97). **Belum di-push** atas permintaan host (2026-11-18); push = deploy web.
 
 ---
 

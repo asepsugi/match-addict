@@ -127,8 +127,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - Grup + Gugur 3.8.0 (MINOR): PRD §16 + keputusan 93–109, hi-fi 19a–22r (artifact v95), spec `logic.md` §18, data
   `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Rilis 3.8.0+24 live 2026-11-17 (90ebba2). Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
 - PATCH 3.8.1 review UX hi-fi (keputusan 110–112): temuan di `design/review/`, task UX-0…UX-6 di `docs/tasks.md`,
-  branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di branch, full test lolos.
-  Sisa UX-6: merge ke `main`, push (deploy), publish ulang hi-fi — menunggu go host.
+  branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di `main` lokal (a7b506a),
+  hi-fi v97 terbit. Sisa: push (deploy) — ditahan host.
 
 ## Area docs
 
