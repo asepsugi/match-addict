@@ -10,8 +10,10 @@ import 'package:match_addict/features/live/live_host_controller.dart';
 import 'package:match_addict/features/live/live_screen.dart';
 import 'package:match_addict/features/live/live_view_controller.dart';
 import 'package:match_addict/features/schedule/schedule_mixed_screen.dart';
+import 'package:match_addict/features/schedule/widgets/resting_list.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/services/live/live_relay.dart';
+import 'package:match_addict/services/schedule/endless_round_generator.dart';
 
 import '../hifi_golden.dart';
 import 'grup_gugur_fixture.dart';
@@ -154,6 +156,27 @@ void main() {
     ], finished: true);
     await expectMatchesHifi(tester, watch(LiveView(LiveViewStatus.live, ended)), '12l');
     expect(find.text('Live'), findsNothing);
+  });
+
+  testWidgets('12l diakhiri: satu daftar Istirahat berisi semua yang istirahat, tanpa prioritas (B-20)', (tester) async {
+    // 30 pemain (data 06o): setelah R3 ada yang diprioritaskan dan ada yang "istirahat lagi"; penonton melihat
+    // keduanya dalam satu daftar, bukan hanya yang diprioritaskan.
+    const rounds = [
+      <MatchSpec>[('Putri', 'Oki', 'Tari', 'Gina', 11, 10), ('Lina', 'Wulan', 'Kiki', 'Tono', 12, 9)],
+      <MatchSpec>[('Fajar', 'Galih', 'Rizky', 'Joko', 11, 10), ('Nanda', 'Eko', 'Hendra', 'Bayu', 12, 9)],
+      <MatchSpec>[('Citra', 'Vina', 'Maya', 'Dimas', 13, 8), ('Sari', 'Dewant', 'Umar', 'Andi', 11, 9)],
+    ];
+    final ended = mixedTournament(rounds, players: 30, id: 't-12l-30', finished: true);
+    final split = EndlessRoundGenerator.restingAfterLastRound(ended, start);
+    // Tanpa `later` test ini tidak menguji apa-apa.
+    expect(split.later, isNotEmpty);
+    await tester.pumpWidget(watch(LiveView(LiveViewStatus.live, ended)));
+    await tester.pumpAndSettle();
+    final list = tester.widget<RestingList>(find.byType(RestingList));
+    expect(list.priorityRound, isNull);
+    expect(list.names, [
+      for (final p in [...split.priority, ...split.later]) p.name,
+    ]);
   });
 
   testWidgets('12m HP penonton offline', (tester) async {

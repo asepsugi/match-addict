@@ -178,12 +178,13 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
         ) => [
           for (final c in split) RestingClub(club: c.club.name, names: [for (final p in pick(c)) p.name]),
         ];
-        final priority = column((c) => c.priority);
-        final later = column((c) => c.later);
+        // plainRest: satu daftar "Istirahat" berisi semua yang istirahat, bukan hanya yang diprioritaskan.
+        final priority = column((c) => plainRest ? [...c.priority, ...c.later] : c.priority);
+        final later = plainRest ? <RestingClub>[] : column((c) => c.later);
         resting = [
           if (priority.any((c) => c.names.isNotEmpty))
             RestingList.clubs(clubs: priority, priorityRound: plainRest ? null : last + 1),
-          if (later.any((c) => c.names.isNotEmpty) && !plainRest)
+          if (later.any((c) => c.names.isNotEmpty))
             RestingList.clubs(clubs: later, priorityRound: last + 1, later: true),
         ];
       } else {
@@ -195,9 +196,11 @@ class _ScheduleMixedScreenState extends ConsumerState<ScheduleMixedScreen> {
       }
     } else if (onLast) {
       final split = EndlessRoundGenerator.restingAfterLastRound(active, now);
+      // plainRest: satu daftar "Istirahat" berisi semua yang istirahat, bukan hanya yang diprioritaskan.
+      final first = plainRest ? [...split.priority, ...split.later] : split.priority;
       resting = [
-        if (split.priority.isNotEmpty)
-          RestingList(names: [for (final p in split.priority) p.name], priorityRound: plainRest ? null : last + 1),
+        if (first.isNotEmpty)
+          RestingList(names: [for (final p in first) p.name], priorityRound: plainRest ? null : last + 1),
         if (split.later.isNotEmpty && !plainRest)
           RestingList.later(names: [for (final p in split.later) p.name], nextRound: last + 1),
       ];
