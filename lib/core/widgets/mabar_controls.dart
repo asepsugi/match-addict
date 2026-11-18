@@ -432,6 +432,10 @@ class MabarAppBar extends StatelessWidget {
   final String title;
   final String? subtitle;
 
+  /// Pengganti [subtitle] kalau yang penuh tidak muat satu baris (Detail: olahraga dibuang dulu, B-6). Tanpa ini
+  /// subjudul yang panjang terpotong elipsis.
+  final String? shorterSubtitle;
+
   /// Bagian akhir subjudul yang ditulis clay ("sisa 00:12" di Input Skor), setelah " · ".
   final String? subtitleAlert;
   final VoidCallback? onBack;
@@ -442,11 +446,28 @@ class MabarAppBar extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.shorterSubtitle,
     this.subtitleAlert,
     this.onBack,
     this.actions = const [],
     this.scrolled = false,
   });
+
+  /// [subtitle] kalau muat selebar [maxWidth], kalau tidak [shorterSubtitle].
+  String _fitted(BuildContext context, double maxWidth) {
+    final full = subtitle!;
+    final shorter = shorterSubtitle;
+    if (shorter == null) return full;
+    final painter = TextPainter(
+      text: TextSpan(text: full, style: MabarType.caption),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final fits = painter.width <= maxWidth;
+    painter.dispose();
+    return fits ? full : shorter;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -467,20 +488,22 @@ class MabarAppBar extends StatelessWidget {
             if (subtitle != null)
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: Text.rich(
-                  TextSpan(
-                    text: subtitle,
-                    children: [
-                      if (subtitleAlert != null)
-                        TextSpan(
-                          text: ' · $subtitleAlert',
-                          style: const TextStyle(color: MabarColors.clay),
-                        ),
-                    ],
+                child: LayoutBuilder(
+                  builder: (context, box) => Text.rich(
+                    TextSpan(
+                      text: _fitted(context, box.maxWidth),
+                      children: [
+                        if (subtitleAlert != null)
+                          TextSpan(
+                            text: ' · $subtitleAlert',
+                            style: const TextStyle(color: MabarColors.clay),
+                          ),
+                      ],
+                    ),
+                    style: MabarType.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  style: MabarType.caption,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
           ],

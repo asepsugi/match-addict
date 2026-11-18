@@ -69,6 +69,17 @@ class DetailPlayerScreen extends ConsumerWidget {
 
     Widget count(String text) => Text(text, style: MabarType.numM.copyWith(fontSize: 20, color: MabarColors.ink));
 
+    // Metode ikut pilihan di Klasemen (B-6). Sparing dan Grup + Gugur punya subjudul sendiri tanpa metode.
+    final method = played && clubPos == null && !groupKnockout ? ref.watch(rankingMethodProvider).label : null;
+    String subtitle({required bool withSport}) => [
+      played ? 'Peringkat ${entry.position}' : 'Belum main',
+      ?method,
+      if (entry.stage case final stage?) stage,
+      if (clubPos != null) clubPos.club.name,
+      if (withSport) config.sport.label,
+      if (groupKnockout) 'Grup + Gugur' else ...[config.mode.label, format.label],
+    ].join(' · ');
+
     return Scaffold(
       backgroundColor: MabarColors.paper,
       body: Column(
@@ -76,15 +87,9 @@ class DetailPlayerScreen extends ConsumerWidget {
         children: [
           MabarAppBar(
             title: entry.players.map((p) => p.name).join(' · '),
-            subtitle: [
-              played ? 'Peringkat ${entry.position}' : 'Belum main',
-              // Metode ikut pilihan di Klasemen (B-6). Sparing dan Grup + Gugur punya subjudul sendiri tanpa metode.
-              if (played && clubPos == null && !groupKnockout) ref.watch(rankingMethodProvider).label,
-              if (entry.stage case final stage?) stage,
-              if (clubPos != null) clubPos.club.name,
-              config.sport.label,
-              if (groupKnockout) 'Grup + Gugur' else ...[config.mode.label, format.label],
-            ].join(' · '),
+            subtitle: subtitle(withSport: true),
+            // Kalau tidak muat satu baris, olahraga dibuang dulu (B-6).
+            shorterSubtitle: subtitle(withSport: false),
             onBack: () => context.pop(),
           ),
           Expanded(
