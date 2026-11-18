@@ -52,6 +52,7 @@ class CourtHoursGroup extends StatelessWidget {
                   ],
                 ),
                 trailing: MabarStepper(
+                  semanticName: 'jam ${c.name}',
                   value: extra,
                   min: 0,
                   max: maxExtraHours,

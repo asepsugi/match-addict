@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/mabar_theme.dart';
+import '../../../core/theme/mabar_icons.dart';
 import '../../../core/widgets/mabar_ball.dart';
+import '../../../core/widgets/mabar_controls.dart';
 
 /// `.tabs` — tab round + label kanan. Round selesai teks biasa, round berjalan diberi titik bola
-/// ([liveRound]), round Fixed yang belum terbuka pudar ([isFuture]). Kalau tidak muat, hanya baris tab
+/// ([liveRound]), round Fixed yang belum terbuka bergembok ([isFuture], tetap ink-3 dan tetap bisa diketuk). Kalau tidak muat, hanya baris tab
 /// yang digeser; label kanan tetap, dan tepi yang menyembunyikan tab dipudarkan 36 pt. Tab terpilih
 /// otomatis digeser masuk tampilan saat dibuka dan saat [selected] berubah. Ganti round hanya lewat
 /// tab (tanpa geser konten). Lihat frame 06n.
@@ -83,7 +85,10 @@ class _RoundTabsState extends State<RoundTabs> {
           curve: Curves.easeOut,
         );
       }
-      for (final policy in [ScrollPositionAlignmentPolicy.keepVisibleAtEnd, ScrollPositionAlignmentPolicy.keepVisibleAtStart]) {
+      for (final policy in [
+        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+        ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      ]) {
         Scrollable.ensureVisible(context, alignmentPolicy: policy, duration: duration, curve: Curves.easeOut);
       }
     });
@@ -92,29 +97,43 @@ class _RoundTabsState extends State<RoundTabs> {
   Widget _tab(int round) {
     final on = round == widget.selected;
     final future = widget.isFuture?.call(round) ?? false;
-    final color = on ? MabarColors.ink : (future ? MabarColors.dim : MabarColors.ink3);
-    return GestureDetector(
+    final live = round == widget.liveRound;
+    final color = on ? MabarColors.ink : MabarColors.ink3;
+    final text = round > widget.count ? widget.extraTab! : (widget.labelOf?.call(round) ?? 'R$round');
+    // Status dibaca, bukan dari warna/titik: "R3, berjalan" · "R4, terkunci".
+    final label = live ? '$text, berjalan' : (future ? '$text, terkunci' : text);
+    return MabarTouchOutset(
       key: _keys.putIfAbsent(round, GlobalKey.new),
-      behavior: HitTestBehavior.opaque,
-      onTap: () => widget.onSelect(round),
-      child: Semantics(
-        selected: on,
-        button: true,
-        child: Container(
-          padding: const EdgeInsets.only(top: 6, bottom: 11),
-          // Garis bawah di dalam kotak tab (`inset 0 -2.5px 0`), jadi tinggi tab tidak bertambah.
-          foregroundDecoration: on
-              ? const BoxDecoration(border: Border(bottom: BorderSide(color: MabarColors.ink, width: 2.5)))
-              : null,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                round > widget.count ? widget.extraTab! : (widget.labelOf?.call(round) ?? 'R$round'),
-                style: MabarType.body.copyWith(fontSize: 15, fontWeight: FontWeight.w700, color: color),
-              ),
-              if (round == widget.liveRound) ...[const SizedBox(width: 6), const LiveDot()],
-            ],
+      // Setengah jarak antartab (22): lebar ketuk tab pendek ("R1") jadi ≥ 44 tanpa menggeser tata letak.
+      horizontal: 11,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => widget.onSelect(round),
+        child: Semantics(
+          selected: on,
+          button: true,
+          label: label,
+          excludeSemantics: true,
+          child: Container(
+            padding: const EdgeInsets.only(top: 6, bottom: 11),
+            // Garis bawah di dalam kotak tab (`inset 0 -2.5px 0`), jadi tinggi tab tidak bertambah.
+            foregroundDecoration: on
+                ? const BoxDecoration(
+                    border: Border(bottom: BorderSide(color: MabarColors.ink, width: 2.5)),
+                  )
+                : null,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // `.tabs b.future .lk`: gembok 12 menggantikan pudar (tab terkunci terbaca ink-3).
+                if (future) ...[Icon(MabarIcons.lockSimple, size: 12, color: color), const SizedBox(width: 6)],
+                Text(
+                  text,
+                  style: MabarType.body.copyWith(fontSize: 15, fontWeight: FontWeight.w700, color: color),
+                ),
+                if (live) ...[const SizedBox(width: 6), const LiveDot()],
+              ],
+            ),
           ),
         ),
       ),
@@ -136,29 +155,38 @@ class _RoundTabsState extends State<RoundTabs> {
         ],
       ),
     );
-    return DecoratedBox(
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: MabarColors.line))),
-      child: Padding(
-        // 1 pt bawah = garis (border-box CSS).
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 1),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(child: _EdgeFade(controller: _scroll, child: strip)),
-            if (widget.meta != null) ...[
-              const SizedBox(width: 22),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  widget.meta!,
-                  style: MabarType.caption.copyWith(
-                    color: widget.metaAlert ? MabarColors.clay : MabarColors.ink3,
-                    fontWeight: widget.metaAlert ? FontWeight.w600 : FontWeight.w400,
+    // Tinggi tab ±38 → area ketuk 48: ketukan 5 pt di atas/bawah dibelokkan ke dalam baris tab.
+    return MabarTouchOutset(
+      vertical: 5,
+      innerInset: const EdgeInsets.only(bottom: 2),
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: MabarColors.line)),
+        ),
+        child: Padding(
+          // 1 pt bawah = garis (border-box CSS).
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 1),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: _EdgeFade(controller: _scroll, child: strip),
+              ),
+              if (widget.meta != null) ...[
+                const SizedBox(width: 22),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    widget.meta!,
+                    style: MabarType.caption.copyWith(
+                      color: widget.metaAlert ? MabarColors.clay : MabarColors.ink3,
+                      fontWeight: widget.metaAlert ? FontWeight.w600 : FontWeight.w400,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

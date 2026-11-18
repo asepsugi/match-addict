@@ -82,6 +82,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
     label: 'Tema ${t.name}',
     gradient: t.gradientFor(Size.square(size)),
     selected: t == _theme,
+    soft: t.isLight,
     onTap: () => setState(() => _theme = t),
   );
 
@@ -157,23 +158,27 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
                 const SizedBox(height: 14),
                 // `.themes.fit`: lapangan + 10 gradien = 11 lingkaran 27 pt satu baris, sama di Ringkas dan Lengkap
                 // (keputusan 76).
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: SizedBox(
-                    height: 30,
-                    child: Row(
-                      spacing: 6,
-                      children: [
-                        _ThemeSwatch(
-                          size: 27,
-                          label: 'Tema lapangan',
-                          gradient: _courtSwatch(config.sport),
-                          selected: _theme == null,
-                          onTap: () => setState(() => _theme = null),
-                        ),
-                        for (final t in ShareTheme.values) _gradientSwatch(t, 27),
-                      ],
+                MabarTouchOutset(
+                  // Deret 30 → area ketuk 48 (lingkaran 27).
+                  vertical: 9,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      height: 30,
+                      child: Row(
+                        spacing: 6,
+                        children: [
+                          _ThemeSwatch(
+                            size: 27,
+                            label: 'Tema lapangan',
+                            gradient: _courtSwatch(config.sport),
+                            selected: _theme == null,
+                            onTap: () => setState(() => _theme = null),
+                          ),
+                          for (final t in ShareTheme.values) _gradientSwatch(t, 27),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -224,6 +229,9 @@ class _ThemeSwatch extends StatelessWidget {
   final String label;
   final Gradient gradient;
   final bool selected;
+
+  /// `.theme.soft`: gradien lembut bertepi tinta 20% (tetap ada saat terpilih), bukan tepi hitam 8% yang nyaris tak terlihat.
+  final bool soft;
   final VoidCallback onTap;
 
   const _ThemeSwatch({
@@ -231,36 +239,42 @@ class _ThemeSwatch extends StatelessWidget {
     required this.label,
     required this.gradient,
     required this.selected,
+    this.soft = false,
     required this.onTap,
   });
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    selected: selected,
-    label: label,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: gradient,
-          boxShadow: selected
-              ? const [
-                  BoxShadow(color: MabarColors.ink, spreadRadius: 5),
-                  BoxShadow(color: MabarColors.paper, spreadRadius: 3),
-                ]
-              : null,
+  Widget build(BuildContext context) => MabarTouchOutset(
+    // Slot selebar lingkaran + setengah jarak (3) tiap sisi; tinggi 48 dari deret (lihat pemanggil).
+    horizontal: 3,
+    child: Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: gradient,
+            boxShadow: selected
+                ? const [
+                    BoxShadow(color: MabarColors.ink, spreadRadius: 5),
+                    BoxShadow(color: MabarColors.paper, spreadRadius: 3),
+                  ]
+                : null,
+          ),
+          // `inset 0 0 0 1px rgba(0,0,0,.08)`; cincin terpilih menggantikannya.
+          foregroundDecoration: selected && !soft
+              ? null
+              : BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: soft ? const Color(0x330F1E2C) : const Color(0x14000000)),
+                ),
         ),
-        // `inset 0 0 0 1px rgba(0,0,0,.08)`; cincin terpilih menggantikannya.
-        foregroundDecoration: selected
-            ? null
-            : BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0x14000000)),
-              ),
       ),
     ),
   );

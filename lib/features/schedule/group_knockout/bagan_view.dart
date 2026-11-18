@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 import '../../../core/theme/mabar_theme.dart';
 import '../../../core/widgets/mabar_ball.dart';
@@ -53,11 +54,21 @@ class _BaganViewState extends State<BaganView> {
           _scroll ??= ScrollController(
             initialScrollOffset: column == null ? overflow : (column * layout.step).clamp(0.0, overflow),
           );
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: _scroll,
-            physics: _ColumnSnap(stops),
-            child: board,
+          return Semantics(
+            // Pembaca layar tidak bisa menggeser per kolom: sediakan loncat ke kolom terakhir (Final).
+            customSemanticsActions: {
+              const CustomSemanticsAction(label: 'Geser ke Final'): () => _scroll!.animateTo(
+                overflow,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+              ),
+            },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              controller: _scroll,
+              physics: _ColumnSnap(stops),
+              child: board,
+            ),
           );
         },
       ),
@@ -74,7 +85,7 @@ class _BaganViewState extends State<BaganView> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned.fill(child: CustomPaint(painter: _LinesPainter(layout.lines))),
+          Positioned.fill(child: ExcludeSemantics(child: CustomPaint(painter: _LinesPainter(layout.lines)))),
           for (final h in layout.headers)
             Positioned(
               left: h.left,
@@ -348,8 +359,13 @@ class _BaganCard extends StatelessWidget {
         ),
       ),
     );
+    final locked = match.pair1.isTbd || match.pair2.isTbd;
     return Semantics(
+      container: true,
       button: onTap != null,
+      enabled: !locked,
+      label: _label(code, court, off, s1, s2),
+      excludeSemantics: true,
       child: Material(
         color: MabarColors.card,
         borderRadius: BorderRadius.circular(10),
@@ -369,6 +385,27 @@ class _BaganCard extends StatelessWidget {
     );
   }
 
+  /// "SF1, Round 7, Court 1. A1 Andi dan Budi 6, menang. B2 Maya dan Nanda 4"; sisi kosong: "Pemenang SF1, belum ada".
+  String _label(String? code, int court, bool off, SideSource s1, SideSource s2) {
+    final head = [if (code != null) code, 'Round ${match.roundNumber}', 'Court $court'].join(', ');
+    String side(Pair pair, SideSource source, int games) {
+      if (pair.isTbd) return '${KnockoutBracket.sourceLabel(source)}, belum ada';
+      final seed = KnockoutBracket.seedOf(active, pair.id);
+      final names = [for (final id in pair.playerIds) active.playerName(id)].join(' dan ');
+      final wo = match.status == MatchStatus.wo && match.woLoserPairId == pair.id;
+      final text = '${seed == null ? '' : '$seed '}$names'
+          '${match.status == MatchStatus.done ? ' $games' : ''}${wo ? ' WO' : ''}';
+      return match.winnerPairId == pair.id ? '$text, menang' : text;
+    }
+
+    return [
+      head,
+      if (off) 'tidak dimainkan',
+      side(match.pair1, s1, match.pair1TotalGames),
+      side(match.pair2, s2, match.pair2TotalGames),
+    ].join('. ');
+  }
+
   /// `.bagan .t` — satu sisi: `.win` garis bola + nama tebal, `.tbd` asal sisi ("Pemenang SF1") tanpa kode slot.
   Widget _team(Pair pair, SideSource source, int games, bool off) {
     final tbd = pair.isTbd;
@@ -384,7 +421,8 @@ class _BaganCard extends StatelessWidget {
       height: 18 / 14,
       leadingDistribution: TextLeadingDistribution.even,
       fontWeight: win && !off ? FontWeight.w700 : FontWeight.w500,
-      color: off || tbd ? MabarColors.ink3 : (win ? MabarColors.ink : MabarColors.ink2),
+      // `.m:has(.t.win) .t:not(.win) .nm`: nama yang kalah ink-3 (C-16).
+      color: off || tbd || (winner != null && !win) ? MabarColors.ink3 : (win ? MabarColors.ink : MabarColors.ink2),
       decoration: off ? TextDecoration.lineThrough : null,
       decorationColor: MabarColors.ink3,
     );
@@ -426,7 +464,8 @@ class _BaganCard extends StatelessWidget {
               child: Container(
                 decoration: const BoxDecoration(
                   color: MabarColors.ball,
-                  border: Border(right: BorderSide(color: MabarColors.ballEdge)),
+                  // `box-shadow: inset -1px 0 0 var(--ink)`: bertepi tinta supaya beda dari yang kalah tanpa warna (C-16).
+                  border: Border(right: BorderSide(color: MabarColors.ink)),
                 ),
               ),
             ),

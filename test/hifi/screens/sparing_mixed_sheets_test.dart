@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/core/widgets/mabar_inputs.dart';
 import 'package:go_router/go_router.dart';
 import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/core/widgets/mabar_layers.dart';
@@ -49,7 +50,7 @@ void main() {
       act: (tester) async {
         await tester.tap(find.text('Tambah jam'));
         await tester.pumpAndSettle();
-        await tester.tap(find.bySemanticsLabel('Tambah').first);
+        await tester.tap(find.descendant(of: find.byType(MabarStepper), matching: find.bySemanticsLabel(RegExp('^Tambah'))).first);
       },
     );
     expect(find.text('4 round (R9–R12) · 1 court'), findsOneWidget);

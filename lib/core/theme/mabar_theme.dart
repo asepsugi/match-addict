@@ -23,8 +23,11 @@ class MabarColors {
   /// Keterangan kecil; lulus 4,5:1 di [paper] dan [card].
   static const ink3 = Color(0xFF5F6D7A);
 
-  /// Placeholder, chevron, state mati. Bukan untuk teks yang harus dibaca.
+  /// Chevron, state mati. Bukan untuk teks yang harus dibaca dan bukan placeholder (placeholder = [ink3], PATCH 3.8.1).
   static const faint = Color(0xFF9AA6B1);
+
+  /// Tepi semua isian yang tidak fokus, kosong maupun terisi, 1,5 pt (3,14:1 di [paper]); PATCH 3.8.1.
+  static const edge = Color(0xFF7D8A96);
 
   /// Hanya yang sedang berlangsung: round live, angka yang sedang diisi, penanda pemenang,
   /// peringkat 1. Tidak pernah sebagai teks di latar terang.
@@ -40,7 +43,7 @@ class MabarColors {
   /// Grup, baris match, sheet, dialog.
   static const card = Color(0xFFFFFFFF);
 
-  /// Pemisah baris, tepi input.
+  /// Pemisah baris. Bukan tepi isian (isian: [edge]).
   static const line = Color(0xFFDCE3E9);
 
   /// Track segmented, tombol stepper, tombol mati.
@@ -117,6 +120,9 @@ class MabarSize {
   static const double rosterRow = 40;
   static const double pairRow = 40;
   static const double rankRow = 44;
+
+  /// Area ketuk minimal semua kontrol; tampilan tetap (PATCH 3.8.1). Ikon tukar 44 × 42 dikecualikan (keputusan 48–57).
+  static const double tapTarget = 48;
 
   /// Ikon mandiri (header, menu, action bar).
   static const double icon = 24;
@@ -322,17 +328,17 @@ class MabarTheme {
           iconSize: MabarSize.iconInButton,
         ),
       ),
-      // .field: tepi 1.5 line, fokus 2 court, error 2 clay
+      // .field: tepi 1.5 edge, fokus 2 court, error 2 clay
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: MabarColors.card,
         contentPadding: const EdgeInsets.symmetric(horizontal: MabarSpacing.x4, vertical: 14),
-        border: OutlineInputBorder(borderRadius: fieldShape, borderSide: const BorderSide(color: MabarColors.line, width: 1.5)),
-        enabledBorder: OutlineInputBorder(borderRadius: fieldShape, borderSide: const BorderSide(color: MabarColors.line, width: 1.5)),
+        border: OutlineInputBorder(borderRadius: fieldShape, borderSide: const BorderSide(color: MabarColors.edge, width: 1.5)),
+        enabledBorder: OutlineInputBorder(borderRadius: fieldShape, borderSide: const BorderSide(color: MabarColors.edge, width: 1.5)),
         focusedBorder: OutlineInputBorder(borderRadius: fieldShape, borderSide: const BorderSide(color: MabarColors.court, width: 2)),
         errorBorder: OutlineInputBorder(borderRadius: fieldShape, borderSide: const BorderSide(color: MabarColors.clay, width: 2)),
         focusedErrorBorder: OutlineInputBorder(borderRadius: fieldShape, borderSide: const BorderSide(color: MabarColors.clay, width: 2)),
-        hintStyle: MabarType.body.copyWith(color: MabarColors.faint),
+        hintStyle: MabarType.body.copyWith(color: MabarColors.ink3),
       ),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: MabarColors.court,

@@ -63,7 +63,7 @@ class _NameListFieldState extends State<NameListField> {
       ),
       foregroundDecoration: BoxDecoration(
         borderRadius: BorderRadius.circular(MabarRadius.group),
-        border: Border.all(color: focused ? MabarColors.court : MabarColors.line, width: focused ? 2 : 1.5),
+        border: Border.all(color: focused ? MabarColors.court : MabarColors.edge, width: focused ? 2 : 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -91,7 +91,7 @@ class _NameListFieldState extends State<NameListField> {
               decoration: InputDecoration(
                 hintText: widget.hint,
                 hintMaxLines: 6,
-                hintStyle: _text.copyWith(color: MabarColors.faint),
+                hintStyle: _text.copyWith(color: MabarColors.ink3),
                 isDense: true,
                 filled: false,
                 border: InputBorder.none,

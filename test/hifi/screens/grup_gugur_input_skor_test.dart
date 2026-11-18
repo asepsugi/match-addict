@@ -37,7 +37,7 @@ void main() {
   }
 
   Future<void> select(WidgetTester tester, int side) async {
-    await tester.tap(find.bySemanticsLabel(RegExp('^Skor tim $side')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^Skor ')).at(side - 1));
     await tester.pump();
   }
 

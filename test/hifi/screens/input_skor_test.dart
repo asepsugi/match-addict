@@ -76,7 +76,7 @@ void main() {
         frame,
         act: (tester) async {
           await type(tester, first);
-          await tester.tap(find.bySemanticsLabel('Tim berikutnya'));
+          await tester.tap(find.bySemanticsLabel('Kotak berikutnya'));
           await tester.pump();
           await type(tester, second);
         },
@@ -156,7 +156,7 @@ void main() {
   testWidgets('Americano berhenti lebih awal: 11–5 tersimpan apa adanya', (tester) async {
     final container = await pumpRouted(tester, round3(const ScoreFormat(ScoringMethod.americano, 21)), 'r3c1');
     await type(tester, [1, 1]);
-    await tester.tap(find.bySemanticsLabel('Tim berikutnya'));
+    await tester.tap(find.bySemanticsLabel('Kotak berikutnya'));
     await tester.pump();
     await type(tester, [5]);
     await tester.tap(find.text('Simpan skor'));

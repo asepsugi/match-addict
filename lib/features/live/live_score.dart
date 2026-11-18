@@ -127,6 +127,18 @@ class LiveTag extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final offline = ref.watch(liveViewProvider.select((v) => v?.status == LiveViewStatus.offline));
+    final lastOk = ref.watch(liveViewProvider.select((v) => v?.lastOk));
+    // "Offline · 19.48": jam cek terakhir yang berhasil, supaya penonton tahu seberapa basi datanya.
+    final text = offline ? (lastOk == null ? 'Offline' : 'Offline · ${clockText(lastOk)}') : 'Live';
+    return Semantics(
+      liveRegion: true,
+      label: text,
+      excludeSemantics: true,
+      child: _tag(offline, text),
+    );
+  }
+
+  Widget _tag(bool offline, String text) {
     return Padding(
       padding: const EdgeInsets.only(right: 4),
       child: Container(
@@ -139,7 +151,7 @@ class LiveTag extends ConsumerWidget {
             LiveDot(off: offline),
             const SizedBox(width: 6),
             Text(
-              offline ? 'Offline' : 'Live',
+              text,
               style: MabarType.body.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,

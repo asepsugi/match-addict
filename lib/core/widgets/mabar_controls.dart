@@ -88,7 +88,8 @@ class MabarButton extends StatelessWidget {
           Flexible(
             child: Text(
               meta!,
-              style: text.copyWith(fontWeight: FontWeight.w500, color: fg.withValues(alpha: 0.62)),
+              // `.btn-wait .meta { opacity: 1 }`: alasan menunggu harus terbaca (ink-3 penuh, 5,3:1).
+              style: text.copyWith(fontWeight: FontWeight.w500, color: variant == MabarButtonVariant.wait ? fg : fg.withValues(alpha: 0.62)),
               maxLines: 1,
               softWrap: false,
               overflow: TextOverflow.ellipsis,
@@ -113,7 +114,9 @@ class MabarButton extends StatelessWidget {
         child: InkWell(
           onTap: onPressed,
           child: CustomPaint(
-            foregroundPainter: variant == MabarButtonVariant.wait ? _DashedBorderPainter(radius: radius, color: _waitBorder) : null,
+            foregroundPainter: variant == MabarButtonVariant.wait
+                ? _DashedBorderPainter(radius: radius, color: _waitBorder)
+                : null,
             child: SizedBox(
               height: height ?? (small ? MabarSize.smallButton : MabarSize.primaryButton),
               width: fill ? double.infinity : null,
@@ -186,22 +189,29 @@ class MabarTextButton extends StatelessWidget {
             MabarTextTone.danger => MabarColors.clay,
             MabarTextTone.neutral => MabarColors.ink2,
           };
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(MabarRadius.smallButton),
-        child: SizedBox(
-          height: MabarSize.iconButton,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[Icon(icon, size: MabarSize.iconInButton, color: color), const SizedBox(width: 6)],
-                Text(label, style: MabarType.textButton.copyWith(color: color), maxLines: 1, softWrap: false),
-              ],
+    // Perluasan di luar Semantics: simpul proxy menolak ketukan di luar kotaknya sendiri.
+    return MabarTouchOutset(
+      vertical: (MabarSize.tapTarget - MabarSize.iconButton) / 2,
+      child: Semantics(
+        button: true,
+        enabled: onPressed != null,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(MabarRadius.smallButton),
+          child: SizedBox(
+            height: MabarSize.iconButton,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: MabarSize.iconInButton, color: color),
+                    const SizedBox(width: 6),
+                  ],
+                  Text(label, style: MabarType.textButton.copyWith(color: color), maxLines: 1, softWrap: false),
+                ],
+              ),
             ),
           ),
         ),
@@ -233,37 +243,45 @@ class MabarIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = solid ? MabarSize.iconButtonInActionBar : MabarSize.iconButton;
-    return Semantics(
-      button: true,
-      label: semanticLabel,
-      child: Material(
-        color: solid ? MabarColors.card : Colors.transparent,
-        borderRadius: BorderRadius.circular(MabarRadius.button),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onPressed,
-          child: SizedBox.square(
-            dimension: size,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(icon, size: MabarSize.icon, color: onPressed == null ? MabarColors.off : MabarColors.ink2),
-                if (count != null)
-                  Positioned(
-                    top: 5,
-                    right: 6,
-                    child: Text(
-                      '$count',
-                      style: MabarType.label.copyWith(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        fontVariations: const [FontVariation('wdth', 80)],
-                        fontFeatures: MabarType.tabular,
-                        height: 1.4,
+    return MabarTouchOutset(
+      // 44 → 48; tombol 52 di action bar sudah cukup.
+      horizontal: solid ? 0 : (MabarSize.tapTarget - size) / 2,
+      vertical: solid ? 0 : (MabarSize.tapTarget - size) / 2,
+      child: Semantics(
+        button: true,
+        label: count == null ? semanticLabel : '$semanticLabel, $count aktif',
+        child: Material(
+          color: solid ? MabarColors.card : Colors.transparent,
+          borderRadius: BorderRadius.circular(MabarRadius.button),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onPressed,
+            child: SizedBox.square(
+              dimension: size,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(icon, size: MabarSize.icon, color: onPressed == null ? MabarColors.off : MabarColors.ink2),
+                  if (count != null)
+                    Positioned(
+                      top: 5,
+                      right: 6,
+                      // Jumlah sudah dibaca lewat label tombol.
+                      child: ExcludeSemantics(
+                        child: Text(
+                          '$count',
+                          style: MabarType.label.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            fontVariations: const [FontVariation('wdth', 80)],
+                            fontFeatures: MabarType.tabular,
+                            height: 1.4,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -287,12 +305,12 @@ class MabarRowAction extends StatelessWidget {
     final off = onPressed == null;
     final color = off ? MabarColors.dim : (restore ? MabarColors.court : MabarColors.ink2);
     final radius = BorderRadius.circular(MabarRadius.chip);
-    return Semantics(
-      button: true,
-      enabled: !off,
-      // Tata letak 36 seperti CSS (baris dua tingkat tidak ikut meninggi), area sentuh tetap 44.
-      child: _TouchOutset(
-        vertical: (MabarSize.iconButton - MabarSize.rowAction) / 2,
+    // Tata letak 36 seperti CSS (baris dua tingkat tidak ikut meninggi), area ketuk 48.
+    return MabarTouchOutset(
+      vertical: (MabarSize.tapTarget - MabarSize.rowAction) / 2,
+      child: Semantics(
+        button: true,
+        enabled: !off,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onPressed,
@@ -303,7 +321,10 @@ class MabarRowAction extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             alignment: Alignment.center,
             decoration: BoxDecoration(color: off ? Colors.transparent : MabarColors.card, borderRadius: radius),
-            foregroundDecoration: BoxDecoration(borderRadius: radius, border: Border.all(color: MabarColors.line)),
+            foregroundDecoration: BoxDecoration(
+              borderRadius: radius,
+              border: Border.all(color: MabarColors.line),
+            ),
             child: Text(
               label,
               style: MabarType.body.copyWith(fontSize: 14, fontWeight: FontWeight.w600, height: 1, color: color),
@@ -317,29 +338,53 @@ class MabarRowAction extends StatelessWidget {
   }
 }
 
-/// Memperluas area sentuh anaknya [vertical] pt ke atas dan bawah tanpa memperbesar tata letaknya.
-class _TouchOutset extends SingleChildRenderObjectWidget {
+/// Memperluas area ketuk anaknya [horizontal] / [vertical] pt ke tiap sisi tanpa memperbesar tata letaknya
+/// (aturan area ketuk ≥ 48 di hi-fi → Fondasi, PATCH 3.8.1). Perluasan hanya bekerja di dalam kotak induk yang
+/// memuatnya: induk menolak ketukan di luar batasnya sendiri. [innerInset] = tepi tempat anak benar-benar
+/// bisa dikenai ketukan (mis. padding track segmented), ke sanalah ketukan di luar dibelokkan.
+class MabarTouchOutset extends SingleChildRenderObjectWidget {
+  final double horizontal;
   final double vertical;
+  final EdgeInsets innerInset;
 
-  const _TouchOutset({required this.vertical, required super.child});
+  const MabarTouchOutset({
+    super.key,
+    this.horizontal = 0,
+    this.vertical = 0,
+    this.innerInset = EdgeInsets.zero,
+    required super.child,
+  });
 
   @override
-  RenderObject createRenderObject(BuildContext context) => _RenderTouchOutset(vertical);
+  RenderObject createRenderObject(BuildContext context) => _RenderTouchOutset(horizontal, vertical, innerInset);
 
   @override
-  void updateRenderObject(BuildContext context, _RenderTouchOutset renderObject) => renderObject.vertical = vertical;
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderTouchOutset)
+      ..horizontal = horizontal
+      ..vertical = vertical
+      ..innerInset = innerInset;
+  }
 }
 
 class _RenderTouchOutset extends RenderProxyBox {
+  double horizontal;
   double vertical;
+  EdgeInsets innerInset;
 
-  _RenderTouchOutset(this.vertical);
+  _RenderTouchOutset(this.horizontal, this.vertical, this.innerInset);
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    if (!Rect.fromLTRB(0, -vertical, size.width, size.height + vertical).contains(position)) return false;
+    final reach = Rect.fromLTRB(-horizontal, -vertical, size.width + horizontal, size.height + vertical);
+    if (!reach.contains(position)) return false;
     // Ketukan di luar kotak diteruskan sebagai ketukan di tepi terdekatnya.
-    final inside = Offset(position.dx, position.dy.clamp(0, size.height));
+    final inner = innerInset.deflateRect(Offset.zero & size);
+    // Tepi kanan/bawah kotak tidak termasuk di dalamnya (`Size.contains`), jadi dijepit sedikit ke dalam.
+    final inside = Offset(
+      position.dx.clamp(inner.left, max(inner.left, inner.right - 0.01)),
+      position.dy.clamp(inner.top, max(inner.top, inner.bottom - 0.01)),
+    );
     if (hitTestChildren(result, position: inside)) {
       result.add(BoxHitTestEntry(this, position));
       return true;
@@ -413,7 +458,12 @@ class MabarAppBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title, style: MabarType.title.copyWith(color: MabarColors.ink), maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(
+              title,
+              style: MabarType.title.copyWith(color: MabarColors.ink),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             if (subtitle != null)
               Padding(
                 padding: const EdgeInsets.only(top: 2),
@@ -422,7 +472,10 @@ class MabarAppBar extends StatelessWidget {
                     text: subtitle,
                     children: [
                       if (subtitleAlert != null)
-                        TextSpan(text: ' · $subtitleAlert', style: const TextStyle(color: MabarColors.clay)),
+                        TextSpan(
+                          text: ' · $subtitleAlert',
+                          style: const TextStyle(color: MabarColors.clay),
+                        ),
                     ],
                   ),
                   style: MabarType.caption,

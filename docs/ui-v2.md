@@ -44,7 +44,12 @@ hi-fi baru, bukan teks versi lama.
   SharePoster (`share/widgets/`, `.lk`, target `PodiumPosterTarget` kartu/Feed/Story, ekspor ×3 lewat `lengkapImages`).
 - Komponen jadwal v2 di `lib/features/schedule/widgets/` (RoundTabs, RestingList, ScheduleMatchRow), dipakai Fixed dan
   Mixed.
-- `MabarRowAction` tata letaknya 36 (seperti CSS) dengan area sentuh 44 lewat hit-test yang diperluas.
+- `MabarRowAction` tata letaknya 36 (seperti CSS), area ketuk 48.
+- Area ketuk ≥ 48 (`MabarSize.tapTarget`, PATCH 3.8.1) tanpa mengubah tampilan: `MabarTouchOutset` (`mabar_controls.dart`) memperluas
+  hit-test anaknya. Jebakan: induk mana pun (termasuk `Semantics`, `Row`, viewport gulir) menolak ketukan di luar kotaknya sendiri, jadi
+  pasang di **paling luar** widget dan, kalau induk langsungnya lebih pendek (Row stepper, track segmented, baris tab), bungkus induk itu juga
+  dengan `innerInset` supaya ketukan dibelokkan ke tepinya. Ikon tukar tetap 44 × 42 (keputusan 48–57).
+- Tepi isian = `MabarColors.edge` (1,5 pt, semua isian tidak fokus), placeholder = `ink3`; `faint` hanya chevron/state mati.
 - Tata letak lama sudah habis (`mabar_widgets.dart` dihapus).
 
 ## Golden

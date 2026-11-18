@@ -89,6 +89,9 @@ class ScheduleMatchRow extends StatelessWidget {
     final draw = match.status == MatchStatus.done && winner == null;
     return MatchScoreRow(
       badge: '${courts.indexOf(court) + 1}',
+      badgeSemantics:
+          'Court ${courts.indexOf(court) + 1}'
+          '${!preview && match.roundNumber == active.runningRound ? ', sisa ${countdownSpoken(active.remainingBookingMinutes(court, now))}' : ''}',
       badgeColor: MabarColors.courtPalette[court.colorIndex],
       badgeWidth: 42,
       fill: preview ? MabarColors.paper : MabarColors.card,

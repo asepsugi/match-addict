@@ -9,7 +9,7 @@ enum MatchScoreTone {
   /// Skor biasa (pemenang, seri).
   normal,
 
-  /// `.s.l` — skor tim yang kalah.
+  /// `.s.l` — skor tim yang kalah (ink-3, 5,3:1; PATCH 3.8.1).
   lost,
 
   /// Tambahan nilai WO di riwayat Detail ("+6"), tinta ketiga.
@@ -62,6 +62,9 @@ class MatchScoreRow extends StatelessWidget {
   /// 42 di Jadwal (muat kotak jam), 34 di riwayat Detail.
   final double badgeWidth;
 
+  /// Label pembaca layar strip court ("Court 1, sisa 1 jam 15 menit"); null = isi [badge] apa adanya.
+  final String? badgeSemantics;
+
   /// `.court.timed` — hitung mundur sisa booking court ("01:15") di kotak jam tinta 22% di dasar strip; hanya di
   /// round yang sedang berjalan.
   final String? countdown;
@@ -91,6 +94,7 @@ class MatchScoreRow extends StatelessWidget {
     required this.badgeColor,
     this.badgeFontSize = 19,
     this.badgeWidth = 34,
+    this.badgeSemantics,
     this.countdown,
     required this.top,
     required this.bottom,
@@ -123,9 +127,10 @@ class MatchScoreRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final number = Text(
-      badge,
-      style: MabarType.numM.copyWith(fontSize: badgeFontSize, color: Colors.white, height: 1.4),
+    final number = Semantics(
+      label: badgeSemantics ?? badge,
+      excludeSemantics: true,
+      child: Text(badge, style: MabarType.numM.copyWith(fontSize: badgeFontSize, color: Colors.white, height: 1.4)),
     );
     final end = trailing != null
         ? Padding(padding: const EdgeInsets.only(right: 12), child: trailing)
@@ -227,10 +232,18 @@ class MatchScoreRow extends StatelessWidget {
 
   /// Satu baris tim setinggi baris CSS (16 × 1,4 = 22,4). Mesin teks membulatkan tinggi baris ke 22, dan di
   /// riwayat Detail (tanpa tinggi minimal) selisihnya menumpuk 0,8 pt per baris.
-  Widget _line(MatchScoreSide side) => SizedBox(height: 16 * 1.4, child: _team(side));
+  Widget _line(MatchScoreSide side) => SizedBox(
+    height: 16 * 1.4,
+    // Satu label per tim; status menang dibaca, tidak hanya terlihat dari tebal dan titik bola.
+    child: Semantics(label: _teamLabel(side), excludeSemantics: true, child: _team(side)),
+  );
 
-  /// `#A3AEB8` — skor yang kalah.
-  static const _lostScore = Color(0xFFA3AEB8);
+  String _teamLabel(MatchScoreSide side) => [
+    '${side.prefix}${side.names.join(' · ')}',
+    if (side.win && !cancelled) 'menang',
+    if (side.scores.isNotEmpty) side.scores.join(' '),
+    if (side.tag != null) side.tag!,
+  ].join(', ');
 
   Widget _team(MatchScoreSide side) {
     final name = MabarType.body.copyWith(
@@ -291,7 +304,7 @@ class MatchScoreRow extends StatelessWidget {
                     height: 1,
                     color: switch (side.tone) {
                       MatchScoreTone.normal => MabarColors.ink,
-                      MatchScoreTone.lost => _lostScore,
+                      MatchScoreTone.lost => MabarColors.ink3,
                       MatchScoreTone.credit => MabarColors.ink3,
                     },
                   ),

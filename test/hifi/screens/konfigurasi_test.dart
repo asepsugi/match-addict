@@ -57,7 +57,7 @@ void main() {
 
   Future<void> tapStep(WidgetTester tester, int index, String label, {int times = 1}) async {
     for (var i = 0; i < times; i++) {
-      await tester.tap(find.descendant(of: stepper(index), matching: find.bySemanticsLabel(label)));
+      await tester.tap(find.descendant(of: stepper(index), matching: find.bySemanticsLabel(RegExp('^$label'))));
       await tester.pump();
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/mabar_theme.dart';
+import '../../../core/widgets/mabar_controls.dart';
 
 /// Satu baris [StandingTable]. [names] satu nama (Mixed) atau dua nama ditumpuk (pasangan Fixed).
 class StandingTableRow {
@@ -144,6 +145,7 @@ class StandingTable extends StatelessWidget {
     required List<Widget> cells,
     Color? color,
     VoidCallback? onTap,
+    String? label,
     bool afterLine = true,
   }) {
     final row = ColoredBox(
@@ -166,7 +168,28 @@ class StandingTable extends StatelessWidget {
         ),
       ),
     );
-    return onTap == null ? row : InkWell(onTap: onTap, child: row);
+    // Baris 44 → area ketuk 48.
+    final labeled = label == null ? row : Semantics(label: label, excludeSemantics: true, child: row);
+    return onTap == null
+        ? labeled
+        : MabarTouchOutset(
+            vertical: (MabarSize.tapTarget - MabarSize.rankRow) / 2,
+            child: InkWell(onTap: onTap, child: labeled),
+          );
+  }
+
+  /// "Peringkat 1, Andi P, main 3, 3 menang 0 kalah 0 seri, selisih +12, 42 poin": satu baris dibaca utuh.
+  String _rowLabel(StandingTableRow r) {
+    final who = r.names.join(' dan ');
+    if (r.stage case final stage?) return 'Peringkat ${r.position}, $who, $stage';
+    final parts = r.record.split('–');
+    final record = [
+      for (final (i, word) in ['menang', 'kalah', 'seri'].indexed)
+        if (i < parts.length) '${parts[i]} $word',
+    ].join(' ');
+    final unit = valueLabel == 'Win %' ? 'persen' : valueLabel.toLowerCase();
+    return 'Peringkat ${r.position}, $who${r.tag == null ? '' : ' ${r.tag}'}, main ${r.played}, $record, '
+        'selisih ${r.diff}, ${r.value} $unit';
   }
 
   Widget _ranked(StandingTableRow r) {
@@ -201,6 +224,7 @@ class StandingTable extends StatelessWidget {
       // Pasangan Fixed: dua nama ditumpuk, baris 62 (09c).
       minHeight: r.names.length > 1 ? 62 : MabarSize.rankRow,
       onTap: r.onTap,
+      label: _rowLabel(r),
       cells: [
         number,
         if (r.tag case final tag?)
