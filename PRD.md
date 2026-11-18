@@ -4,7 +4,8 @@
 ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11…12 (keputusan 23–47), app 3.4.0, hi-fi 03a–03q dan 16a–16g;
 Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–59), rencana app 3.5.0, hi-fi 17a–17r;
 Grup + Gugur (§16) diputuskan host 2026-11-17 (keputusan 93–103), rencana app 3.8.0, hi-fi
-19a–22r
+19a–22r; Kosongkan skor / Hapus WO + perilaku kecil + tombol mati Buat bagan (§17) diputuskan host 2026-11-18
+(keputusan 113–120), rencana app 3.9.0, frame menyusul dari designer.
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -74,7 +75,8 @@ biasa. Mode ketiga **Mexicano** (pasangan dari klasemen tiap round, hanya Americ
 - Round-robin penuh dibuat sekaligus. Pasangan ganjil → satu pasangan istirahat (bye) per round. Pemain ganjil →
   "Buat jadwal" menunggu sampai genap ("· 1 pemain tanpa pasangan", catatan "Fixed butuh jumlah pemain genap" + Ubah
   pemain, 04c).
-- Round dibuka berurutan: round berikutnya terkunci sampai semua skor round sebelumnya terisi.
+- Round dibuka berurutan: round berikutnya terkunci sampai semua skor round sebelumnya terisi. Match di round mana pun
+  bisa dikosongkan atau WO-nya dihapus (§17, 3.9.0); round sesudahnya terkunci lagi sampai match itu terisi.
 - Fairness Fixed = fairness antar pasangan, bukan individu.
 - **Round tambahan** (3.3a): setelah semua match terisi, host bisa menambah round supaya semua pasangan main lagi
   dengan jumlah yang sama, dari sisa booking + jam tambahan per court. Sebelumnya pasangan bisa diatur ulang dan pemain
@@ -89,6 +91,9 @@ biasa. Mode ketiga **Mexicano** (pasangan dari klasemen tiap round, hanya Americ
 - Buat R(n+1) aktif kalau round terakhir lengkap (selesai/WO) dan masih ada court yang waktunya cukup.
 - **Batalkan Rn**: round terakhir yang belum ada skor sama sekali boleh dihapus (bukan R1), mis. karena ada pemain
   datang terlambat; host menambah pemain lalu Buat Rn lagi.
+- **Kosongkan skor / Hapus WO** (§17, 3.9.0): hanya match di round terakhir. Skor round sebelumnya hanya bisa diganti
+  atau dijadikan WO; kalau round terakhir belum ada skor sama sekali, Batalkan Rn membuat round sebelumnya jadi round
+  terakhir (satu round ke belakang saja).
 - **Kelola pemain** di tengah turnamen: tambah, keluarkan (pemain tidak dihapus; nama & statistik tetap), kembalikan.
   Aktif minimal 4, maksimal 30.
 - **Kelola court** (menu ⋯, selama belum diakhiri): tambah court, ubah nama/warna/jam lewat detail court (tombol
@@ -245,7 +250,8 @@ ulang → kembali ke default formatnya. Berlaku sama untuk Fixed, Mixed, Sparing
 
 **Alur:** tombol WO di Input Skor → sheet → pilih pasangan yang tidak bisa main → alasan opsional (Absen / Cedera /
 Waktu habis / Lainnya; ketuk lagi untuk melepas) → Simpan. Membuka WO yang sudah ada menampilkan pilihannya; menyimpan
-skor di match WO mengubahnya jadi match selesai.
+skor di match WO mengubahnya jadi match selesai. Sejak 3.9.0 sheet WO tersimpan punya **"Hapus WO"**: match kembali ke
+skor lama kalau ada, kalau tidak ke Belum (§17, batas per mode 17.3).
 
 **Dampak:**
 - Pasangan lawan menang, pasangan WO kalah; keduanya +1 match.
@@ -266,12 +272,17 @@ skor di match WO mengubahnya jadi match selesai.
 | WO | Satu pasangan tidak bisa main | Menang/kalah dihitung (4.4) |
 | Tidak dimainkan | Turnamen diakhiri sebelum match dimainkan | **Tidak dihitung sama sekali**; kembali "Belum" kalau Mixed dilanjutkan |
 
+Sejak 3.9.0 (§17): Selesai → Belum lewat **Kosongkan skor**; WO → Selesai (skor lama) atau Belum lewat **Hapus WO**.
+Setelah diakhiri, keduanya menghasilkan Tidak dimainkan (U-1, 17.8).
+
 ### 4.6 Status Sementara / Final
 
 - **Fixed:** Final setelah diakhiri atau semua match terisi; kembali Sementara setelah round tambahan dibuat.
 - **Mixed:** Final setelah diakhiri, atau waktu booking semua court habis (jam sungguhan) **dan** round terakhir lengkap. Kembali
   Sementara kalau dilanjutkan.
 - Final: subjudul "… · Final · 5 round · 10 match"; poster menulis "Klasemen akhir". Sementara: "… · R3 · 6 dari 8 match".
+- Kosongkan skor / Hapus WO (§17) yang membuat match Belum mengembalikan status ke Sementara menurut aturan di atas;
+  turnamen yang sudah diakhiri tetap Final.
 
 ---
 
@@ -297,6 +308,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Satu kotak teks (tempel dari WhatsApp); parser membuang nomor/bullet, spasi ganda, baris kosong, dan duplikat
   (tidak peka huruf besar, yang pertama dipertahankan).
 - Toolbar: Tempel, Contoh (hanya saat kosong), Hapus semua. Hasil = daftar bernomor dua kolom.
+- Hapus semua tanpa dialog; sesudahnya toolbar "Tempel · Urungkan" sampai isi kotak berubah, lalu kembali seperti biasa
+  (3.9.0, keputusan 115, 17.10).
 - Lanjut aktif untuk 4–30 pemain (Fixed dan Mixed).
 
 ### 5.3 Konfigurasi (03a–03q)
@@ -313,11 +326,17 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Acak / Manual (pilih, lepas pilihan, Urungkan), pemain ganjil + "Ubah pemain", dialog kunci pasangan.
 - Atur pasangan sebelum round tambahan (04f–04h): Ubah per pasangan, pemain pengganti, "Simpan pasangan · n tidak
   main", hasilnya di baris Pasangan sheet Tambah round.
+- Dialog hanya kalau ada yang hilang (3.9.0, keputusan 116, 17.10): Manual → Acak dengan pasangan manual "Buang N
+  pasangan manual?"; ← di Atur pasangan dengan perubahan "Buang perubahan pasangan?". Acak → Manual dan layar Grup
+  tanpa dialog.
 
 ### 5.5 Jadwal Fixed (06a–06e, 06v–06z) & Mixed (06f–06u)
 - Tab round yang bisa digeser (tepi dipudarkan), label kanan "x/y match" atau "Waktu habis"; ganti round hanya lewat tab.
 - Baris match bergaya scorebug dengan strip court berwarna (42 pt; di round yang sedang berjalan + kotak jam sisa
-  booking court itu); ketuk → Input Skor (juga untuk mengubah).
+  booking court itu); ketuk → Input Skor (juga untuk mengubah, mengosongkan, atau menghapus WO, §17).
+- Round terkunci (Fixed, Grup + Gugur): pudar dengan catatan "Terbuka setelah semua skor Rn terisi", n = round paling
+  akhir yang belum lengkap sebelum round yang dilihat (sama dengan R(n−1) kecuali ada match yang dikosongkan; 17.4,
+  usulan U-5).
 - Nama pemain ditulis lengkap ("Andi P · Budi S"), di baris match, Input Skor, WO, riwayat Detail, dan Istirahat Fixed,
   supaya pemain bernama depan sama terbedakan. Tidak muat → tiap nama dipotong elipsis sendiri; nama yang muat di
   separuh lebar tetap utuh (06u).
@@ -348,6 +367,9 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   bukan selisih (PATCH 3.8.1).
 - Subjudul menulis sisa booking court itu untuk match di round yang sedang berjalan ("· sisa 02:00").
 - WO lewat sheet (4.4).
+- Sejak 3.9.0 (§17, keputusan 113–114): mode ubah, kedua kotak dikosongkan dengan ⌫ → tombol "Kosongkan skor"
+  (sekunder, clay) → dialog "Kosongkan skor Court 1?" · "Match kembali belum dimainkan." · Batal / Kosongkan. Sheet WO
+  tersimpan: "Hapus WO" di kanan kepala sheet. Batas per mode 17.3.
 
 ### 5.7 Klasemen (09a–09g)
 - Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · +/− (selisih)
@@ -365,6 +387,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   metode. Kalau tidak muat satu baris, olahraga dibuang dulu (B-6). Sparing (klub, tanpa metode) dan Grup + Gugur
   (babak, "Grup + Gugur", tanpa metode dan format) punya subjudul sendiri: §13.7 dan §16.9.
 - Belum ada match: riwayat menulis "Belum ada match" saja (PATCH 3.8.1).
+- Beda partner / Beda lawan dihitung dari match Selesai dan WO; di match WO kedua sisi ikut, sama dengan kolom Main
+  (keputusan 118, B-21; contoh 13C Maya · Nanda 8 / 8, 17.10).
 
 ### 5.9 Bagikan (11a–11m, 18a–18t)
 - Kartu pratinjau + deret tema (11 pilihan: lapangan ikut olahraga sebagai bawaan + 10 gradien, sama di Ringkas dan
@@ -372,8 +396,10 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   emas, digantung ke kiri supaya "#1" sejajar dengan nomor di bawahnya.
 - Tiap baris = nilai metode + selisih, sama dengan Klasemen: "42 poin · +12", "100% · +12". Lengkap menulis satuan hanya
   di Feed satu kolom; dua kolom dan Story tanpa satuan ("42 · +12"). Ringkas selalu dengan satuan.
-- Dua gambar 1080×1080 dan 1080×1920 dibagikan lewat share sheet sistem dengan caption teks hasil; gagal → caption
-  disalin + toast "Hasil disalin".
+- Dua gambar 1080×1080 dan 1080×1920 dibagikan lewat share sheet sistem dengan caption teks hasil. Gagal (sejak 3.9.0,
+  keputusan 117, mengganti aturan 2026-10-22 "caption disalin + toast Hasil disalin"): kedua PNG diunduh, caption
+  disalin, toast "Gambar diunduh · hasil disalin"; tanpa tombol baru. Share sheet ditutup tanpa memilih → tidak ada
+  apa-apa; gambar gagal dibuat → hanya caption + "Hasil disalin" (17.10).
 - Kepala poster (Ringkas dan Lengkap): tanpa nama → judul "Klasemen akhir|sementara" + baris kecil "olahraga · mode ·
   tanggal"; bernama → judul = nama (maks dua baris) + baris kecil "Klasemen akhir|sementara · tanggal", olahraga pindah
   ke depan baris fakta. Caption dibuka "🏆 {nama} · Padel" (tanpa nama "🏆 Match Addict · Padel").
@@ -440,7 +466,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 | Jadwal Fixed + sheet Tambah round | 06a–06e, 06v–06z |
 | Jadwal Mixed (+ sheet Cara kerja Mixed, strip court + hitung mundur) | 06f–06u |
 | Sheet Kelola pemain, Tambah jam / Lanjutkan turnamen, Kelola court + detail court | 08a–08k |
-| Input Skor + sheet Walkover | 07a–07o |
+| Input Skor + sheet Walkover (+ Kosongkan skor / Hapus WO §17, 3.9.0: frame baru menyusul dari designer) | 07a–07o |
 | Klasemen | 09a–09g |
 | Detail Pemain | 10a–10d |
 | Bagikan | 11a–11m |
@@ -780,9 +806,48 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
 111. **Paragraf penjelas Kelola pemain dihapus** (2026-11-18, K3): "Pemain baru langsung ikut main…" di 08a/15l/15m
      hilang; aturan menyusul tetap (2.7.0), hanya teks UI.
 112. **PATCH 3.8.1 dari review UX hi-fi** (2026-11-18): paket P1 kontras, P2 area sentuh + Semantics, P3 teks dari
-     `design/review/ux-review.md` dikerjakan sesuai usulan reviewer (rincian per id di `ux-review-A/B/C.md`). P4–P7 belum.
-     Setelah selesai, catatan PRD dan hi-fi diaudit supaya tidak berbeda. **Audit selesai 2026-11-18 (UX-5):** PRD §5,
+     `design/review/ux-review.md` dikerjakan sesuai usulan reviewer (rincian per id di `ux-review-A/B/C.md`). P4–P7
+     diputuskan host kemudian di hari yang sama (keputusan 113–120). Setelah selesai, catatan PRD dan hi-fi diaudit supaya tidak berbeda. **Audit selesai 2026-11-18 (UX-5):** PRD §5,
      §6, §7, §13–§16 disamakan dengan app 3.8.1; catatan hi-fi yang tertinggal diperbaiki; kode = kebenaran bila beda.
+113. **Kosongkan skor / Hapus WO** (2026-11-18, paket P7, temuan B-2 dan C-9): skor atau WO yang salah bisa dikembalikan.
+     Bentuk UI usulan reviewer: Input Skor mode ubah, kedua kotak dikosongkan dengan ⌫ → "Perbarui skor" jadi
+     "Kosongkan skor" (sekunder, tinta clay) → dialog "Kosongkan skor Court 1?" / "Match kembali belum dimainkan." /
+     Batal · Kosongkan. Sheet WO yang dibuka dari WO tersimpan: "Hapus WO" di kanan kepala sheet (pola 12c / 08h); WO
+     dihapus → skor lama kalau ada, kalau tidak Belum. Alasan: tanpa ini skor di match yang salah tetap "Selesai" dan
+     ikut menentukan round berikutnya, Final, urutan Mexicano, dan bagan. Aturan: §17.
+114. **Batas Kosongkan skor / Hapus WO** (2026-11-18): (1) Mixed dan Mexicano hanya round terakhir; Fixed dan Sparing
+     Fixed round mana pun; (2) Grup + Gugur: match grup dilarang setelah bagan dibuat; (3) match gugur boleh, memakai
+     dialog flipCheck yang sudah ada (21k/21l) kalau pemenangnya sudah maju; mengosongkan Final membuka jalan ke GU11,
+     aturan GU11 tidak berubah. Alasan: round Mixed/Mexicano berikutnya dibuat dari hasil round sebelumnya, dan bagan
+     dibuat dari skor grup yang dikunci (GU6). Rincian dan akibatnya: 17.3–17.4.
+115. **"Hapus semua" di Pemain tanpa dialog, dengan Urungkan** (2026-11-18, A-8): toolbar "Tempel · Urungkan" (ikon
+     arrow-counter-clockwise) sampai ada ketikan, lalu kembali "Tempel · Contoh". Alasan: dialog hanya untuk yang tidak
+     bisa diurungkan; Hapus semua satu baris dengan Tempel yang paling sering diketuk. Aturan: 17.10.
+116. **Dialog buang pasangan** (2026-11-18, A-9): "Buang N pasangan manual?" · Batal / Buang (bahaya) hanya saat
+     pasangan manual akan hilang (Manual → Acak); "Buang perubahan pasangan?" · Batal / Buang saat ← (termasuk back
+     Android) di Atur pasangan ada perubahan. Acak → Manual tanpa dialog; layar Grup tanpa dialog (Cakupan hi-fi).
+     Alasan: sampai 15 pasangan hilang dengan satu ketukan. Aturan: 17.10.
+117. **Bagikan gagal → unduh dua gambar + salin hasil** (2026-11-18, B-10): kedua PNG diunduh, caption disalin, toast
+     "Gambar diunduh · hasil disalin", tanpa tombol baru. **Mengubah aturan 2026-10-22** (gagal → hanya caption disalin,
+     "Hasil disalin"; tanpa tombol salin terpisah tetap berlaku). Alasan: di HP/browser tanpa share sheet, poster, inti
+     fitur Bagikan, tidak bisa didapat sama sekali. Aturan: 17.10.
+118. **Lawan WO tetap dihitung di "Beda lawan"** (2026-11-18, B-21), juga partner di "Beda partner"; kode tidak berubah,
+     hanya aturan ditulis (5.8, 17.10).
+119. **Tombol mati "Buat bagan · tunggu N match"** (2026-11-18, C-17): action bar fase grup = ikon Klasemen + tombol mati
+     selama ada match grup Belum (pola 13m). Beda dengan Fixed 06v yang menyembunyikan Tambah round, karena Tambah round
+     opsional dan Buat bagan wajib. Aturan: 17.11.
+120. **P6 + P4 + GU9 + A-15 disetujui, pengelompokan rilis** (2026-11-18): **3.9.0 (MINOR)** = P5 + P7 + C-17 + P6 visual
+     (C-7 bagan mengintip 24 pt + label kolom, C-18 label 12 → 13 px, C-15 pratinjau Tukar menebalkan nama yang masuk) +
+     P4 (B-22 aturan pemisah di `components.md`, B-16 data uji, C-12 catatan "menunggu host", frame B-7, B-8, B-9, B-18,
+     C-3, C-4, C-10). **3.10.0 (MINOR)** = GU9 (label babak diketuk → sheet 19f selama babak belum ada skor; C-2;
+     menggantikan "3.8.x" di keputusan 104) + A-15 (skala teks sampai 1,3). C-6 usulan kedua dibahas bersama GU9.
+121. **Usulan PM U-1–U-5 dan pertanyaan Q1–Q3 §17 disetujui** (2026-11-18, "setuju"): Q1 round lama Mixed/Mexicano hanya
+     lewat Batalkan Rn satu round ke belakang, diterima untuk 3.9.0 (batas keputusan 114 tetap); Q2 Kosongkan skor/Hapus WO
+     tetap boleh setelah turnamen diakhiri, match jadi Tidak dimainkan (U-1); Q3 mengosongkan match di round lama Fixed
+     mengunci lagi round sesudahnya; U-2 Sparing Mixed ikut batas Mixed; U-3 match WO tanpa Kosongkan skor (jalannya Hapus
+     WO); U-4 judul dialog gugur memakai kode match; U-5 catatan kunci round menyebut round terakhir yang belum lengkap;
+     B-10 di Android/iOS asli hanya kalau tanpa izin atau dependensi baru, selain itu "Hasil disalin" tetap (tech lead
+     memastikan).
 
 ---
 
@@ -805,6 +870,8 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
 12. Grup + Gugur untuk Fixed: 2 atau 4 grup, 2 besar lolos ke bagan silang, pasangan dan grup diatur host secara
     default, court dikunci per grup, format skor per babak, perebutan juara 3 default nyala, bagan di Jadwal
     (2026-11-17, §16)
+13. Review UX hi-fi P4–P7: Kosongkan skor / Hapus WO dengan batas per mode, perilaku kecil P5, tombol mati Buat bagan,
+    semua rekomendasi reviewer; rilis 3.9.0, GU9 + skala teks 3.10.0 (2026-11-18, §17)
 
 ---
 
@@ -830,6 +897,13 @@ Aturan:
 - `schemaVersion` simpanan naik hanya kalau bentuk JSON tidak kompatibel, dan itu selalu MAJOR. Kolom baru yang
   opsional (data lama tetap terbaca) cukup MINOR tanpa menaikkan `schemaVersion`.
 - Pesan commit/PR menyebut kategorinya (mis. `[minor]`), dan perubahan MAJOR mencatat keputusan host di PRD.
+
+Rencana rilis (keputusan 120, 2026-11-18):
+
+| Versi | Kategori | Isi | Alasan kategori |
+|-------|----------|-----|-----------------|
+| **3.9.0** | MINOR | Kosongkan skor / Hapus WO (§17.1–17.9), A-8, A-9, B-10, B-21 (17.10), tombol mati Buat bagan (17.11), P6 visual (C-7, C-18, C-15), P4 frame/catatan | Perilaku baru yang kompatibel; tanpa kolom simpanan baru, `schemaVersion` tetap 2 (17.12) |
+| **3.10.0** | MINOR | GU9 ubah format babak (sheet 19f), A-15 skala teks sampai 1,3 | Perilaku baru; bentuk data dinilai saat fitur ditulis |
 
 ---
 
@@ -1371,6 +1445,7 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 | Kelola pemain (Pemain (n)) | **Tambah tidak ada.** **Keluarkan** tersedia selama aktif > 4 (nama, skor, dan Klasemennya tetap, seperti Mixed). **Kembalikan** hanya untuk pemain yang belum melewatkan round, yaitu dikeluarkan setelah round terakhir dibuat (membetulkan salah ketuk); begitu ada round dibuat tanpa dia, Kembalikan tidak ada (U5). Contoh 14A: Gita dikeluarkan setelah R2 dibuat → masih bisa dikembalikan sampai Buat R3; R3 dibuat tanpa Gita → Gita tidak bisa kembali. |
 | Batalkan Rn | Sama dengan Mixed (round terakhir tanpa skor, bukan R1). Batalkan lalu Buat lagi tanpa perubahan → round yang sama persis (14.3). Kegunaan di Mexicano: pemain pulang sebelum round mulai (Batalkan R3 → Keluarkan → Buat R3), atau skor round sebelumnya baru dikoreksi. |
 | Koreksi skor | Mengubah skor round lama memperbarui Klasemen, tapi **tidak** membuat ulang round yang sudah dibuat (seperti Mixed, tidak ada pembuatan ulang otomatis) (U6). Round berikutnya memakai angka yang sudah dikoreksi. Contoh 14A: R3 sudah dibuat, skor R2 Court 2 dikoreksi 8–13 → 10–11: R3 tetap; kalau R3 belum ada skor, host bisa Batalkan R3 lalu Buat R3. |
+| Kosongkan skor / Hapus WO (§17, 3.9.0) | Sama dengan Mixed: hanya round terakhir (keputusan 114). Round lama hanya bisa dikoreksi; kalau round terakhir belum ada skor, Batalkan Rn lalu round sebelumnya bisa dikosongkan (17C). |
 | WO (4.4) | Sama dengan Americano: pemenang WO = rata-rata poin match yang dia mainkan, minimal ⌊N ÷ 2⌋ + 1; pasangan WO 0; selisih tidak berubah. Nilai WO ikut Total Point, jadi ikut urutan Mexicano. Contoh 14A, R2 Court 2 WO (Gita · Budi absen): Eko 9 + 11 = 20 (−3), Dewi 6 + 11 = 17 (−9), Gita 9 (−3), Budi 6 (−9). Pemain yang absen tetap dijadwalkan sampai dikeluarkan, seperti Mixed. |
 | Kelola court | Sama dengan Mixed (`logic.md` §10): court ditambah saat round berjalan dan istirahat ≥ 4 → 4 teratas prioritas yang istirahat langsung main, disusun dengan 14.5 dari urutan Mexicano saat itu (skor round berjalan yang sudah masuk ikut dihitung). Round berikutnya court baru ikut urutan nomor (14.4). Hapus court: sama. |
 | Waktu booking, Tambah jam, Lanjutkan turnamen, Akhiri | Sama dengan Mixed. Lanjutkan (dari Jadwal atau Beranda) meneruskan Klasemen; round berikutnya dipasangkan dari Klasemen itu. Match Tidak dimainkan kembali Belum. |
@@ -1785,7 +1860,8 @@ dengan 2 besar tiap grup; kalah langsung tersingkir) sampai final.
 
 - Konfigurasi (5.3): di bawah mode Fixed ada pilihan format turnamen (Round-robin / Grup + Gugur), hanya tampil mulai
   12 pemain (19a), dan jumlah grup (2 / 4; 4 hanya mulai 12 pasangan). Format skor yang ada = format fase grup. Format babak gugur + juara 3 diatur di
-  Konfigurasi (GU9); mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104).
+  Konfigurasi (GU9); mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104), sekarang direncanakan 3.10.0
+  (keputusan 120).
 - Estimasi di tombol Lanjut **pasti** (seperti Fixed sparing, keputusan 19): round fase grup (16.3) + round gugur
   (GU10), dan "lewat booking hh:mm" kalau melewati booking terpendek.
 - Grup + Gugur tidak memakai "Tambah round" (3.3a) maupun Atur pasangan (04f–04h): turnamen selesai di Final.
@@ -1865,7 +1941,11 @@ Format grup Race to 6 (Win %); Semifinal Race to 6, Perebutan juara 3 Race to 4,
 ### 16.5 Transisi grup → gugur (GU6–GU8)
 
 - **Kapan:** begitu **semua** match grup Selesai atau WO dan turnamen belum diakhiri, Jadwal menampilkan "Buat bagan".
-  Satu match grup masih Belum → tidak ada Buat bagan. Tidak ada gugur yang dimulai per grup.
+  Satu match grup masih Belum → tidak ada Buat bagan. Tidak ada gugur yang dimulai per grup. Sejak 3.9.0 (keputusan
+  119, 17.11) selama itu action bar = ikon Klasemen + tombol mati "Buat bagan · tunggu N match", N = match grup Belum di
+  semua round grup (20b: "tunggu 7 match").
+- **Kosongkan skor / Hapus WO di fase grup** (3.9.0, keputusan 114): boleh di semua match grup selama bagan belum dibuat;
+  sesudah Buat bagan tidak ada (skor grup terkunci). Contoh 17D.
 - **Seri di lolos:** untuk tiap grup, kalau nomor grup tidak memastikan siapa peringkat 1 dan 2 (G8):
   1. Head-to-head = jumlah menang (seri ½, WO = menang) **hanya dari match di antara pasangan yang seri**. Satu kali,
      tidak diulang untuk sisa yang masih seri.
@@ -1929,6 +2009,11 @@ Fajar – Gita · Hadi 6–4, Gita · Hadi – Citra · Dewi 6–4. Citra · Dew
   jadi pemenangnya selalu boleh diganti tanpa dialog. Sudah ada skor → ditolak: pesan "Final sudah ada skor · pemenang
   SF1 tetap …" (dua babak: "Final dan Juara 3 sudah ada skor · …"), tombol simpan mati (21l). Aturan yang sama berlaku
   untuk WO yang membalik pemenang.
+- **Kosongkan skor / Hapus WO gugur** (3.9.0, keputusan 114): diperlakukan seperti membalik pemenang (GU11) karena
+  pemenangnya hilang dari match lanjutan. Match lanjutan masih Belum (atau Tidak dimainkan) → satu dialog dengan
+  susunan baru ("Final: Pemenang SF1 vs Citra · Dewi"); sudah ada skor/WO → ditolak dengan pesan 21l. Final dan Juara 3
+  selalu boleh. Jalan untuk SF yang salah setelah Final berskor: kosongkan Final (dan Juara 3), lalu ubah SF sesuai
+  GU11 (contoh 17E). Aturan GU11 tidak berubah.
 - **Format per babak (GU9):** validasi Input Skor (4.1) memakai format babak match itu. Di gugur, Best of dan Americano
   hanya N ganjil, jadi skor penuh tidak pernah seri; Race to memang tidak bisa seri.
 
@@ -1954,6 +2039,8 @@ Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1�
 - Dua pasangan sama-sama tidak datang: tidak ada aksi khusus; host memilih salah satu sebagai WO (belum sekarang: WO
   ganda).
 - WO di fase grup: aturan 4.4 apa adanya, ikut Klasemen grup dan head-to-head (WO = menang).
+- Hapus WO (3.9.0): fase grup seperti 16.5, gugur seperti 16.6 (Kosongkan skor / Hapus WO gugur). Skor lama yang
+  kembali dengan pemenang lain = membalik pemenang (GU11).
 
 ### 16.8 Klasemen & peringkat akhir (GU12, GU13, GU16)
 
@@ -2059,7 +2146,8 @@ Versi:
   pasangan main di dua round beruntun. Varian 3 court 13 pasangan: Court 2 = B + D, fase grup 6 round.
 - **AC-G5** 16C: Grup A di Court 1 + 3, Grup B di Court 2 + 4, fase grup 14 round, total 16. 6 pasangan 3 court: Court 3
   tanpa match.
-- **AC-G6** Buat bagan tidak tersedia selama satu match grup masih Belum; tersedia setelah semua Selesai/WO.
+- **AC-G6** Buat bagan tidak bisa ditekan selama satu match grup masih Belum (sejak 3.9.0 tampil sebagai tombol mati
+  "Buat bagan · tunggu N match", AC-B1); aktif setelah semua Selesai/WO.
 - **AC-G7** 16D-i → A2 Citra · Dewi lewat head-to-head, nomor tabel 1, 2, 2, 3. 16D-ii → A1 Andi · Budi. 16D-iii → host
   diminta memilih A2 dari tiga pasangan; tanpa pilihan bagan tidak bisa dibuat; app ditutup sebelum konfirmasi →
   pilihan tidak tersimpan.
@@ -2070,7 +2158,8 @@ Versi:
 - **AC-G10** Format per babak: Input Skor Final 16E menerima 9–7 (Race to 9), Perebutan juara 3 menolak 6–2 (Race to 4).
   Gugur Best of/Americano hanya menawarkan N ganjil.
 - **AC-G11** WO di SF → lawan masuk Final; Klasemen grup tidak berubah.
-- **AC-G12** Skor fase grup tidak bisa diubah setelah bagan dibuat (GU6).
+- **AC-G12** Skor fase grup tidak bisa diubah setelah bagan dibuat (GU6), juga tidak bisa dikosongkan dan WO-nya tidak
+  bisa dihapus (3.9.0, AC-K8).
 - **AC-G13** 16F: peringkat akhir persis tabel 16F dan ketiga variannya (tanpa juara 3, diakhiri setelah R7, 4 grup).
 - **AC-G14** Status Final setelah Final + Perebutan juara 3 terisi (atau Final saja kalau juara 3 mati); Sementara
   sebelumnya.
@@ -2093,7 +2182,8 @@ Versi:
 - Host memilih court per grup sendiri; urutan match yang menjamin tidak ada round beruntun di grup satu court.
 - Gugur mulai per grup sebelum semua grup selesai; match gugur terbuka per match, bukan per round.
 - Membuka lagi fase grup setelah bagan dibuat (GU6).
-- Mengubah format babak gugur dan Perebutan juara 3 setelah jadwal dibuat (GU9, ditunda 3.8.x, keputusan 104).
+- Mengubah format babak gugur dan Perebutan juara 3 setelah jadwal dibuat (GU9, ditunda 3.8.x, keputusan 104;
+  direncanakan 3.10.0, keputusan 120).
 - Durasi match berbeda per babak (estimasi memakai satu durasi).
 - Bagan di poster Bagikan dan di live score (keputusan 101).
 - Seri di gugur (tiebreak/golden point dengan N genap); WO ganda.
@@ -2147,3 +2237,332 @@ Keputusan host 2026-11-17: 93–101 di §10 (jangan dibuka ulang).
 - **Q4.** Kalau court lebih banyak dari grup (mis. 2 grup, 4 court), aturan "satu grup satu court" membuat court sisa
   menganggur. Rekomendasi: court sisa diberikan ke grup yang paling lama selesai, sehingga satu grup bisa memakai dua
   court tetap miliknya; kalau tidak mempercepat, court itu kosong di fase grup (GU3, 16C).
+
+---
+
+## 17. Rilis 3.9.0 — Kosongkan skor / Hapus WO + perilaku kecil
+
+> **Diputuskan host 2026-11-18** (keputusan 113–121, §10), rilis **3.9.0 (MINOR)**. Isi: Kosongkan skor / Hapus WO
+> (paket P7, temuan B-2 dan C-9, 17.1–17.9), empat perilaku kecil (paket P5: A-8, A-9, B-10, B-21, 17.10), dan tombol
+> mati "Buat bagan" (C-17, 17.11). P6 visual (C-7, C-18, C-15) dan P4 (frame/catatan) ikut rilis ini tapi tidak
+> mengubah aturan PRD. Sumber temuan: `design/review/ux-review*.md`. Aturan yang ditandai **U-n** adalah usulan PM yang
+> disetujui host 2026-11-18 (17.8, keputusan 121).
+
+### 17.0 Situasi nyata
+
+- Host mengisi skor di HP sambil berdiri di pinggir lapangan, sering di sela-sela main, dengan dua sampai sepuluh court
+  berjalan bersamaan. Salah ketuk court atau round terjadi: skor Court 1 masuk ke Court 2 yang masih main, atau WO
+  ditandai di match yang akhirnya dimainkan karena pasangannya datang terlambat.
+- Sampai 3.8.1, skor tersimpan hanya bisa **diganti** skor lain, dan WO hanya bisa **ditimpa** skor. Match yang salah
+  terisi tetap "Selesai", jadi ikut menentukan Buat R(n+1), status Final, urutan Mexicano, Buat bagan, dan bagan gugur
+  (B-2). Di gugur, pemenang Semifinal yang salah dan baru ketahuan setelah Final diisi tidak bisa dibetulkan sama
+  sekali: Klasemen, poster, dan caption salah selamanya (C-9).
+- Kesalahan biasanya ketahuan dalam hitungan menit (pemain protes melihat Jadwal atau live score), kadang baru di
+  Klasemen/Bagikan setelah turnamen diakhiri.
+
+### 17.1 Aturan inti
+
+- **K1. Kosongkan skor:** match **Selesai** → **Belum**. Skornya dibuang (tidak disimpan sebagai skor lama). Hanya dari
+  Input Skor mode ubah (17.2).
+- **K2. Hapus WO:** match **WO** → **Selesai dengan skor lama** kalau match itu punya skor sebelum dijadikan WO (4.4:
+  skor lama memang disimpan), selain itu → **Belum**. Pasangan WO dan alasannya dibuang.
+- **K3.** Match WO tidak punya "Kosongkan skor" (U-3): di Input Skor match WO, mengosongkan kedua kotak membuat
+  "Perbarui skor" mati seperti sekarang. Jalan untuk match WO = Hapus WO (sesudah itu, kalau kembali ke skor lama,
+  skornya bisa dikosongkan).
+- **K4.** Tiap aksi lewat satu dialog konfirmasi (17.2). Tidak ada urungkan; skor yang dikosongkan diketik ulang.
+- **K5.** Tersedia atau tidaknya per mode: 17.3. Kalau tidak tersedia, Input Skor dan sheet WO tampil seperti 3.8.1
+  ("Perbarui skor" mati saat kedua kotak kosong; tanpa "Hapus WO"), tanpa teks baru. Pengecualian gugur yang ditolak
+  GU11: pesan 21l (17.2).
+- **K6. Turnamen sudah diakhiri (U-1):** boleh, dengan batas 17.3 yang sama. Hasilnya **Tidak dimainkan**, bukan Belum,
+  karena turnamen yang diakhiri tidak punya match Belum (4.5). Mixed dan Mexicano: Lanjutkan turnamen mengembalikannya
+  ke Belum seperti match Tidak dimainkan lain. Fixed dan Grup + Gugur: tidak bisa dilanjutkan, jadi match itu tetap
+  Tidak dimainkan.
+- **K7.** Tidak ada aturan hitung baru: Klasemen, skor klub, status, Buat R(n+1), Buat bagan, bagan, poster, caption,
+  Detail, dan live semuanya turunan dari match, jadi ikut berubah begitu match berubah (17.4).
+- **K8.** Hanya HP host. Penonton live tidak punya aksi (5.11).
+
+### 17.2 Tampilan & teks (bentuk final di hi-fi, frame baru dari designer)
+
+**Input Skor, mode ubah (07i), match Selesai:**
+- Angka dan ⌫ tetap mati sampai satu kotak diketuk (4.1). Kedua kotak dikosongkan dengan ⌫ → tombol "Perbarui skor"
+  berubah jadi **"Kosongkan skor"** (sekunder, tinta clay), aktif. Hanya satu kotak kosong → "Perbarui skor" mati
+  seperti sekarang. Satu angka diketik lagi → kembali "Perbarui skor".
+- Best of dan Americano: mengosongkan satu kotak tidak mengisi atau mengosongkan kotak lain, karena skor tersimpan
+  dihitung sebagai ketikan (4.1).
+- Ketuk "Kosongkan skor" → dialog:
+  - Judul **"Kosongkan skor Court 1?"** (nama court match itu, sama dengan judul Input Skor). Match gugur memakai kode
+    match: "Kosongkan skor SF1?", "Kosongkan skor Final?", "Kosongkan skor Juara 3?" (seperti usulan C-9).
+  - Isi **"Match kembali belum dimainkan."**; setelah diakhiri **"Match jadi tidak dimainkan."** (U-1). Match gugur
+    yang mengisi match lain (PF, SF) menambah baris susunan baru seperti 21k ("Final: Pemenang SF1 vs Citra · Dewi").
+  - Tombol **Batal** / **Kosongkan** (bahaya). Batal → kembali ke papan, kotak tetap kosong. Kosongkan → tersimpan,
+    Input Skor tertutup ke Jadwal (seperti Simpan skor).
+- Gugur yang ditolak (GU11, match lanjutannya sudah ada skor/WO): "Kosongkan skor" tampil tapi mati, dengan pesan 21l
+  ("Final dan Juara 3 sudah ada skor · pemenang SF1 tetap Andi & Budi").
+
+**Sheet WO (07j) dibuka dari match WO:**
+- Aksi teks clay **"Hapus WO"** di kanan kepala sheet (pola "Hentikan" 12c / "Hapus" 08h). Tidak ada di sheet yang
+  dibuka dari match Belum/Selesai, dan tidak ada kalau 17.3 tidak mengizinkan.
+- Hapus WO berlaku untuk WO yang tersimpan, apa pun pilihan yang sedang diubah di sheet.
+- Ketuk → dialog judul **"Hapus WO Court 2?"** (gugur: "Hapus WO SF2?"), isi: tanpa skor lama "Match kembali belum
+  dimainkan."; dengan skor lama "Match kembali ke skor 6–4." (urut sisi atas–bawah seperti papan skor); diakhiri tanpa
+  skor lama "Match jadi tidak dimainkan."; gugur yang mengisi match lain + baris susunan baru (21k). Tombol **Batal** /
+  **Hapus** (bahaya). Hapus → sheet dan Input Skor tertutup ke Jadwal.
+- Gugur yang ditolak GU11: "Hapus WO" mati, pesan 21l di sheet (seperti WO yang membalik pemenang sekarang).
+
+Teks di atas usulan reviewer + PM; tidak ada kalimat penjelas lain (Prinsip "Tanpa Petunjuk", 7).
+
+### 17.3 Kapan tersedia (per mode)
+
+| Mode | Tersedia | Tidak tersedia |
+|------|----------|----------------|
+| Fixed round-robin, **Sparing Fixed** | Semua round, termasuk round tambahan (3.3a); sebelum dan sesudah diakhiri (K6) | — |
+| **Mixed**, **Sparing Mixed** (U-2), **Mexicano** | Hanya match di **round terakhir** (`roundCount`); juga setelah diakhiri (K6) | Semua round sebelumnya |
+| Grup + Gugur, **fase grup** | Semua match grup selama **bagan belum dibuat** (juga diakhiri di fase grup, K6) | Semua match grup **setelah Buat bagan** (GU6, keputusan 114) |
+| Grup + Gugur, **gugur** | Match gugur Selesai/WO kalau tiap match yang diisinya (16.6) masih Belum atau Tidak dimainkan; Final dan Juara 3 selalu | PF/SF yang match lanjutannya sudah ada skor/WO → pesan 21l |
+
+- Selalu tidak tersedia: match Tidak dimainkan (tidak bisa dibuka, tetap), match gugur bersisi "Pemenang SF1" (tidak
+  bisa dibuka, tetap), halaman penonton.
+- **Mixed/Mexicano, round lama — apa adanya (keputusan 114 tidak menambah jalan baru):** skor di round sebelum round
+  terakhir hanya bisa **diganti** (Perbarui skor) atau **ditimpa WO**, tidak bisa dikosongkan. Satu-satunya jalan:
+  kalau round terakhir belum ada skor sama sekali (dan bukan R1, belum diakhiri), **Batalkan Rn** membuat round
+  sebelumnya jadi round terakhir, lalu match di sana bisa dikosongkan. Jalan ini hanya **satu round ke belakang**:
+  round itu sudah ada skor, jadi tidak bisa dibatalkan lagi. Round terakhir yang sudah punya satu skor: round
+  sebelumnya tidak bisa dikosongkan sama sekali. Celah ini masuk 17.7 dan pertanyaan 17.9.
+- Grup + Gugur setelah bagan: match grup memang masih bisa dibuka ke Input Skor (3.8.1), tapi tidak bisa diubah
+  (AC-G12); Kosongkan skor dan Hapus WO juga tidak muncul di sana.
+
+### 17.4 Dampak (semua turunan, K7)
+
+| Bagian | Setelah Kosongkan skor / Hapus WO |
+|--------|-----------------------------------|
+| Status match | Selesai/WO → Belum (diakhiri: Tidak dimainkan). Hapus WO dengan skor lama → Selesai. Baris Jadwal menulis status itu; alasan WO hilang. |
+| Klasemen (4.2–4.3, 5.7) | Dihitung ulang tanpa match itu: Main, W–L–D, +/−, nilai metode, nomor. Pemain/pasangan yang tidak punya match Selesai/WO lagi pindah ke "Belum main" tanpa nomor. Hapus WO tanpa skor lama: nilai WO pemenang hilang (selisih memang tidak berubah, 4.4). |
+| Skor klub Sparing (13.5) | Hasil match itu (1, ½, atau WO) dan Total Point klub/selisihnya hilang; papan Jadwal, Klasemen, Beranda, poster, caption, live ikut. |
+| Kunci round Fixed / fase grup / gugur (3.2 A) | Round match itu jadi round berjalan lagi. Round sesudahnya **terkunci lagi**: tetap terlihat pudar dengan skornya (skor itu tetap dihitung), tidak bisa dibuka ke Input Skor sampai match itu terisi. Catatan kunci menyebut **round paling akhir yang belum lengkap sebelum round yang dilihat** ("Terbuka setelah semua skor R3 terisi"); tanpa match yang dikosongkan hasilnya sama dengan sekarang (R(n−1)). Hitung mundur sisa booking pindah ke round berjalan. |
+| Buat R(n+1) (Mixed, Mexicano) | Round terakhir tidak lengkap → "Buat R4 · tunggu 1 match" (pola 13m). |
+| Batalkan Rn (Mixed, Mexicano) | Semua match round terakhir jadi Belum → Batalkan Rn tersedia (kalau bukan R1). |
+| Tukar pemain (Mixed, §15) | Match yang jadi Belum di round terakhir bisa ditukar (T2). Mexicano tetap tanpa tukar. |
+| Kelola court (Mixed) | Court bernomor terakhir yang tidak punya skor/WO lagi bisa dihapus (aturan 08h tetap). |
+| Tambah round (Fixed, 3.3a) | Hanya ada selama semua match terisi → hilang lagi sampai match itu terisi. Round tambahan yang sudah dibuat tidak berubah. |
+| Buat bagan (Grup + Gugur) | Kembali jadi tombol mati "Buat bagan · tunggu N match" (17.11). |
+| Bagan gugur (16.6) | Sisi match lanjutan kembali "Pemenang SF1" / "Kalah SF1" (pemenang maju dihitung ulang, `KnockoutBracket.resolve`). |
+| Peringkat akhir Grup + Gugur (16.8) | Dihitung ulang: pasangan di babak tanpa hasil di tingkat tepat di atas yang kalah di babak itu. |
+| Urutan Mexicano (14.3) | Round yang sudah dibuat tidak dibuat ulang (14.7, U6); round berikutnya memakai Klasemen saat Buat ditekan. Kelola court saat round berjalan memakai Klasemen saat itu (tanpa match yang dikosongkan). |
+| Sementara / Final (4.6) | Fixed: semua match terisi → Final; dikosongkan → **Sementara** lagi (kecuali sudah diakhiri). Mixed/Mexicano: round terakhir tidak lengkap → Sementara. Grup + Gugur: Final/Juara 3 dikosongkan → Sementara. Diakhiri → tetap Final. |
+| Live score (5.11) | Ikut terkirim seperti perubahan lain. Penonton melihat match Belum; tag "Live" muncul lagi kalau status kembali Sementara (dicek tiap menit setelah Final, jadi sampai satu menit). |
+| Bagikan & caption (5.9) | Dibuat ulang saat dibuka: "Klasemen sementara" kalau status Sementara; podium dan baris dari Klasemen baru. |
+| Detail pemain (5.8) | Match itu hilang dari riwayat; statistik, Beda partner/Beda lawan (17.10 B-21), dan peringkat dihitung ulang. |
+| Beranda | Info round dan skor klub sparing mengikuti. |
+| Simpanan | Tidak ada kolom baru; auto-save seperti mutasi lain (5.10). |
+
+### 17.5 Contoh hitung
+
+**Contoh 17A — Sparing Fixed, data 13C** (Padel, Race to 6; Final, PB Garuda 7 – 5 Matcha Club).
+
+*17A-i, Kosongkan R6 Court 2* (Gita · Hadi 5–6 Maya · Nanda, skor diketik padahal match belum dimainkan):
+- Dialog "Kosongkan skor Court 2?" · "Match kembali belum dimainkan." → Kosongkan.
+- Skor klub **PB Garuda 7 – 4 Matcha Club**. Total Point klub: Garuda 56 − 5 = **51 · +14**, Matcha 49 − 6 = **43 ·
+  −14**. 11 dari 12 match → **Sementara** ("R6 · 11 dari 12 match"); "Tambah round" hilang.
+- Klasemen Garuda (Total Point): #1 Eko · Fajar 18 (+11) · #2 Andi · Budi 14 (+1) · #3 Citra · Dewi 10 (+3) · #4 Gita
+  · Hadi 9 (−1) (dulu #3 dengan 14, −2). Matcha: #1 Maya · Nanda 17 (+3, 2 menang termasuk 1 WO) · #2 Kiki · Lina 16
+  (−3) · #3 Indra · Joko 10 (−14).
+- Caption "🏆 PB Garuda 7–4 Matcha Club · Padel", poster "Klasemen sementara"; penonton melihat R6 Court 2 Belum dan
+  tag Live.
+
+*17A-ii, Hapus WO R3 Court 2* (round lama, Fixed boleh; WO Citra · Dewi absen, tanpa skor lama; dari data 13C utuh):
+- Sheet WO → "Hapus WO" → dialog "Hapus WO Court 2?" · "Match kembali belum dimainkan." → Hapus → R3 Court 2 Belum.
+- Skor klub **PB Garuda 7 – 4 Matcha Club**; Total Point Matcha 49 − 6 (nilai WO) = **43**, selisih tetap −13; Garuda
+  56 · +13.
+- R3 jadi round berjalan; R4–R6 terkunci lagi tapi skornya tetap dihitung. Catatan di R4, R5, dan R6 sama-sama
+  "Terbuka setelah semua skor R3 terisi" (R4 dan R5 lengkap). Hitung mundur sisa booking tampil di R3.
+- Detail Maya · Nanda: riwayat tanpa R3; Main 4 → 3; Total Point 23 → 17; Beda lawan 8 / 8 → **6 / 8** (Citra · Dewi
+  hanya dilawan di R3, B-21).
+
+*17A-iii, diakhiri (K6):* 13C diakhiri setelah R6 lengkap, lalu R6 Court 2 dikosongkan → dialog "Match jadi tidak
+dimainkan." → Tidak dimainkan; status tetap **Final**; skor klub 7 – 4; catatan Klasemen "tidak dimainkan" seperti
+match lain yang tidak dimainkan.
+
+**Contoh 17B — Mixed** (8 pemain Andi, Budi, Citra, Dewi, Eko, Fajar, Gita, Hadi; 2 court; Americano 21; R3 round
+terakhir). R3 Court 1 Andi · Eko 13–8 Budi · Fajar; R3 Court 2 Citra · Gita 11–10 Dewi · Hadi diketik padahal Court 2
+masih main. "Buat R4" sudah aktif.
+- Kosongkan R3 Court 2 → "Buat R4 · tunggu 1 match"; Citra dan Gita −11 poin dan +/− turun 1, Dewi dan Hadi −10 poin dan
+  +/− naik 1. Ikon tukar muncul di Court 2 (Mixed, §15). Batalkan R3 tidak tersedia (Court 1 sudah ada skor).
+- Seandainya R4 sudah dibuat dan **belum ada skor**: Batalkan R4 → R3 round terakhir → Kosongkan R3 Court 2 → tunggu
+  hasil → Buat R4 (round dibuat dari riwayat terbaru).
+- Seandainya R4 Court 1 **sudah ada skor**: R3 Court 2 hanya bisa diganti (Perbarui skor) atau dijadikan WO.
+- Sparing Mixed: sama, ditambah skor klub seperti 17A.
+
+**Contoh 17C — Mexicano, data 14A.** R2 round terakhir, R2 Court 2 terisi 8–13. Kosongkan → "Buat R3 · tunggu 1
+match"; Klasemen dan urutan Mexicano tanpa R2 Court 2. Setelah R3 dibuat: R2 Court 2 hanya bisa dikoreksi (14.7). R3
+belum ada skor: Batalkan R3 → R2 Court 2 bisa dikosongkan atau dikoreksi → Buat R3 memakai urutan yang baru.
+
+**Contoh 17D — Grup + Gugur fase grup, data 16A / 20b** (R1–R2 lengkap, R3 Court 1 terisi, R3 Court 2 Belum; 5 dari
+12 match grup).
+- Kosongkan R1 Court 1 (Andi · Budi 4–6 Gita · Hadi) → R1 round berjalan, R2 dan R3 terkunci (R3 Court 1 tetap 6–3 dan
+  dihitung); tombol "Buat bagan · tunggu 8 match".
+- Semua 12 match terisi ("Buat bagan" aktif) → Kosongkan R6 Court 2 → "Buat bagan · tunggu 1 match".
+- Setelah Buat bagan: R1–R6 tanpa "Kosongkan skor" dan tanpa "Hapus WO".
+
+**Contoh 17E — gugur, data 16E** (SF1 Andi · Budi 6–4 Maya · Nanda; SF2 Indra · Joko 4–6 Citra · Dewi).
+- *R8 masih Belum:* Kosongkan SF1 → dialog "Kosongkan skor SF1?" · "Match kembali belum dimainkan." · "Final: Pemenang
+  SF1 vs Citra · Dewi" · "Juara 3: Kalah SF1 vs Indra · Joko" → Kosongkan → SF1 Belum, R8 terkunci lagi, Final dan
+  Juara 3 tidak bisa dibuka.
+- *Final 7–9 dan Juara 3 4–2 sudah tersimpan (Final), lalu ketahuan SF1 sebenarnya 4–6 (C-9):* di SF1, mengosongkan
+  kedua kotak → "Kosongkan skor" mati + "Final dan Juara 3 sudah ada skor · pemenang SF1 tetap Andi & Budi".
+  Jalannya:
+  1. Kosongkan Final → "Kosongkan skor Final?" · "Match kembali belum dimainkan." → **Sementara**; peringkat: #1 Andi ·
+     Budi + Citra · Dewi ("Final"), #2 Maya · Nanda ("Juara 3"), #3 Indra · Joko ("Semifinal"), #4 Eko · Fajar + Kiki ·
+     Lina, #5 Gita · Hadi + Oki · Putri.
+  2. Kosongkan Juara 3 → #1 Andi · Budi + Citra · Dewi, #2 Maya · Nanda + Indra · Joko ("Perebutan juara 3"), #3
+     posisi 3, #4 posisi 4 (sama dengan varian 16F "diakhiri setelah R7").
+  3. SF1 Perbarui skor 4–6 → dialog GU11 "Ganti pemenang SF1?" → Final: Maya · Nanda vs Citra · Dewi; Juara 3: Andi ·
+     Budi vs Indra · Joko (16E). Aturan GU11 tidak berubah.
+  4. Final dan Juara 3 diisi lagi → Final.
+- *WO:* SF2 WO (Indra · Joko absen, tanpa skor lama), R8 Belum → "Hapus WO SF2?" · "Match kembali belum dimainkan." ·
+  "Final: Andi · Budi vs Pemenang SF2" · "Juara 3: Maya · Nanda vs Kalah SF2". SF2 yang dulu 4–6 lalu dijadikan WO
+  dengan Citra · Dewi absen: Hapus WO mengembalikan 4–6, pemenang berganti ke Citra · Dewi → susunan baru di dialog
+  kalau R8 Belum; kalau R8 sudah ada skor → "Hapus WO" mati + pesan 21l.
+
+### 17.6 Kriteria penerimaan (Kosongkan skor / Hapus WO)
+
+- **AC-K1** Input Skor match Selesai: setelah kotak diketuk dan kedua kotak dikosongkan dengan ⌫, tombol berbunyi
+  "Kosongkan skor" (sekunder, clay) dan aktif; satu kotak saja kosong → "Perbarui skor" mati; mengetik satu angka →
+  "Perbarui skor". Match Belum (Simpan skor) dan match WO tidak pernah menampilkan "Kosongkan skor".
+- **AC-K2** Dialog "Kosongkan skor Court 2?" · "Match kembali belum dimainkan." · Batal / Kosongkan. Batal → papan,
+  tidak ada yang tersimpan. Kosongkan → Jadwal, match Belum tanpa skor.
+- **AC-K3** Sheet WO dari match WO punya "Hapus WO" di kanan kepala; dari match Belum/Selesai tidak. Hapus WO tanpa skor
+  lama → Belum; dengan skor lama 6–4 → Selesai 6–4, dialog "Match kembali ke skor 6–4."; alasan WO hilang dari baris
+  Jadwal.
+- **AC-K4** 17A-i: skor klub 7 – 4, Total Point klub 51 · +14 dan 43 · −14, Sementara "11 dari 12 match", Klasemen
+  Garuda persis 17A-i, caption "🏆 PB Garuda 7–4 Matcha Club · Padel".
+- **AC-K5** 17A-ii: Fixed round lama boleh; R4–R6 terkunci dengan skor tetap dihitung; catatan "Terbuka setelah semua
+  skor R3 terisi" di R4, R5, dan R6; Detail Maya · Nanda Beda lawan 6 / 8.
+- **AC-K6** Mixed dan Mexicano: Kosongkan skor dan Hapus WO hanya muncul di round terakhir; di round sebelumnya
+  mengosongkan kedua kotak membuat "Perbarui skor" mati dan sheet WO tanpa "Hapus WO". 17B: "Buat R4 · tunggu 1
+  match", ikon tukar di Court 2 (bukan Mexicano); Batalkan R4 tanpa skor membuat R3 bisa dikosongkan.
+- **AC-K7** Semua match round terakhir Mixed dikosongkan (bukan R1) → Batalkan Rn tersedia.
+- **AC-K8** Grup + Gugur: 17D persis ("tunggu 8 match", "tunggu 1 match"); setelah Buat bagan tidak ada Kosongkan skor /
+  Hapus WO di match grup.
+- **AC-K9** 17E: Kosongkan SF1 dengan R8 Belum → dialog dengan dua baris susunan baru, sisi Final kembali "Pemenang
+  SF1"; dengan Final berskor → tombol mati + pesan 21l; urutan Final → Juara 3 → SF1 4–6 menghasilkan peringkat dan
+  susunan persis 17E.
+- **AC-K10** Fixed semua match terisi (Final, Tambah round tampil) → Kosongkan satu match → Sementara, Tambah round
+  hilang; diisi lagi → Final dan Tambah round kembali.
+- **AC-K11** Diakhiri (K6): Fixed → match Tidak dimainkan, status tetap Final, dialog "Match jadi tidak dimainkan.";
+  Mixed → Tidak dimainkan, lalu Lanjutkan turnamen → Belum.
+- **AC-K12** Live: penonton melihat perubahan pada kiriman berikutnya; tag Live muncul lagi kalau status kembali
+  Sementara. Penonton tidak punya aksi.
+- **AC-K13** App ditutup sesudah Kosongkan / Hapus WO → dibuka lagi dengan match Belum (atau skor lama). Simpanan dibaca
+  app 3.8.1 tanpa ditolak (tidak ada kolom baru).
+- **AC-K14** Semua kriteria jalan offline.
+
+### 17.7 Belum sekarang
+
+- Mengosongkan skor/WO di round lama Mixed/Mexicano selain lewat Batalkan Rn satu round (keputusan 114; pertanyaan
+  17.9 Q1).
+- Mengosongkan match grup setelah bagan dibuat (GU6).
+- Urungkan setelah Kosongkan/Hapus WO; riwayat perubahan skor.
+- Kosongkan banyak match sekaligus atau satu round penuh dari Jadwal.
+- Kosongkan dari baris Jadwal (geser/tekan lama) tanpa membuka Input Skor.
+- Membuat ulang round Mixed/Mexicano yang sudah dibuat setelah skor dikoreksi (14.7, U6).
+
+### 17.8 Usulan PM (disetujui host 2026-11-18, keputusan 121)
+
+- **U-1.** Setelah diakhiri: boleh, hasilnya Tidak dimainkan, isi dialog "Match jadi tidak dimainkan." (K6). Alasan:
+  kesalahan sering baru terlihat di Klasemen/Bagikan, dan Fixed tidak bisa dilanjutkan.
+- **U-2.** Sparing Mixed ikut batas Mixed (round terakhir), karena keputusan 114 menyebut mode, dan Sparing Mixed memakai
+  mesin Mixed.
+- **U-3.** Match WO tidak punya Kosongkan skor; jalannya Hapus WO (K3), supaya satu aksi = satu akibat.
+- **U-4.** Judul dialog gugur memakai kode match ("SF1", "Final"), selain itu nama court; dialog Hapus WO "Hapus WO
+  Court 2?" · Batal / Hapus dengan isi akibatnya (17.2).
+- **U-5.** Catatan kunci round menyebut round paling akhir yang belum lengkap sebelum round yang dilihat (17.4).
+
+### 17.9 Pertanyaan untuk host (dijawab 2026-11-18: rekomendasi disetujui, keputusan 121)
+
+- **Q1.** Sebelumnya disampaikan bahwa round lama Mixed tetap bisa dibetulkan lewat "Batalkan Rn"; setelah dicek, itu
+  hanya berlaku satu round ke belakang dan hanya kalau round terbaru belum ada skor sama sekali. Selain itu, skor round
+  lama Mixed/Mexicano hanya bisa diganti atau dijadikan WO. Rekomendasi: terima apa adanya untuk 3.9.0 (batas
+  keputusan 114 tetap) dan lihat dulu apakah host benar butuh lebih.
+- **Q2.** Kalau turnamen sudah diakhiri, saya usulkan Kosongkan skor/Hapus WO tetap boleh dan match jadi "Tidak
+  dimainkan" (U-1), karena salah skor sering baru terlihat saat membagikan hasil. Rekomendasi: setujui.
+- **Q3.** Di Fixed, mengosongkan match di round lama membuat round sesudahnya terkunci lagi sampai match itu diisi
+  (skornya tetap dihitung, hanya tidak bisa dibuka). Rekomendasi: terima, karena itu aturan kunci round yang sudah ada
+  dan host memang akan mengisi ulang match itu.
+
+### 17.10 Perilaku kecil (P5)
+
+**A-8 "Hapus semua" tanpa dialog, dengan Urungkan (Pemain 02b, keputusan 115).**
+- Toolbar tetap dua tombol. Kotak kosong: "Tempel · Contoh". Kotak berisi: "Tempel" … "Hapus semua" (clay). Hapus semua
+  langsung mengosongkan kotak, tanpa dialog; toolbar jadi **"Tempel · Urungkan"** (ikon `arrow-counter-clockwise` di
+  tempat Contoh).
+- Urungkan mengembalikan teks persis seperti sebelum Hapus semua (termasuk baris duplikat yang dibuang parser), lalu
+  toolbar kembali "Tempel" … "Hapus semua".
+- Urungkan hilang begitu isi kotak berubah dengan cara lain (ketikan, Tempel). Kotak kembali kosong sesudah itu →
+  "Tempel · Contoh". Hanya Hapus semua terakhir yang bisa diurungkan; keluar dari layar membuangnya.
+- Sparing: berlaku per kotak klub.
+- Contoh: 12 nama → Hapus semua → kotak kosong, daftar hilang, Lanjut mati, "Tempel · Urungkan" → Urungkan → 12 nama
+  kembali, Lanjut aktif. Hapus semua → ketik "R" → toolbar "Tempel" … "Hapus semua", Urungkan tidak ada lagi.
+
+**A-9 Dialog buang pasangan (Pasangan 04b, Atur pasangan 04f–04g, keputusan 116).**
+- Manual → Acak saat ada **N ≥ 1 pasangan manual yang sudah jadi**: dialog **"Buang N pasangan manual?"** · Batal /
+  Buang (bahaya). Batal → tetap Manual, pasangan dan pilihan yang sedang berjalan utuh. Buang → Acak (pasangan acak
+  baru). Belum ada pasangan jadi (paling banyak satu pemain terpilih) → langsung Acak tanpa dialog.
+- Acak → Manual: **tanpa dialog** (pasangan acak bisa dibuat lagi); daftar kosong seperti sekarang.
+- Atur pasangan (sebelum round tambahan): ← (tombol, back HP, back browser) saat susunan pasangan atau nama pengganti
+  berbeda dari saat layar dibuka → dialog **"Buang perubahan pasangan?"** · Batal / Buang (bahaya). Batal → tetap di
+  layar. Buang → keluar tanpa perubahan. Tidak ada perubahan → keluar tanpa dialog.
+- Berlaku juga di layar Pasangan Sparing Fixed (N = jumlah pasangan manual kedua klub) dan layar Pasangan Grup + Gugur
+  (dibuka Manual, keputusan 95). Layar **Grup** (penempatan pasangan ke grup, 19-an) **tanpa dialog**, sesuai Cakupan
+  hi-fi (keputusan 103).
+- Contoh: 10 pemain, Manual, Andi · Budi, Citra · Dewi, Eko · Fajar jadi, Gita terpilih → ketuk Acak → "Buang 3
+  pasangan manual?" → Batal → tiga pasangan + Gita terpilih tetap. Hanya Gita terpilih → Acak langsung. Atur pasangan:
+  "Ubah" Andi P · Budi S, ketik Rizky H → ← → "Buang perubahan pasangan?".
+
+**B-10 Bagikan gagal → unduh dua gambar + salin hasil (Bagikan, keputusan 117; mengubah aturan 2026-10-22).**
+- Share sheet sistem gagal/tidak ada (desktop, browser tertentu): kedua PNG **diunduh** dengan nama yang sudah ada
+  (`match-addict-feed-1080x1080.png`, `match-addict-story-1080x1920.png`), caption **disalin**, toast **"Gambar
+  diunduh · hasil disalin"**. Tidak ada tombol baru (tetap tanpa tombol salin terpisah).
+- Host menutup share sheet tanpa memilih aplikasi = bukan gagal: tidak ada unduhan dan tidak ada toast.
+- Gambar gagal dibuat (render): tidak ada yang diunduh; caption disalin + "Hasil disalin" seperti sekarang.
+- Android/iOS app: share sheet sistem selalu ada; kalau tetap gagal, perilaku sama hanya kalau gambar bisa disimpan
+  tanpa izin atau dependensi baru, selain itu tetap "Hasil disalin" (dicek tech lead, cek web dengan
+  `tool/build_web.sh` + Chrome).
+
+**B-21 Lawan dan partner WO dihitung di Detail (keputusan 118, kode tidak berubah).**
+- "Beda partner" dan "Beda lawan" di Detail dihitung dari match **Selesai dan WO**, kedua sisi WO ikut (sama dengan
+  kolom Main). Match Belum dan Tidak dimainkan tidak dihitung.
+- Contoh 13C: Maya · Nanda melawan Eko · Fajar (R2), Citra · Dewi (R3, WO), Andi · Budi (R5), Gita · Hadi (R6) →
+  Beda lawan **8 / 8**, bukan 6 / 8. Hi-fi 10b (Citra L · Dewant R dari WO R2) juga 8 / 8.
+
+**Kriteria penerimaan P5:**
+- **AC-P1** Hapus semua tanpa dialog; toolbar "Tempel · Urungkan"; Urungkan mengembalikan teks persis; ketikan atau
+  Tempel menghapus Urungkan; kotak kosong lagi → "Tempel · Contoh".
+- **AC-P2** Manual → Acak dengan 3 pasangan → "Buang 3 pasangan manual?"; Batal tidak mengubah apa pun; Buang → Acak.
+  0 pasangan → tanpa dialog. Acak → Manual tanpa dialog. Layar Grup tanpa dialog.
+- **AC-P3** Atur pasangan: ← / back HP / back browser dengan perubahan → "Buang perubahan pasangan?"; tanpa perubahan →
+  langsung keluar.
+- **AC-P4** Web tanpa share sheet: dua file dengan nama di atas terunduh, clipboard berisi caption, toast "Gambar
+  diunduh · hasil disalin". Share sheet ditutup → tidak ada unduhan dan toast.
+- **AC-P5** Detail Maya · Nanda (13C) Beda lawan 8 / 8.
+
+### 17.11 Tombol mati "Buat bagan" (C-17, keputusan 119)
+
+- Grup + Gugur fase grup, belum diakhiri, bagan belum dibuat, masih ada match grup **Belum**: action bar = ikon
+  Klasemen + tombol mati **"Buat bagan · tunggu N match"** (pola "Buat R4 · tunggu 1 match", 13m).
+- **N = jumlah match grup Belum di semua round grup**, bukan hanya round berjalan.
+- N = 0 → "Buat bagan" aktif (20e, tetap). Diakhiri → tidak ada Buat bagan (tetap). Penonton live → tanpa tombol.
+- Beda dengan Fixed 06v yang menyembunyikan "Tambah round": Tambah round opsional, Buat bagan langkah wajib.
+- Contoh 20b (5 dari 12 match grup): "Buat bagan · tunggu 7 match"; R3 Court 2 diisi → "tunggu 6 match"; 12 terisi →
+  "Buat bagan" aktif; satu dikosongkan (17D) → "tunggu 1 match".
+- **AC-B1** 20b menampilkan ikon Klasemen + "Buat bagan · tunggu 7 match" mati; hitungannya turun tiap match grup diisi
+  dan naik tiap match grup dikosongkan; tidak tampil setelah diakhiri dan di halaman penonton.
+
+### 17.12 Data & versi
+
+- **MINOR → 3.9.0.** Tidak ada kolom simpanan baru; `schemaVersion` tetap 2. Kosongkan = status Belum tanpa skor; Hapus
+  WO = status Selesai/Belum tanpa pasangan WO dan alasan (bentuk yang sudah ada).
+- Keadaan baru yang belum pernah ada: Fixed/fase grup dengan round lama Belum sementara round sesudahnya berskor, dan
+  match gugur Belum dengan match lanjutan berisi sisi "Pemenang …". Simpanan dan payload live seperti ini harus tetap
+  terbaca oleh app 3.9.0, app 3.8.x, dan halaman penonton (cek decoder, `docs/data.md`, `docs/security.md`).
+- Turnamen 3.8.x terbuka di 3.9.0 tanpa perubahan; semua test dan golden lama lulus kecuali frame yang memang berubah
+  (02b, 04b, 04g, 07i, 07j, 11c, 20b).

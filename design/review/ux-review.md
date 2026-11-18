@@ -8,22 +8,51 @@ review-ux-ui, ux-copy, ui-ux-pro-max (referensi saja). Kontras dihitung dengan s
 Total 58 temuan: A 18, B 22, C 18. Setelah duplikat antar kelompok digabung, hasilnya 7 paket. Saran skill yang
 bertentangan dengan keputusan host (±35 butir) tidak diusulkan; daftarnya ada di §3 tiap file.
 
-## Keputusan yang perlu host
+## Status keputusan (diperbarui 2026-11-18, setelah rilis 3.8.1+25)
 
-Status 2026-11-18: atas permintaan host, catatan disamakan dengan app (hi-fi v96). K1 dan K2 selesai: app sudah menampilkan
-Live score + Cara kerja di 06m dan skor klub di samping round (15w); PRD, hi-fi, spec, dan `logic.md` sudah diperbarui.
-PRD §6 menu ⋯ Fixed yang diakhiri juga diperbaiki (ikut app: tinggal Live score). K3 sudah konsisten (hi-fi = app =
-rilis 2.7.0); yang tersisa hanya keputusan produk: dipertahankan atau dihapus.
+- **Selesai:** K1–K3 (keputusan 110–111) dan paket P1–P3 (keputusan 112, 3.8.1+25, hi-fi v97). Jawaban host atas
+  pertanyaan UX-0/UX-1 ada di `docs/tasks.md` (Status).
+- **Menunggu host:** P4–P7 (keputusan 112: "P4–P7 belum"). Rincian di tabel paket di bawah; butir yang perlu
+  keputusan produk ditandai di kolom Catatan.
+- Push 3.8.1 (deploy) masih ditahan host.
 
-Catatan dan frame yang bertentangan. Sesuai aturan proyek, tidak dipilih sendiri:
+### K1–K3: konflik catatan/frame (semua sudah diputuskan)
 
-| # | Konflik | Rekomendasi reviewer |
-|---|---|---|
-| K1 | B-1: catatan 06m bilang menu ⋯ Mixed yang diakhiri hanya berisi "Cara kerja Mixed", sedangkan 12a, PRD 5.11, dan Cakupan bilang Live score tetap ada setelah diakhiri | Live score tetap ada; catatan 06m dikoreksi + frame menu; perilaku kode dicek |
-| K2 | C-11: catatan 14x (skor klub di baris sendiri, belum digambar) vs frame 15w (skor di samping Round) | 15w yang berlaku, kalimat di 14x dihapus |
-| K3 | A-10: paragraf "Pemain baru langsung ikut main dan diprioritaskan…" di 08a (dan 15l/15m). Tidak ada persetujuan teks UI di Cakupan, tapi reviewer C menganggapnya sudah disetujui | Hapus (aturan tanpa kalimat penjelas), kecuali host pernah menyetujuinya |
+Sesuai aturan proyek, reviewer tidak memilih sendiri; host menyetujui rekomendasi reviewer.
+
+| # | Konflik | Rekomendasi reviewer | Putusan |
+|---|---|---|---|
+| K1 | B-1: catatan 06m bilang menu ⋯ Mixed yang diakhiri hanya berisi "Cara kerja Mixed", sedangkan 12a, PRD 5.11, dan Cakupan bilang Live score tetap ada setelah diakhiri | Live score tetap ada; catatan 06m dikoreksi + frame menu; perilaku kode dicek | Selesai, keputusan 110: ikut app (Fixed tinggal Live score; Mixed Live score + Cara kerja) |
+| K2 | C-11: catatan 14x (skor klub di baris sendiri, belum digambar) vs frame 15w (skor di samping Round) | 15w yang berlaku, kalimat di 14x dihapus | Selesai, keputusan 110 |
+| K3 | A-10: paragraf "Pemain baru langsung ikut main dan diprioritaskan…" di 08a (dan 15l/15m). Tidak ada persetujuan teks UI di Cakupan, tapi reviewer C menganggapnya sudah disetujui | Hapus (aturan tanpa kalimat penjelas), kecuali host pernah menyetujuinya | Selesai, keputusan 111: dihapus; aturan menyusul (2.7.0) tetap |
 
 ## Paket usulan
+
+Status per paket: **P1, P2, P3 selesai** (3.8.1+25, keputusan 112). **P4–P7 menunggu host.** C-6 usulan kedua (baris tidak
+pindah saat grup dipilih) ditunda ke GU9 (host, 2026-11-18).
+
+**P7 disetujui host (2026-11-18)** dengan tiga batas, masuk MINOR 3.9.0 bersama P5 (PRD lewat `product-manager`,
+keputusan bernomor menyusul): (1) Mixed dan Mexicano hanya round terakhir, round lama tetap lewat "Batalkan Rn"; Fixed
+dan Sparing Fixed boleh di round mana pun; (2) Grup + Gugur: mengosongkan skor/WO match grup dilarang setelah bagan
+dibuat; (3) match gugur boleh, memakai dialog flipCheck yang sudah ada kalau pemenangnya sudah maju (mengosongkan Final
+membuka jalan ke GU11, aturan GU11 tidak berubah). Bentuk UI: "Kosongkan skor" di Input Skor mode ubah (kedua kotak
+dikosongkan) dan "Hapus WO" di kepala sheet WO tersimpan; WO dihapus → kembali ke skor lama kalau ada, kalau tidak Belum.
+
+**P5 disetujui host (2026-11-18), semua rekomendasi, masuk 3.9.0:** A-8 "Hapus semua" tanpa dialog, toolbar jadi
+"Tempel · Urungkan" sampai ada ketikan; A-9 dialog "Buang N pasangan manual?" hanya saat pasangan manual akan hilang
+(Manual → Acak) dan "Buang perubahan pasangan?" saat ← di Atur pasangan ada perubahan, Acak → Manual dan alur Grup
+tanpa dialog; B-10 fallback unduh dua PNG + salin caption + toast "Gambar diunduh · hasil disalin" saat share gagal
+(mengubah keputusan 11c, 2026-10-22; cek web dengan `tool/build_web.sh` + Chrome); B-21 lawan WO tetap dihitung di
+"Beda lawan", cukup satu kalimat aturan di `logic.md` (kode tidak berubah).
+
+**P6 + P4 + GU9 + A-15 disetujui host (2026-11-18), semua rekomendasi.** Pengelompokan rilis:
+- **3.9.0 (MINOR):** P5 + P7 + C-17 (tombol mati "Buat bagan · tunggu N match" di action bar fase grup) + P6 visual
+  (C-7 bagan mengintip 24 pt + label kolom terlihat, C-18 label 12 → 13 px, C-15 pratinjau Tukar menebalkan nama yang
+  masuk) + P4 (B-22 aturan pemisah "·" / "&" / "+" di `components.md`, B-16 samakan data uji, C-12 verifikasi catatan
+  "menunggu host" yang tersisa, frame B-7, B-8, B-9, B-18, C-3, C-4, C-10).
+- **3.10.0 (MINOR):** GU9 (label babak diketuk → sheet 19f selama babak belum ada skor; C-2) + A-15 (skala teks
+  sampai 1,3; mulai dengan mengukur render layar utama pada 1,3, baru aturan + frame).
+- C-6 usulan kedua tetap dibahas bersama GU9.
 
 | Paket | Isi (id temuan) | Level · semver | Catatan |
 |---|---|---|---|
@@ -37,7 +66,7 @@ Catatan dan frame yang bertentangan. Sesuai aturan proyek, tidak dipilih sendiri
 
 ## Urutan yang disarankan
 
-1. Host memutuskan K1–K3 dan memilih paket.
-2. P1 + P2 + P3 jadi satu PATCH 3.8.1: ui-ux-designer memperbarui hi-fi (per kelompok frame), lalu engineer + golden.
-3. P4 + P6 diikutkan saat GU9 (3.8.x).
-4. P5 dan P7 lewat PRD dulu (product-manager), satu MINOR.
+1. ~~Host memutuskan K1–K3 dan memilih paket.~~ Selesai (K1–K3, P1–P3).
+2. ~~P1 + P2 + P3 jadi satu PATCH 3.8.1.~~ Selesai (3.8.1+25).
+3. P4 + P6 diikutkan saat GU9 (3.8.x). Menunggu host.
+4. P5 dan P7 lewat PRD dulu (product-manager), satu MINOR. Menunggu host.

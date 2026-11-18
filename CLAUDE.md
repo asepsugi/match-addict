@@ -13,7 +13,8 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   Sparing disetujui host 2026-11-04 (keputusan 19–20), hi-fi 13a–13w, 14a–14y, 15a–15y; §14
   Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
   2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t; §16 Grup + Gugur
-  (keputusan 93–103, 2026-11-17), hi-fi 19a–22r.
+  (keputusan 93–103, 2026-11-17), hi-fi 19a–22r; §17 Kosongkan skor / Hapus WO + perilaku kecil (keputusan 113–121,
+  2026-11-18; hi-fi-nya belum digambar, task KS-n di `docs/tasks.md`).
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 299 frame layar 390×844 +
   36 lembar gambar (per 2026-11-18) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,5 MB (per
   2026-11-18; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
@@ -129,6 +130,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - PATCH 3.8.1 review UX hi-fi (keputusan 110–112): temuan di `design/review/`, task UX-0…UX-6 di `docs/tasks.md`,
   branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di `main` lokal (a7b506a),
   hi-fi v97 terbit. Sisa: push (deploy) — ditahan host.
+- 3.9.0 (MINOR, rencana) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame:
+  PRD §17 selesai (keputusan 113–121, 2026-11-18), branch `fitur-3-9-0`, task KS-0…KS-9 di `docs/tasks.md` (KS-0 selesai,
+  belum di-commit; berikutnya KS-1…KS-3 hi-fi, tiga desainer paralel). 3.10.0 = GU9 + A-15 (skala teks 1,3).
 
 ## Area docs
 
@@ -140,7 +144,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 | `docs/live.md` | menyentuh live score: `relay/`, `services/live/`, `features/live/` | tech-lead (deploy relay: tech-infra) |
 | `docs/infra.md` | platform, build web, service worker, deploy, ikon app, toolchain | tech-infra |
 | `docs/security.md` | menyentuh decode simpanan/payload, live/relay, atau menambah dependensi | security (ditulis main session) |
-| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: PATCH 3.8.1 review UX, UX-n) | tech-lead |
+| `docs/tasks.md` | mengerjakan atau mereview task fitur (sekarang: 3.9.0 Kosongkan skor, KS-n; 3.8.1 UX-n selesai) | tech-lead |
 
 ## Pitfalls (lintas area)
 

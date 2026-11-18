@@ -1,3 +1,57 @@
+# Task — 3.9.0 Kosongkan skor + perilaku kecil + visual/frame (MINOR)
+
+Pemilik: main session. Branch `fitur-3-9-0` (dari `main` 9b2d902, 3.8.1+25 yang belum di-push). Produk: PRD §17 (aturan
+K1–K8, UI 17.2, tabel mode 17.3, dampak 17.4, contoh 17A–17E, AC-K1–K14, P5 17.10 + AC-P1–P5, C-17 17.11 + AC-B1) dan
+keputusan 113–121. Sumber temuan: `design/review/ux-review*.md` (status keputusan di `ux-review.md`). Isi: P7 Kosongkan
+skor / Hapus WO · P5 (A-8, A-9, B-10, B-21) · C-17 · P6 visual (C-7, C-18, C-15) · P4 (frame + catatan). **Di luar
+rilis ini (3.10.0):** GU9 + A-15 (skala teks 1,3: ukur dulu).
+
+Aturan semua task: hi-fi dulu, lalu spec, lalu kode; golden `expectMatchesHifi` setelah `python3 tool/hifi_extract.py`
+(`docs/ui-v2.md`); `dart format` hanya hunk sendiri; tanpa dependensi baru (B-10 native hanya kalau tanpa izin/dependensi
+baru, selain itu "Hasil disalin" tetap); wording UI + "tanpa kalimat penjelas" berlaku; versi 3.9.0+26 + `appVersion`
+hanya di task rilis. **Maks 3 agen paralel, satu agen per kelompok frame (hanya melihat frame-nya sendiri, cek dengan
+skrip/lembar kontak), agen berhenti ~150k konteks.** Mulai sesi baru (`/clear`) per fase.
+
+## Urutan
+
+| Task | Isi | Siapa | Dicek |
+|---|---|---|---|
+| KS-0 | PRD §17 + keputusan 113–121 | product-manager (selesai 2026-11-18), jawaban host = keputusan 121 | belum di-commit |
+| KS-1 | Hi-fi kelompok A (Kosongkan/Hapus WO). Ubah 07i, 07j. Baru: Input Skor kedua kotak kosong → "Kosongkan skor"; dialog Kosongkan (court · gugur dengan susunan baru · setelah diakhiri); gugur diblok (21l, Kosongkan mati); sheet WO + "Hapus WO"; dialog Hapus WO (tanpa skor lama · skor lama 6–4); Fixed round dikunci lagi (R4 terkunci, catatan "R3", seri 06). Baca PRD §17.1–17.6 | ui-ux-designer opus/high | main session |
+| KS-2 | Hi-fi kelompok B (P5). Ubah 02b ("Tempel · Urungkan"), 04b + 04g (dialog "Buang 3 pasangan manual?", "Buang perubahan pasangan?"), 11c (toast "Gambar diunduh · hasil disalin"). Baca PRD §17.10 | ui-ux-designer opus/high | main session |
+| KS-3 | Hi-fi kelompok C1: 20b "Buat bagan · tunggu 7 match" (§17.11); C-7 bagan 21u–21y mengintip 24 pt + label kolom; C-18 label 12 → 13 px (`.grp`, `.gg-babak`, `.bagan .mh/.ch`); C-15 pratinjau Tukar 17d/17g/17l nama masuk tebal; B-16 samakan data uji; C-12 verifikasi catatan "menunggu host" sisa | ui-ux-designer opus/high | main session |
+| KS-4 | Hi-fi kelompok C2 (P4 frame baru): B-7 Klasemen 30 pemain nama panjang, B-8 penonton tanpa internet, B-9 toast Hentikan offline, B-18 Detail Win % desimal, C-3 sheet Tukar 22 kandidat, C-4 Beranda Grup + Gugur + dialog mulai baru, C-10 error Sparing tahap 2 + "Pilih klub" | ui-ux-designer opus/high (setelah KS-1…3, maks 3 paralel) | main session |
+| KS-5 | B-22 aturan pemisah "·" / "&" / "+" di `components.md`; Cakupan "Sudah disetujui"; render ulang (`tool/hifi_extract.py`), cek noise; publish ulang artifact `H9ZVDUfYvEBXsoBqih4iov` | main session | — |
+| KS-6 | Spec + tugas kode: `design/spec/logic.md` §19 (K1–K8, aturan ketersediaan 17.3, selesai → batal, aturan catatan kunci 17.4, mengosongkan gugur = GU11 tanpa pemenang, kalimat B-21, B-10 gagal vs share sheet ditutup, N di C-17, data uji 17A–17E) + pecah tugas kode + tandai mana yang butuh model kuat | tech-lead opus/high (boleh paralel dengan KS-4) | — |
+| KS-7 | Kode dari spec KS-6, golden per frame baru | engineer sonnet/medium (logika inti: opus/medium bila ditandai tech-lead) | review logika: fresh tech-lead; layar: main session |
+| KS-8 | Cek web B-10 (`tool/build_web.sh` + Chrome); full test sekali | main session | — |
+| KS-9 | Rilis 3.9.0+26 + `appVersion`, merge ke `main`, push (deploy) hanya setelah host bilang, status CLAUDE.md + memory | main session | — |
+
+### Jebakan dari PM untuk tech-lead (KS-6)
+
+1. `MatchGame.copyWith` tidak bisa mengembalikan `woLoserPairId`/`woReason` ke null: mengosongkan butuh konstruktor ala
+   `_with` yang tetap membawa `phase`.
+2. `flipCheck` butuh pemenang non-null; mengosongkan butuh varian. Hapus WO yang kembali ke skor lama dihitung sebagai
+   perubahan pemenang.
+3. `_confirmFlip`: `FlipBlocked` mengembalikan true dan layar langsung tutup, jadi pesan 21l harus tampil di UI.
+4. Match grup setelah Buat bagan masih terbuka di Input Skor dan simpan diam-diam tidak berbuat apa-apa: Kosongkan/Hapus WO
+   wajib cek `isGroupKnockoutLocked` di UI juga.
+5. Catatan kunci di `schedule_fixed_screen.dart:201` selalu menyebut R(terpilih−1): salah setelah ada yang dikosongkan;
+   pakai aturan 17.4.
+6. `share_result_screen.dart:67` memakai `catch (_)`: menutup share sheet (atau galat render) bisa memicu unduhan; pisahkan.
+7. Best of/Americano: mengosongkan kotak dengan ⌫ tidak boleh mengisi otomatis kotak lawan.
+8. Keadaan data baru (round lama Fixed kosong padahal round sesudahnya berskor; SF dikosongkan dengan Final yang menulis
+   "Pemenang …") harus tetap termuat dari simpanan 3.8.x, decoder, dan payload live.
+9. Setelah diakhiri, match Fixed yang dikosongkan jadi "Tidak dimainkan" dan tidak bisa diisi lagi.
+
+### Status (2026-11-18)
+
+- KS-0 selesai; PRD `§17` + keputusan 113–121 di working tree branch `fitur-3-9-0`, **belum di-commit**
+  (`design/review/ux-review.md` juga). Berikutnya: KS-1/KS-2/KS-3 (tiga desainer paralel, sesi baru).
+- 3.8.1+25 masih belum di-push (ditahan host).
+
+---
+
 # Task — PATCH 3.8.1 review UX hi-fi (P1 kontras · P2 sentuh + Semantics · P3 teks)
 
 Pemilik: main session. Branch `ux-patch-3-8-1` (dari `main` 559d69f). Produk: PRD keputusan 110–112. Sumber temuan:
