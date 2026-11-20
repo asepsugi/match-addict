@@ -18,15 +18,56 @@ import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
 import 'podium_theme.dart';
 import 'share_content.dart';
+import 'share_download.dart';
 import 'share_exports.dart';
 import 'share_theme.dart';
 import 'widgets/podium_poster.dart';
 import 'widgets/share_poster.dart';
 
+/// Hasil [runShare]: [done] = share sheet menangani (sukses, ditutup, atau `unavailable` di web) → tanpa toast;
+/// [downloaded] = gambar diunduh; [captionOnly] = hanya caption yang disalin.
+enum ShareOutcome { done, downloaded, captionOnly }
+
+/// Tiga tahap terpisah (11c, 11n, keputusan 117), tanpa `catch` tunggal: render gagal → [ShareOutcome.captionOnly]
+/// tanpa membuka share sheet; share_plus melempar → unduh ([ShareOutcome.downloaded] kalau berhasil); apa pun yang
+/// dikembalikan share_plus (termasuk `dismissed`) → [ShareOutcome.done].
+Future<ShareOutcome> runShare({
+  required Future<List<XFile>> Function() render,
+  required Future<Object?> Function(List<XFile> files) share,
+  required Future<bool> Function(List<XFile> files) download,
+}) async {
+  final List<XFile> files;
+  try {
+    files = await render();
+  } catch (_) {
+    return ShareOutcome.captionOnly;
+  }
+  try {
+    await share(files);
+    return ShareOutcome.done;
+  } catch (_) {
+    // Share sheet tidak ada/gagal (desktop, browser tertentu): unduh gambar kalau platformnya bisa.
+  }
+  final downloaded = await download(files);
+  return downloaded ? ShareOutcome.downloaded : ShareOutcome.captionOnly;
+}
+
+/// Pengganti [ShareResultScreen] untuk test; null = perilaku sebenarnya.
+class ShareHooks {
+  final Future<XFile> Function(ShareImage image)? render;
+  final Future<bool> Function(List<XFile> files)? download;
+
+  const ShareHooks({this.render, this.download});
+}
+
 /// Screen 11 · Bagikan — kartu pratinjau, tema, Ringkas/Lengkap; dua gambar (Feed 1:1, Story 9:16)
 /// dibagikan lewat share sheet sistem dengan teks hasil sebagai caption. Tema dan format tidak disimpan.
 class ShareResultScreen extends ConsumerStatefulWidget {
-  const ShareResultScreen({super.key});
+  /// Hanya test: mengganti render/unduhan supaya 11c (unduh berhasil) dan 11n (render gagal) bisa digolden.
+  @visibleForTesting
+  final ShareHooks hooks;
+
+  const ShareResultScreen({super.key, this.hooks = const ShareHooks()});
 
   @override
   ConsumerState<ShareResultScreen> createState() => _ShareResultScreenState();
@@ -61,16 +102,27 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       now: ref.read(clockProvider)(),
       clubStandings: ref.read(clubStandingEntriesProvider),
     );
+    final outcome = await runShare(
+      render: () async => [for (final image in images) await (widget.hooks.render ?? _render)(image)],
+      share: (files) {
+        // Tanpa ini share_plus web mengunduh sendiri lalu diam-diam "berhasil" tanpa caption (jebakan PM #6).
+        Share.downloadFallbackEnabled = false;
+        return Share.shareXFiles(files, text: caption);
+      },
+      download: widget.hooks.download ?? downloadShareFiles,
+    );
     try {
-      final files = [for (final image in images) await _render(image)];
-      await Share.shareXFiles(files, text: caption);
-    } catch (_) {
-      // Share sheet tidak tersedia (desktop/web tertentu): caption disalin.
-      await Clipboard.setData(ClipboardData(text: caption));
-      if (mounted) {
-        // Action bar Bagikan dua tombol: toast tetap 19 pt di atasnya, tidak menutupi "Bagikan hasil".
-        final bar = _actionBar.currentContext?.size?.height;
-        showMabarToast(context, 'Hasil disalin', bottom: bar == null ? null : bar + 19);
+      if (outcome != ShareOutcome.done) {
+        await Clipboard.setData(ClipboardData(text: caption));
+        if (mounted) {
+          // Action bar Bagikan dua tombol: toast tetap 19 pt di atasnya, tidak menutupi "Bagikan hasil".
+          final bar = _actionBar.currentContext?.size?.height;
+          showMabarToast(
+            context,
+            outcome == ShareOutcome.downloaded ? 'Gambar diunduh · hasil disalin' : 'Hasil disalin',
+            bottom: bar == null ? null : bar + 19,
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _sharing = false);

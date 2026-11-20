@@ -257,15 +257,18 @@ class MabarConfirmDialog extends StatelessWidget {
               title,
               style: MabarType.dialogTitle.copyWith(color: MabarColors.ink),
             ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: MabarType.body.copyWith(
-                fontSize: 15,
-                height: 1.5,
-                color: MabarColors.ink2,
+            // Dialog tanpa paragraf (04i, 04j): judul sudah menyebut akibatnya.
+            if (message.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                message,
+                style: MabarType.body.copyWith(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: MabarColors.ink2,
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: 8 + 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

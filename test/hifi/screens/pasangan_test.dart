@@ -122,6 +122,19 @@ void main() {
     );
   });
 
+  testWidgets('04i dialog buang pasangan manual', (tester) async {
+    await expectMatchesHifi(
+      tester,
+      screen(SportType.tennis, 10),
+      '04i',
+      act: (tester) async {
+        await manual(tester, ['Andi P', 'Budi S', 'Citra L', 'Dewant R', 'Eko M', 'Fajar K', 'Gina R']);
+        await tester.tap(find.text('Acak'));
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
   Future<void> pumpScreen(WidgetTester tester, Widget widget) async {
     tester.view.physicalSize = const Size(390, 844) * hifiPixelRatio;
     tester.view.devicePixelRatio = hifiPixelRatio;
@@ -162,10 +175,39 @@ void main() {
     await manual(tester, names.take(8).toList());
     expect(button(tester).onPressed, isNotNull);
     await tester.tap(find.text('Acak'));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('Buang 4 pasangan manual?'), findsOneWidget);
+    await tester.tap(find.text('Buang'));
+    await tester.pumpAndSettle();
     expect(find.text('4 pasangan'), findsOneWidget);
     await tester.tap(find.text('Manual'));
     await tester.pump();
+    expect(find.text('0 dari 4 pasangan'), findsOneWidget);
+  });
+
+  testWidgets('A-9 Batal menjaga Manual, pasangan, dan pemain terpilih utuh', (tester) async {
+    await pumpScreen(tester, screen(SportType.tennis, 8));
+    await manual(tester, ['Andi P', 'Budi S', 'Citra L']);
+    await tester.tap(find.text('Acak'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buang 1 pasangan manual?'), findsOneWidget);
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 dari 4 pasangan'), findsOneWidget);
+    expect(find.text('Ketuk satu lagi untuk dipasangkan dengan Citra L'), findsOneWidget);
+    expect(find.text('Buang 1 pasangan manual?'), findsNothing);
+  });
+
+  testWidgets('A-9 tanpa pasangan jadi (0 atau satu terpilih) → langsung Acak; Acak → Manual tanpa dialog', (tester) async {
+    await pumpScreen(tester, screen(SportType.tennis, 8));
+    await manual(tester, ['Andi P']);
+    await tester.tap(find.text('Acak'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Buang'), findsNothing);
+    expect(find.text('4 pasangan'), findsOneWidget);
+    await tester.tap(find.text('Manual'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Buang'), findsNothing);
     expect(find.text('0 dari 4 pasangan'), findsOneWidget);
   });
 
