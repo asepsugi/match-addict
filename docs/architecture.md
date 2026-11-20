@@ -205,6 +205,40 @@ juara 3 **setelah** jadwal dibuat (GU9) ditunda ke 3.8.x: tidak ada kodenya.
   `sourceLabel`, "Pemenang SF2"); posisi grup punya dua rumus (sebelum vs sesudah bagan); urutan dalam grup = urutan di
   `groups`, bukan `fixedPairs`; Konfigurasi memakai P = ⌊pemain ÷ 2⌋. Daftar penuh: `logic.md` §18.12.
 
+## Kosongkan skor / Hapus WO (3.9.0)
+
+Dua mutasi baru (PRD §17, keputusan 113–121; aturan, data test, dan jebakan `design/spec/logic.md` §19). Tidak ada aturan
+hitung baru: klasemen, skor klub, kunci round, Buat R(n+1), Batalkan Rn, bagan, peringkat akhir, poster, live tetap
+turunan dari match.
+- **API:** `services/scoring/score_reset.dart` (Dart murni) — `ScoreReset.check(a, matchId, action)` →
+  `ResetUnavailable` (tampil seperti 3.8.1) · `ResetBlocked(flip)` (gugur, pesan 21l) · `ResetAllowed(result, outcome,
+  preview)`; `ScoreReset.apply` = `check` lalu ganti match + `KnockoutBracket.resolve`, null kalau bukan `ResetAllowed`.
+  `ResetAction` `clearScore` (hanya match done) / `removeWalkover` (hanya match WO; match WO tidak punya Kosongkan).
+  Controller `clearScore` / `removeWalkover` → `bool`: false = state `identical`, true = satu `state =` (auto-save dan
+  live ikut). Layar membaca `check`, tidak menghitung ketersediaan sendiri; pop hanya kalau controller `true`.
+- **Model:** `MatchGame.cleared(finished:)` / `withoutWalkover(finished:)` lewat `_with` (WO + alasan jadi null, `phase`
+  ikut; `copyWith` tidak bisa). `ActiveTournament.lockedBy(round)` (catatan kunci = round terbesar sebelumnya yang belum
+  lengkap, bukan `round − 1`), `pendingGroupMatches` + `waitsForBracket` (C-17, saling lepas dengan `canCreateBracket`).
+  `ScoreEntry.isEmpty`; ⌫ tidak pernah mengisi kotak lawan yang kosong (nilai otomatis tetap ikut, 07p).
+- **Aturan per mode** (sama sebelum dan sesudah diakhiri): Mixed, Sparing Mixed, Mexicano → hanya match round terakhir
+  (`roundNumber == roundCount`), round lama tidak pernah, jangan pakai `canOpenScore`. Fixed (round-robin, round tambahan,
+  Sparing Fixed, Grup + Gugur) → `canOpenScore(m)`; round sesudahnya ikut terkunci lagi lewat `currentRound`, skornya
+  tetap dihitung; grup ditolak begitu bagan ada (`isGroupKnockoutLocked`). Gugur → `KnockoutBracket.flipCheck(a, id,
+  pemenangBaru)` dengan `String?`: null = tanpa pemenang; Hapus WO yang kembali ke skor lama memakai pemenang skor lama
+  (bisa membalik); `FlipBlocked` → `ResetBlocked`. Sudah diakhiri → hasil `cancelled` (bukan pending), tidak bisa diisi
+  lagi; Mixed/Mexicano mendapat Belum lagi hanya lewat Lanjutkan.
+- **Invariant** (R1–R7 §19.3): hanya match itu yang berubah (sisi gugur lanjutan lewat `resolve`); id/round/court/sisi/
+  `phase` tetap; turnamen diakhiri tidak pernah punya match pending; `config`/bye/resting/withdrawn tidak berubah; I7–I9
+  tetap (tbd hanya di pending/cancelled, gugur done/WO selalu punya pemenang); `check` = `ResetAllowed` ⇔ `apply`
+  non-null. Jangan lewat `_updateMatch`/`_groupKnockoutUpdate` (menolak gugur tanpa pemenang) dan jangan `_confirmFlip`
+  (true untuk `FlipBlocked`).
+- **Simpanan:** tanpa kunci baru, `schemaVersion` tetap 2; bentuk hasil sudah ada (pending tanpa sets, done, cancelled),
+  jadi 3.8.x dan penonton live membacanya (`logic.md` §19.9).
+- **Test:** `test/services/score_reset_test.dart` (17A–17E per ID PRD, ketersediaan per mode, model, roundtrip codec),
+  `score_reset_property_test.dart` (jalan acak berseed Fixed/Sparing Fixed/Mixed/Mexicano/Grup + Gugur → R1–R7, I7–I9),
+  fixture `score_reset_fixture.dart`, ⌫ di `score_format_test.dart`, controller di
+  `test/features/schedule/score_reset_controller_test.dart` (satu `state =`, tersimpan, ditolak tanpa perubahan).
+
 ## Ranking & klasemen
 
 - `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang
