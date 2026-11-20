@@ -131,8 +131,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di `main` lokal (a7b506a),
   hi-fi v97 terbit. Sisa: push (deploy) — ditahan host.
 - 3.9.0 (MINOR, rencana) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame:
-  PRD §17 selesai (keputusan 113–121, 2026-11-18), branch `fitur-3-9-0`, task KS-0…KS-9 di `docs/tasks.md` (KS-0 selesai,
-  belum di-commit; berikutnya KS-1…KS-3 hi-fi, tiga desainer paralel). 3.10.0 = GU9 + A-15 (skala teks 1,3).
+  PRD §17 selesai (keputusan 113–121, 2026-11-18), branch `fitur-3-9-0`, task KS-0…KS-9 di `docs/tasks.md`: KS-0…KS-4
+  (hi-fi v99) + KS-6 (spec `logic.md` §19) selesai 2026-11-20; berikutnya konfirmasi 9 rekomendasi KS-4/KS-6, KS-5, lalu
+  KS-7 (kode). 3.10.0 = GU9 + A-15 (skala teks 1,3). Host punya ide baru penentuan ranking: dibahas di sesi baru.
 
 ## Area docs
 
