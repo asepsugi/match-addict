@@ -23,7 +23,7 @@ skrip/lembar kontak), agen berhenti ~150k konteks.** Mulai sesi baru (`/clear`) 
 | KS-4 | Hi-fi kelompok C2 (P4 frame baru): B-7 Klasemen 30 pemain nama panjang, B-8 penonton tanpa internet, B-9 toast Hentikan offline, B-18 Detail Win % desimal, C-3 sheet Tukar 22 kandidat, C-4 Beranda Grup + Gugur + dialog mulai baru, C-10 error Sparing tahap 2 + "Pilih klub" | ui-ux-designer opus/high (setelah KS-1…3, maks 3 paralel) | main session |
 | KS-5 | B-22 aturan pemisah "·" / "&" / "+" di `components.md`; Cakupan "Sudah disetujui"; render ulang (`tool/hifi_extract.py`), cek noise; publish ulang artifact `H9ZVDUfYvEBXsoBqih4iov` | main session | — |
 | KS-6 | Spec + tugas kode: `design/spec/logic.md` §19 (K1–K8, aturan ketersediaan 17.3, selesai → batal, aturan catatan kunci 17.4, mengosongkan gugur = GU11 tanpa pemenang, kalimat B-21, B-10 gagal vs share sheet ditutup, N di C-17, data uji 17A–17E) + pecah tugas kode + tandai mana yang butuh model kuat | tech-lead opus/high (boleh paralel dengan KS-4) | — |
-| KS-7 | Kode dari spec KS-6, golden per frame baru | engineer sonnet/medium (logika inti: opus/medium bila ditandai tech-lead) | review logika: fresh tech-lead; layar: main session |
+| KS-7 | Kode dari spec KS-6 (`design/spec/logic.md` §19), golden per frame baru; dipecah KS-7a…KS-7e di bawah | engineer: KS-7a opus/medium, sisanya sonnet | review logika: fresh tech-lead; layar: main session |
 | KS-8 | Cek web B-10 (`tool/build_web.sh` + Chrome); full test sekali | main session | — |
 | KS-9 | Rilis 3.9.0+26 + `appVersion`, merge ke `main`, push (deploy) hanya setelah host bilang, status CLAUDE.md + memory | main session | — |
 
@@ -44,10 +44,35 @@ skrip/lembar kontak), agen berhenti ~150k konteks.** Mulai sesi baru (`/clear`) 
    "Pemenang …") harus tetap termuat dari simpanan 3.8.x, decoder, dan payload live.
 9. Setelah diakhiri, match Fixed yang dikosongkan jadi "Tidak dimainkan" dan tidak bisa diisi lagi.
 
+Ditangani di spec (KS-6, 2026-11-20): #1 → §19.1; #2 → §19.2 langkah 4; #3 → §19.5; #4 → §19.2 langkah 2; #5 →
+§19.1 `lockedBy`; #6 → §19.7 B-10 (fakta share_plus 10.1.4 di sana: ditutup = `dismissed`, bukan exception); #7 → §19.5;
+#8 → §19.9; #9 → §19.6 `AC-K11 17A-iii`. Ringkasan untuk reviewer: §19.11.
+
+### KS-7 rincian (tech-lead, 2026-11-20)
+
+Urutan: **gelombang 1 paralel** KS-7a + KS-7c + KS-7d (berkas tidak bersinggungan, worktree masing-masing) → review
+KS-7a oleh tech-lead fresh → **gelombang 2** KS-7b (butuh API KS-7a dan baseline golden 20x dari KS-7d) → KS-8. Tiap
+task: baca `CLAUDE.md`, §19 (bagian yang disebut), dan frame-nya sendiri saja; `flutter analyze` + test berkas sendiri;
+full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
+
+| Task | Isi | Berkas (baca/ubah) | AC ditutup | Test + golden wajib | Model | Bergantung |
+|---|---|---|---|---|---|---|
+| **KS-7a** Inti logika | §19.1–19.3, 19.5 (aturan ⌫ + `isEmpty` saja), 19.6, 19.9: `cleared`/`withoutWalkover`, `lockedBy`, `pendingGroupMatches`/`waitsForBracket`; `flipCheck(…, String?)`; `ScoreReset.check/apply` (baru); `ScoreEntry.backspace` + `isEmpty`; controller `clearScore`/`removeWalkover` (satu `state =`). Tanpa UI | `lib/models/models.dart`, `lib/services/schedule/knockout_bracket.dart`, `lib/services/scoring/score_reset.dart` (baru), `lib/services/scoring/score_entry.dart`, `lib/features/schedule/tournament_controller.dart`; baca `tournament_codec.dart` | AC-K3 (logika), K4, K5, K6 (logika), K7, K8 (logika), K9 (logika), K10, K11, K13, P5, B1 (hitungan) | `score_reset_test.dart` + `score_reset_fixture.dart` (17A–17E persis §19.6), properti R1–R7 + I7–I9, roundtrip codec §19.9, `score_format_test` ⌫, model (`phase` terbawa, `lockedBy`, N), controller (tersimpan, false tanpa perubahan). Tanpa golden | **opus/medium** (lintas modul + varian GU11) | — |
+| **KS-7c** P5 layar | §19.7 A-8, A-9, B-10 (B-21 sudah di KS-7a) | `lib/features/setup_peserta/setup_peserta_screen.dart`, `…/widgets/name_list_field.dart`, `lib/features/pair_setup/pair_setup_screen.dart`, `lib/features/pair_edit/pair_edit_screen.dart`, `lib/services/pairing/pair_draft.dart` (`differsFrom`), `lib/features/share/share_result_screen.dart`, `lib/features/share/share_download.dart` + `_stub`/`_web` (baru) | AC-P1, P2, P3, P4 (logika; web di KS-8) | test `PairDraft.differsFrom`; widget Pemain/Pasangan/Atur pasangan; fungsi tahap Bagikan (§19.7); golden **02e, 04i, 04j, 11c, 11n, 11a** (11a/11c data = 09a, B-16) + 02b/04b/04g tetap lulus | sonnet/medium | — |
+| **KS-7d** P6 visual | C-15 nama masuk tebal di pratinjau Tukar (`.swap-in`); C-18 label 12 → 13 px (`.grp`, `.gg-babak`, `.bagan .mh/.ch`); C-7 bagan kolom 153, jarak 14, mengintip 24 pt (`design/spec/screens/21-…md`) | `lib/features/schedule/mixed/swap_player_sheet.dart`, `lib/core/widgets/match_score_row.dart` (`.grp`/`.gg-babak`), `lib/features/schedule/group_knockout/bagan_view.dart`; **jangan** sentuh `schedule_fixed_screen.dart` | — (visual, keputusan 120) | golden **17d, 17g, 17j, 17l, 17p, 21a–21z yang berubah, 22j, 22k**, dan frame 20x yang lulus; frame 20x yang masih gagal hanya karena tombol "Buat bagan · tunggu N" ditulis di laporan → KS-7b | sonnet/low | — |
+| **KS-7b** Layar Kosongkan / Hapus WO + C-17 | §19.4 (catatan kunci), 19.5, 19.8: tombol "Kosongkan skor" (varian baru `.btn-secondary.danger`), dialog per `outcome` + preview, pesan 21l mati, sheet WO "Hapus WO" (`MabarSheet.action`, hasil sealed), pop hanya kalau `true`; `lockedBy` di catatan kunci; action bar "Buat bagan · tunggu N" | `lib/features/score_input/score_input_screen.dart`, `walkover_sheet.dart`, `knockout_text.dart` + teks dialog (`reset_text.dart`, baru, murni), `lib/core/widgets/mabar_controls.dart` (varian), `lib/core/widgets/mabar_layers.dart` (`action` di `showMabarSheet` kalau perlu), `lib/features/schedule/schedule_fixed_screen.dart` | AC-K1, K2, K3, K5, K6, K8, K9, K11 (layar), K12 (tanpa aksi penonton), B1 | test teks dialog (judul court/kode, tiga isi, preview tbd), widget Input Skor (AC-K1/K2, 07s, 07x, blocked tidak pernah pop), sheet WO (AC-K3), catatan kunci 17A-ii; golden **07p, 07q, 07r, 07s, 07t, 07u, 07v, 07w, 07x, 06aa, 06ab, 06ac, 20b** + 20x sisa dari KS-7d; 07i/07j/06a–06c tetap lulus | sonnet/medium | KS-7a (review lolos), KS-7d |
+| **KS-7e** (menunggu KS-4) | Frame P4 dari KS-4 (B-7, B-8, B-9, B-18, C-3, C-4, C-10): tech-lead memilah setelah KS-4 digabung — golden saja untuk perilaku yang sudah ada, kode kecil kalau ada perilaku baru | — | — | — | ditentukan nanti | KS-4, KS-5 |
+
+- Review: KS-7a → tech-lead fresh (diff + §19.11, jalankan test-nya sendiri) sebelum KS-7b mulai. KS-7b/7c/7d → main
+  session (diff + golden). `docs/architecture.md` (bagian Kosongkan skor / Hapus WO) ditulis tech-lead saat review
+  KS-7a. Tidak perlu DBA (§19.9: tanpa kunci baru, `schemaVersion` tetap 2); kalau KS-7a ternyata butuh kunci baru →
+  berhenti dan lapor.
+- KS-8 tambahan: Atur pasangan + back browser (A-9), unduh dua file di Chrome desktop dan Safari (B-10, §19.12 #2).
+
 ### Status (2026-11-18)
 
-- KS-0 selesai (dab6e14). KS-1/KS-2/KS-3 jalan 2026-11-20: tiga desainer paralel di worktree masing-masing, merge
-  oleh main session.
+- KS-0 selesai (dab6e14). KS-1…KS-3 selesai + digabung (4c75cbd), hi-fi v98 dipublish, disetujui host 2026-11-20
+  tanpa catatan. KS-4 (desainer) + KS-6 (tech-lead) jalan paralel 2026-11-20.
 - 3.8.1+25 masih belum di-push (ditahan host).
 
 ---

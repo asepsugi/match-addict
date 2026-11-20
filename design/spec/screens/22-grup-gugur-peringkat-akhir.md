@@ -180,3 +180,30 @@ Komponen: `SharePoster`
 
 - Data 22h. Pasangan selalu satu kolom (keputusan 81). Kepadatan: Feed 226 ÷ 12 = 18,83 → skala 0,856; Story 336 ÷ 24 = 14 → 0,823; pratinjau 238 ÷ 12 = 19,83 → 0,901.
 - Babak terlebar "Perempat final" menentukan lebar kolom kanan; nama pasangan tetap utuh. Tema lapangan tennis (lantai court).
+
+## 22s · Beranda · Grup + Gugur berjalan · fase grup
+
+![22s](../../frames/22s.png)
+
+Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
+
+- Data 16E (Padel, 8 pasangan = 16 pemain, 2 grup, Race to 6), sama dengan 20b/20d: R3 berjalan, 5 dari 12 match grup selesai. Tanpa nama turnamen.
+- Banner sama dengan Fixed biasa (01f): baris kecil "olahraga · mode · n pemain" (mode Fixed), "Round n" = round pertama yang belum lengkap, "x dari y match" dari semua match yang sudah ada. Selama fase grup y = 12 (match grup saja).
+
+## 22t · Beranda · Grup + Gugur berjalan · Semifinal
+
+![22t](../../frames/22t.png)
+
+Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
+
+- Setelah Buat bagan (21a): match gugur ikut dihitung, jadi y naik dari 12 ke 16 (2 Semifinal, Final, Juara 3). Latar = 21b (Semifinal R7, belum ada skor): 12 dari 16 match.
+- Judul "Round 7" (nomor round), sementara judul Jadwal babak ini "Semifinal" (21b). "Lanjutkan" membuka Jadwal di babak itu.
+
+## 22u · Dialog · mulai turnamen baru saat Grup + Gugur berjalan
+
+![22u](../../frames/22u.png)
+
+Komponen: `MabarButton`, `MabarTextButton`, `showMabarSheet`, `showMabarConfirm`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
+
+- Latar = 22t. Isi sama dengan 01h untuk turnamen tanpa nama: "olahraga · mode, Round n" → "Padel · Fixed, Round 7". Bernama: nama turnamen, lalu ", Round 7".
+- "Hapus & mulai baru" membuang turnamen ini (tidak bisa dilanjutkan, seperti Fixed) dan menghentikan live-nya kalau aktif (12e).

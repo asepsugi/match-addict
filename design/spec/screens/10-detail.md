@@ -43,3 +43,14 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 - Baris Klasemen per pemain di Fixed (09g) membuka Detail pemain itu saja, bukan pasangan: judul satu nama.
 - "Beda partner" yang disembunyikan di Fixed (10b) muncul kalau partnernya lebih dari satu: 2 / 16 (pemain lain di turnamen, termasuk Rizky H). Beda lawan dibanding pemain lain selain partnernya sendiri: 17 − 1 − 2 = 14.
 - Riwayat: baris atas tim sendiri dengan nama sendiri dulu, seperti Mixed (10a), jadi partner yang berbeda terbaca (R15 Andi P · Rizky H, R13 Andi P · Budi S).
+
+## 10e · Pemain · Mixed · Win % bukan bilangan bulat
+
+![10e](../../frames/10e.png)
+
+Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScoreRow`, `StatLine`
+
+- Data 09a/09b (Americano 24, 6 match): Fajar K 0–2–1, dibuka dari Klasemen Win % (09b, #7) → "Peringkat 7 · Win %". Win % = (0 + ½ seri) ÷ 3 = 16,67%.
+- Statline menulis Win % dibulatkan tanpa desimal, "17%", sama dengan tabel 09b (app sekarang). Kolom statline tetap muat untuk "100%".
+- Poin 9 + 9 + 12 = 30, selisih −6 −6 + 0 = −12. Beda partner 3 / 10 (Joko S, Indra W, Hana T); beda lawan 5 / 10 (Dewant R, Citra L, Andi P, Gina R, Eko M; Gina dihitung sekali).
+- Riwayat seri (R3 12–12): kedua baris tanpa bola dan tidak pudar, sama dengan baris seri di Jadwal.

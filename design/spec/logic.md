@@ -7,7 +7,8 @@ saling menguatkan.
 **Status: §1–§14 sudah diimplementasi di model/service dan ter-test** (§13 Sparing = 3.2.0; §14 Mexicano +
 Konfigurasi diringkas = 3.4.0, task MX-n / KF-n di riwayat git `docs/tasks.md`). **§15 Tukar pemain (3.5.0) sudah
 diimplementasi** (task TP-n di riwayat git `docs/tasks.md`). **§16 Poster podium (3.6.0) sudah diimplementasi**
-(task PP-n di `docs/tasks.md`). **§18 Grup + Gugur (3.8.0) = rencana**, task GG-n di `docs/tasks.md`.
+(task PP-n di `docs/tasks.md`). **§18 Grup + Gugur (3.8.0) sudah diimplementasi** (task GG-n di riwayat git
+`docs/tasks.md`). **§19 Kosongkan skor / Hapus WO + P5 + C-17 (3.9.0) = rencana**, task KS-7a…KS-7e di `docs/tasks.md`.
 Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor
@@ -1947,3 +1948,306 @@ tiap match; hasil Buat bagan; sisi gugur yang belum diketahui. Keputusan dba (us
 - Data test: 19t (16A, 4 + 4 → null); 19v 7 pasangan 5 + 2 → "Grup A lebih 1 pasangan", pindah satu ke B → null; 3 +
   4 → "Grup B lebih 1 pasangan"; 19x 13 pasangan 4 grup 4 + 3 + 3 + 3 → null, 3 + 4 + 3 + 3 → "Grup B lebih 1
   pasangan"; 19s 3 dari 8 masuk → "5 pasangan tanpa grup" (keputusan 107); 2 dari 8 → "6 pasangan tanpa grup".
+
+## 19. Kosongkan skor / Hapus WO + perilaku kecil (rencana 3.9.0, MINOR)
+
+Keputusan host 113–121 (PRD §17, usulan U-1…U-5 dan Q1–Q3 disetujui 2026-11-18); frame KS-1…KS-3 disetujui host
+2026-11-20: 07p–07x (Input Skor, sheet WO, dialog), 06aa–06ac (Jadwal Fixed), 02e (Pemain), 04i–04j (Pasangan), 11c/11n
+(Bagikan), 20b (Buat bagan), plus visual P6 (C-7, C-15, C-18). ID test = ID PRD (`AC-K4 17A-i …`, `AC-P2 …`, `AC-B1 …`)
++ id frame kalau angkanya dari frame (`07w …`). Angka 17A dan 17E dicek tech-lead 2026-11-20 dengan skrip atas
+fixture yang sudah ada (`test/services/sparing_score_fixture.dart`, `group_knockout_fixture.dart`), hasilnya sama
+persis dengan PRD. Task: KS-7a…KS-7e di `docs/tasks.md`.
+
+**Tidak ada aturan hitung baru (K7).** Klasemen, skor klub, status, kunci round, Buat R(n+1), Batalkan Rn, Tukar, Kelola
+court, Tambah round, Buat bagan, bagan, peringkat akhir, poster, caption, Detail, live sudah turunan dari match; yang
+baru hanya (1) dua mutasi + aturan ketersediaannya, (2) varian `flipCheck` tanpa pemenang, (3) dua getter kecil di
+model (catatan kunci, N di C-17), (4) satu aturan ⌫ di keypad.
+
+### 19.1 Model (`lib/models/models.dart`)
+
+- `MatchGame.copyWith` **tidak bisa** mengembalikan `woLoserPairId`/`woReason` ke null (`??`). Dua konstruktor baru,
+  keduanya lewat `_with` supaya `phase` ikut (jebakan PM #1, §18.12 #1):
+  - `MatchGame cleared({required bool finished})` = `_with(sets: const [], status: finished ? cancelled : pending)`;
+    `woLoserPairId`/`woReason` null.
+  - `MatchGame withoutWalkover({required bool finished})` = `sets.isEmpty ? cleared(finished: finished) :
+    _with(sets: sets, status: done)` (skor lama = `sets` yang memang disimpan `asWalkover`, PRD 4.4).
+- `int? lockedBy(int round)` di `ActiveTournament` (catatan kunci, U-5): `null` kalau turnamen diakhiri atau `round <=
+  currentRound`; selain itu round **terbesar** r < `round` dengan `!isRoundComplete(r)` (pasti ada, karena
+  `currentRound` < `round` belum lengkap). Tanpa match yang dikosongkan hasilnya = `round − 1` (sama dengan 3.8.1).
+- `int get pendingGroupMatches` (C-17) = jumlah match `GroupPhase` berstatus `pending`, **semua round grup**.
+  `bool get waitsForBracket` = `isGroupKnockout && !hasBracket && !isFinished && pendingGroupMatches > 0`. Dengan
+  `canCreateBracket` keduanya saling lepas: tidak pernah sama-sama true.
+
+### 19.2 Aturan ketersediaan — `lib/services/scoring/score_reset.dart` (baru, Dart murni)
+
+```dart
+enum ResetAction { clearScore, removeWalkover }        // Kosongkan skor (K1) / Hapus WO (K2)
+enum ResetOutcome { pending, cancelled, oldScore }      // isi dialog: belum dimainkan / tidak dimainkan / skor lama
+sealed class ResetCheck {}
+final class ResetUnavailable extends ResetCheck {}      // K5: tampil seperti 3.8.1, tanpa teks baru
+final class ResetBlocked extends ResetCheck { final FlipBlocked flip; }   // GU11: tombol/aksi mati + pesan 21l
+final class ResetAllowed extends ResetCheck { final MatchGame result; final ResetOutcome outcome;
+                                              final List<MatchGame> preview; }  // preview = susunan baru (21k)
+abstract final class ScoreReset {
+  static ResetCheck check(ActiveTournament a, String matchId, ResetAction action);
+  static ActiveTournament? apply(ActiveTournament a, String matchId, ResetAction action); // null = ditolak
+}
+```
+
+`check` berurutan; langkah pertama yang gagal → `ResetUnavailable`:
+1. Match ada; `clearScore` butuh `status == done`, `removeWalkover` butuh `status == wo` (K3: match WO tidak punya
+   Kosongkan; match Belum/Tidak dimainkan tidak punya keduanya).
+2. Mode (17.3, satu tabel untuk sebelum **dan** sesudah diakhiri, K6):
+   - `config.mode.isEndless` (Mixed, **Sparing Mixed** U-2, Mexicano): `m.isScorable && m.roundNumber == roundCount`.
+     Round lama tidak pernah (keputusan 114, Q1).
+   - Fixed (round-robin, Sparing Fixed, round tambahan, Grup + Gugur): `active.canOpenScore(m)` (round terkunci
+     tidak; setelah diakhiri semua round terbuka). Grup + Gugur: `isGroupKnockoutLocked(m)` → tidak (GU6, keputusan
+     114, jebakan PM #4).
+3. Hasil: `result = clearScore ? m.cleared(finished) : m.withoutWalkover(finished)`, `finished =
+   tournament.isFinished`. `outcome` = `oldScore` kalau `result.status == done`, `cancelled` kalau `finished`, selain
+   itu `pending`.
+4. Gugur (`m.phase is KnockoutPhase`) — **GU11 tanpa aturan baru**: `KnockoutBracket.flipCheck(a, m.id,
+   result.winnerPairId)`. Parameter ketiga jadi `String?`; **null = tanpa pemenang** (match jadi Belum/Tidak
+   dimainkan). Isi `flipCheck`: pemenang lama null atau sama dengan yang baru → `FlipAllowed()`; selain itu dependent
+   dengan hasil (done/WO; cancelled = tanpa hasil) → `FlipBlocked`; tidak ada → `FlipAllowed(preview)` dengan
+   hipotesis = match itu `cleared` (null) atau WO sementara (non-null, seperti sekarang), lalu `resolve`.
+   `FlipBlocked` → `ResetBlocked`. Final dan Juara 3 tidak punya dependent → selalu boleh. **Hapus WO yang kembali ke
+   skor lama = perubahan pemenang** kalau pemenang skor lama ≠ pemenang WO (17E: SF2 4–6, WO Citra · Dewi absen →
+   pemenang Indra · Joko → Hapus WO → Citra · Dewi). Pengaman I9: gugur dengan skor lama tanpa pemenang (tidak
+   mungkin lewat app, hanya simpanan rusak) → `ResetUnavailable`.
+5. `ResetAllowed(result, outcome, preview)`; preview kosong untuk turnamen lain.
+
+`apply` = `check`; bukan `ResetAllowed` → null. Selain itu ganti match itu dengan `result`, lalu
+`KnockoutBracket.resolve(config, matches)` (no-op di luar Grup + Gugur), `tournament.copyWith(matches: …)` saja.
+
+Controller (`tournament_controller.dart`): `bool clearScore(String matchId)` dan `bool removeWalkover(String matchId)`
+= `ScoreReset.apply`; null → `false`, state tidak berubah; selain itu **satu** `state = next` → `true`. Tanpa
+`saveActive`, tanpa kirim live (CLAUDE.md). Jangan lewat `_updateMatch`/`_groupKnockoutUpdate`: jalur itu menolak
+gugur tanpa pemenang (`winner == null → null`), jadi Kosongkan gugur akan diam-diam gagal.
+
+### 19.3 Invariant (test properti, lihat 19.10)
+
+- R1 Hanya match itu yang berubah; di Grup + Gugur sisi match lanjutan ikut `resolve` (I8). Match lain (id, round,
+  court, sisi, sets, status, WO) identik.
+- R2 `result` mempertahankan `id`, `roundNumber`, `matchNumberInRound`, `courtId`, `pair1`, `pair2`, `phase`.
+- R3 Kosongkan: `sets` kosong, WO + alasan null, status pending (cancelled kalau diakhiri). Hapus WO: WO + alasan null,
+  `sets` = skor lama apa adanya; done iff skor lama ada.
+- R4 Turnamen yang diakhiri tidak pernah mendapat match `pending`; `isFinished`, `config`, `bye`, `resting`,
+  `withdrawn`, `extraPutaran`, `restingPairs` tidak berubah.
+- R5 I7–I9 (§18.8) tetap: sisi tbd hanya di pending/cancelled; gugur done/WO selalu punya pemenang.
+- R6 `check` = `ResetAllowed` ⇔ `apply` non-null. `apply` null ⇒ state `identical`.
+- R7 Simpanan: `decode(encode(a))` sama dengan `a` untuk setiap keadaan hasil `apply`; tidak ada kunci baru.
+
+### 19.4 Akibat yang harus terlihat (17.4, tanpa kode baru kecuali yang ditulis)
+
+| Bagian | Sumber | Catatan untuk test |
+|---|---|---|
+| Kunci round Fixed / fase grup / gugur | `currentRound`, `canOpenScore` apa adanya | round sesudahnya terkunci, skornya tetap dihitung (06ab) |
+| Catatan kunci | **baru:** `lockedBy(round)` di `schedule_fixed_screen.dart:201` (sekarang `R${selected − 1}`, salah setelah dikosongkan; jebakan PM #5) | 17A-ii: R4, R5, R6 → 3 |
+| Sementara/Final | `isFinal` apa adanya | Fixed: dikosongkan → Sementara; diakhiri tetap Final |
+| Tambah round | `canAddRounds` apa adanya | hilang lalu kembali (AC-K10) |
+| Buat R(n+1) · tunggu, Batalkan Rn, Tukar, Kelola court | apa adanya | AC-K6, AC-K7 |
+| Buat bagan · tunggu N | **baru:** `pendingGroupMatches` / `waitsForBracket` (19.8) | 17D |
+| Bagan, peringkat akhir | `resolve` + `finalEntries` apa adanya | 17E |
+| Lanjutkan (Mixed/Mexicano) | `resume` sudah mengubah cancelled → pending | AC-K11 |
+| Live, simpanan | `state =` | tanpa panggilan manual |
+
+### 19.5 Input Skor dan sheet WO (layar membaca 19.2, tidak menghitung sendiri)
+
+- `ScoreEntry.isEmpty` (baru) = kedua kotak null.
+- Tombol Input Skor (07i, 07p, 07s, 07x):
+  - `status == pending` → "Simpan skor" seperti sekarang (tidak pernah Kosongkan).
+  - `status == done` dan `entry.isEmpty`: `ScoreReset.check(…, clearScore)` → `ResetAllowed`: **"Kosongkan skor"**,
+    varian baru sekunder bertinta clay (`.btn-secondary.danger`, components.md), aktif; `ResetBlocked`: "Kosongkan
+    skor" **mati** + pesan 21l (`knockoutBlockedMessage`) di tempat kalimat hasil (07x); `ResetUnavailable`:
+    "Perbarui skor" mati seperti 3.8.1 (07s).
+  - `status == wo` dan `entry.isEmpty` → "Perbarui skor" mati (K3). Selain itu aturan lama.
+- Dialog (07q, 07r, 07u, 07v, 07w) `showMabarConfirm(destructive: true)`:
+  - Judul: gugur → "Kosongkan skor SF1?" / "Hapus WO SF2?" (`KnockoutBracket.code`: "SF1", "Final", "Juara 3"); selain
+    itu nama court: "Kosongkan skor Court 1?" / "Hapus WO Court 2?" (U-4).
+  - Isi baris 1 per `outcome`: `pending` "Match kembali belum dimainkan." · `cancelled` "Match jadi tidak dimainkan." ·
+    `oldScore` "Match kembali ke skor 6–4." (`sets.first.side1`–`side2`, urut papan atas–bawah = `pair1`–`pair2`).
+    Baris berikutnya = `knockoutFlipMessage(a, preview)` kalau preview tidak kosong ("Final: Pemenang SF1 vs Citra ·
+    Dewi", sisi tbd lewat `sourceLabel`, tidak pernah "?").
+  - Tombol "Kosongkan" / "Hapus"; Batal → tetap di papan / sheet, tidak ada yang tersimpan.
+- Konfirmasi → `clearScore` / `removeWalkover`; **pop ke Jadwal hanya kalau mengembalikan `true`**. Jangan memakai
+  `_confirmFlip`: dia mengembalikan `true` untuk `FlipBlocked`, layar menutup dan host mengira tersimpan (jebakan PM
+  #3). Alur baru memakai `switch` lengkap atas `ResetCheck`; blocked tidak pernah sampai ke dialog karena tombolnya
+  mati.
+- Sheet WO (07j, 07t): aksi teks clay **"Hapus WO"** di kanan kepala (`MabarSheet.action`; `showMabarSheet` belum
+  meneruskan `action`, pakai `showMabarSheetRoute` atau tambah parameter) hanya kalau `match.status == wo` dan `check`
+  bukan `ResetUnavailable`. `ResetBlocked` → aksi mati + catatan error 21l di sheet (teks = `knockoutBlockedMessage`,
+  sama dengan WO yang membalik pemenang). Berlaku untuk WO tersimpan, apa pun pilihan di sheet. Hasil sheet jadi
+  sealed: `WalkoverResult` (Simpan WO) atau `RemoveWalkover`; Hapus → dialog di atas sheet → sheet dan Input Skor
+  tertutup ke Jadwal (keduanya hanya kalau controller `true`).
+- **⌫ di Best of / Americano (jebakan PM #7, 07p):** `ScoreEntry.backspace` **tidak pernah mengisi kotak lawan yang
+  kosong** (null dan bukan `autoSide`). Kotak lawan yang berisi nilai otomatis tetap mengikuti seperti sekarang
+  (test "hapus: Best of/Americano mengosongkan sisi otomatis juga" tetap lulus). `type` tidak berubah. Data:
+  Americano 21, `edit(13–8)`: `select(2).backspace()` → (13, null); `select(1).backspace()` → **(1, null)**, bukan (1,
+  20); `.backspace()` → (null, null) → `isEmpty`. Urutan sebaliknya: `select(1)` ⌫ ⌫ → (null, 8); `select(2)` ⌫ →
+  (null, null). Best of 15 `edit(10–4)`: `select(2)` ⌫ → (10, null); `select(1)` ⌫ → **(1, null)**, bukan (1, 14).
+  Americano 21 yang sudah kosong lalu `type(5)` → (5, 16) otomatis seperti 2.8.0 → "Perbarui skor".
+
+### 19.6 Data uji (fixture = PRD; nama test memakai ID)
+
+**17A Sparing Fixed 13C** — `fixedSparing(c13)` (Race to 6, `ScoreFormat.standard`). R6 Court 2 = `m12` (Gita · Hadi
+5–6 Maya · Nanda), R3 Court 2 = `m6` (WO, Citra · Dewi absen, tanpa skor lama).
+
+| Test | Harus |
+|---|---|
+| `AC-K4 17A-i` clearScore `m12` | `ResetAllowed`, outcome pending; skor klub 7 – 4; Garuda 51 game · +14, Matcha 43 game · −14; `playedMatchCount` 11; `isFinal` false; `canAddRounds` false; Garuda TP: 1 Eko + Fajar 18 +11 · 2 Andi + Budi 14 +1 · 3 Citra + Dewi 10 +3 · 4 Gita + Hadi 9 −1; Matcha: 1 Maya + Nanda 17 +3 · 2 Kiki + Lina 16 −3 · 3 Indra + Joko 10 −14; caption memuat "🏆 PB Garuda 7–4 Matcha Club · Padel"; poster "Klasemen sementara" |
+| `AC-K5 17A-ii` removeWalkover `m6` | outcome pending; 7 – 4; Garuda 56 · +13, Matcha 43 · −13; `currentRound` 3; `canOpenScore(m7)` false; `lockedBy(4/5/6)` = 3; Maya: Main 3, Total Point 17, Beda lawan 6 / 8 |
+| `AC-P5 13C` (B-21, kode tidak berubah) | Maya `PlayerProfile.opponentIds` 8, `coverageTotals.opponents` 8 → "8 / 8"; Main 4, TP 23 |
+| `AC-K11 17A-iii` | 13C `finishNow`, lalu clearScore `m12` → outcome cancelled, status cancelled, `isFinal` true, 7 – 4; `m12.isScorable` false (tidak bisa diisi lagi, jebakan PM #9) |
+| `AC-K3` 07v | Fixed R2 Court 2 6–4 lalu `asWalkover(loser: Gina · Hana, injury)` → removeWalkover → done 6–4, WO dan alasan null, outcome oldScore |
+
+**17B Mixed** (fixture baru, `test/services/score_reset_fixture.dart`): 8 pemain Andi…Hadi, 2 court, Americano 21, R1–R2
+lengkap (isi bebas), R3 Court 1 Andi · Eko 13–8 Budi · Fajar, R3 Court 2 Citra · Gita 11–10 Dewi · Hadi.
+- `AC-K6 17B` clearScore R3 C2 → allowed; tunggu = 1 (`matchesOfRound(3)` pending 1); `canGenerateNextRound` false;
+  `canCancelLastRound` false; Citra/Gita Total Point −11 dan selisih −1, Dewi/Hadi −10 dan +1; `PlayerSwap` T2 boleh di
+  match itu. Mode Mexicano dengan data sama → tukar tetap tidak ada.
+- R4 dibuat (tanpa skor): R3 C2 → `ResetUnavailable` (clear dan Hapus WO); `cancelLastRound` → R3 terakhir lagi →
+  allowed. R4 Court 1 berskor → R3 tetap `ResetUnavailable`.
+- `AC-K7` semua match R3 dikosongkan → `canCancelLastRound` true. R1 satu-satunya round → tetap false.
+- `AC-K11` Mixed diakhiri lalu clearScore R3 C2 → cancelled; `resume` → pending.
+- Sparing Mixed (U-2) sama: round lama `ResetUnavailable`, round terakhir allowed + skor klub ikut.
+
+**17C Mexicano 14A:** R2 terakhir, R2 Court 2 8–13 → allowed; setelah R3 dibuat → `ResetUnavailable`; R3 tanpa skor →
+`cancelLastRound` → allowed. Round yang sudah dibuat tidak dibuat ulang (tidak ada kode generator yang dipanggil).
+
+**17D Grup + Gugur fase grup, 16A / 20b** (5 dari 12 match grup): `pendingGroupMatches` 7; clearScore R1 Court 1 (Andi ·
+Budi 4–6 Gita · Hadi) → 8, `currentRound` 1, R3 Court 1 tetap 6–3 dan dihitung di tabel grup; 12 terisi →
+`canCreateBracket`, `waitsForBracket` false; clearScore R6 Court 2 → `pendingGroupMatches` 1, `waitsForBracket` true;
+setelah `createBracket` → semua match grup `ResetUnavailable` (`AC-K8`). Diakhiri di fase grup → match grup boleh,
+hasil cancelled, `waitsForBracket` false.
+
+**17E gugur 16E** — `groups16E().bracket(q16E).ko('SF1', 6, 4).ko('SF2', 4, 6)`:
+- `AC-K9 07w` R8 Belum: clearScore SF1 → allowed, preview Final "Pemenang SF1 vs Citra · Dewi" + Juara 3 "Kalah SF1 vs
+  Indra · Joko"; setelah apply: `sides('F')` = `?–Citra`, `sides('J3')` = `?–Indra`, `currentRound` 7; peringkat #1
+  Citra Final · #2 Andi, Maya Semifinal · #3 Indra Perebutan juara 3 · #4 Eko, Kiki · #5 Gita, Oki.
+- `AC-K9 07x` + `.ko('F', 7, 9).ko('J3', 4, 2)`: clearScore SF1 → `ResetBlocked([finalRound, thirdPlace])`, pesan
+  "Final dan Juara 3 sudah ada skor · pemenang SF1 tetap Andi & Budi"; hanya F berskor → "Final sudah ada skor · …".
+- Urutan 17E: clearScore F → allowed tanpa preview; `isFinal` false; peringkat #1 Andi, Citra Final · #2 Maya Juara 3 ·
+  #3 Indra Semifinal · #4 Eko, Kiki · #5 Gita, Oki. clearScore J3 → #1 Andi, Citra Final · #2 Indra, Maya Perebutan
+  juara 3 · #3 Eko, Kiki · #4 Gita, Oki. Lalu `submitScore` SF1 4–6 → `flipCheck` allowed → F Maya–Citra, J3 Andi–Indra.
+- WO: `koWo('SF2', 'Indra')` dengan R8 Belum → removeWalkover → allowed, outcome pending, preview "Final: Andi · Budi
+  vs Pemenang SF2" + "Juara 3: Maya · Nanda vs Kalah SF2". SF2 4–6 lalu `koWo('SF2', 'Citra')` (Indra menang WO) →
+  removeWalkover → outcome oldScore, pemenang kembali Citra → preview susunan Citra; dengan F berskor → `ResetBlocked`.
+- Diakhiri setelah R7 (F, J3 cancelled) → clearScore SF1 allowed, hasil cancelled, sisi F/J3 kembali tbd (cancelled
+  boleh tbd, I7).
+
+### 19.7 P5 — perilaku kecil (layar; tanpa logika domain baru kecuali `PairDraft`)
+
+**A-8 Hapus semua + Urungkan (02b → 02e, keputusan 115)** — state layar Pemain (`setup_peserta_screen.dart`,
+`NameListField`), per kotak klub di Sparing:
+- `_undoText` (String?) per kotak. Hapus semua: simpan teks persis (termasuk baris duplikat), kosongkan, tanpa
+  dialog. Toolbar: kosong + `_undoText` ada → "Tempel · Urungkan" (ikon `arrow-counter-clockwise`, tempat Contoh);
+  kosong tanpa undo → "Tempel · Contoh"; berisi → "Tempel … Hapus semua".
+- Urungkan → teks = `_undoText`, `_undoText = null`. **Perubahan lain apa pun** (ketik, Tempel, Contoh) → `_undoText =
+  null`. Keluar layar membuangnya (state lokal, tidak disimpan).
+- Test (AC-P1, data 02b/02e): 9 baris → 8 pemain + "Duplikat dibuang: andi p" → Hapus semua → kosong, Lanjut mati,
+  "Tempel · Urungkan" → Urungkan → 9 baris persis, Lanjut aktif. Hapus semua → ketik "R" → 1 pemain, tanpa Urungkan.
+  Sparing: Hapus semua klub 1 tidak menyentuh klub 2.
+
+**A-9 Buang pasangan (04i, 04j, keputusan 116):**
+- Pasangan (`pair_setup_screen.dart` `_switchMode`): Manual → Acak dengan N = `_pairs.length` ≥ 1 → dialog "Buang N
+  pasangan manual?" · Batal / Buang (destructive). Batal → `_manual`, `_pairs`, `_picked` utuh. N = 0 (paling banyak
+  satu terpilih) → langsung Acak. Acak → Manual tanpa dialog. Sparing: N = semua pasangan kedua klub. Grup + Gugur
+  (`_groupMode`, 19n) ikut. Layar Grup (`group_screen.dart`) **tidak** berubah.
+- Atur pasangan (`pair_edit_screen.dart`): `PairDraft.differsFrom(PairDraft other)` (baru, Dart murni, test) =
+  himpunan kunci pasangan (`_key`) berbeda **atau** himpunan id `added` berbeda. ← app bar, back HP, back browser:
+  `PopScope(canPop: !_draft.differsFrom(widget.initial))`; ditahan → "Buang perubahan pasangan?" · Batal / Buang →
+  Buang = `Navigator.pop` tanpa hasil. "Simpan pasangan" tidak memicu dialog. Semua langkah di-Urungkan sampai sama →
+  tanpa dialog. Test: 04g data (Andi P · Budi S → Andi P · Rizky H + Rizky H baru) → `differsFrom` true; split lalu
+  pasang lagi sama → false.
+- Back browser memakai `router.routerDelegate.popRoute()` → `maybePop` → `PopScope` ikut; cek di web (KS-8).
+
+**B-10 Bagikan gagal (11c, 11n, keputusan 117)** — `share_result_screen.dart` `_share`. Fakta share_plus 10.1.4 (dicek
+di sumbernya): di web, `AbortError` (share sheet ditutup) **tidak melempar**, tapi `ShareResultStatus.dismissed`;
+share sukses di web mengembalikan `unavailable`; kalau share sheet tidak ada/gagal, `Share.downloadFallbackEnabled`
+(bawaan **true**) membuat share_plus mengunduh sendiri dan mengembalikan `unavailable` **tanpa melempar**, jadi
+3.8.1 di desktop web mengunduh tanpa menyalin caption dan tanpa toast. Aturan baru, tiga tahap terpisah (jebakan PM
+#6, tanpa `catch (_)` tunggal):
+1. Render (`_render` kedua gambar) di `try` sendiri; gagal → salin caption + toast "Hasil disalin" (11n); selesai.
+2. `Share.downloadFallbackEnabled = false` (sebelum memanggil), `await Share.shareXFiles(files, text: caption)` di
+   `try` sendiri. Hasil apa pun yang kembali (`success`, `dismissed`, `unavailable`) → tidak ada unduhan, tidak ada
+   toast (`unavailable` di web = sukses).
+3. Melempar (share sheet tidak ada/gagal) → `downloadShareFiles(files)` (baru, `lib/features/share/share_download.dart`
+   ekspor bersyarat `_stub`/`_web` seperti `open_home.dart`) → salin caption → toast "Gambar diunduh · hasil disalin"
+   kalau unduhan `true`, "Hasil disalin" kalau `false`.
+- `_web`: `dart:js_interop` (+ `dart:js_interop_unsafe` kalau perlu), anchor `download` = `XFile.name`
+  (`match-addict-feed-1080x1080.png`, `match-addict-story-1080x1920.png`), href data/Blob URL, klik, hapus. **Jangan**
+  menambah `package:web` sebagai dependensi langsung (sekarang hanya transitif = dependensi baru). `_stub` (Android/iOS)
+  → `false`: menyimpan ke galeri butuh izin/dependensi baru, jadi tetap "Hasil disalin" (keputusan 117).
+- Test: fungsi tahap dipisah agar bisa diuji tanpa platform (mis. `ShareOutcome` dari fungsi yang menerima `share` dan
+  `download` sebagai parameter): render gagal → "Hasil disalin", download tidak dipanggil; share melempar + download true
+  → "Gambar diunduh · hasil disalin"; share `dismissed` → tanpa toast, download tidak dipanggil.
+
+**B-21 (keputusan 118):** kode tidak berubah; hanya test `AC-P5` (19.6) + kalimat persis untuk reviewer: *"Beda partner"
+dan "Beda lawan" di Detail dihitung dari match Selesai dan WO, kedua sisi WO ikut (sama dengan kolom Main); match Belum
+dan Tidak dimainkan tidak dihitung.* (`PlayerProfile.of` sudah memfilter `done || wo`.)
+
+### 19.8 C-17 Buat bagan · tunggu N (20b, keputusan 119)
+
+- Action bar Jadwal Grup + Gugur (`schedule_fixed_screen.dart`): `!watching && waitsForBracket` → ikon Klasemen + tombol
+  mati `MabarButton(label: 'Buat bagan', meta: '· tunggu $N match', variant: wait)`, N = `pendingGroupMatches` (pola
+  `schedule_mixed_screen.dart:220`). `canCreateBracket` → 20e tetap. Diakhiri / penonton → tanpa tombol (tetap).
+- Data (AC-B1): 20b 16A 5 dari 12 → 7; R3 Court 2 diisi → 6; 12 terisi → "Buat bagan" aktif; 17D → 8 / 1; 16B 4 grup 7
+  dari 12 → 5; 16C 30 pemain, R1 + R2 Court 1 → 44.
+
+### 19.9 Kompatibilitas data (jebakan PM #8) — `schemaVersion` tetap 2, tanpa DBA
+
+- Tidak ada kunci baru; bentuk hasil = bentuk yang sudah ada (pending tanpa sets, done, cancelled). Dicek di
+  `tournament_codec.dart` 3.8.x: tidak ada aturan baca yang menolak round lama Belum sementara round sesudahnya
+  berskor; GR13–GR16 (`docs/data.md`) tetap terpenuhi karena `apply` selalu `resolve` dan tidak pernah menaruh tbd di
+  match berhasil. Jadi simpanan 3.9.0 terbaca 3.8.x dan halaman penonton (payload live = codec yang sama). Decoder
+  tidak berubah; `docs/security.md` tidak perlu temuan baru.
+- Test wajib (KS-7a): roundtrip `encode`→`decode` untuk 17A-ii (Fixed round lama Belum, R4–R6 berskor), 17E SF1
+  dikosongkan (Final bersisi tbd), 17A-iii (cancelled setelah diakhiri); hasil `decode` non-null dan sama.
+- Kalau saat implementasi ternyata perlu kunci baru atau `schemaVersion` naik: **berhenti dan laporkan** (MAJOR).
+
+### 19.10 Test wajib
+
+- `test/services/score_reset_test.dart`: 19.6 seluruhnya + ketersediaan per mode × sebelum/sesudah diakhiri × status
+  (pending, done, wo, cancelled) + match bersisi tbd → `ResetUnavailable`.
+- `test/services/score_reset_property_test.dart` (atau perluasan `knockout_bracket_property_test.dart`): turnamen acak
+  berseed (Fixed, Sparing Fixed, Mixed, Grup + Gugur 2/4 grup × C 1–4 × thirdPlace), isi/WO acak lalu Kosongkan/Hapus
+  WO acak yang `check` izinkan → R1–R7 + I7–I9 setelah tiap langkah; `apply` pada yang ditolak = `identical`.
+- `score_format_test.dart`: aturan ⌫ 19.5. `models_test` (atau file model yang ada): `cleared`/`withoutWalkover`
+  membawa `phase`; `lockedBy`; `pendingGroupMatches`/`waitsForBracket`.
+- Controller (`test/features/…` pola yang ada): `clearScore`/`removeWalkover` satu `state =`, tersimpan lewat
+  auto-save (AC-K13: tutup → buka lagi → match Belum / skor lama), false tanpa perubahan saat ditolak.
+- Widget: Input Skor (AC-K1, AC-K2, 07s, 07x, jebakan PM #3: blocked tidak pernah pop), sheet WO (AC-K3), Jadwal
+  catatan kunci (AC-K5), Pemain (AC-P1), Pasangan (AC-P2, AC-P3), Bagikan (AC-P4 lewat fungsi terpisah), C-17 (AC-B1).
+- Golden `expectMatchesHifi` per frame baru/berubah (daftar per task di `docs/tasks.md` KS-7).
+
+### 19.11 Jebakan untuk engineer dan reviewer
+
+1. Kosongkan/Hapus WO lewat `_with` (`cleared`/`withoutWalkover`), bukan `copyWith` (WO tidak bisa null) dan bukan
+   konstruktor `MatchGame(…)` tanpa `phase`.
+2. Jangan lewat `_groupKnockoutUpdate`: dia menolak gugur tanpa pemenang. `apply` sendiri yang memanggil
+   `flipCheck(…, null)` lalu `resolve`, di satu `state =`.
+3. `_confirmFlip` mengembalikan true untuk `FlipBlocked`; alur Kosongkan/Hapus WO tidak boleh memakainya. Pop hanya
+   kalau controller `true`.
+4. Match grup setelah Buat bagan masih bisa dibuka ke Input Skor (3.8.1); `check` menolak lewat
+   `isGroupKnockoutLocked`, dan layar membaca `check`, bukan aturan sendiri.
+5. Catatan kunci = `lockedBy(selected)`, bukan `selected − 1`.
+6. B-10: tiga `try` terpisah; `downloadFallbackEnabled = false`; `dismissed` dan `unavailable` bukan gagal; tanpa
+   dependensi baru.
+7. ⌫ tidak mengisi kotak lawan yang kosong; nilai otomatis tetap ikut.
+8. Diakhiri → hasil `cancelled` (bukan pending), dan match cancelled tidak bisa dibuka lagi (`isScorable`).
+   Mixed/Mexicano mendapat Belum lagi hanya lewat Lanjutkan.
+9. Mixed/Mexicano: hanya `roundCount`, juga setelah diakhiri; jangan pakai `canOpenScore` untuk mode ini (B5, §18.10).
+10. Hapus WO dengan skor lama di gugur bisa membalik pemenang → `flipCheck` dengan pemenang skor lama, bukan "selalu
+    boleh".
+11. Preview gugur bersisi tbd ditulis "Pemenang SF1" / "Kalah SF1" (`knockoutFlipMessage` sudah), tidak pernah "?".
+12. Semua test/golden lama lulus kecuali frame yang memang berubah (daftar per task); jalur skor/WO lama tidak berubah.
+
+### 19.12 Pertanyaan terbuka
+
+1. **Sheet WO gugur dengan "Hapus WO" mati + 21l tidak punya frame** (PRD 17.2 menyebutnya; 07t hanya Mixed yang
+   boleh). Asumsi: aksi teks mati (gaya `MabarTextButton` disabled) + catatan error yang sudah dipakai WO membalik
+   pemenang; tanpa golden. Rekomendasi: designer KS-4 menambah satu frame, atau host menerima tanpa frame.
+2. **Unduh dua file di Chrome** setelah render async (di luar user gesture) bisa memicu izin "unduh beberapa file" atau
+   unduhan kedua diblok. Tanpa dependensi baru tidak ada jalan lain (zip = dependensi). Dicek di KS-8; kalau diblok,
+   laporkan ke host (bukan diganti diam-diam).

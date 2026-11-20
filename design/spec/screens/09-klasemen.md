@@ -82,3 +82,14 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Pasangan yang selalu main bersama tetap satu baris (dua nama ditumpuk). Pemain yang pasangannya berubah, pemain yang tidak ikut lagi, dan pemain pengganti tampil sendiri dengan angkanya masing-masing (keputusan host 2026-11-03). Semua baris memakai nilai per pemain yang sama, jadi urutannya tetap sebanding.
 - Budi S main 7 (tertinggal satu match) dan Rizky H baru 1: Total Point mereka tertinggal, Win % lebih adil. Itu konsekuensi yang sudah diterima host.
 - Sama di Detail (10d), poster Bagikan (pasangan tetap satu baris; kalau barisnya campuran "Semua n" di catatan Lengkap dan baris fakta podium tanpa hitungan pasangan/pemain, 18l), caption, dan halaman live.
+
+## 09h · Mixed · 30 pemain · nama panjang
+
+![09h](../../frames/09h.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
+
+- Nama ditulis seperti diketik host (tanpa disingkat). Kolom nama 108 pt: nama yang lebih panjang dipotong satu baris dengan elipsis, sama dengan baris pemain lain dan app sekarang (`StandingTable`, satu baris). "Muhammad Rifqi A" dan "Muhammad Rizky H" terpotong sama; nama lengkap ada di Detail (ketuk baris → judul Detail).
+- Tabel lebih panjang dari layar: tabel digulir, app bar, pilihan metode, dan action bar tetap. Frame menampilkan bagian atas; 30 baris, tanpa "Belum main" (semua sudah main).
+- Data (fixture): Padel · Mixed · Americano 21 (ganjil → W–L tanpa D, 09c), 30 pemain, 4 court. R1: Andi Pratama · Dewantoro Rahman 14–7 Budi Santoso · Christina Lestari; Eko Mulyadi · Fajar Kurniawan 11–10 Gina Rahmawati · Hana Tanjung; Indra Wijaya · Joko Susilo 9–12 Kiki Amelia · Lina Marlina; Maya Puspita · Nanda Rizaldi 13–8 Oki Setiawan · Putri Anggraini. R2: Muhammad Rizky H · Muhammad Rifqi A 12–9 Sari Dewi · Tono Budiman; Umar Faruq · Vina Kartika 6–15 Wulan Sari · Yoga Prasetyo; Zaki Maulana · Bayu Saputra 10–11 Dimas Aditya · Galih Permana; Rina Kusuma · Hendra Gunawan 8–13 Dewantoro Rahman · Gina Rahmawati.
+- Nomor rapat dari poin lalu selisih (09a): Dewantoro 27 (2 match), Gina 23, lalu nomor sama urut nama. Jumlah W = jumlah L = 16 (8 match × 2 pemain menang).

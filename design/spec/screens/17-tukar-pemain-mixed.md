@@ -174,3 +174,21 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Mixed 8 pemain / 2 court, R2 belum ada skor: semua main, jadi tidak ada kandidat dan tidak ada ikon (AC-T1). Kolom bola kosong seperti biasa; tanpa daftar Istirahat (pola 08b). Baris tetap membuka Input Skor.
 - Tanpa ikon juga: match yang sudah ada skor/WO (17a Court 1), round lewat, turnamen diakhiri, Mexicano, Fixed, dan halaman penonton live. Tab round lewat tidak pernah punya ikon karena hanya round terakhir yang bisa ditukar.
+
+## 17s · Sheet · tukar · 30 pemain · 22 kandidat
+
+![17s](../../frames/17s.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
+
+- Latar = 06o (30 pemain, 2 court, R3): ikon tim Sari D · Dewant R di Court 2. Kandidat = 22 pemain yang istirahat di R3: 8 di "Prioritas main di R4" dan 14 di "Istirahat lagi di R4", urutan dan label sama dengan daftar di Jadwal.
+- Sheet setinggi batas 92%. Judul "Tukar pemain" tetap; pratinjau, Diganti, kedua grup kandidat, dan Batal/Tukar digulir bersama dalam satu daftar (app sekarang). Frame ini posisi awal: tombol belum terlihat.
+
+## 17t · Sheet · tukar · 22 kandidat · digulir ke bawah
+
+![17t](../../frames/17t.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
+
+- Lanjutan 17s: Sari D dipilih di Diganti, lalu daftar digulir ke bawah dan Hendra G (terakhir di "Istirahat lagi di R4") dipilih. Pratinjau dan Diganti ikut tergulir ke atas; Batal/Tukar di ujung daftar.
+- Tukar aktif karena dua pilihan sudah ada; pratinjau (tergulir, tidak terlihat di frame) menulis **Hendra G** · Dewant R tebal seperti 17d. Tukar menutup sheet tanpa dialog (17e).

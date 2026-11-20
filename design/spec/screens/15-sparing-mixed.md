@@ -238,3 +238,39 @@ Komponen: `MabarButton`, `MabarGroup / MabarRow`, `CourtBanner (CourtPainter)`, 
 Komponen: `MabarButton`, `MabarTextButton`, `showMabarSheet`, `showMabarConfirm`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 
 - Latar = 15w. Dialog sama dengan 01h; turnamen bernama disebut dengan namanya (tanpa nama: "PB Garuda vs Matcha Club, Round 4", 14y).
+
+## 15z1 · Kelola pemain sparing · nama sudah ada di klub lain
+
+![15z1](../../frames/15z1.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
+
+- Latar = 15l. Host mengetik "andi" dan memilih Matcha Club, lalu Tambah: nama dicek terhadap kedua klub (tidak peka huruf besar), jadi ditolak dengan nama seperti di daftar dan klubnya: "Andi sudah ada di PB Garuda". Tepi kotak dan pesan clay, pesan di bawah chip klub (08b).
+- Isian dan pilihan klub tetap; pesan hilang saat Tambah berikutnya berhasil. Nama pemain yang keluar: "… sudah ada — pakai "Kembalikan" di bawah" (08b).
+
+## 15z2 · Kelola pemain sparing · nama terisi · klub belum dipilih
+
+![15z2](../../frames/15z2.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
+
+- Latar = 15l. Nama "Oki" sudah diketik, belum ada chip klub yang dipilih: tombol mati menulis alasannya, "Pilih klub" (C-10, aturan alasan di tombol). Memilih chip → kembali "Tambah" aktif (15l).
+- Nama masih kosong: "Tambah" mati tanpa alasan tambahan, seperti 15m, apa pun pilihan klubnya.
+
+## 15z3 · Kelola pemain sparing · 30 pemain aktif
+
+![15z3](../../frames/15z3.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
+
+- Latar = 15d (PB Garuda 16 + Matcha Club 14 = 30 aktif, R3). Batas 30 pemain aktif berlaku untuk kedua klub bersama. Tambah "Rudi" ke Matcha Club ditolak: "Maksimal 30 pemain aktif" (sama dengan 08b), tepi kotak clay. Kembalikan pemain yang keluar juga ditolak dengan pesan yang sama selama 30 aktif.
+- Sheet setinggi batas 92%, daftar per klub digulir (15m); frame menampilkan baris pertama PB Garuda.
+
+## 15z4 · Live · Jadwal Mixed sparing · skor klub
+
+![15z4](../../frames/15z4.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `ClubScore`, `LiveTag`
+
+- Penonton membuka link turnamen sparing pada keadaan 15b (R4 berjalan): papan skor klub di atas daftar match, sama dengan host, ikut berubah tiap kiriman.
+- Seperti 12h: tanpa ⋯, ikon tukar, "Isi skor", dan "Batalkan R4"; tag "Live" di kanan app bar; Klasemen tombol sekunder di action bar. Istirahat dan prioritas per klub tetap ditulis.

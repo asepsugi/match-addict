@@ -152,3 +152,22 @@ Komponen: `MabarAppBar`, `MabarButton`, `LiveScreen`
 Komponen: `MabarAppBar`, `LiveScreen`
 
 - Saat web dimuat dan cek pertama belum kembali. Bola yang sama dengan wordmark, berputar.
+
+## 12p · Live · dibuka tanpa internet
+
+![12p](../../frames/12p.png)
+
+Komponen: `MabarAppBar`, `LiveScreen`
+
+- HP penonton tanpa internet saat link dibuka: cek pertama gagal dan belum ada data, jadi layar tetap memuat (bola berputar), sama dengan 12o. Tanpa pesan dan tanpa tombol; tag "Offline" (12m) hanya untuk penonton yang sudah punya data.
+- Dicek ulang tiap 10 detik, dan langsung saat tab dibuka lagi. Cek pertama yang berhasil menampilkan jadwal (12h), "Live tidak ditemukan" (12n), atau "Live tidak bisa dibuka".
+
+## 12q · Toast · gagal hentikan · tanpa internet
+
+![12q](../../frames/12q.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `MabarToast`, `HomePanel / SportPicker`, `LiveScoreSheet`
+
+- "Hentikan" di dialog 12e saat HP host tanpa internet: data di server tidak bisa dihapus, jadi live tetap menyala dan link tetap terbuka untuk penonton (data terakhir 19.48). Dialog tertutup, sheet Live score tetap terbuka (latar = 12d), toast "Tidak ada internet · live belum dihentikan" dengan ikon `wifi-slash`, sama dengan 12g.
+- Posisi toast 19 pt di atas "Bagikan link" (seperti "Link disalin" di sheet ini), bukan 118 pt seperti di atas action bar, supaya tombol tidak tertutup.
+- Host mencoba "Hentikan" lagi setelah ada sinyal; tidak dicoba otomatis.
