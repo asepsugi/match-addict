@@ -40,6 +40,9 @@ class _SetupPesertaScreenState extends State<SetupPesertaScreen> {
   var _sparing = false;
   var _scrolled = false;
 
+  /// Teks persis sebelum Hapus semua terakhir, per kotak (02e, keputusan 115). State lokal: keluar layar membuangnya.
+  final _undoText = <TextEditingController, String>{};
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +60,8 @@ class _SetupPesertaScreenState extends State<SetupPesertaScreen> {
   }
 
   void _reparse() {
+    // Perubahan apa pun selain Hapus semua (ketik, Tempel, Contoh, Urungkan) membuang Urungkan; kosong = bekas Hapus semua.
+    _undoText.removeWhere((c, _) => c.text.isNotEmpty);
     final next = PlayerNameParser.parse(_controller.text);
     setState(() => _result = next);
   }
@@ -111,7 +116,13 @@ class _SetupPesertaScreenState extends State<SetupPesertaScreen> {
       hint: hint,
       tools: [
         MabarTextButton(label: 'Tempel', icon: MabarIcons.clipboardText, onPressed: () => _paste(controller)),
-        if (empty)
+        if (empty && _undoText.containsKey(controller))
+          MabarTextButton(
+            label: 'Urungkan',
+            icon: MabarIcons.arrowCounterClockwise,
+            onPressed: () => controller.text = _undoText[controller]!,
+          )
+        else if (empty)
           MabarTextButton(
             label: 'Contoh',
             icon: MabarIcons.userList,
@@ -124,7 +135,10 @@ class _SetupPesertaScreenState extends State<SetupPesertaScreen> {
               label: 'Hapus semua',
               icon: MabarIcons.trash,
               tone: MabarTextTone.danger,
-              onPressed: controller.clear,
+              onPressed: () {
+                _undoText[controller] = controller.text;
+                controller.clear();
+              },
             ),
     );
   }

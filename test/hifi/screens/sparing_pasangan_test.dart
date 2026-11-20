@@ -154,9 +154,25 @@ void main() {
     expect(find.text('PB Garuda · 1 dari 4 pasangan'), findsOneWidget);
     expect(find.text('Matcha Club · 0 dari 3 pasangan'), findsOneWidget);
     expect(find.text('Ketuk dua pemain satu klub untuk membuat pasangan'), findsOneWidget);
+    // A-9: satu pasangan manual tersisa (Garuda) → dialog; Buang → Acak.
     await tester.tap(find.text('Acak'));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('Buang 1 pasangan manual?'), findsOneWidget);
+    await tester.tap(find.text('Buang'));
+    await tester.pumpAndSettle();
     expect(find.text('Acak ulang'), findsOneWidget);
+  });
+
+  testWidgets('A-9 sparing: N = pasangan manual kedua klub; Batal menjaga Manual', (tester) async {
+    await pumpScreen(tester, screen(garudaNames, matchaNames));
+    await manual(tester, ['Andi', 'Budi', 'Indra', 'Joko']);
+    await tester.tap(find.text('Acak'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buang 2 pasangan manual?'), findsOneWidget);
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
+    expect(find.text('PB Garuda · 1 dari 4 pasangan'), findsOneWidget);
+    expect(find.text('Matcha Club · 1 dari 3 pasangan'), findsOneWidget);
   });
 
   testWidgets('K12: satu klub ganjil menahan tombol dengan satu sisa', (tester) async {

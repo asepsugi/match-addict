@@ -128,6 +128,22 @@ void main() {
     );
   });
 
+  testWidgets('04j dialog buang perubahan pasangan', (tester) async {
+    await expectMatchesHifi(
+      tester,
+      editor(),
+      '04j',
+      act: (tester) async {
+        await splitAndAdd(tester);
+        await tester.pump();
+        await tester.tap(find.text('Rizky H'));
+        await tester.pump();
+        await tester.tap(find.bySemanticsLabel('Kembali'));
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
   testWidgets('04h sheet setelah pasangan diatur', (tester) async {
     await expectMatchesHifi(
       tester,
@@ -184,7 +200,7 @@ void main() {
     expect(find.text('· 12 tidak main'), findsOneWidget);
   });
 
-  testWidgets('Di router app: Atur pasangan di atas sheet, kembali (←) ke sheet tanpa perubahan', (tester) async {
+  testWidgets('Urungkan sampai susunan sama → ← tanpa dialog; Simpan pasangan tanpa dialog', (tester) async {
     final router = GoRouter(
       initialLocation: '/schedule',
       routes: [GoRoute(path: '/schedule', builder: (_, _) => ScheduleFixedScreen(config: roundRobin.config))],
@@ -204,8 +220,64 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Ubah').first);
     await tester.pump();
+    await tester.tap(find.text('Urungkan'));
+    await tester.pump();
     await tester.tap(find.bySemanticsLabel('Kembali'));
     await tester.pumpAndSettle();
+    expect(find.text('Buang perubahan pasangan?'), findsNothing);
+    expect(find.text('Atur pasangan'), findsNothing);
+
+    await tester.tap(find.text('Pasangan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ubah').first);
+    await tester.pump();
+    await tester.enterText(find.byType(TextField), 'Rizky H');
+    await tester.tap(find.text('Tambah'));
+    await tester.pump();
+    await tester.tap(find.textContaining('Simpan pasangan'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buang perubahan pasangan?'), findsNothing);
+    expect(find.text('Atur pasangan'), findsNothing);
+  });
+
+  testWidgets('Di router app: Atur pasangan di atas sheet, kembali (←) ke sheet tanpa perubahan', (tester) async {
+    final router = GoRouter(
+      initialLocation: '/schedule',
+      routes: [GoRoute(path: '/schedule', builder: (_, _) => ScheduleFixedScreen(config: roundRobin.config))],
+    );
+    await pump(
+      tester,
+      hifiRouterScreen(
+        router,
+        overrides: [
+          tournamentProvider.overrideWith(() => LoadedTournament(roundRobin)),
+          clockProvider.overrideWithValue(() => afterR14),
+        ],
+      ),
+    );
+    await openSheet(tester);
+    await tester.tap(find.text('Pasangan'));
+    await tester.pumpAndSettle();
+    // Tanpa perubahan: ← keluar tanpa dialog.
+    await tester.tap(find.bySemanticsLabel('Kembali'));
+    await tester.pumpAndSettle();
+    expect(find.text('Atur pasangan'), findsNothing);
+    await tester.tap(find.text('Pasangan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ubah').first);
+    await tester.pump();
+    // Berubah: ← memunculkan dialog; Batal tetap di layar, Buang kembali ke sheet tanpa perubahan.
+    await tester.tap(find.bySemanticsLabel('Kembali'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buang perubahan pasangan?'), findsOneWidget);
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
+    expect(find.text('Atur pasangan'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Kembali'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Buang'));
+    await tester.pumpAndSettle();
+    expect(find.text('Atur pasangan'), findsNothing);
     expect(find.text('8 pasangan · sama dengan sebelumnya'), findsOneWidget);
     await tester.tap(find.text('Buat R15–R16'));
     await tester.pumpAndSettle();

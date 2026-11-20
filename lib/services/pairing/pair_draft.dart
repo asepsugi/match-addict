@@ -88,6 +88,17 @@ class PairDraft {
   /// Berbeda dari [original]: ada pasangan yang dipisah atau dibentuk.
   bool changedFrom(List<Pair> original) => pairs.length != original.length || newPairsFrom(original) > 0;
 
+  /// Susunan pasangan (himpunan kunci, urutan slot tidak dihitung) atau himpunan id pemain pengganti berbeda dari
+  /// [other] (keputusan 116): dasar dialog "Buang perubahan pasangan?". Pisah lalu pasang lagi yang sama = tidak beda.
+  bool differsFrom(PairDraft other) {
+    final mine = {for (final p in pairs) _key(p)}, theirs = {for (final p in other.pairs) _key(p)};
+    final myAdded = {for (final p in added) p.id}, theirAdded = {for (final p in other.added) p.id};
+    return mine.length != theirs.length ||
+        !mine.containsAll(theirs) ||
+        myAdded.length != theirAdded.length ||
+        !myAdded.containsAll(theirAdded);
+  }
+
   /// Pemain baru yang dipasangkan — yang diketik tapi tidak dipasangkan tidak ikut masuk turnamen.
   List<Player> get addedInPairs {
     final paired = {for (final p in pairs) ...p.playerIds};

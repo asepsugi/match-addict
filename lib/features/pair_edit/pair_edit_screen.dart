@@ -6,6 +6,7 @@ import '../../core/theme/mabar_theme.dart';
 import '../../core/widgets/mabar_controls.dart';
 import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_inputs.dart';
+import '../../core/widgets/mabar_layers.dart';
 import '../../core/widgets/numbered_lists.dart';
 import '../../models/models.dart';
 import '../../services/pairing/pair_draft.dart';
@@ -193,6 +194,19 @@ class _PairEditScreenState extends State<PairEditScreen> {
     );
   }
 
+  /// ← (app bar, back HP, back browser) saat susunan berbeda dari saat dibuka: dialog dulu (04j, keputusan 116).
+  Future<void> _confirmDiscard(bool didPop, Object? result) async {
+    if (didPop) return;
+    final ok = await showMabarConfirm(
+      context,
+      title: 'Buang perubahan pasangan?',
+      message: '',
+      confirmLabel: 'Buang',
+      destructive: true,
+    );
+    if (ok && mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final draft = _draft;
@@ -203,92 +217,96 @@ class _PairEditScreenState extends State<PairEditScreen> {
     // Sparing: syaratnya satu pasangan tiap klub (§13.5), bukan dua pasangan.
     final enough = clubs == null ? pairs.length >= 2 : draft.hasPairEachClub;
 
-    return Scaffold(
-      backgroundColor: MabarColors.paper,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          MabarAppBar(
-            title: 'Atur pasangan',
-            subtitle: '${widget.sport.label} · mulai R${widget.firstRound}',
-            onBack: () => Navigator.pop(context),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (clubs != null)
-                    for (final (i, club) in clubs.indexed) ...[
-                      if (i > 0) const SizedBox(height: 16),
-                      _clubSection(club, first: i == 0),
-                    ]
-                  else ...[
-                    MabarSection(
-                      header: MabarGroupHeader.text(
-                        '${pairs.length} pasangan',
-                        trailing: MabarTextButton(
-                          label: 'Urungkan',
-                          icon: MabarIcons.arrowCounterClockwise,
-                          onPressed: _history.length > 1 ? _undo : null,
-                        ),
-                      ),
-                      child: PairList(
-                        pairs: [for (final p in pairs) (draft.nameOf(p.player1Id), draft.nameOf(p.player2Id))],
-                        onEdit: (i) => _push(draft.split(pairs[i])),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _newPlayerRow(_name, error: _error),
-                    if (unpaired.isNotEmpty) ...[
-                      const SizedBox(height: 16),
+    return PopScope(
+      canPop: !draft.differsFrom(widget.initial),
+      onPopInvokedWithResult: _confirmDiscard,
+      child: Scaffold(
+        backgroundColor: MabarColors.paper,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MabarAppBar(
+              title: 'Atur pasangan',
+              subtitle: '${widget.sport.label} · mulai R${widget.firstRound}',
+              onBack: () => Navigator.maybePop(context),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (clubs != null)
+                      for (final (i, club) in clubs.indexed) ...[
+                        if (i > 0) const SizedBox(height: 16),
+                        _clubSection(club, first: i == 0),
+                      ]
+                    else ...[
                       MabarSection(
-                        header: MabarGroupLabel('${unpaired.length} belum berpasangan'),
-                        // Satu chip tidak bisa dipasangkan dengan siapa pun, jadi petunjuknya hilang (04g).
-                        note: unpaired.length < 2
-                            ? null
-                            : MabarGroupNote(
-                                picked == null
-                                    ? 'Ketuk dua pemain untuk membuat pasangan'
-                                    : 'Ketuk satu lagi untuk dipasangkan dengan ${picked.name}',
-                              ),
-                        child: MabarChipGrid(
-                          children: [
-                            for (final p in unpaired)
-                              MabarChip(
-                                label: p.name,
-                                tall: true,
-                                selected: p.id == picked?.id,
-                                onTap: () => _tapPlayer(p),
-                              ),
-                          ],
+                        header: MabarGroupHeader.text(
+                          '${pairs.length} pasangan',
+                          trailing: MabarTextButton(
+                            label: 'Urungkan',
+                            icon: MabarIcons.arrowCounterClockwise,
+                            onPressed: _history.length > 1 ? _undo : null,
+                          ),
+                        ),
+                        child: PairList(
+                          pairs: [for (final p in pairs) (draft.nameOf(p.player1Id), draft.nameOf(p.player2Id))],
+                          onEdit: (i) => _push(draft.split(pairs[i])),
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      _newPlayerRow(_name, error: _error),
+                      if (unpaired.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        MabarSection(
+                          header: MabarGroupLabel('${unpaired.length} belum berpasangan'),
+                          // Satu chip tidak bisa dipasangkan dengan siapa pun, jadi petunjuknya hilang (04g).
+                          note: unpaired.length < 2
+                              ? null
+                              : MabarGroupNote(
+                                  picked == null
+                                      ? 'Ketuk dua pemain untuk membuat pasangan'
+                                      : 'Ketuk satu lagi untuk dipasangkan dengan ${picked.name}',
+                                ),
+                          child: MabarChipGrid(
+                            children: [
+                              for (final p in unpaired)
+                                MabarChip(
+                                  label: p.name,
+                                  tall: true,
+                                  selected: p.id == picked?.id,
+                                  onTap: () => _tapPlayer(p),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          MabarActionBar(
-            children: [
-              Expanded(
-                child: enough
-                    ? MabarButton(
-                        label: 'Simpan pasangan',
-                        meta: unpaired.isEmpty ? null : '· ${unpaired.length} tidak main',
-                        onPressed: () => Navigator.pop(context, draft),
-                      )
-                    : MabarButton(
-                        label: 'Simpan pasangan',
-                        meta: clubs == null ? '· minimal 2 pasangan' : '· minimal 1 pasangan tiap klub',
-                        variant: MabarButtonVariant.wait,
-                      ),
-              ),
-            ],
-          ),
-        ],
+            MabarActionBar(
+              children: [
+                Expanded(
+                  child: enough
+                      ? MabarButton(
+                          label: 'Simpan pasangan',
+                          meta: unpaired.isEmpty ? null : '· ${unpaired.length} tidak main',
+                          onPressed: () => Navigator.pop(context, draft),
+                        )
+                      : MabarButton(
+                          label: 'Simpan pasangan',
+                          meta: clubs == null ? '· minimal 2 pasangan' : '· minimal 1 pasangan tiap klub',
+                          variant: MabarButtonVariant.wait,
+                        ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

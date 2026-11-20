@@ -115,7 +115,7 @@ void main() {
     final at = hifiRect('11c', 'toast');
     await expectRegionMatchesHifi(
       tester,
-      hifiStage(theme: theme, at: at, child: const MabarToast(message: 'Hasil disalin')),
+      hifiStage(theme: theme, at: at, child: const MabarToast(message: 'Gambar diunduh · hasil disalin')),
       '11c',
       at,
       label: 'toast',

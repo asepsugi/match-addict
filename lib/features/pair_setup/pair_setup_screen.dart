@@ -61,9 +61,21 @@ class _PairSetupScreenState extends State<PairSetupScreen> {
         : PairGenerator.randomByClub(_players, clubs, random: widget.random).pairs;
   }
 
-  /// Pindah ke Manual mengosongkan pasangan; kembali ke Acak membuang hasil manual.
-  void _switchMode(bool manual) {
+  /// Pindah ke Manual mengosongkan pasangan; kembali ke Acak membuang hasil manual, dengan dialog kalau sudah ada
+  /// pasangan yang dibuat (04i, keputusan 116). Pemain terpilih yang belum berpasangan tidak dihitung.
+  Future<void> _switchMode(bool manual) async {
     if (manual == _manual) return;
+    final n = _pairs.length;
+    if (!manual && n > 0) {
+      final ok = await showMabarConfirm(
+        context,
+        title: 'Buang $n pasangan manual?',
+        message: '',
+        confirmLabel: 'Buang',
+        destructive: true,
+      );
+      if (!ok || !mounted) return;
+    }
     setState(() {
       _manual = manual;
       _picked = null;

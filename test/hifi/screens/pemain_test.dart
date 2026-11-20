@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/features/setup_peserta/setup_peserta_screen.dart';
+import 'package:match_addict/features/setup_peserta/widgets/name_list_field.dart';
 import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
@@ -63,7 +64,20 @@ void main() {
     );
   });
 
-  testWidgets('Contoh hanya saat kosong; Hapus semua mengosongkan dan Contoh muncul lagi', (tester) async {
+  testWidgets('02e sesudah Hapus semua: placeholder, Lanjut mati, Tempel · Urungkan', (tester) async {
+    await expectMatchesHifi(
+      tester,
+      screen(SportType.tennis),
+      '02e',
+      act: (tester) async {
+        await fill(tester, numbered([...names.take(8), 'andi p']));
+        await tester.tap(find.text('Hapus semua'));
+        await tester.pump();
+      },
+    );
+  });
+
+  testWidgets('Contoh hanya saat kosong; Hapus semua mengosongkan, Urungkan menggantikan Contoh', (tester) async {
     await tester.pumpWidget(screen(SportType.tennis));
     await tester.tap(find.text('Contoh'));
     await tester.pump();
@@ -71,8 +85,73 @@ void main() {
     expect(find.text('Contoh'), findsNothing);
     await tester.tap(find.text('Hapus semua'));
     await tester.pump();
-    expect(find.text('Contoh'), findsOneWidget);
+    expect(find.text('Urungkan'), findsOneWidget);
+    expect(find.text('Contoh'), findsNothing);
     expect(find.textContaining('pemain'), findsNothing);
+  });
+
+  bool lanjutEnabled(WidgetTester tester) =>
+      tester.widget<MabarButton>(find.widgetWithText(MabarButton, 'Lanjut')).onPressed != null;
+
+  testWidgets('AC-P1 Urungkan mengembalikan 9 baris persis (termasuk duplikat), Lanjut aktif lagi', (tester) async {
+    await tester.pumpWidget(screen(SportType.tennis));
+    final text = numbered([...names.take(8), 'andi p']);
+    await tester.enterText(find.byType(TextField), text);
+    await tester.pump();
+    expect(find.text('Duplikat dibuang: andi p'), findsOneWidget);
+    await tester.tap(find.text('Hapus semua'));
+    await tester.pump();
+    expect(lanjutEnabled(tester), isFalse);
+    expect(find.text('Duplikat dibuang: andi p'), findsNothing);
+    expect(find.text('Urungkan'), findsOneWidget);
+    await tester.tap(find.text('Urungkan'));
+    await tester.pump();
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, text);
+    expect(find.text('8 pemain'), findsOneWidget);
+    expect(find.text('Duplikat dibuang: andi p'), findsOneWidget);
+    expect(lanjutEnabled(tester), isTrue);
+    expect(find.text('Urungkan'), findsNothing);
+    expect(find.text('Hapus semua'), findsOneWidget);
+  });
+
+  testWidgets('AC-P1 perubahan lain (ketik, Tempel) membuang Urungkan', (tester) async {
+    await tester.pumpWidget(screen(SportType.tennis));
+    await tester.enterText(find.byType(TextField), numbered(names.take(8).toList()));
+    await tester.pump();
+    await tester.tap(find.text('Hapus semua'));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField), 'R');
+    await tester.pump();
+    expect(find.text('1 pemain'), findsOneWidget);
+    expect(find.text('Urungkan'), findsNothing);
+    expect(find.text('Hapus semua'), findsOneWidget);
+    // Kosong lagi sesudahnya (bukan lewat Hapus semua): kembali ke Contoh, bukan Urungkan lama.
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pump();
+    expect(find.text('Contoh'), findsOneWidget);
+    expect(find.text('Urungkan'), findsNothing);
+  });
+
+  testWidgets('AC-P1 Sparing: Hapus semua klub 1 tidak menyentuh klub 2; Urungkan hanya di kotak klub 1', (tester) async {
+    tester.view.physicalSize = const Size(390, 1600) * hifiPixelRatio;
+    tester.view.devicePixelRatio = hifiPixelRatio;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(screen(SportType.tennis));
+    await tester.tap(find.text('Sparing'));
+    await tester.pump();
+    final boxes = find.byType(NameListField);
+    await tester.enterText(find.descendant(of: boxes.at(0), matching: find.byType(TextField)), 'Andi\nBudi');
+    await tester.enterText(find.descendant(of: boxes.at(1), matching: find.byType(TextField)), 'Indra\nJoko');
+    await tester.pump();
+    await tester.tap(find.descendant(of: boxes.at(0), matching: find.text('Hapus semua')));
+    await tester.pump();
+    expect(find.descendant(of: boxes.at(0), matching: find.text('Urungkan')), findsOneWidget);
+    expect(find.descendant(of: boxes.at(1), matching: find.text('Urungkan')), findsNothing);
+    expect(find.descendant(of: boxes.at(1), matching: find.text('Hapus semua')), findsOneWidget);
+    expect(tester.widget<TextField>(find.descendant(of: boxes.at(1), matching: find.byType(TextField))).controller!.text, 'Indra\nJoko');
+    await tester.tap(find.text('Urungkan'));
+    await tester.pump();
+    expect(tester.widget<TextField>(find.descendant(of: boxes.at(0), matching: find.byType(TextField))).controller!.text, 'Andi\nBudi');
   });
 
   testWidgets('Lanjut aktif hanya untuk 4–20 pemain', (tester) async {

@@ -13,6 +13,7 @@ import 'package:match_addict/features/share/share_result_screen.dart';
 import 'package:match_addict/features/share/share_theme.dart';
 import 'package:match_addict/features/share/widgets/podium_poster.dart';
 import 'package:match_addict/models/models.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:match_addict/services/ranking/ranking_calculator.dart';
 import 'package:match_addict/services/schedule/round_robin_generator.dart';
 
@@ -149,8 +150,13 @@ void main() {
     return (active, entries);
   }
 
-  Widget screen(ActiveTournament active, {List<StandingEntry>? entries, RankingMethod? method}) => hifiScreen(
-    const ShareResultScreen(),
+  Widget screen(
+    ActiveTournament active, {
+    List<StandingEntry>? entries,
+    RankingMethod? method,
+    ShareHooks hooks = const ShareHooks(),
+  }) => hifiScreen(
+    ShareResultScreen(hooks: hooks),
     overrides: [
       tournamentProvider.overrideWith(() => LoadedTournament(active)),
       clockProvider.overrideWithValue(() => now),
@@ -498,27 +504,117 @@ void main() {
 
   /// Render poster + share sheet berjalan di luar fake async; tanpa plugin share di test, share gagal dan
   /// caption disalin.
-  Future<void> untilCopied(WidgetTester tester) async {
-    for (var i = 0; i < 30 && find.text('Hasil disalin').evaluate().isEmpty; i++) {
+  Future<void> untilCopied(WidgetTester tester, [String toast = 'Hasil disalin']) async {
+    for (var i = 0; i < 30 && find.text(toast).evaluate().isEmpty; i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
       await tester.pump(const Duration(milliseconds: 100));
     }
   }
 
-  testWidgets('11c share gagal: tombol aktif lagi, toast 19 pt di atas action bar', (tester) async {
+  /// share_plus tanpa plugin di test = melempar, seperti share sheet yang tidak ada (desktop web).
+  testWidgets('11c share gagal: gambar diunduh + caption disalin, toast 19 pt di atas action bar', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
-    mockClipboard(tester);
+    final downloaded = <String>[];
+    String? copied;
+    mockClipboard(tester, (text) => copied = text);
     await expectMatchesHifi(
       tester,
-      screen(set1),
+      screen(
+        set1,
+        hooks: ShareHooks(
+          download: (files) async {
+            downloaded.addAll(files.map((f) => f.mimeType ?? ''));
+            return true;
+          },
+        ),
+      ),
       '11c',
+      act: (tester) async {
+        await tester.tap(find.text('Bagikan hasil').last);
+        await tester.pump();
+        await untilCopied(tester, 'Gambar diunduh · hasil disalin');
+      },
+    );
+    // Nama berkas (XFile.name) hanya terbaca di web; di sini cukup dua gambar PNG (Feed + Story).
+    expect(downloaded, ['image/png', 'image/png']);
+    expect(copied, contains('Klasemen Sementara'));
+    await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
+  });
+
+  testWidgets('11n gambar gagal dibuat: caption disalin + "Hasil disalin", tanpa unduhan', (tester) async {
+    await precacheHifiAssets(tester, [SportType.padel.assetPath]);
+    var downloads = 0;
+    String? copied;
+    mockClipboard(tester, (text) => copied = text);
+    await expectMatchesHifi(
+      tester,
+      screen(
+        set1,
+        hooks: ShareHooks(
+          render: (_) async => throw StateError('render gagal'),
+          download: (_) async {
+            downloads++;
+            return true;
+          },
+        ),
+      ),
+      '11n',
       act: (tester) async {
         await tester.tap(find.text('Bagikan hasil').last);
         await tester.pump();
         await untilCopied(tester);
       },
     );
-    await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
+    expect(downloads, 0);
+    expect(copied, contains('Klasemen Sementara'));
+    await tester.pump(const Duration(seconds: 3));
+  });
+
+  group('runShare (B-10, tiga tahap)', () {
+    final files = [XFile.fromData(Uint8List(1), name: 'a.png')];
+    Future<List<XFile>> ok() async => files;
+
+    test('render gagal → captionOnly; share dan unduh tidak dipanggil', () async {
+      var calls = 0;
+      final out = await runShare(
+        render: () async => throw StateError('x'),
+        share: (_) async => calls++,
+        download: (_) async => calls++ > 99,
+      );
+      expect(out, ShareOutcome.captionOnly);
+      expect(calls, 0);
+    });
+
+    test('share melempar + unduh true → downloaded', () async {
+      final out = await runShare(
+        render: ok,
+        share: (_) async => throw Exception('tidak ada share sheet'),
+        download: (f) async => f == files,
+      );
+      expect(out, ShareOutcome.downloaded);
+    });
+
+    test('share melempar + unduh false (Android/iOS) → captionOnly', () async {
+      final out = await runShare(
+        render: ok,
+        share: (_) async => throw Exception('x'),
+        download: (_) async => false,
+      );
+      expect(out, ShareOutcome.captionOnly);
+    });
+
+    for (final status in ShareResultStatus.values) {
+      test('share mengembalikan $status → done, tanpa unduhan', () async {
+        var downloads = 0;
+        final out = await runShare(
+          render: ok,
+          share: (_) async => ShareResult('', status),
+          download: (_) async => downloads++ > 99,
+        );
+        expect(out, ShareOutcome.done);
+        expect(downloads, 0);
+      });
+    }
   });
 
   Future<ProviderContainer> pumpRouted(WidgetTester tester, ActiveTournament active) async {
