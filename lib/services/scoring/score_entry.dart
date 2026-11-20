@@ -124,8 +124,13 @@ class ScoreEntry {
     final side = active;
     final current = side == null ? null : valueOf(side);
     if (side == null || current == null) return this;
-    return _set(side, current < 10 ? null : current ~/ 10);
+    // Kotak lawan yang kosong tidak diisi otomatis saat menghapus (jebakan PM #7, logic.md §19.5): menghapus 13–8
+    // sampai kosong tidak boleh melewati 1–20; lawan berisi nilai otomatis tetap ikut seperti biasa.
+    return _set(side, current < 10 ? null : current ~/ 10, fillEmpty: false);
   }
+
+  /// Kedua kotak kosong: tombol Input Skor membaca Kosongkan skor (logic.md §19.5).
+  bool get isEmpty => side1 == null && side2 == null;
 
   /// Memilih kotak (ketuk kotak, atau → ke tim lawan).
   ScoreEntry select(int side) => ScoreEntry._(format, side1, side2, side, autoSide, true);
@@ -135,12 +140,13 @@ class ScoreEntry {
   /// Mengisi [side] dengan [value]; Best of & Americano sekalian mengisi lawan `N − x` (atau mengosongkannya kalau
   /// [value] dihapus), tapi hanya kalau kotak lawan kosong atau masih berisi nilai otomatis. Lawan yang sudah diketik
   /// tidak dihitung ulang: mengoreksi 11–5 tidak boleh mengembalikan 11 jadi 16 (keputusan host 2026-10-26).
-  ScoreEntry _set(int side, int? value) {
+  /// [fillEmpty] false: kotak lawan yang kosong dibiarkan kosong (⌫).
+  ScoreEntry _set(int side, int? value, {bool fillEmpty = true}) {
     var one = side == 1 ? value : side1;
     var two = side == 2 ? value : side2;
     var auto = autoSide == side ? null : autoSide;
     final other = _other(side);
-    if (format.fillsOpponent && (valueOf(other) == null || autoSide == other)) {
+    if (format.fillsOpponent && ((fillEmpty && valueOf(other) == null) || autoSide == other)) {
       final fill = value == null ? null : format.target - value;
       if (other == 1) {
         one = fill;

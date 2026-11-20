@@ -446,6 +446,16 @@ class MatchGame {
   MatchGame asWalkover({required String loserPairId, WoReason? reason}) =>
       _with(sets: sets, status: MatchStatus.wo, woLoserPairId: loserPairId, woReason: reason);
 
+  /// Kosongkan skor (PRD §17, logic.md §19.1): skor dan sisa WO dibuang, match kembali Belum — atau Tidak dimainkan
+  /// kalau turnamen sudah diakhiri ([finished]), supaya turnamen yang diakhiri tidak pernah punya match Belum (R4).
+  /// Lewat [_with] karena [copyWith] tidak bisa mengembalikan WO ke null dan `phase` wajib ikut.
+  MatchGame cleared({required bool finished}) =>
+      _with(sets: const [], status: finished ? MatchStatus.cancelled : MatchStatus.pending);
+
+  /// Hapus WO: kembali ke skor lama yang disimpan [asWalkover] kalau ada (Selesai), kalau tidak sama dengan [cleared].
+  MatchGame withoutWalkover({required bool finished}) =>
+      sets.isEmpty ? cleared(finished: finished) : _with(sets: sets, status: MatchStatus.done);
+
   MatchGame _with({required List<SetScore> sets, required MatchStatus status, String? woLoserPairId, WoReason? woReason}) =>
       MatchGame(
         id: id,
@@ -815,6 +825,17 @@ class ActiveTournament {
     return roundCount;
   }
 
+  /// Catatan kunci round Fixed (U-5, logic.md §19.1): round terbesar sebelum [round] yang belum lengkap. Setelah ada
+  /// match yang dikosongkan, round itu bisa jauh di belakang, jadi bukan selalu `round − 1`. null = round tidak
+  /// terkunci (round berjalan atau sebelumnya) atau turnamen sudah diakhiri.
+  int? lockedBy(int round) {
+    if (tournament.isFinished || round <= currentRound) return null;
+    for (var r = round - 1; r >= 1; r--) {
+      if (!isRoundComplete(r)) return r;
+    }
+    return null;
+  }
+
   int get playedMatchCount => matches.where((m) => m.status == MatchStatus.done || m.status == MatchStatus.wo).length;
 
   /// Jumlah round yang punya minimal satu match selesai/WO — "5 round · 10 match" di Peringkat final
@@ -1034,6 +1055,14 @@ class ActiveTournament {
       !tournament.isFinished &&
       matches.any((m) => m.phase is GroupPhase) &&
       matches.every((m) => m.phase is! GroupPhase || m.status == MatchStatus.done || m.status == MatchStatus.wo);
+
+  /// Grup + Gugur: match fase grup yang masih Belum, semua round grup ("Buat bagan · tunggu N", C-17).
+  int get pendingGroupMatches => matches.where((m) => m.phase is GroupPhase && m.status == MatchStatus.pending).length;
+
+  /// Grup + Gugur: tombol "Buat bagan" tampil mati menunggu [pendingGroupMatches] (20b). Tidak pernah bersamaan dengan
+  /// [canCreateBracket]: yang satu butuh match grup Belum, yang lain butuh semuanya Selesai/WO.
+  bool get waitsForBracket =>
+      config.isGroupKnockout && !hasBracket && !tournament.isFinished && pendingGroupMatches > 0;
 
   /// Fixed: round tambahan (06v, `RoundRobinGenerator.extraRounds`) boleh dibuat setelah semua match terisi, selama
   /// belum diakhiri.

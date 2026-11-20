@@ -273,6 +273,38 @@ void main() {
       expect((e.side1, e.side2, e.autoSide), (null, null, null));
     });
 
+    test('07p ⌫ tidak mengisi kotak lawan yang kosong (logic.md §19.5, jebakan PM #7)', () {
+      const saved = SetScore(side1: 13, side2: 8);
+      var e = ScoreEntry.edit(americano21, saved).select(2).backspace();
+      expect((e.side1, e.side2), (13, null));
+      e = e.select(1).backspace();
+      expect((e.side1, e.side2, e.autoSide), (1, null, null), reason: 'bukan 1–20');
+      expect(e.isEmpty, isFalse);
+      e = e.backspace();
+      expect((e.side1, e.side2), (null, null));
+      expect(e.isEmpty, isTrue);
+
+      e = ScoreEntry.edit(americano21, saved).select(1).backspace().backspace();
+      expect((e.side1, e.side2), (null, 8));
+      e = e.select(2).backspace();
+      expect(e.isEmpty, isTrue);
+
+      const bestOf15 = ScoreFormat(ScoringMethod.bestOf, 15);
+      e = ScoreEntry.edit(bestOf15, const SetScore(side1: 10, side2: 4)).select(2).backspace();
+      expect((e.side1, e.side2), (10, null));
+      e = e.select(1).backspace();
+      expect((e.side1, e.side2), (1, null), reason: 'bukan 1–14');
+    });
+
+    test('07p kosong lalu diketik lagi: nilai otomatis kembali seperti 2.8.0', () {
+      var e = ScoreEntry.edit(americano21, const SetScore(side1: 13, side2: 8));
+      e = e.select(2).backspace().select(1).backspace().backspace();
+      expect(e.isEmpty, isTrue);
+      e = e.type(5);
+      expect((e.side1, e.side2, e.autoSide), (5, 16, 2));
+      expect(ScoreEntry.start(americano21).isEmpty, isTrue);
+    });
+
     test('skor tersimpan dibuka: terisi, belum ada kotak aktif, angka mati sampai kotak diketuk (07i)', () {
       final e = ScoreEntry.edit(race6, const SetScore(side1: 6, side2: 4));
       expect(e.active, isNull);

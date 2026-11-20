@@ -301,7 +301,9 @@ class KnockoutBracket {
   /// Ubah skor gugur (GU11) sebelum disimpan. Pemenang sama, atau match belum punya pemenang → selalu boleh, tanpa
   /// dialog. Pemenang berganti → ditolak kalau ada match yang diisinya sudah ada hasil (done/WO; cancelled = tanpa
   /// hasil); kalau tidak, boleh dengan pratinjau susunan baru match itu (21k). Match bukan gugur → boleh.
-  static FlipCheck flipCheck(ActiveTournament active, String matchId, String newWinnerPairId) {
+  /// [newWinnerPairId] null = match jadi tanpa pemenang (Kosongkan skor / Hapus WO tanpa skor lama, logic.md §19.2):
+  /// dihitung sebagai pemenang berganti, sama aturannya.
+  static FlipCheck flipCheck(ActiveTournament active, String matchId, String? newWinnerPairId) {
     final gk = active.config.groupKnockout;
     final m = active.matchById(matchId);
     final phase = m?.phase;
@@ -315,9 +317,14 @@ class KnockoutBracket {
         if (depMatch(p) case final d? when _hasResult(d)) p.round,
     ];
     if (blocked.isNotEmpty) return FlipBlocked(blocked);
-    // Pratinjau: pemenang baru sebagai WO sementara (cukup untuk `winnerPairId`), lalu pemenang maju.
-    final loser = m.pair1.id == newWinnerPairId ? m.pair2.id : m.pair1.id;
-    final hypothetical = [for (final x in active.matches) x.id == matchId ? x.asWalkover(loserPairId: loser) : x];
+    // Pratinjau: pemenang baru sebagai WO sementara (cukup untuk `winnerPairId`), atau match dikosongkan kalau tanpa
+    // pemenang, lalu pemenang maju.
+    MatchGame hypothesis(MatchGame x) {
+      if (newWinnerPairId == null) return x.cleared(finished: active.tournament.isFinished);
+      return x.asWalkover(loserPairId: m.pair1.id == newWinnerPairId ? m.pair2.id : m.pair1.id);
+    }
+
+    final hypothetical = [for (final x in active.matches) x.id == matchId ? hypothesis(x) : x];
     final resolved = resolve(active.config, hypothetical);
     return FlipAllowed([
       for (final p in deps)
