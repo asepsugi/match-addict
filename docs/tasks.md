@@ -16,7 +16,7 @@ skrip/lembar kontak), agen berhenti ~150k konteks.** Mulai sesi baru (`/clear`) 
 
 | Task | Isi | Siapa | Dicek |
 |---|---|---|---|
-| KS-0 | PRD §17 + keputusan 113–121 | product-manager (selesai 2026-11-18), jawaban host = keputusan 121 | belum di-commit |
+| KS-0 | PRD §17 + keputusan 113–121 | product-manager (selesai 2026-11-18), jawaban host = keputusan 121 | dab6e14 |
 | KS-1 | Hi-fi kelompok A (Kosongkan/Hapus WO). Ubah 07i, 07j. Baru: Input Skor kedua kotak kosong → "Kosongkan skor"; dialog Kosongkan (court · gugur dengan susunan baru · setelah diakhiri); gugur diblok (21l, Kosongkan mati); sheet WO + "Hapus WO"; dialog Hapus WO (tanpa skor lama · skor lama 6–4); Fixed round dikunci lagi (R4 terkunci, catatan "R3", seri 06). Baca PRD §17.1–17.6 | ui-ux-designer opus/high | main session |
 | KS-2 | Hi-fi kelompok B (P5). Ubah 02b ("Tempel · Urungkan"), 04b + 04g (dialog "Buang 3 pasangan manual?", "Buang perubahan pasangan?"), 11c (toast "Gambar diunduh · hasil disalin"). Baca PRD §17.10 | ui-ux-designer opus/high | main session |
 | KS-3 | Hi-fi kelompok C1: 20b "Buat bagan · tunggu 7 match" (§17.11); C-7 bagan 21u–21y mengintip 24 pt + label kolom; C-18 label 12 → 13 px (`.grp`, `.gg-babak`, `.bagan .mh/.ch`); C-15 pratinjau Tukar 17d/17g/17l nama masuk tebal; B-16 samakan data uji; C-12 verifikasi catatan "menunggu host" sisa | ui-ux-designer opus/high | main session |
@@ -46,8 +46,8 @@ skrip/lembar kontak), agen berhenti ~150k konteks.** Mulai sesi baru (`/clear`) 
 
 ### Status (2026-11-18)
 
-- KS-0 selesai; PRD `§17` + keputusan 113–121 di working tree branch `fitur-3-9-0`, **belum di-commit**
-  (`design/review/ux-review.md` juga). Berikutnya: KS-1/KS-2/KS-3 (tiga desainer paralel, sesi baru).
+- KS-0 selesai (dab6e14). KS-1/KS-2/KS-3 jalan 2026-11-20: tiga desainer paralel di worktree masing-masing, merge
+  oleh main session.
 - 3.8.1+25 masih belum di-push (ditahan host).
 
 ---
