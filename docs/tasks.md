@@ -129,12 +129,43 @@ dipasangkan dari Point %; Grup + Gugur Americano di fase gugur bisa menampilkan 
 |---|---|---|
 | RP-0 | PRD §18 + keputusan 122–126 (selesai, belum commit) + jawaban host 18.11 | product-manager → main session |
 | RP-1 | Hi-fi: Klasemen 09a–09h (tab ketiga; 09a Americano buka di Point %), Detail 10a–10e, Bagikan 11a–11m + 18a–18t, penonton live 12-an, Sparing per klub 13n/14-an/15t, Mexicano 16a–16g, tabel grup Americano 20d/22b; Cakupan "Sudah disetujui"; spec `design/spec/screens/09-klasemen.md` (baris 30–31), `16-mexicano.md` (5, 15, 25, 37, 77), `20-grup-gugur.md` (49), `12-live-score.md` (106). Satu agen per kelompok frame, maks 3 paralel | ui-ux-designer opus/high |
-| RP-2 | Spec `design/spec/logic.md` §20 (RP1–RP9, WO 125, pembulatan, data uji §18.7) + task kode | tech-lead opus/high |
-| RP-3 | Kode: `RankingMethod.pointPercent`, `PlayerStanding.pointPercent` (WO 125), `compare`, `defaultMethod`, urutan Mexicano (`endless_round_generator.dart`), `group_knockout_ranking.dart`; layar Klasemen/Detail/Bagikan/caption | engineer: logika sonnet/medium + review fresh tech-lead; layar sonnet/low |
+| RP-2 | Spec `design/spec/logic.md` §20 + rincian RP-3 di bawah (selesai 2026-11-20, belum commit) | tech-lead opus/high |
+| RP-3 | Kode dari §20, dipecah RP-3a…RP-3d di bawah | engineer (lihat rincian) + review RP-3a fresh tech-lead |
 | RP-4 | Golden frame berubah, full test ikut KS-8, rilis ikut KS-9 | main session |
 
-Berkas RP-3 bersinggungan dengan KS-7 hanya di golden Klasemen/Detail/Bagikan (11a/11c dari KS-7c) → kerjakan RP-3
-setelah KS-7c digabung, atau rebase golden.
+### RP-3 rincian (tech-lead, 2026-11-20)
+
+Spec: `design/spec/logic.md` §20 (kontrak kode 20.1–20.7, data test 20.8, invariant 20.9, test 20.10, jebakan 20.11).
+Semua angka PRD §18 dihitung ulang dan cocok; yang berubah tanpa ditulis PRD: **R3 AC-M15** dan **R3 fixture 16g**
+(20.8, 20.12). Semua MINOR; tanpa dependensi baru; tanpa kunci simpanan baru (DBA tidak perlu; kalau ternyata butuh →
+berhenti dan lapor); tanpa naik versi. Tiap task: baca `CLAUDE.md`, §20 bagian yang disebut, frame-nya sendiri saja;
+`flutter analyze` + test berkas sendiri; full test sekali di KS-8.
+
+**Urutan:** RP-3a **bisa mulai sekarang** (tanpa frame), paralel dengan KS-7 gelombang 1 → review RP-3a oleh tech-lead
+fresh (diff + 20.11, jalankan test sendiri; tech-lead menulis `docs/architecture.md` → Ranking & Mexicano saat review) →
+setelah frame RP-1 disetujui: RP-3b ∥ RP-3c (berkas tidak bersinggungan) → RP-3d. **Gabung RP-3a ke `fitur-3-9-0`
+bersama RP-3b**, bukan sendiri: RP-3a mengganti default Americano sehingga golden Americano/Mexicano gagal sampai
+golden-nya diperbarui (20.11 #12); kalau digabung sendiri, `fitur-3-9-0` merah selama KS-7b/7e/KS-8.
+
+| Task | Isi | Berkas (baca/ubah) | AC ditutup | Test + golden wajib | Model | Bergantung |
+|---|---|---|---|---|---|---|
+| **RP-3a** Logika | §20.1–20.6: `RankingMethod.pointPercent` + label; `PlayerStanding.woPointsConceded`/`pointsPlayed`/`pointPercent` (bulat bilangan bulat); WO pass atas semua id di `matches`; `woPairValue` (dipakai juga `ClubResult`); `compare`; `defaultMethod`; `mexicanoOrder` Point %; komentar Grup + Gugur/controller. Tanpa UI | `lib/models/models.dart` (enum saja; KS-7a juga mengubah berkas ini di hunk lain), `lib/services/ranking/ranking_calculator.dart`, `lib/services/ranking/club_score.dart` (baris 116–118), `lib/services/schedule/endless_round_generator.dart` (`mexicanoOrder`), `lib/services/ranking/group_knockout_ranking.dart` (komentar), `lib/features/schedule/tournament_controller.dart:115` (komentar; rebase kalau KS-7a sudah masuk) | AC-RP2 (logika), RP3, RP4, RP5, RP6, RP7 (tanpa NaN), RP8, RP11, RP12 (angka), RP13, RP15 (logika) | `point_percent_test.dart` + `point_percent_fixture.dart` (20.8 semua baris non-Mexicano + properti invariant 1–4 termasuk `rank(subset)` = `rank(semua)`); `mexicano_test.dart` AC-M15 + 16g diubah ke 20.8, 18D baru, AC-M4–M7 tidak disentuh; oracle `mexicano_property_test.dart`; `group_knockout_ranking_test.dart` AC-RP13; `sparing_score_test.dart` 13C; provider default AC-RP2 + penonton. Tanpa golden; laporkan golden yang gagal dan cocokkan dengan 20.11 #12 | sonnet/medium (rumus + kontrak persis di §20; jebakan subset 20.11 #5 wajib dicek reviewer) | — |
+| **RP-3b** Klasemen + Detail | §20.7 baris Klasemen/Sparing/Detail: tiga tab (urutan U-RP1), nilai + judul kolom lewat `switch` (juga `tableMethod` grup), statline Point % selalu (letak/label dari frame) | `lib/features/leaderboard/leaderboard_screen.dart`, `lib/features/detail_player/detail_player_screen.dart`, komponen statline/tabel di `lib/core/widgets/` hanya kalau frame mengubah bentuknya | AC-RP1, RP2 (layar), RP7 (layar), RP9, RP14 (layar sama) | widget: ganti tab mengurutkan ulang + kolom; Detail "–" belum main; golden **09a–09h, 10a–10e** + frame tab Point % baru dari RP-1 | sonnet/medium | RP-3a (review lolos), frame RP-1 09/10, KS-7e (09h/10e, B-7 tabel) dan GL (string di kedua berkas) sudah digabung atau rebase |
+| **RP-3c** Bagikan + caption | §20.7 baris poster + caption: `sharePosterData`/`podiumPosterData` lewat `switch` (Point % = bentuk Total Point dengan nilai "57%"), `ResultTextBuilder.build(…, required method)` | `lib/features/share/share_content.dart`, `lib/features/share/share_result_screen.dart`, `lib/services/share/result_text_builder.dart` | AC-RP10, RP7 (poster/caption) | `result_text_builder_test.dart` (18A baris pertama persis; Total Point/Win % byte-sama), `share_poster_test.dart` + `sparing_share_test.dart` (tambah `method:`; Point % "57%" + detail satuan), golden **11a, 11c** + frame poster Point % dari RP-1 | sonnet/low | RP-3a, frame RP-1 11/18, **KS-7c digabung** (berkas `share_result_screen.dart` dan golden 11a/11c) |
+| **RP-3d** Golden sisa | Golden yang berubah hanya karena default/tab/statline, tanpa kode layar: Mexicano, Sparing, Grup + Gugur, penonton | `test/hifi/screens/*` saja (+ fixture kalau frame memakai data baru); kode `lib/` tidak disentuh — kalau perlu, berhenti dan lapor | AC-RP11 (16g), RP12 (layar), RP13 (layar), RP14 | golden **16a–16g** (16g R3 baru), **13n, 13o, 13p, 14p, 14s, 14t, 14u, 15s, 15t, 14v, 14w, 15u, 15v, 20d, 22b, 22j, 22k**, 12x yang menampilkan Klasemen/Detail; frame lain yang tetap lulus disebut di laporan | sonnet/low | RP-3b (statline + tab), frame RP-1 |
+
+**Frame terdampak untuk brief designer RP-1** (tambahan/penegasan atas daftar RP-1 di tabel atas):
+- **16g berubah isi**, bukan hanya teks: R3 = Citra·Hadi vs Andi·Joko · Fajar·Dewi vs Indra·Eko (sampai 3.8.x Andi·Eko
+  vs Fajar·Dewi · Citra·Joko vs Hadi·Indra); `16-mexicano.md` baris 77–78 ditulis ulang dengan Point % (angka 18D, §20.8).
+  16a/16b: urutan Point % = Total Point (tidak ada pasangan berubah), hanya teks "Total Point" → "Point %".
+- **Statline Detail di semua frame Detail** (U-RP5), bukan hanya 10a–10e: juga Sparing 14v, 14w, 15u, 15v; Grup + Gugur
+  22j, 22k; Detail penonton/Mexicano kalau ada.
+- **Sparing Klasemen** dirinci: 13n, 13o, 13p, 14p, 14s, 14t (tab bar tiga, tetap Win %), **14u** (Americano 20) dan
+  **15t** (Mixed Sparing Americano 21) terbuka di Point %. Bagikan Sparing 13q–13w (Race to 6) tidak berubah.
+- Bagikan: hanya frame berdata Americano yang berubah (11a/11c = data 09a set1 → Point %); designer mencatat mana di
+  11b, 11e–11m, 18a–18t yang Americano.
+- Angka Point % untuk fixture yang sudah ada (09a/09b set1, 09d–09f set2) di §20.8 baris "Golden data": pakai itu supaya
+  golden tidak butuh fixture baru. Frame contoh baru sebaiknya memakai data 18A/18C (fixture `point_percent_fixture`).
 
 ### Jalur GL · Label "Group - Playoff" (keputusan 127) — level 0 (teks), ikut 3.9.0
 

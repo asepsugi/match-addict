@@ -1145,7 +1145,8 @@ Ukuran lain, 8 round:
 - **Nilai WO klub (K11):** per match WO, nilai yang masuk Total Point klub pemenang = rata-rata nilai WO kedua pemain
   pemenang (4.4), dibulatkan ,5 ke atas. Contoh Mixed Americano 21: nilai WO Andi 14, Budi 17 → klub dapat
   (14 + 17) ÷ 2 = 15,5 → **16**. Di klasemen pemain tiap pemenang tetap mendapat nilainya sendiri (Andi 14, Budi 17).
-  Fixed dan Race to N tidak terpengaruh karena nilai kedua pemenang selalu sama (13C: 6).
+  Race to N tidak terpengaruh karena nilai kedua pemenang selalu sama (13C: 6); Fixed Best of/Americano setelah Atur
+  pasangan bisa beda, rumusnya sama.
 - Urutan: match menang → Total Point klub → sama semua = seri. Hanya angka yang tampil yang menentukan (sejalan 4.3).
 - Status Sementara/Final sama dengan 4.6. Skor klub tampil di Jadwal dan Klasemen (papan di atas daftar/tabel, klub
   pertama di baris atas, bola di klub yang unggul, kedua baris kalau Seri, tanpa bola selama 0 – 0), poster, caption,
@@ -1582,7 +1583,8 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
   melanjutkan kode yang sama.
 - **AC-M15** WO 14A R2 Court 2 (Gita · Budi): Eko 20, Dewi 17, Gita 9, Budi 6; selisih keempatnya sama dengan setelah R1;
   urutan R3 memakai angka ini. Sejak 3.9.0 urutan R3 memakai Point %: Eko 20 ÷ 32 = 63%, Dewi 17 ÷ 32 = 53% (nilai WO
-  11 – 0), Gita 9 ÷ 32 = 28%, Budi 6 ÷ 32 = 19% (kalah 11 dari WO).
+  11 – 0), Gita 9 ÷ 32 = 28%, Budi 6 ÷ 32 = 19% (kalah 11 dari WO). Akibat keputusan 124, R3 berubah: Eko 63% di atas
+  Citra 62% → R3 Court 1 Eko · Citra vs Andi · Fajar, Court 2 Dewi · Gita vs Hadi · Budi (dihitung `logic.md` §20.8).
 - **AC-M16** Kelola pemain Mexicano: tidak ada tambah pemain; Keluarkan mati saat aktif 4; Kembalikan ada untuk pemain
   yang dikeluarkan setelah round terakhir dibuat dan hilang setelah round berikutnya dibuat tanpa dia.
 - **AC-M17** Kelola court: 12 pemain / 2 court, R1 berjalan → tambah Court 3 → match baru berisi 4 pemain istirahat
@@ -2718,9 +2720,9 @@ belum ada skor: Batalkan R3 → R2 Court 2 bisa dikosongkan atau dikoreksi → B
 
 - Pemenang WO: didapat + **nilai WO dia sendiri** (4.4: Race to N → N; Best of/Americano → rata-rata skor match yang dia
   mainkan, bulat ,5 ke atas, minimal ⌊N ÷ 2⌋ + 1; belum pernah main → ⌊N ÷ 2⌋ + 1), kalah + 0.
-- Pasangan WO: didapat + 0, kalah + **nilai WO pasangan lawan**. Fixed dan Race to: satu angka (kedua pemenang selalu
-  sama). Mixed/Mexicano/Sparing Mixed dengan Best of/Americano: rata-rata nilai kedua pemenang, bulat ,5 ke atas (rumus
-  K11, 13.5).
+- Pasangan WO: didapat + 0, kalah + **nilai WO pasangan lawan**. Race to: satu angka (kedua pemenang selalu
+  sama). Best of/Americano: rata-rata nilai kedua pemenang, bulat ,5 ke atas (rumus K11, 13.5); di Fixed biasanya sama,
+  tapi bisa beda setelah Atur pasangan.
 - Selisih tetap tidak berubah oleh WO (4.4), dan Total Point tetap seperti sekarang.
 - Akibat yang terlihat: menang WO menaikkan Point % ke arah 100%, kalah WO menurunkannya; pemain yang hanya punya WO =
   100% (menang) atau 0% (kalah). Nilai WO pemenang ikut berubah tiap dia main lagi (4.4), jadi Point %-nya juga.

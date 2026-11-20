@@ -79,7 +79,8 @@ Data test: lihat data set 2 di bawah (Budi rata-rata 14 ≥ 13 → +14; Joko rat
 ## 4. Peringkat
 
 - Urutan = nilai metode (Total Point atau Win %) → selisih → nama. Hanya angka yang tampil (keputusan host 2026-11-02):
-  head-to-head dan Total Point sebagai pemisah Win % dihapus. `RankingCalculator.compare`.
+  head-to-head dan Total Point sebagai pemisah Win % dihapus. `RankingCalculator.compare`. Sejak 3.9.0 ada metode
+  ketiga Point % dan default Americano berganti (§20).
 - Nilai metode dan selisih sama → **nomor sama**, nomor berikutnya melanjutkan (1, 1, 2 — bukan 1, 1, 3). W–L–D tidak
   membedakan nomor.
 - Kolom W–L–D dan +/− (selisih, "+12" / "−4" / "0") di **kedua** metode; kolom terakhir = nilai metode. **D hanya ada kalau format bisa seri**
@@ -634,6 +635,7 @@ generateMexicanoRound(players = aktif, courts = courtsAvailableAt(now), history,
 - `mexicanoOrder(players, history, format, draw)`: `standing` = `RankingCalculator.rank(players, history,
   RankingMethod.totalGames, format)` dijadikan peta per id; urut `RankingCalculator.compare(a, b, totalGames)` (Total
   Point turun → selisih turun) → `draw` naik → id. Pemain belum main = 0 / 0 dan ikut diurut dengan angka itu (U8).
+  **Sejak 3.9.0: `pointPercent` di kedua tempat (keputusan 124, §20.6).**
   Match `pending`/`cancelled` tidak dihitung (aturan `RankingCalculator`); WO ikut lewat `woPoints`.
 - `mexicanoArrangement(p[0..3], history)`: A = p0+p2 vs p1+p3, B = p0+p3 vs p1+p2, C = p0+p1 vs p2+p3. Beban = jumlah
   `_History.partnerCount` kedua tim (match WO dan `pending` dihitung, `cancelled` tidak — sama dengan `_History`).
@@ -667,11 +669,11 @@ acak, cepat):
 | AC-M5 setelah R2 | — | Citra 26 (+10) #1 · Andi 25 (+8) #2 · Fajar 23 (+4) #3 · Hadi 22 (+2), Eko 22 (+2) #4 · Dewi 19 (−4) #5 · Gita 17 (−8) #6 · Budi 14 (−14) #7; jumlah 168 |
 | AC-M4 14A R3 (a) | …, Hadi, Eko, … (Hadi lebih dulu) | C1 Citra, Andi, Fajar, Hadi beban 2/0/2 → B Citra·Hadi vs Andi·Fajar · C2 Eko, Dewi, Gita, Budi 2/0/2 → B Eko·Budi vs Dewi·Gita |
 | AC-M4 14A R3 (b) | …, Eko, Hadi, … | C1 Citra, Andi, Fajar, Eko 1/0/1 → B Citra·Eko vs Andi·Fajar · C2 Hadi, Dewi, Gita, Budi 1/0/1 → B Hadi·Budi vs Dewi·Gita |
-| AC-M15 WO | R2 C2 WO, Gita·Budi absen | Eko 20 (−3), Dewi 17 (−9), Gita 9 (−3), Budi 6 (−9); R3 tanpa seri, undian apa pun: = R3 (a) |
+| AC-M15 WO | R2 C2 WO, Gita·Budi absen | Eko 20 (−3), Dewi 17 (−9), Gita 9 (−3), Budi 6 (−9); R3 tanpa seri, undian apa pun: = R3 (a). **Sejak 3.9.0 (Point %) R3 berubah: §20.8** |
 | AC-M6 14B R1 | Andi … Joko | Indra, Joko istirahat; match = 14A R1 |
 | AC-M6 14B R2 | Budi, Gita, Andi, Eko, Indra, Dewi, Fajar, Joko, Citra, Hadi | Citra, Hadi istirahat; urutan Andi, Fajar, Gita, Eko \| Budi, Dewi, Indra, Joko; A: Andi·Gita vs Fajar·Eko · Budi·Indra vs Dewi·Joko (beban 0/0/1) |
 | AC-M6 14B R3–R5 | undian asli, skor sah apa pun | R3 Citra, Hadi, Indra, Joko main; setelah R5 semua 4 match |
-| 16g (fixture) | R2 skor 12–9, 10–11; Gita keluar; R3 Citra, Hadi, Indra, Joko, Andi, Dewi, Eko, Fajar, Budi | setelah R2 Andi 27 (+12), Gita 21 (0), Fajar 21 (0), Eko 18 (−6), Dewi 17 (−8), Budi 16 (−10), Citra 15 (+9), Hadi 12 (+3), Joko 11 (+1), Indra 10 (−1), jumlah 168; R3 Budi istirahat, A Andi·Eko vs Fajar·Dewi · Citra·Joko vs Hadi·Indra |
+| 16g (fixture) | R2 skor 12–9, 10–11; Gita keluar; R3 Citra, Hadi, Indra, Joko, Andi, Dewi, Eko, Fajar, Budi | setelah R2 Andi 27 (+12), Gita 21 (0), Fajar 21 (0), Eko 18 (−6), Dewi 17 (−8), Budi 16 (−10), Citra 15 (+9), Hadi 12 (+3), Joko 11 (+1), Indra 10 (−1), jumlah 168; R3 Budi istirahat, A Andi·Eko vs Fajar·Dewi · Citra·Joko vs Hadi·Indra. **Sejak 3.9.0 (Point %) R3 berubah: §20.8** |
 | AC-M7 14C | R1 Andi, Budi, Citra, Dewi · R2 Andi, Citra, Budi, Dewi | R1 A Andi·Citra vs Budi·Dewi 12–9 · R2 0/0/2 A Andi·Budi vs Citra·Dewi 10–11 · R3 Citra 23 (+4), Andi 22 (+2), Dewi 20 (−2), Budi 19 (−4) 2/0/2 B Citra·Budi vs Andi·Dewi 14–7 · R4 Citra 37 (+11), Budi 33 (+3), Andi 29 (−5), Dewi 27 (−9) 2/2/2 A Citra·Andi vs Budi·Dewi |
 
 - AC-M9 ukuran: 4/1 tanpa istirahat; 5/1 satu istirahat per round, setelah R5 semua 4 match; 7/2 hanya Court 1, 3
@@ -2251,3 +2253,233 @@ dan Tidak dimainkan tidak dihitung.* (`PlayerProfile.of` sudah memfilter `done |
 2. **Unduh dua file di Chrome** setelah render async (di luar user gesture) bisa memicu izin "unduh beberapa file" atau
    unduhan kedua diblok. Tanpa dependensi baru tidak ada jalan lain (zip = dependensi). Dicek di KS-8; kalau diblok,
    laporkan ke host (bukan diganti diam-diam).
+
+## 20. Point % · metode peringkat ketiga (rencana 3.9.0, MINOR)
+
+Keputusan host 122–126 dan 129 (PRD §18, 4.2–4.4, 13.6, 14.3; U-RP1–U-RP6 disetujui 2026-11-20). Frame belum ada
+(RP-1): bagian layar di bawah menyebut **apa** yang dibaca dan dari mana; bentuk, letak, dan teks kolom ikut frame.
+ID test = ID PRD (`AC-RP3 18A …`, `AC-M15 …`) + id frame kalau angkanya dari frame. Semua angka 18A–18E, 13C, AC-M15,
+dan contoh 4.2 dihitung ulang tech-lead 2026-11-20 dengan skrip dari aturan di bawah (bilangan bulat, tanpa angka
+PRD): **semua angka PRD cocok**. Yang PRD tidak tulis dan berubah karena keputusan 124: hasil R3 AC-M15 dan R3 fixture
+16g (20.8, 20.12). Task: RP-3a…RP-3d di `docs/tasks.md`.
+
+**Tanpa data baru** (keputusan 126): tidak ada kunci simpanan, `schemaVersion` tetap 2, metode tidak disimpan dan tidak
+ada di payload live, codec dan relay tidak disentuh, DBA tidak perlu. Point % hanya turunan dari match tersimpan (RP9):
+Kosongkan skor, Hapus WO, koreksi skor, Tukar pemain, Batalkan Rn tidak butuh kode tambahan.
+
+### 20.1 Model (`lib/models/models.dart`)
+
+- `enum RankingMethod { winPercent, totalGames, pointPercent }` — nilai baru di **akhir** (urutan enum tidak dipakai di
+  mana pun; tidak disimpan). `RankingMethodX.label`: `pointPercent => 'Point %'` (subjudul Detail ikut lewat `label`).
+- Urutan tab = **Total Point · Point % · Win %** (U-RP1), ditulis di satu tempat: daftar `options` `MabarSegmented` di
+  `leaderboard_screen.dart` (Klasemen host, Sparing per klub, dan penonton memakai layar yang sama).
+
+### 20.2 Hitungan (`lib/services/ranking/ranking_calculator.dart`)
+
+```dart
+class PlayerStanding {
+  // … field lama tetap …
+  /// Poin kalah dari WO (keputusan 125): nilai WO pasangan lawan. Hanya untuk Point %: tidak masuk [gameDiff]
+  /// maupun [totalPoint].
+  final int woPointsConceded;            // default 0, ikut _add
+
+  /// Dimainkan (RP1) = didapat ([totalPoint] = gamesWon + woPoints) + kalah (gamesLost + woPointsConceded).
+  int get pointsPlayed => totalPoint + gamesLost + woPointsConceded;
+
+  /// Point % sudah bulat (18.2): bilangan bulat saja, ,5 ke atas, sama di HP dan web. 0 kalau [pointsPlayed] 0.
+  int get pointPercent => pointsPlayed == 0 ? 0 : (200 * totalPoint + pointsPlayed) ~/ (2 * pointsPlayed);
+}
+```
+
+- **Pembulatan** persis `(200 × didapat + dimainkan) ~/ (2 × dimainkan)` (PRD 18.2): 5/8 → 63 (62,5 naik), 44/84 → 52,
+  65/126 → 52, 64/126 → 51, 16/30 → 53, 16/31 → 52. **Jangan** `double` + `.round()`: hasilnya kebetulan sama untuk
+  angka positif, tapi kontraknya bilangan bulat (AC-RP6) dan test 18E menguji batas ,5 lewat bilangan bulat.
+- **Pembagi 0** → 0, tidak pernah NaN. Kasus ini tidak terjadi di data sah (RP5: match Selesai total ≥ 1, nilai WO ≥ 1),
+  jadi tidak ada aturan tampil khusus: baris tanpa match Selesai/WO sudah `position == null` ("Belum main", "–").
+- **Seri** (RP2) tidak butuh cabang: 10–10 menambah 10 didapat + 10 kalah → 50%.
+- `RankingCalculator.woPairValue(int a, int b) => (a + b + 1) ~/ 2` (baru, static): nilai WO satu pasangan pemenang dari
+  nilai WO kedua pemainnya, ,5 ke atas = K11. `club_score.dart` baris 116–118 diganti memanggil fungsi ini (satu aturan,
+  satu tempat; hasilnya identik, test sparing lama tetap lulus).
+- `_standings`, langkah WO (sesudah semua match `done`, seperti sekarang):
+  1. `own` = jumlah game + jumlah match **done** per id, dihitung dari **semua id yang muncul di `matches`**, bukan dari
+     `table` (`players`). Alasan: `mexicanoOrder` dan `courtMatch` memanggil `rank` dengan **sebagian** pemain (yang
+     main round itu / empat pemain court), sedangkan pemenang WO lawannya bisa sedang istirahat. Untuk id yang ada di
+     `table` nilainya identik dengan `played` sekarang.
+  2. `valueOf(id) = _woValue(format, own[id]?.games ?? 0, own[id]?.count ?? 0)` (aturan 4.4 apa adanya, termasuk belum
+     pernah main → ⌊N ÷ 2⌋ + 1, Race to → N).
+  3. Per match `wo`: `winner` = pasangan `winnerPairId`; `conceded = woPairValue(valueOf(winner.player1Id),
+     valueOf(winner.player2Id))`. Pemain pemenang: `wins + 1`, `woPoints + valueOf(id)` (seperti sekarang). Pemain
+     pasangan WO: `losses + 1`, `woLosses + 1`, **`woPointsConceded + conceded`**.
+- Tidak berubah: `totalPoint`, `gameDiff`, `winPercent`, `matchPoints`, `woWinnerValues` (publik, dipakai skor klub),
+  `PlayerProfile`, `standingEntries`.
+
+### 20.3 Pembanding dan nomor (`RankingCalculator.compare`)
+
+```dart
+final byMethod = switch (method) {
+  RankingMethod.totalGames => b.totalPoint.compareTo(a.totalPoint),
+  RankingMethod.pointPercent => b.pointPercent.compareTo(a.pointPercent),   // angka bulat yang tampil (U-RP2)
+  RankingMethod.winPercent => b.winPercent.compareTo(a.winPercent),         // tetap nilai persis (18.2)
+};
+return byMethod != 0 ? byMethod : b.gameDiff.compareTo(a.gameDiff);
+```
+
+- RP4: Point % bulat → selisih → nomor sama, baris urut nama (`rank`), nomor rapat 1, 2, 2, 3 (`standingEntries` tanpa
+  perubahan). Total Point dan Win % **tidak** jadi pemisah.
+
+### 20.4 WO per mode
+
+Satu rumus untuk semua mode (20.2 langkah 3); tabel ini hanya menunjukkan kapan dua nilai pemenang bisa beda.
+
+| Mode | Nilai pemenang | Kalah untuk pasangan WO | Catatan |
+|---|---|---|---|
+| Race to N (semua mode) | N | N | `woPairValue(N, N) = N` |
+| Fixed Best of / Americano | rata-rata sendiri, min ⌊N÷2⌋+1 | biasanya = nilai pasangan | Setelah Atur pasangan (3.3a) dua anggota pasangan baru bisa punya riwayat beda → rata-rata ,5 ke atas. PRD 18.3 menulis "selalu sama"; rumus umum memberi hasil yang sama saat sama (20.12 #3) |
+| Mixed / Mexicano Best of / Americano | rata-rata sendiri tiap pemenang | `woPairValue(a, b)` | 18C: 14 + 17 → 16; AC-M15: 11 + 11 → 11 |
+| Sparing Fixed / Mixed | sama dengan baris di atas | sama | Skor klub (K2/K11) **tidak** berubah: `ClubResult` tidak membaca Point % |
+| Grup + Gugur (tabel grup) | format grup (`config.format`), hanya match `GroupPhase(g)` | sama (pasangan tetap → selalu satu angka) | Match gugur tidak masuk tabel grup (sudah begitu) |
+
+Selisih tidak berubah oleh WO (4.4): `woPointsConceded` tidak masuk `gameDiff`.
+
+### 20.5 Default dan pilihan tab
+
+- `RankingCalculator.defaultMethod`: `raceTo || bestOf → winPercent`, `americano → pointPercent` (keputusan 123).
+  Mexicano selalu Americano → Point %; Sparing Americano → Point % (satu provider untuk kedua klub).
+- `rankingMethodProvider` tidak berubah (menonton id + format, tidak disimpan; fallback `totalGames` saat tanpa
+  turnamen tetap). Penonton live memakai provider yang sama lewat `LiveTournamentController`, jadi default penonton =
+  default host dan tidak ada metode di payload (AC-RP14).
+- Grup + Gugur: `GroupKnockoutRanking.groupTables` sudah memakai `defaultMethod(config.format)` → grup Americano otomatis
+  Point % (U-RP6), termasuk `qualifierPlan` (tingkat dari `position`). **Tidak ada kode baru di sini**; hanya komentar
+  "keputusan 21" → "keputusan 21/123". Head-to-head lolos tetap dari skor match (tidak tergantung metode).
+
+### 20.6 Urutan Mexicano (`EndlessRoundGenerator.mexicanoOrder`)
+
+- `RankingMethod.totalGames` → `RankingMethod.pointPercent` di **dua** tempat (`rank` dan `compare`); undian lalu id
+  tetap (keputusan 124). Komentar fungsi dan `tournament_controller.dart:115` ikut ("Point %", bukan "Total Point").
+- Belum main = `pointsPlayed` 0 → `pointPercent` 0, selisih 0 (U-RP4, U8): dari 20.2 tanpa cabang.
+- Tidak membaca `rankingMethodProvider` (generator Dart murni, tidak tahu tab). `priorityOrder` (siapa main) tidak
+  berubah: hanya pengelompokan court yang berubah.
+- `courtMatch` (Kelola court Mexicano) memakai `mexicanoOrder` yang sama → ikut otomatis; empat pemainnya subset, jadi
+  20.2 langkah 1 wajib.
+- Akibat pada data lama (18.9, diterima): Mexicano yang berjalan memasangkan round berikutnya dari Point %; round yang
+  sudah dibuat tidak berubah.
+
+### 20.7 Tempat yang membaca (bentuk dari frame RP-1)
+
+Satu aturan untuk semua: **di mana Total Point menulis satuan, Point % juga** ("57% poin"); di tempat tanpa satuan
+"57%". Semua cabang metode ditulis sebagai `switch` pada `RankingMethod` (exhaustive), **bukan**
+`method == RankingMethod.totalGames` / `== winPercent`: nilai enum ketiga jatuh diam-diam ke cabang lain.
+
+| Tempat | Berkas | Nilai | Catatan |
+|---|---|---|---|
+| Klasemen host + penonton | `features/leaderboard/leaderboard_screen.dart` (baris 98, 109–111, 155) | `'${s.pointPercent}'`, judul kolom "Point %" (bentuk persis dan tanda % = frame, ikut Win %) | `tableMethod` grup juga bisa `pointPercent` (20.5) → label/nilai tabel grup ikut `switch` |
+| Sparing per klub | sama (`clubStandingEntriesProvider`) | sama | papan skor klub tetap "56 game · +13" |
+| Detail | `features/detail_player/detail_player_screen.dart` (statline 59–68) | item Point % **selalu** (U-RP5), `played ? '${s.pointPercent}' : '–'`, satuan "%" hanya kalau main | label dan letak = frame (5 item di 390). Subjudul "Peringkat n · Point % · …" otomatis lewat `label`; Sparing dan Grup + Gugur tanpa metode di subjudul (tetap). Grup + Gugur: angka = baris tabel grup (GU13) |
+| Poster Lengkap | `features/share/share_content.dart` `sharePosterData` (84–90) | `value: '${s.pointPercent}%'`, `detail: unit` | renderer (`share_poster.dart:494`) sudah menulis `detail` hanya di ukuran bersatuan → "57% poin · +9" / "57% · +9" |
+| Poster Ringkas | `share_content.dart` `podiumPosterData` (139–145) | `('${s.pointPercent}%', '$unit · ${s.diffLabel}')` | kepala klub Sparing (baris 207) tetap Total Point klub |
+| Caption | `services/share/result_text_builder.dart` | baris di bawah | `build(…, required RankingMethod method)`; `share_result_screen.dart` mengoper metode yang sama dengan poster |
+| Urutan Mexicano | 20.6 | — | apa pun tab |
+| Tabel grup | 20.5 | — | tanpa tab |
+
+Caption (U-RP3), hanya `method == pointPercent`; Total Point dan Win % **byte-sama** dengan 3.8.1 (termasuk
+`winPercent.toStringAsFixed(1)` dan format selisih yang ada):
+
+```
+'$position. ${entry.label} — ${s.totalPoint} $unit · ${s.pointPercent}% $unit '
+'(${s.wins}-${s.losses}${canDraw ? '-${s.draws}' : ''}, ${diff >= 0 ? '+' : ''}$diff $unit)'
+```
+
+18A tab Point %, baris pertama: `1. Budi — 36 poin · 57% poin (3-0, +9 poin)`. Grup + Gugur (`stage`) tidak berubah.
+
+### 20.8 Data test (dihitung ulang dari aturan; Padel/Tennis sesuai PRD; id pemain = nama)
+
+Format kolom: didapat / dimainkan → Point % · selisih · Total Point · W–L.
+
+| ID | Data | Hasil yang diharapkan |
+|---|---|---|
+| AC-RP3 18A | Mixed Americano 21, 5 pemain, 1 court: R1 Andi·Budi 12–9 Citra·Dewi · R2 Andi·Citra 10–11 Budi·Eko · R3 Andi·Eko 8–13 Budi·Dewi · R4 Andi·Dewi 11–10 Citra·Eko | Budi 36/63 → 57 · +9 · 36 · 3–0 #1; Dewi 33/63 → 52 · +3 · 33 · 2–1 #2; Andi 41/84 → 49 · −2 · 41 · 2–2 #3; Citra 29/63 → 46 · −5 #4; Eko 29/63 → 46 · −5 #4 (urut nama Citra, Eko). Total Point: Andi 41 #1, Budi 36 #2, Dewi 33 #3, Citra/Eko 29 #4. Win %: Budi #1, Dewi #2, Andi #3, Eko #4, Citra #5. Σ didapat 168 |
+| AC-RP4 18B | Fixed Race to 6, 4 pasangan: R1 AB 5–6 CD, EF 6–2 GH · R2 AB 5–6 EF, CD 6–5 GH · R3 AB 6–0 GH, CD 0–6 EF | default Win %: EF #1, CD #2, AB #3, GH #4. Point %: EF 18/25 → 72 · +11 #1; AB 16/28 → 57 · +4 #2; CD 12/28 → 43 · −4 #3; GH 7/25 → 28 · −11 #4. Σ 53 |
+| AC-RP5 18C | Mixed Americano 21, 8 pemain, 2 court: R1 Andi·Eko 13–8 Citra·Fajar, Budi·Gita 16–5 Dewi·Hadi · R2 Andi·Fajar 15–6 Dewi·Gita, Budi·Hadi 18–3 Citra·Eko · R3 Andi·Budi WO (Citra·Dewi kalah), Eko·Gita 11–10 Fajar·Hadi | nilai WO Andi 14, Budi 17, `woPairValue` 16. Budi 51/59 → 86 · +26 #1; Andi 42/56 → 75 · +14 #2; Fajar, Gita, Hadi 33/63 → 52 · +3 #3; Eko 27/63 → 43 · −9 #4; Citra, Dewi 11/58 → 19 · −20 #5. `woPointsConceded` Citra = Dewi = 16. Σ didapat 241 |
+| AC-RP5 18C-hapus | 18C, match WO R3 Court 1 → pending (Hapus WO) | Andi 28/42 → 67, Budi 34/42 → 81, Citra = Dewi 11/42 → 26; selisih Andi +14, Citra −20 tidak berubah |
+| AC-RP6 18E | `PlayerStanding` langsung (tanpa match): Sari 66/60, Qori 44/40, Rani 65/61, Tono 64/62 (gamesWon/gamesLost, `wins ≥ 1`) | `pointPercent` 52, 52, 52, 51; `standingEntries(pointPercent)`: Sari #1, Qori #2, Rani #2, Tono #3. Best of 5 3–0 + 2–3 → 63 |
+| AC-RP6 bulat | `PlayerStanding(gamesWon, gamesLost)` | 5/3 → 63 · 44/40 → 52 · 65/61 → 52 · 64/62 → 51 · 16/14 → 53 · 16/15 → 52 · 10/10 → 50 (AC-RP8) · 0/0 → 0 |
+| 4.2 | Race to 6: Gita·Andi 2W–1L 16/15 (+1), Dewi·Citra 1W–2L 16/14 (+2); A 5–6, 5–6, 6–0; B 6–5, 6–5, 0–6 | Win %: Gita·Andi di atas; Point %: Dewi·Citra 53 di atas Gita·Andi 52. A 57 di atas B 43 (Win %: B di atas) |
+| AC-RP8 | Mixed Americano 20, satu match 10–10, pemain lain belum main | keempat pemain 50%, nomor sama #1; sisanya "Belum main" |
+| AC-RP11 18D | 14B: undian R1/R2 = §14.4, skor R1 15–6, 9–12, R2 12–9, 10–11; undian R3 disuntik **Andi, Fajar, Gita, Eko, Citra, Hadi, Indra, Joko, Budi, Dewi** | setelah R2: Citra 15/21 → 71 · +9; Andi 27/42 → 64 · +12; Hadi 12/21 → 57 · +3; Joko 11/21 → 52 · +1; Fajar 21/42 → 50 · 0; Gita 21/42 → 50 · 0; Indra 10/21 → 48 · −1; Eko 18/42 → 43 · −6; Dewi 17/42 → 40 · −8; Budi 16/42 → 38 · −10. R3: Budi, Dewi istirahat; C1 Citra, Andi, Hadi, Joko beban 0/0/1 → **A Citra·Hadi vs Andi·Joko**; C2 Fajar, Gita, Indra, Eko beban 1/1/0 → **C Fajar·Gita vs Indra·Eko** (undian lain dengan Gita di atas Fajar → Gita·Fajar vs Indra·Eko). Sama persis saat `rankingMethodProvider` = tiap tab |
+| AC-M15 (berubah) | 14A, R2 Court 2 WO (Gita·Budi kalah) | Eko 20/32 → 63 · −3; Citra 26/42 → 62 · +10; Andi 25/42 → 60 · +8; Fajar 23/42 → 55 · +4; Dewi 17/32 → 53 · −9; Hadi 22/42 → 52 · +2; Gita 9/32 → 28 · −3; Budi 6/32 → 19 · −9 (kalah 11 dari WO). Tanpa seri → undian apa pun: R3 **C1 Eko, Citra, Andi, Fajar beban 1/1/0 → C Eko·Citra vs Andi·Fajar · C2 Dewi, Hadi, Gita, Budi beban 0/1/1 → A Dewi·Gita vs Hadi·Budi**. Sampai 3.8.x R3 = R3 (a); test `mexicano_test.dart` "AC-M15" diubah ke angka ini |
+| 16g (berubah) | fixture `mexicano_fixture.dart` (14B R2 12–9, 10–11, Gita keluar, undian R3 §14.4) | R3 Budi istirahat; urutan Citra 71, Andi 64, Hadi 57, Joko 52, Fajar 50, Indra 48, Eko 43, Dewi 40 → **C1 Citra, Andi, Hadi, Joko 0/0/1 → A Citra·Hadi vs Andi·Joko · C2 Fajar, Indra, Eko, Dewi 1/0/0 → B Fajar·Dewi vs Indra·Eko** (A beban 1: Fajar·Eko R2). Sampai 3.8.x: A Andi·Eko vs Fajar·Dewi · A Citra·Joko vs Hadi·Indra. Test 16g + frame 16g + `16-mexicano.md` baris 78 ikut |
+| AC-M4/M5/M6/M7 | 14A–14C apa adanya | **tidak berubah** (jumlah main sama, tiap match total 21 → urutan Point % = Total Point; dicek: tidak ada dua Total Point beda yang bulat ke persen sama) |
+| AC-RP12 13C | Sparing Race to 6, jadwal 13A/13C | Garuda: Eko·Fajar 18/25 → 72 · +11 #1; Andi·Budi 14/27 → 52 · +1 #2; Gita·Hadi 14/30 → 47 · −2 #3; Citra·Dewi 10/23 → 43 · +3 #4 (kalah 7 + 6 WO). Matcha: Maya·Nanda 23/36 → 64 · +4 #1; Kiki·Lina 16/35 → 46 · −3 #2; Indra·Joko 10/34 → 29 · −14 #3. Skor klub 7 – 5, "56 game · +13" / "49 game · −13" sama di ketiga tab |
+| AC-RP13 | Grup + Gugur, format grup Americano 21, satu grup dengan jumlah main sama tapi satu match berhenti lebih awal atau satu WO sehingga Total Point dan Point % memberi 2 teratas beda | `groupTables[g].method == pointPercent`; `qualifierPlan` mengambil 2 teratas Point % → selisih. Grup Race to/Best of: tabel dan lolos byte-sama dengan 3.8.1. Data disusun engineer (PRD tidak memberi angka); tulis angkanya di nama test |
+| AC-RP2 | `defaultMethod` | Race to 6 → winPercent, Best of 5 → winPercent, Americano 21/24 → pointPercent, `ScoreFormat.forMexicano` → pointPercent |
+| Golden data (fixture lama) | `ranking_fixture.dart` set1 (09a/09b, 10a, 10c; Americano 24) | default Point %: Andi, Dewant 42/72 → 58 · +12 #1; Gina 27/48 → 56 · +6 #2; Citra 26/48 → 54 · +4 #3; Hana 36/72 → 50 · 0 #4; Joko 23/48 → 48 · −2 #5; Eko 22/48 → 46 · −4 #6; Budi, Indra 20/48 → 42 · −8 #7; Fajar 30/72 → 42 · −12 #8; Gilang S belum main. (Fajar 41,67% dan Budi 41,67% sama-sama 42%: contoh nomor dari angka bulat) |
+| Golden data (fixture lama) | `ranking_fixture.dart` set2 (09d–09f; R2 C2 WO Dewant·Gina kalah dari Budi·Joko) | nilai WO Budi 14, Joko 13 → `woPairValue` 14. Budi 42/62 → 68 · +8 #1; Eko 43/72 → 60 · +14 #2; Andi 41/72 → 57 · +10 #3; Indra 25/48 → 52 · +2 #4; Joko 30/61 → 49 · −14 #5; Fajar 34/72 → 47 · −4 #6; Hana 21/48 → 44 · −6 #7; Citra 31/72 → 43 · −10 #8; Dewant 25/62 → 40 · +2 #9; Gina 23/62 → 37 · −2 #10. Satu-satunya fixture golden dengan dua nilai WO pemenang beda |
+
+### 20.9 Invariant
+
+1. `pointPercent` ∈ [0, 100], bilangan bulat, tidak pernah NaN; `pointsPlayed ≥ 1` untuk setiap pemain dengan match
+   Selesai/WO di data sah.
+2. Σ didapat semua pemain = Σ (skor kedua sisi × jumlah pemain sisi) + Σ nilai WO pemenang; Σ `woPointsConceded` per
+   match WO = `woPairValue` × jumlah pemain kalah.
+3. Nilai Point % seorang pemain **tidak tergantung** daftar `players` yang dioper ke `rank` (subset = semua) dan tidak
+   tergantung metode.
+4. WO tidak mengubah `gameDiff` siapa pun; `totalPoint`, `winPercent` dan skor klub byte-sama dengan 3.8.1.
+5. Urutan Mexicano dan hasil Buat R(n+1) tidak tergantung `rankingMethodProvider`.
+6. Nomor dari tab Point % = nomor yang dibaca Detail, poster, caption, dan penonton untuk tab yang sama (satu
+   `standingEntriesProvider`).
+
+### 20.10 Test wajib
+
+- `test/services/point_percent_test.dart` (baru) + `point_percent_fixture.dart` (18A, 18B, 18C, 13C memakai fixture
+  sparing yang ada): semua baris 20.8 kecuali Mexicano; properti invariant 1–4 pada turnamen Mixed/Mexicano/Fixed acak
+  berseed (pola `mexicano_property_test.dart`) dengan ±10% WO, termasuk `rank(subset)` = `rank(semua)` per pemain.
+- `test/services/mexicano_test.dart`: AC-M15 dan 16g diubah ke 20.8; 18D (AC-RP11) baru; AC-M4–M7 tidak disentuh.
+  `mexicano_property_test.dart`: oracle invariant 3 (§14.3) memakai `pointPercent`.
+- `test/services/group_knockout_ranking_test.dart`: AC-RP13.
+- `test/services/sparing_score_test.dart`: 13C Point % per klub + skor klub tetap; `woPairValue` menggantikan rumus
+  K11 tanpa mengubah hasil test lama.
+- `test/services/result_text_builder_test.dart`: caption 18A tab Point %; Total Point/Win % byte-sama (test lama lulus
+  setelah menambah `method:`).
+- Provider (`test/features/…`, pola `sparing_providers_test.dart`): default per format AC-RP2; ganti tab bertahan, ganti
+  turnamen → default; penonton (`LiveTournamentController`) default = host (AC-RP14).
+- Widget/golden: per frame RP-1 (daftar di `docs/tasks.md` RP-3b…RP-3d).
+
+### 20.11 Jebakan untuk engineer dan reviewer
+
+1. **Win % tetap dibandingkan dari nilai persis** (`double`); hanya Point % dari angka bulat. Jangan "menyamakan".
+2. Total Point dan Win % **tidak pernah** pemisah Point % (dan sebaliknya); pemisah satu-satunya = selisih.
+3. Pembulatan bilangan bulat `(200w + p) ~/ (2p)`; bukan `toStringAsFixed`, bukan `double.round()`.
+4. `woPointsConceded` hanya ke `pointsPlayed`: tidak ke `gameDiff`, tidak ke `totalPoint`, tidak ke skor klub.
+5. Nilai WO pemenang dihitung untuk **semua id di `matches`**, bukan hanya `players`: `mexicanoOrder`/`courtMatch`
+   mengoper subset (20.2 langkah 1). Test invariant 3 menangkapnya.
+6. Kalah WO = `woPairValue(nilai pemenang 1, nilai pemenang 2)`, bukan nilai salah satu pemenang dan bukan rata-rata
+   `double`. Satu fungsi dipakai `_standings` dan `ClubResult`.
+7. Urutan Mexicano tidak tergantung tab: generator tidak menerima metode; jangan menambah parameter.
+8. Ganti setiap `method == RankingMethod.totalGames` / `== winPercent` (leaderboard 98/109, share_content 84/139) dengan
+   `switch` exhaustive; grep `RankingMethod.` sebelum selesai.
+9. Grup + Gugur: jangan menambah aturan default sendiri; `defaultMethod` sudah dipakai `groupTables`. `GroupTable.method`
+   bisa `pointPercent` → label/nilai tabel grup lewat `switch` yang sama.
+10. Caption Total Point / Win % byte-sama dengan 3.8.1; poster dari tab Total Point / Win % sama persis (AC-RP10).
+11. Skor klub Sparing (K2) dan kepala klub poster tetap Total Point klub di semua tab.
+12. **Golden yang berubah karena default Americano berganti** (tanpa kode layar diubah): semua frame Americano/Mexicano
+    yang membuka Klasemen, Detail, atau Bagikan di metode default — 09a/09b/09d–09f (set1/set2), 10a/10c, 11a/11c (data
+    09a), 14u (Sparing Americano 20), 15t (Mixed Sparing Americano 21), 16x yang menampilkan Klasemen/R3, 12x penonton
+    dengan data Americano. Test yang ingin tetap menggambar Total Point wajib menyetel `rankingMethodProvider` (pola
+    yang sudah ada untuk Race to). Statline Detail berubah di **semua** frame Detail (U-RP5): 10a–10e, 14v, 14w, 15u,
+    15v, 22j, 22k, dan Detail penonton bila ada. Daftar persis per task di `docs/tasks.md`.
+13. Test lama yang berubah angka/hasil hanya: AC-M15 R3, 16g R3, oracle `mexicano_property_test`, dan golden di #12.
+    Test lain yang gagal = regresi.
+
+### 20.12 Selisih PRD dan pertanyaan terbuka
+
+1. **AC-M15 R3 berubah** (PRD 14.9 hanya menulis Point % keempat pemain, §14.4 baris AC-M15 menulis "= R3 (a)"):
+   dengan Point % Eko 63% di atas Citra 62%, R3 = Eko·Citra vs Andi·Fajar · Dewi·Gita vs Hadi·Budi (20.8). Ini akibat
+   keputusan 124, bukan keputusan baru. Rekomendasi: product-manager menambah hasil R3 ini ke AC-M15 PRD 14.9.
+2. **Fixture/frame 16g R3 berubah** (20.8): R3 = Citra·Hadi vs Andi·Joko · Fajar·Dewi vs Indra·Eko. Designer RP-1
+   memperbarui 16g (bila R3 terlihat) dan `16-mexicano.md` baris 78; golden 16g di RP-3d.
+3. PRD 18.3 "Fixed dan Race to: satu angka (kedua pemenang selalu sama)" tidak berlaku untuk Fixed Best of/Americano
+   setelah Atur pasangan (3.3a): dua anggota pasangan baru bisa punya nilai WO beda. Spec memakai rumus umum
+   `woPairValue` (hasilnya sama kalau nilainya sama), tanpa perilaku baru. Rekomendasi: product-manager merapikan
+   kalimat 18.3 ("Race to: satu angka; selain itu rata-rata kedua pemenang").
+4. Detail menampilkan 5 angka (Total Point, Point %, Win, W–L, Selisih) di 390: letak dan label ("Point" bersebelahan
+   "Poin") menunggu frame RP-1; kode layar tidak mulai sebelum frame.
