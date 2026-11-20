@@ -32,7 +32,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Deret tema Lengkap = deret Ringkas (keputusan 76): lapangan (bawaan, lantai ikut olahraga) + 10 gradien, 11 lingkaran 27 pt. Gradien yang dipilih berlaku untuk kedua format; pilihan tidak disimpan. Peach: kepala, blok, dan panel memakai tinta tema; warna turunannya sama dengan poster podium.
 - Pratinjau 358 × 372 memakai tata letak Feed (panel 13 dari kiri/kanan); gambar Feed dan Story di 11g.
 
-## 11c · Gagal share · hasil disalin
+## 11c · Gagal share · gambar diunduh · hasil disalin
 
 ![11c](../../frames/11c.png)
 
@@ -40,7 +40,9 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Saat merender dua poster, tombol mati dengan teks "Menyiapkan gambar…" (ketukan ganda diabaikan). Frame ini menggambar momen sesudahnya: tombol aktif lagi dan toast tampil (keputusan host 2026-10-22).
 - Toast selalu 19 pt di atas action bar, seperti posisi bawaannya. Di sini action bar berisi dua tombol (161 pt), jadi bawah toast di 180 pt; posisi bawaan 118 pt untuk action bar satu tombol akan menutupi "Bagikan hasil" (keputusan host 2026-10-22).
-- Kalau share sheet gagal (desktop/web tertentu), caption disalin ke clipboard dan muncul toast "Hasil disalin". Tidak ada tombol salin terpisah.
+- Share sheet sistem gagal atau tidak ada (desktop, browser tertentu): kedua PNG diunduh dengan nama yang sudah ada (`match-addict-feed-1080x1080.png`, `match-addict-story-1080x1920.png`), caption disalin ke clipboard, toast "Gambar diunduh · hasil disalin" (keputusan 117, mengganti aturan 2026-10-22 yang hanya menyalin caption). Tidak ada tombol baru; tetap tanpa tombol salin terpisah.
+- Share sheet ditutup tanpa memilih aplikasi bukan gagal: tidak ada unduhan dan tidak ada toast. Gambar gagal dibuat → hanya caption disalin + "Hasil disalin" (11n).
+- Android/iOS app: share sheet sistem selalu ada. Kalau tetap gagal, perilaku frame ini hanya kalau gambar bisa disimpan tanpa izin atau dependensi baru (dicek tech lead); selain itu 11n.
 - Caption: semua baris peringkat; format Lengkap menambah "Hasil per Round". Baru: satuan "game"/"poin" mengikuti metode skor.
 - Tanpa nama turnamen (data 11a): judul "Klasemen sementara", baris kecil "olahraga · mode · tanggal", baris fakta tanpa olahraga.
 
@@ -164,3 +166,13 @@ Komponen: `SharePoster`
 - Story: belum ada match selesai (keputusan 69) → lapangan tanpa blok (lantai memakai kedalaman podium mini Story 8:5). Panel hanya wordmark + fakta "R1 · 0 dari 3 match", seperti 18t. Kolom judul tetap selebar tiga anak tangga (126), jadi judul tidak bergeser setelah match pertama selesai. Feed memakai aturan yang sama.
 - Baris kecil "Klasemen sementara · 6 Nov 2026" lebih lebar dari kolom judul Story → 15 dikecilkan per 0,5 sampai 13 (keputusan 84). Judul dua baris di 23.
 - Data (sama dengan 18s/18t): Americano 21, 12 pemain, 3 court. Feed: R1 tiga skor 12–9 → enam pemain 12 · +3 (#1), enam 9 · −3 (#2), jumlah selisih 0. Story: R1 belum ada skor.
+
+## 11n · Gambar gagal dibuat · hasil disalin
+
+![11n](../../frames/11n.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarToast`, `SharePoster`, `PodiumPoster (PodiumScenePainter)`
+
+- Dua poster gagal di-render (gambar tidak jadi): tidak ada yang diunduh dan share sheet tidak dibuka; caption disalin ke clipboard + toast "Hasil disalin" (keputusan 117, PRD 17.10 B-10). Latar = 11c persis; hanya teks toast yang beda.
+- Toast 19 pt di atas action bar dua tombol (bawah 180 pt), sama dengan 11c.
+- Android/iOS app yang tidak bisa menyimpan gambar tanpa izin atau dependensi baru: share sheet gagal → frame ini juga.

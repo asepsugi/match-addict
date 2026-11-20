@@ -26,7 +26,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 - Hasil parser tampil sebagai daftar bernomor dua kolom (`.roster`), urut ke bawah dulu. Nomornya memastikan penomoran dari WhatsApp sudah dibuang dan jumlahnya pas; kolom rata membuat 30 nama tetap rapi, tidak seperti chip yang membungkus tidak rata.
 - Teks berisi 9 baris; kotak menampilkan 6 dan sisanya di-scroll (garis scroll di kanan).
 - Duplikat (tidak peka huruf besar) tidak masuk daftar; yang pertama dipertahankan. Namanya disebut di catatan bawah, seperti sekarang.
-- Setelah ada isi, toolbar: Tempel + Hapus semua. "Tempel" menambahkan di baris baru (kalau kosong, mengganti isi). "Hapus semua" langsung mengosongkan tanpa konfirmasi, dan Contoh muncul lagi.
+- Setelah ada isi, toolbar: Tempel + Hapus semua. "Tempel" menambahkan di baris baru (kalau kosong, mengganti isi). "Hapus semua" langsung mengosongkan tanpa dialog → 02e, toolbar "Tempel · Urungkan" (keputusan 115).
 - Jumlah ditulis sekali di label daftar; tombol cukup "Lanjut" → Konfigurasi dengan olahraga + daftar pemain.
 
 ## 02c · Jumlah belum memenuhi
@@ -48,3 +48,16 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 - Catatan clay "Maksimal 30 pemain" menggantikan "Minimal 4", sama seperti pesan error di Konfigurasi. Daftarnya tidak ikut diwarnai. Tombol mati.
 - Begitu konten ter-scroll ke bawah app bar, app bar mendapat garis tipis di bawahnya.
 - Nama panjang dipotong elipsis di kolomnya; nama lengkapnya tetap tersimpan.
+
+## 02e · Sesudah Hapus semua · Urungkan
+
+![02e](../../frames/02e.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `MabarField`, `NameListField`
+
+- Dari 02b: "Hapus semua" langsung mengosongkan kotak, tanpa dialog (keputusan 115, PRD 17.10 A-8). Daftar, label jumlah, dan catatan duplikat hilang; placeholder 02a tampil lagi; Lanjut mati.
+- Toolbar "Tempel · Urungkan": Urungkan (ikon `arrow-counter-clockwise`, biru seperti Contoh) menempati tempat Contoh. Tetap dua tombol, jadi muat di HP 360 dp.
+- Urungkan → teks kembali persis seperti sebelum Hapus semua, termasuk baris duplikat yang dibuang parser: 9 baris, 8 pemain, "Duplikat dibuang: andi p", Lanjut aktif, toolbar Tempel … Hapus semua (02b).
+- Urungkan hilang begitu isi kotak berubah dengan cara lain: ketik "R" → 1 pemain, toolbar Tempel … Hapus semua (pola 02c); Tempel → isi tempelan, toolbar Tempel … Hapus semua. Kotak kosong lagi sesudah itu → "Tempel · Contoh" (02a).
+- Hanya Hapus semua terakhir yang bisa diurungkan; keluar dari layar (←, back HP) membuangnya.
+- Sparing (13a–13g): sama, per kotak klub. Hapus semua di satu klub tidak menyentuh kotak klub lain, dan Urungkan klub itu hanya ada di toolbar kotaknya.

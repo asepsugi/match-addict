@@ -157,7 +157,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarSegmented`, `PairList`
 
-- Acak tetap bisa dipilih (G3). Sama dengan 04a; pindah ke Acak membuang hasil Manual, kembali ke Manual mengosongkan (04b).
+- Acak tetap bisa dipilih (G3). Sama dengan 04a; pindah ke Acak dengan pasangan manual yang sudah jadi → dialog "Buang N pasangan manual?" (04i), kembali ke Manual mengosongkan tanpa dialog (04b).
 
 ## 19q · Pasangan · 17 pemain · ganjil
 
@@ -205,7 +205,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarSegmented`, `PairList`
 
 - Acak opsional (GU2): semua pasangan langsung terbagi, ukuran ikut yang ditetapkan. "Acak ulang" di label jumlah, seperti 04a. Baris tanpa chip (tidak bisa diketuk), tinggi 40 pt.
-- Aturan pindah sama dengan Pasangan (04b): ke Acak membuang hasil Manual, kembali ke Manual mengosongkan semua grup tanpa konfirmasi.
+- Aturan pindah: ke Acak membuang hasil Manual dan kembali ke Manual mengosongkan semua grup, keduanya tanpa dialog (keputusan 103 dan 116; beda dengan Pasangan 04i).
 
 ## 19v · Grup · 7 pasangan · 5 + 2 · tidak valid
 
