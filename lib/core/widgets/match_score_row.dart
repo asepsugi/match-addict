@@ -28,6 +28,9 @@ class MatchScoreSide {
   final String? tag;
   final VoidCallback? onSwap;
 
+  /// `.swap-in` — indeks nama yang ditulis tebal tinta (pemain yang masuk di pratinjau Tukar, C-15).
+  final Set<int> boldNames;
+
   /// `.gg-seed` — kode slot lolos ("A1") di kolom tetap 22 pt sebelum nama (match gugur). Null = tanpa kolom; kosong
   /// = kolom tetap ada supaya nama sejajar (sisi yang belum diketahui).
   final String? seed;
@@ -43,6 +46,7 @@ class MatchScoreSide {
     this.win = false,
     this.tag,
     this.onSwap,
+    this.boldNames = const {},
     this.seed,
     this.tbd = false,
   });
@@ -130,7 +134,10 @@ class MatchScoreRow extends StatelessWidget {
     final number = Semantics(
       label: badgeSemantics ?? badge,
       excludeSemantics: true,
-      child: Text(badge, style: MabarType.numM.copyWith(fontSize: badgeFontSize, color: Colors.white, height: 1.4)),
+      child: Text(
+        badge,
+        style: MabarType.numM.copyWith(fontSize: badgeFontSize, color: Colors.white, height: 1.4),
+      ),
     );
     final end = trailing != null
         ? Padding(padding: const EdgeInsets.only(right: 12), child: trailing)
@@ -152,7 +159,12 @@ class MatchScoreRow extends StatelessWidget {
               alignment: Alignment.center,
               child: countdown == null
                   ? number
-                  : Column(children: [Expanded(child: Center(child: number)), _clock(countdown!)]),
+                  : Column(
+                      children: [
+                        Expanded(child: Center(child: number)),
+                        _clock(countdown!),
+                      ],
+                    ),
             ),
             Expanded(
               child: Padding(
@@ -179,9 +191,9 @@ class MatchScoreRow extends StatelessWidget {
                           maxLines: 1,
                           softWrap: false,
                           style: MabarType.body.copyWith(
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            height: 14 / 12,
+                            height: 14 / 13,
                             color: MabarColors.ink3,
                           ),
                         ),
@@ -349,15 +361,21 @@ class _TeamNames extends StatelessWidget {
     final names = side.names;
     final full = '${side.prefix}${names.join(_separator)}';
     Text text(String value) => Text(value, style: style, maxLines: 1, overflow: TextOverflow.ellipsis);
-    if (names.length < 2) return text(full);
+    if (names.length < 2 && side.boldNames.isEmpty) return text(full);
+    TextStyle styleOf(int i) =>
+        side.boldNames.contains(i) ? style.copyWith(fontWeight: FontWeight.w700, color: MabarColors.ink) : style;
+    Text nameText(String value, int i) => Text(value, style: styleOf(i), maxLines: 1, overflow: TextOverflow.ellipsis);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final measured = DefaultTextStyle.of(context).style.merge(style);
         final scaler = MediaQuery.textScalerOf(context);
-        double width(String value) {
+        double width(String value, [int? i]) {
           final painter = TextPainter(
-            text: TextSpan(text: value, style: measured),
+            text: TextSpan(
+              text: value,
+              style: i == null ? measured : DefaultTextStyle.of(context).style.merge(styleOf(i)),
+            ),
             textDirection: TextDirection.ltr,
             textScaler: scaler,
           )..layout();
@@ -366,8 +384,26 @@ class _TeamNames extends StatelessWidget {
           return result;
         }
 
-        if (width(full) <= constraints.maxWidth) return text(full);
-        final natural = [for (final n in names) width(n)];
+        final natural = [for (final (i, n) in names.indexed) width(n, i)];
+        final fits = natural.fold(0.0, (a, b) => a + b) + width(side.prefix) + (names.length - 1) * width(_separator);
+        if (fits <= constraints.maxWidth) {
+          if (side.boldNames.isEmpty) return text(full);
+          // Satu Text.rich: tetap satu baris teks utuh (terbaca sebagai "Budi · Eko"), hanya nama masuk yang tebal.
+          return Text.rich(
+            TextSpan(
+              style: style,
+              children: [
+                if (side.prefix.isNotEmpty) TextSpan(text: side.prefix),
+                for (final (i, n) in names.indexed) ...[
+                  if (i > 0) const TextSpan(text: _separator),
+                  TextSpan(text: n, style: styleOf(i)),
+                ],
+              ],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+        }
         final widths = _fairWidths(
           natural,
           constraints.maxWidth - width(side.prefix) - (names.length - 1) * width(_separator),
@@ -378,7 +414,10 @@ class _TeamNames extends StatelessWidget {
             for (var i = 0; i < names.length; i++) ...[
               if (i > 0) Text(_separator, style: style),
               // Nama yang utuh tidak dibungkus lebar hasil hitungan: pembulatan bisa memunculkan elipsis.
-              if (widths[i] < natural[i]) SizedBox(width: widths[i], child: text(names[i])) else text(names[i]),
+              if (widths[i] < natural[i])
+                SizedBox(width: widths[i], child: nameText(names[i], i))
+              else
+                nameText(names[i], i),
             ],
           ],
         );

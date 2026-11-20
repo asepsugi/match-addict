@@ -87,7 +87,7 @@ class _SwapPlayerState extends ConsumerState<_SwapPlayer> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ScheduleMatchRow(active: active, match: shown, now: widget.now, preview: true),
+        ScheduleMatchRow(active: active, match: shown, now: widget.now, preview: true, swapInId: incoming),
         const SizedBox(height: 16),
         MabarGroupHeader.text('Diganti'),
         const SizedBox(height: 8),

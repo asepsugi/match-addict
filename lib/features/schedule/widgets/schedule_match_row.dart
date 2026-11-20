@@ -35,6 +35,9 @@ class ScheduleMatchRow extends StatelessWidget {
   final VoidCallback? onSwapBottom;
   final bool preview;
 
+  /// Pemain yang masuk di pratinjau Tukar: namanya tebal tinta (`.swap-in`).
+  final String? swapInId;
+
   const ScheduleMatchRow({
     super.key,
     required this.active,
@@ -45,6 +48,7 @@ class ScheduleMatchRow extends StatelessWidget {
     this.onSwapTop,
     this.onSwapBottom,
     this.preview = false,
+    this.swapInId,
   });
 
   @override
@@ -59,13 +63,13 @@ class ScheduleMatchRow extends StatelessWidget {
     final hasTbd = match.pair1.isTbd || match.pair2.isTbd;
     MatchScoreSide side(Pair pair, int score, VoidCallback? onSwap, SideSource? source) {
       if (pair.isTbd) {
-        return MatchScoreSide(
-          names: [if (source != null) KnockoutBracket.sourceLabel(source)],
-          seed: '',
-          tbd: true,
-        );
+        return MatchScoreSide(names: [if (source != null) KnockoutBracket.sourceLabel(source)], seed: '', tbd: true);
       }
       final names = pairNames(active, pair);
+      final bold = {
+        for (final (i, id) in pair.playerIds.indexed)
+          if (id == swapInId) i,
+      };
       final seed = phase is KnockoutPhase ? (KnockoutBracket.seedOf(active, pair.id) ?? '') : null;
       return switch (match.status) {
         MatchStatus.done => MatchScoreSide(
@@ -81,7 +85,7 @@ class ScheduleMatchRow extends StatelessWidget {
           tag: match.woReason == null ? 'WO' : 'WO · ${match.woReason!.label}',
         ),
         MatchStatus.wo => MatchScoreSide(names: names, seed: seed, win: true),
-        _ => MatchScoreSide(names: names, seed: seed, onSwap: onSwap),
+        _ => MatchScoreSide(names: names, seed: seed, onSwap: onSwap, boldNames: bold),
       };
     }
 

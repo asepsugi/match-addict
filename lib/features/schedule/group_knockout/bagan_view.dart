@@ -171,7 +171,7 @@ class _BaganLayout {
 
     final four = gk.groupCount == 4;
     final babak = [if (four) KnockoutRound.quarterfinal, KnockoutRound.semifinal, KnockoutRound.finalRound];
-    final columnWidth = babak.length <= 2 ? 172.0 : 160.0;
+    final columnWidth = babak.length <= 2 ? 172.0 : 153.0;
     final step = columnWidth + _columnGap;
     int columnOf(KnockoutRound r) => r == KnockoutRound.thirdPlace ? babak.length - 1 : babak.indexOf(r);
 
@@ -276,8 +276,8 @@ class _ColumnHeader extends StatelessWidget {
 
   static const _style = TextStyle(
     fontFamily: MabarType.family,
-    fontSize: 12,
-    height: 18 / 12,
+    fontSize: 13,
+    height: 18 / 13,
     fontWeight: FontWeight.w700,
     fontVariations: [FontVariation('wdth', 90)],
     color: MabarColors.ink,
@@ -317,7 +317,7 @@ class _BaganCard extends StatelessWidget {
 
   static const _head = TextStyle(
     fontFamily: MabarType.family,
-    fontSize: 12,
+    fontSize: 13,
     height: 1.4,
     fontWeight: FontWeight.w600,
     color: MabarColors.ink3,
