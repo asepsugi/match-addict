@@ -206,6 +206,14 @@ def semantics(s):
     return lines + ['']
 
 
+def separators(s):
+    # Aturan pemisah (3.9.0, B-22) disalin dari panel #pemisah hi-fi, seperti #semantics.
+    panel = block(s, s.index('<div class="panel wide" id="pemisah">'))
+    return (['## Pemisah nama dan label', '', md(re.search(r'<p>(.*?)</p>', panel, re.S).group(1)) +
+             ' Sumber: hi-fi → Komponen → "Pemisah nama dan label" (`#pemisah`).', ''] +
+            [f'- {md(li)}' for li in re.findall(r'<li>(.*?)</li>', panel, re.S)] + [''])
+
+
 def write_specs(flows, rules, s):
     used = {}
     for flow in flows:
@@ -236,6 +244,7 @@ def write_specs(flows, rules, s):
                  'Dipakai di frame: ' + (', '.join(used.get(name, [])) or '— (hanya di bagian Komponen/Fondasi)'), '', '```css']
         comp += [f'{sel} {{ {body} }}' for sel, body in mine] + ['```', '']
     comp += semantics(s)
+    comp += separators(s)
     open(os.path.join(DESIGN, 'spec', 'components.md'), 'w', encoding='utf-8').write('\n'.join(comp))
 
 

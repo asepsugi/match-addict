@@ -14,7 +14,8 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   Mexicano (keputusan 23–47, 2026-11-11…12), hi-fi 03a–03q, 16a–16g; §15 Tukar pemain Mixed (keputusan 48–59,
   2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t; §16 Grup + Gugur
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r; §17 Kosongkan skor / Hapus WO + perilaku kecil (keputusan 113–121,
-  2026-11-18; hi-fi-nya belum digambar, task KS-n di `docs/tasks.md`).
+  2026-11-18; keputusan 127–128 2026-11-20; task KS-n di `docs/tasks.md`); §18 Point % (keputusan 122–126, 129,
+  2026-11-20; hi-fi belum, task RP-n).
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 299 frame layar 390×844 +
   36 lembar gambar (per 2026-11-18) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,5 MB (per
   2026-11-18; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
@@ -132,8 +133,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   hi-fi v97 terbit. Sisa: push (deploy) — ditahan host.
 - 3.9.0 (MINOR, rencana) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame:
   PRD §17 selesai (keputusan 113–121, 2026-11-18), branch `fitur-3-9-0`, task KS-0…KS-9 di `docs/tasks.md`: KS-0…KS-4
-  (hi-fi v99) + KS-6 (spec `logic.md` §19) selesai 2026-11-20; berikutnya konfirmasi 9 rekomendasi KS-4/KS-6, KS-5, lalu
-  KS-7 (kode). 3.10.0 = GU9 + A-15 (skala teks 1,3). Host punya ide baru penentuan ranking: dibahas di sesi baru.
+  (hi-fi v99) + KS-5 + KS-6 (spec `logic.md` §19) selesai 2026-11-20 (keputusan 128 = 9 rekomendasi KS-4); berikutnya
+  KS-7 (kode). Ikut 3.9.0: jalur RP Point % (tab Klasemen ketiga, default Americano + urutan Mexicano; PRD §18,
+  keputusan 122–126, 129) dan GL label "Group - Playoff" (keputusan 127); status di `docs/tasks.md`. 3.10.0 = GU9 + A-15.
 
 ## Area docs
 

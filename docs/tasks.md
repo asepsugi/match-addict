@@ -61,7 +61,7 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
 | **KS-7c** P5 layar | §19.7 A-8, A-9, B-10 (B-21 sudah di KS-7a) | `lib/features/setup_peserta/setup_peserta_screen.dart`, `…/widgets/name_list_field.dart`, `lib/features/pair_setup/pair_setup_screen.dart`, `lib/features/pair_edit/pair_edit_screen.dart`, `lib/services/pairing/pair_draft.dart` (`differsFrom`), `lib/features/share/share_result_screen.dart`, `lib/features/share/share_download.dart` + `_stub`/`_web` (baru) | AC-P1, P2, P3, P4 (logika; web di KS-8) | test `PairDraft.differsFrom`; widget Pemain/Pasangan/Atur pasangan; fungsi tahap Bagikan (§19.7); golden **02e, 04i, 04j, 11c, 11n, 11a** (11a/11c data = 09a, B-16) + 02b/04b/04g tetap lulus | sonnet/medium | — |
 | **KS-7d** P6 visual | C-15 nama masuk tebal di pratinjau Tukar (`.swap-in`); C-18 label 12 → 13 px (`.grp`, `.gg-babak`, `.bagan .mh/.ch`); C-7 bagan kolom 153, jarak 14, mengintip 24 pt (`design/spec/screens/21-…md`) | `lib/features/schedule/mixed/swap_player_sheet.dart`, `lib/core/widgets/match_score_row.dart` (`.grp`/`.gg-babak`), `lib/features/schedule/group_knockout/bagan_view.dart`; **jangan** sentuh `schedule_fixed_screen.dart` | — (visual, keputusan 120) | golden **17d, 17g, 17j, 17l, 17p, 21a–21z yang berubah, 22j, 22k**, dan frame 20x yang lulus; frame 20x yang masih gagal hanya karena tombol "Buat bagan · tunggu N" ditulis di laporan → KS-7b | sonnet/low | — |
 | **KS-7b** Layar Kosongkan / Hapus WO + C-17 | §19.4 (catatan kunci), 19.5, 19.8: tombol "Kosongkan skor" (varian baru `.btn-secondary.danger`), dialog per `outcome` + preview, pesan 21l mati, sheet WO "Hapus WO" (`MabarSheet.action`, hasil sealed), pop hanya kalau `true`; `lockedBy` di catatan kunci; action bar "Buat bagan · tunggu N" | `lib/features/score_input/score_input_screen.dart`, `walkover_sheet.dart`, `knockout_text.dart` + teks dialog (`reset_text.dart`, baru, murni), `lib/core/widgets/mabar_controls.dart` (varian), `lib/core/widgets/mabar_layers.dart` (`action` di `showMabarSheet` kalau perlu), `lib/features/schedule/schedule_fixed_screen.dart` | AC-K1, K2, K3, K5, K6, K8, K9, K11 (layar), K12 (tanpa aksi penonton), B1 | test teks dialog (judul court/kode, tiga isi, preview tbd), widget Input Skor (AC-K1/K2, 07s, 07x, blocked tidak pernah pop), sheet WO (AC-K3), catatan kunci 17A-ii; golden **07p, 07q, 07r, 07s, 07t, 07u, 07v, 07w, 07x, 06aa, 06ab, 06ac, 20b** + 20x sisa dari KS-7d; 07i/07j/06a–06c tetap lulus | sonnet/medium | KS-7a (review lolos), KS-7d |
-| **KS-7e** (menunggu KS-4) | Frame P4 dari KS-4 (B-7, B-8, B-9, B-18, C-3, C-4, C-10): tech-lead memilah setelah KS-4 digabung — golden saja untuk perilaku yang sudah ada, kode kecil kalau ada perilaku baru | — | — | — | ditentukan nanti | KS-4, KS-5 |
+| **KS-7e** P4 | Keputusan 128: kode B-7 (09h), B-8 (12p), C-3 (17s/17t), C-4 (22s–22u, teks nama format ikut GL), C-10 (15z2); golden saja B-9 (12q), B-18 (10e) | ditentukan saat brief | — | golden 09h, 10e, 12p, 12q, 15z1–15z4, 17s, 17t, 22s–22u | sonnet/medium | KS-7b, GL |
 
 - Review: KS-7a → tech-lead fresh (diff + §19.11, jalankan test-nya sendiri) sebelum KS-7b mulai. KS-7b/7c/7d → main
   session (diff + golden). `docs/architecture.md` (bagian Kosongkan skor / Hapus WO) ditulis tech-lead saat review
@@ -69,7 +69,17 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
   berhenti dan lapor.
 - KS-8 tambahan: Atur pasangan + back browser (A-9), unduh dua file di Chrome desktop dan Safari (B-10, §19.12 #2).
 
-### Status (2026-11-20, serah terima ke sesi baru)
+### Status (2026-11-20, sesi ketiga)
+
+- Host "setuju" semua: 9 rekomendasi KS-4 = **keputusan 128**, Point % 18.11 = **keputusan 129**, GL 127 a–c dikonfirmasi.
+  PRD, Cakupan hi-fi, `docs/data.md` (#9), aturan pemisah B-22 (hi-fi `#pemisah` → `components.md`) diperbarui = KS-5.
+- KS-7e (dipilah main session dari keputusan 128): kode = B-7 (09h, nama Mixed dua baris), B-8 (12p, "Tidak ada
+  internet" + "Coba lagi"), C-3 (17s/17t footer sheet Tukar), C-4 (22s–22u, nama format + babak di Beranda/dialog;
+  teks ikut GL), C-10 (15z2 "Pilih klub"); golden saja = B-9 (12q), B-18 (10e). Frame #8 (sheet WO gugur "Hapus WO"
+  mati) masih menunggu designer — gabung dengan RP-1/GL.
+- Berikutnya: KS-7 gelombang 1 (7a + 7c + 7d paralel).
+
+### Status (2026-11-20, serah terima ke sesi baru — lama)
 
 - KS-0 selesai (dab6e14). KS-1…KS-3 digabung (4c75cbd), hi-fi v98 disetujui host 2026-11-20 tanpa catatan.
 - KS-4 selesai: 13 frame P4 (09h, 10e, 12p, 12q, 15z1–15z4, 17s, 17t, 22s–22u), hi-fi v99 terbit. KS-6 selesai: spec
@@ -94,8 +104,46 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
 - Catatan tech-lead: B-10 di 3.8.1 web sudah mengunduh sendiri lewat fallback share_plus tanpa caption/toast; spec
   mematikan `downloadFallbackEnabled`. Risiko unduhan ganda Chrome / share Safari setelah render async → cek di KS-8.
 - 3.8.1+25 masih belum di-push (ditahan host).
-- **Topik baru dari host (2026-11-20):** ide baru soal penentuan ranking di statistik permainan (Klasemen). Bahas di
-  sesi baru sebelum/terpisah dari KS-7; isi idenya belum disampaikan. Jangan ubah aturan ranking sebelum dibahas.
+- Ide ranking sudah dibahas (2026-11-20) → jalur **RP** di bawah. Rename "Grup + Gugur" → jalur **GL** di bawah.
+
+### Jalur RP · Point % (keputusan 122–126, PRD §18) — serah terima 2026-11-20 (sesi kedua)
+
+Hasil ukur (simulasi main session, 600 turnamen/skenario, Mixed 7–16 pemain, Americano 21 + Race to 6): Total Point
+merugikan pemain yang main lebih sedikit (0,7–1,3 posisi); Point % paling tepat dan adil; Win % tetap (keputusan 21
+"menang dulu"). Host setuju 4 usulan: persen, tab ketiga (Total Point tetap ada), default Americano + urutan Mexicano →
+Point %, WO = "nilai WO – 0", masuk 3.9.0 (MINOR), tanpa perubahan data. PRD §18 ditulis product-manager (belum
+di-commit; angka contoh dihitung tangan, belum dibuktikan test).
+
+**Langkah pertama sesi baru:** tanyakan host 3 pertanyaan PRD §18.11 (rekomendasi: setujui semua), catat sebagai
+keputusan bernomor lanjut dari 127:
+  1. U-RP2: Point % tampil bulat, nomor dibandingkan dari angka bulat (52,4% dan 51,6% + selisih sama = nomor sama).
+     Bergantung B-18 (rekomendasi #4 di atas) — konfirmasi bersamaan.
+  2. U-RP6: 2 besar grup Grup + Gugur Americano dipilih dari Point % (ikut default format).
+  3. U-RP1, U-RP3–5: urutan tab Total Point · Point % · Win %; "57% poin" di poster/caption; belum main = 0% di urutan
+     Mexicano; Point % selalu di statline Detail.
+Risiko tercatat di §18.9: turnamen Americano 3.8.x terbuka di Point % (nomor beda dari poster lama); Mexicano berjalan
+dipasangkan dari Point %; Grup + Gugur Americano di fase gugur bisa menampilkan label A2 di baris #3. Desainer cek:
+"57%" Point % vs Win % tanpa satuan (Story, Lengkap dua kolom); label "Point" bersebelahan "Poin" di Detail.
+
+| Task | Isi | Oleh |
+|---|---|---|
+| RP-0 | PRD §18 + keputusan 122–126 (selesai, belum commit) + jawaban host 18.11 | product-manager → main session |
+| RP-1 | Hi-fi: Klasemen 09a–09h (tab ketiga; 09a Americano buka di Point %), Detail 10a–10e, Bagikan 11a–11m + 18a–18t, penonton live 12-an, Sparing per klub 13n/14-an/15t, Mexicano 16a–16g, tabel grup Americano 20d/22b; Cakupan "Sudah disetujui"; spec `design/spec/screens/09-klasemen.md` (baris 30–31), `16-mexicano.md` (5, 15, 25, 37, 77), `20-grup-gugur.md` (49), `12-live-score.md` (106). Satu agen per kelompok frame, maks 3 paralel | ui-ux-designer opus/high |
+| RP-2 | Spec `design/spec/logic.md` §20 (RP1–RP9, WO 125, pembulatan, data uji §18.7) + task kode | tech-lead opus/high |
+| RP-3 | Kode: `RankingMethod.pointPercent`, `PlayerStanding.pointPercent` (WO 125), `compare`, `defaultMethod`, urutan Mexicano (`endless_round_generator.dart`), `group_knockout_ranking.dart`; layar Klasemen/Detail/Bagikan/caption | engineer: logika sonnet/medium + review fresh tech-lead; layar sonnet/low |
+| RP-4 | Golden frame berubah, full test ikut KS-8, rilis ikut KS-9 | main session |
+
+Berkas RP-3 bersinggungan dengan KS-7 hanya di golden Klasemen/Detail/Bagikan (11a/11c dari KS-7c) → kerjakan RP-3
+setelah KS-7c digabung, atau rebase golden.
+
+### Jalur GL · Label "Group - Playoff" (keputusan 127) — level 0 (teks), ikut 3.9.0
+
+- Konfirmasi host dulu (PRD keputusan 127 a–c): nama format di tempat lain ikut? (string di kode:
+  `konfigurasi_screen.dart:518`, `detail_player_screen.dart:80`, `leaderboard_screen.dart:32`,
+  `share_content.dart:17`; hi-fi 19a/19b/19x… `.seg`, ±62 kemunculan teks di `design/hifi.html` termasuk catatan,
+  54 di PRD). Rekomendasi #6 C-4 (22s–22u) menulis "Grup + Gugur" → ikut nama baru.
+- Lalu main session: hi-fi (frame + catatan yang tampil di UI), kode, golden. Nama fitur di dokumen internal (PRD §16,
+  GU-n, nama kelas) boleh tetap "Grup + Gugur" kecuali host minta.
 
 ---
 

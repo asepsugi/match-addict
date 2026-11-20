@@ -833,3 +833,12 @@ PATCH 3.8.1 (keputusan 110–112; A-11, B-4, C-5). Label dibentuk dari data yang
 | `.pr.gg-pick .chip` chip grup | "Andi · Budi ke Grup A" | `button: true`, `selected`, `inMutuallyExclusiveGroup: true` |
 | `.opt` Pilih A1/A2 | Value "A1" | `selected` |
 | Poster Bagikan | Caption = teks pengganti (sudah ada) | — |
+
+## Pemisah nama dan label
+
+PATCH 3.9.0 (keputusan 120, B-22). Satu konteks memakai satu pemisah; kode tidak mencampur. Sumber: hi-fi → Komponen → "Pemisah nama dan label" (`#pemisah`).
+
+- **"·" di label**: pasangan di baris match, judul Detail, opsi WO, subjudul app bar ("Andi P · Budi S", "Padel · Mixed · Americano 21").
+- **"&" di kalimat**: pasangan di dalam kalimat dan label Semantics ("Eko M & Fajar K menang 6–4").
+- **"+" di poster**: pasangan di poster Bagikan (keputusan 77, 79).
+- **" - " hanya di nama format "Group - Playoff"** (keputusan 127): strip biasa berspasi, bagian dari nama, bukan pemisah pasangan; di subjudul tetap dipisah "·" dari bagian lain ("Padel · Group - Playoff").

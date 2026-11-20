@@ -5,7 +5,8 @@ ada di hi-fi; Mexicano (§14) + Konfigurasi diringkas diputuskan host 2026-11-11
 Tukar pemain Mixed (§15) diputuskan host 2026-11-12 (keputusan 48–59), rencana app 3.5.0, hi-fi 17a–17r;
 Grup + Gugur (§16) diputuskan host 2026-11-17 (keputusan 93–103), rencana app 3.8.0, hi-fi
 19a–22r; Kosongkan skor / Hapus WO + perilaku kecil + tombol mati Buat bagan (§17) diputuskan host 2026-11-18
-(keputusan 113–120), rencana app 3.9.0, frame menyusul dari designer.
+(keputusan 113–120), rencana app 3.9.0, frame menyusul dari designer; metode peringkat ketiga **Point %** (§18)
+diputuskan host 2026-11-20 (keputusan 122–126), ikut 3.9.0, frame menyusul dari designer.
 **Platform:** Android + iOS + Web/PWA (1 codebase — Flutter)
 **Target user:** Host mabar klub/komunitas tennis & padel, 4–30 pemain per turnamen, 1 HP host, offline
 
@@ -23,7 +24,7 @@ Aplikasi untuk host turnamen mabar yang:
   round (mode Mexicano, §14)
 - Membuat jadwal adil: tiap orang main sama banyak (selisih ≤ 1), partner & lawan merata
 - Mencatat skor satu angka per tim dalam format Race to N, Best of N, atau Americano N
-- Menghitung peringkat Total Point atau Win %, termasuk walkover (WO)
+- Menghitung peringkat Total Point, Point %, atau Win %, termasuk walkover (WO)
 - Membagikan hasil sebagai gambar (Feed 1:1 & Story 9:16) + teks caption
 
 ---
@@ -49,7 +50,7 @@ Aplikasi untuk host turnamen mabar yang:
   putaran circle.
 - **Court** = lapangan fisik; 1 match per court per round. Tiap court punya nama, warna, jam mulai, dan durasi booking
   sendiri; di Mixed court bisa ditambah di tengah turnamen (court lain sering baru kosong di jam berikutnya).
-- Istilah UI: istilah olahraga tetap Inggris (court, round, match, set, WO, Win %, Total Point); semua orang disebut
+- Istilah UI: istilah olahraga tetap Inggris (court, round, match, set, WO, Win %, Point %, Total Point); semua orang disebut
   **pemain** (bukan peserta); Klasemen / Bagikan / Beranda (bukan Ranking / Share / Home); posisi pemain tetap "Peringkat n".
 
 ### 3.1 User Flow
@@ -217,27 +218,37 @@ untuk tennis maupun padel.
 | Metode | Cara hitung |
 |--------|-------------|
 | **Total Point** | Jumlah game/poin yang dimenangkan lintas match (+ nilai WO, lihat 4.4) |
+| **Point %** (sejak 3.9.0, §18) | Game/poin didapat ÷ game/poin dimainkan (didapat + kalah) × 100, lintas match; WO dihitung seperti skor nilai WO–0 (4.4) |
 | **Win %** | Menang = 1, seri = 0,5, kalah = 0, dibagi jumlah match |
 
-**Default mengikuti format skor** (keputusan 21): Race to dan Best of → **Win %**; Americano → **Total Point**.
+**Default mengikuti format skor** (keputusan 21, diubah keputusan 123 sejak 3.9.0): Race to dan Best of → **Win %**;
+Americano (juga Mexicano) → **Point %**. Sebelum 3.9.0 Americano → Total Point.
 - Race to dan Best of dimenangkan per match, jadi jumlah menang dulu, seperti klasemen round-robin resmi tennis,
-  padel, pickleball, dan badminton (menang dulu, baru selisih). Di Americano tiap poin memang tujuannya.
-- Contoh Race to 6, tiga match: Gita · Andi 2W–1L, 16 game, +1; Dewi · Citra 1W–2L, 16 game, +2. Win %: Gita · Andi
-  67% di atas Dewi · Citra 33%. Total Point: 16 sama, selisih +2 menaruh Dewi · Citra di atas.
+  padel, pickleball, dan badminton (menang dulu, baru selisih). Di Americano tiap poin memang tujuannya; Point %
+  menilai poin itu per poin yang dimainkan, jadi pemain yang mainnya lebih sedikit (istirahat, telat) tidak tertinggal
+  hanya karena kurang main (§18.0).
+- Contoh Race to 6, tiga match: Gita · Andi 2W–1L, 16 game, +1 (kalah 15 game); Dewi · Citra 1W–2L, 16 game, +2 (kalah
+  14 game). Win %: Gita · Andi 67% di atas Dewi · Citra 33%. Total Point: 16 sama, selisih +2 menaruh Dewi · Citra di
+  atas. Point %: Dewi · Citra 53% (16 ÷ 30) di atas Gita · Andi 52% (16 ÷ 31).
 - Contoh kedua: A kalah 5–6, kalah 5–6, menang 6–0 (16 game, 1W–2L); B menang 6–5, menang 6–5, kalah 0–6 (12 game,
-  2W–1L). Win %: B di atas A. Total Point: A di atas B.
+  2W–1L). Win %: B di atas A. Total Point: A di atas B. Point %: A 57% di atas B 43% (§18, contoh 18B). Karena itu
+  Point % tidak menggantikan Win % di Race to/Best of (keputusan 122).
 
 Metode dipilih di layar Klasemen (tidak di setup) dan dipakai juga oleh Detail & Bagikan; urutan tab tetap
-Total Point · Win %. Pilihan host bertahan selama turnamen itu, tidak disimpan: turnamen berganti atau app dibuka
-ulang → kembali ke default formatnya. Berlaku sama untuk Fixed, Mixed, Sparing (klasemen per klub), dan penonton live.
+**Total Point · Point % · Win %** (sebelum 3.9.0 Total Point · Win %; urutan baru usulan U-RP1, §18.8). Pilihan host
+bertahan selama turnamen itu, tidak disimpan: turnamen berganti atau app dibuka ulang → kembali ke default formatnya.
+Berlaku sama untuk Fixed, Mixed, Mexicano, Sparing (klasemen per klub), dan penonton live. Grup + Gugur tanpa tab
+(GU8, 16.5).
 
 ### 4.3 Tie-Breaker & Nomor Peringkat
 
-1. Nilai metode (Total Point atau Win %) → 2. Selisih game/poin → nomor sama, baris diurutkan nama
+1. Nilai metode (Total Point, Point %, atau Win %) → 2. Selisih game/poin → nomor sama, baris diurutkan nama
 
 - Hanya angka yang tampil di Klasemen dan poster yang menentukan nomor, supaya alasannya terbaca: kolom +/− (selisih)
   memisahkan nilai yang sama. Head-to-head tidak dipakai (di Mixed antar tiga pemain bisa berputar), begitu juga Total
-  Point sebagai pemisah Win %.
+  Point sebagai pemisah Win % atau Point %.
+- **Point % dibandingkan dari angka bulat yang tampil** (usulan U-RP2, §18.2): 52,38% dan 52,00% sama-sama "52%", lalu
+  selisih yang memisahkan. Win % tetap dibandingkan dari nilai persisnya seperti sebelum 3.9.0.
 - Nilai metode dan selisih sama → **nomor sama**, dan nomor berikutnya melanjutkan: #1, #2, #2, #3 (bukan 1, 2, 2, 4).
   W–L–D tidak membedakan nomor.
 - Pemain yang belum main (pemain baru, termasuk pengganti dari Atur pasangan Fixed) dikelompokkan di "Belum main"
@@ -261,6 +272,11 @@ skor lama kalau ada, kalau tidak ke Belum (§17, batas per mode 17.3).
     pernah di bawah skor menang terkecil ⌊N ÷ 2⌋ + 1 (Americano 21 → 11, 24 → 13; Best of 5 → 3); belum pernah main →
     skor menang terkecil.
 - Pasangan WO 0 game/poin. Selisih game/poin tidak berubah untuk keduanya.
+- **Point % (sejak 3.9.0, keputusan 125):** WO dihitung seperti skor "nilai WO – 0". Tiap pemenang: didapat + nilai WO
+  dia sendiri (aturan di atas), kalah + 0. Tiap pemain pasangan WO: didapat + 0, kalah + **nilai WO pasangan lawan**;
+  di Mixed Best of/Americano kedua pemenang bisa punya nilai beda, jadi dipakai rata-ratanya dibulatkan ,5 ke atas
+  (sama dengan nilai WO klub K11, 13.5). Contoh: Race to 6 → pemenang 6 dari 6, pasangan WO 0 dari 6; Americano 21
+  pemenang Andi 14 dan Budi 17 → Citra dan Dewi masing-masing kalah 16 (contoh 18C).
 - Alasan WO tampil di baris Jadwal.
 
 ### 4.5 Status Match
@@ -375,6 +391,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · +/− (selisih)
   · nilai metode; peringkat 1 diberi bola.
 - Toggle Total Point / Win %, status di subjudul, catatan WO / tidak dimainkan, ketuk baris → Detail. Tombol Bagikan.
+- Sejak 3.9.0 (§18): toggle tiga tab **Total Point · Point % · Win %**; kolom nilai tab Point % = persen bulat ("57%"),
+  judul kolom "Point %" seperti "Win %". Bentuk final di hi-fi (frame baru, designer).
 - Pemain tanpa match selesai/WO di grup "Belum main". Fixed: satu baris per pasangan; pasangan yang berubah, pemain
   yang tidak ikut lagi, dan pemain pengganti tampil per pemain (09g).
 
@@ -387,6 +405,9 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   metode. Kalau tidak muat satu baris, olahraga dibuang dulu (B-6). Sparing (klub, tanpa metode) dan Grup + Gugur
   (babak, "Grup + Gugur", tanpa metode dan format) punya subjudul sendiri: §13.7 dan §16.9.
 - Belum ada match: riwayat menulis "Belum ada match" saja (PATCH 3.8.1).
+- Sejak 3.9.0 (§18.5): metode Point % di subjudul ditulis "Point %" ("Peringkat 1 · Point % · Padel · Mixed ·
+  Americano 21"); baris statistik menampilkan Point % pemain itu di **semua** tab (angka pemain tidak tergantung tab),
+  bulat seperti Klasemen, "–" kalau belum main. Letak dan muat di 390 oleh designer (usulan U-RP5).
 - Beda partner / Beda lawan dihitung dari match Selesai dan WO; di match WO kedua sisi ikut, sama dengan kolom Main
   (keputusan 118, B-21; contoh 13C Maya · Nanda 8 / 8, 17.10).
 
@@ -396,6 +417,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   emas, digantung ke kiri supaya "#1" sejajar dengan nomor di bawahnya.
 - Tiap baris = nilai metode + selisih, sama dengan Klasemen: "42 poin · +12", "100% · +12". Lengkap menulis satuan hanya
   di Feed satu kolom; dua kolom dan Story tanpa satuan ("42 · +12"). Ringkas selalu dengan satuan.
+  Point % (sejak 3.9.0, usulan U-RP3): "57% poin · +9" (Race to/Best of "57% game · +9") di tempat Total Point menulis
+  satuan, "57% · +9" di tempat tanpa satuan. Caption: baris metode Point % menulis Point % menggantikan Win % (18.5).
 - Dua gambar 1080×1080 dan 1080×1920 dibagikan lewat share sheet sistem dengan caption teks hasil. Gagal (sejak 3.9.0,
   keputusan 117, mengganti aturan 2026-10-22 "caption disalin + toast Hasil disalin"): kedua PNG diunduh, caption
   disalin, toast "Gambar diunduh · hasil disalin"; tanpa tombol baru. Share sheet ditutup tanpa memilih → tidak ada
@@ -445,7 +468,7 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Live tetap ada setelah "Selesai" (turnamen terakhir) dan berlanjut dengan kode yang sama kalau dilanjutkan dari
   Beranda. "Hapus & mulai baru" menghentikan live turnamen yang dibuang.
 - Penonton membuka link di browser (web Match Addict, tanpa pasang): Jadwal, Klasemen (tanpa Bagikan, metode dipilih
-  sendiri), dan Detail, baca saja. Dicek tiap 10 detik selama halaman terlihat, tiap menit setelah Final. Tag "Live" di
+  sendiri dari tiga tab sejak 3.9.0, default sama dengan host; metode tidak ada di payload), dan Detail, baca saja. Dicek tiap 10 detik selama halaman terlihat, tiap menit setelah Final. Tag "Live" di
   Jadwal; setelah dua kali gagal berturut-turut "Offline · 19.48" (jam cek terakhir yang berhasil; PATCH 3.8.1, B-17);
   hilang saat Final. Subjudul memakai nama turnamen kalau ada. Simpanan turnamen penonton sendiri tidak tersentuh.
 - Penonton turnamen yang diakhiri (juga Sparing) melihat judul "Istirahat" saja, tanpa "Prioritas main di R…", karena
@@ -596,7 +619,8 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
     tab dan aturan urutan (nilai metode → selisih, 4.3) tidak berubah. Dipicu room live RM5HP5 "Sparing Senin"
     (Race to 6): Dewi · Citra 1W–2L (16, +2) di atas Gita · Andi 2W–1L (16, +1). Riset aturan resmi: skor
     menang/kalah selalu memakai jumlah menang dulu; total poin dulu hanya lazim di Americano. Rilis 3.3.0 MINOR
-    (2026-11-11).
+    (2026-11-11). **Diubah keputusan 123 (2026-11-20) untuk Americano:** default Americano → Point %; Race to dan Best
+    of tetap Win %; tab ketiga Point % (keputusan 122).
 22. **Back dari Jadwal ke Beranda** (5.5): sebelumnya back kembali ke Atur turnamen (atau Pasangan), dan "Buat jadwal"
     lagi di sana menghapus skor yang sudah diisi. Sekarang back di Jadwal Fixed dan Mixed (tombol, HP, browser)
     langsung ke Beranda; penonton live tidak berubah. Rilis 3.3.1 PATCH (2026-11-11).
@@ -617,6 +641,7 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
     membetulkan salah ketuk sebelum round berikutnya dibuat (14.12 Q2, 2026-11-11).
 30. Seri di urutan Mexicano **diundi, terkunci per round**, bukan diurut nama (14.12 Q3, 2026-11-11).
 31. Urutan Mexicano **selalu Total Point → selisih**, apa pun tab Klasemen yang dipilih (14.3, U1, 2026-11-11).
+    **Diubah keputusan 124 (2026-11-20):** urutan Mexicano = Point % → selisih → undian; tetap tidak tergantung tab.
 32. Koreksi skor di Mexicano **tidak membuat ulang round yang sudah dibuat**; host memakai Batalkan round lalu Buat
     (14.7, U6, 2026-11-11).
 33. **Konfigurasi diringkas** (usulan Arah A, `design/proposals/konfigurasi-mexicano.html`): tetap satu layar (Nama,
@@ -848,6 +873,48 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
      WO); U-4 judul dialog gugur memakai kode match; U-5 catatan kunci round menyebut round terakhir yang belum lengkap;
      B-10 di Android/iOS asli hanya kalau tanpa izin atau dependensi baru, selain itu "Hasil disalin" tetap (tech lead
      memastikan).
+122. **Point % jadi metode peringkat ketiga** (2026-11-20, host: "setuju 4 usulan. tapi gw mau Total Point tetap ada
+     sebagai pilihan"): Point % = game/poin didapat ÷ game/poin dimainkan (didapat + kalah) × 100. Tab ketiga di
+     Klasemen; **Win % tidak diganti, Total Point tetap ada**. Alasan: host bertanya apakah persen poin terhadap jumlah
+     main menangani jumlah main yang tidak sama. Simulasi main session (600 turnamen per skenario, Mixed 7–16 pemain,
+     ada yang istirahat + 2 pemain telat; Americano 21 dan Race to 6): Total Point menaruh pemain yang mainnya lebih
+     sedikit 0,7–1,3 posisi di bawah kemampuannya, Point % dan Win % tidak; ketepatan urutan Point % paling tinggi
+     (Americano 0,50–0,60 vs Win % 0,45–0,55 vs Total Point 0,41–0,56); nilai kembar Point % 0,3–2% (Win % 7–19%). Point %
+     bisa menaruh 1W–2L di atas 2W–1L (contoh A/B 4.2), jadi tidak menggantikan Win %. Aturan: §18.
+123. **Default metode Americano → Point %** (2026-11-20, mengubah keputusan 21 untuk Americano): Race to dan Best of
+     tetap Win %. Berlaku juga untuk Mexicano dan Sparing Americano. Alasan: di Americano yang dimainkan sampai total N,
+     Point % = rata-rata poin per match ÷ N, jadi urutannya sama dengan Total Point kalau jumlah main sama, dan tetap
+     adil kalau tidak sama. Aturan: 4.2, §18.
+124. **Urutan Mexicano = Point % → selisih → undian** (2026-11-20, mengubah keputusan 31): tetap tidak tergantung tab
+     Klasemen. Alasan: dengan Total Point pemain yang baru istirahat tertinggal satu match dan turun ke court bawah
+     (14B); Point % tidak. Aturan: 14.3, contoh 18D.
+125. **WO di Point % = skor "nilai WO – 0"** (2026-11-20): pemenang didapat + nilai WO dia sendiri (4.4), kalah + 0;
+     pasangan WO didapat + 0, kalah + nilai WO pasangan lawan (Mixed Best of/Americano: rata-rata nilai WO kedua
+     pemenang, ,5 ke atas, sama dengan K11). Selisih tetap tidak berubah oleh WO. Angka "kalah" untuk pasangan WO
+     dirinci PM dari "nilai WO – 0" (lawan mendapat nilai itu, jadi itulah yang dimainkan pasangan WO); tanpa angka kalah,
+     WO tidak menurunkan Point % yang kalah. Aturan: 4.4, contoh 18C.
+126. **Point % masuk 3.9.0 (MINOR)** sebagai jalur terpisah (task RP-n) (2026-11-20): tanpa perubahan bentuk data;
+     metode tetap tidak disimpan dan tidak ada di payload live; `schemaVersion` tetap 2. Aturan: 18.9.
+127. **Label pilihan "Grup + Gugur" → "Group - Playoff"** (2026-11-20, host: "gw mau ganti label pilihan "Grup + Gugur"
+     menjadi "Group - Playoff""): pilihan format turnamen di Konfigurasi (`.seg` Round-robin / Group - Playoff, 19a).
+     Dikonfirmasi host 2026-11-20 ("setuju"): (a) nama format di semua tempat yang menampilkannya ikut (subjudul Detail,
+     judul/subjudul Klasemen, label mode di poster/caption, Beranda/dialog C-4 22s–22u); (b) label baris "Fase grup"/
+     "Gugur" dan nama babak tidak berubah; (c) ditulis persis "Group - Playoff" (strip biasa berspasi), dicatat di aturan
+     pemisah B-22. Nama fitur di dokumen internal (§16, GU-n, nama kelas) tetap "Grup + Gugur". Teks saja, perilaku
+     tetap (level 0, ikut 3.9.0, jalur GL).
+128. **Frame P4 KS-4 disetujui, 9 rekomendasi** (2026-11-20, host: "setuju"): (1) B-7 nama Mixed panjang dua baris
+     (tinggi baris 62), tidak dipotong satu baris (09h, kode); (2) B-8 penonton tanpa internet → "Tidak ada internet" +
+     "Coba lagi", bukan memuat terus (12p, kode); (3) B-9 sheet tetap terbuka, toast di atasnya (12q, perilaku app
+     dipertahankan); (4) B-18 Detail membulatkan Win %, catatan 09b "1 desimal" dibetulkan (10e); (5) C-3 Batal/Tukar
+     di footer sheet Tukar yang menempel, pratinjau tidak ikut digulir (17s/17t, kode); (6) C-4 Beranda/dialog Grup +
+     Gugur menulis nama format + nama babak ("Semifinal"), bukan "Fixed"/"Round 7" (22s–22u, kode; nama format ikut
+     keputusan 127); (7) C-10 "Pilih klub" (15z2) menggantikan "Tambah" mati, dua varian Sparing (Kelola court
+     "mulai R…", Tukar 12 kandidat) ditunda; (8) frame baru sheet WO gugur dengan "Hapus WO" mati + pesan 21l;
+     (9) keadaan data baru 3.9.0 (round Fixed lama kosong, SF dikosongkan) tetap sah, `schemaVersion` 2 (`docs/data.md`).
+129. **Usulan PM Point % U-RP1–U-RP6 disetujui** (2026-11-20, host: "setuju" atas pertanyaan 18.11): Q1 Point % bulat,
+     nomor dibandingkan dari angka bulat (U-RP2); Q2 grup Americano Grup + Gugur lolos dari Point % (U-RP6); Q3 urutan
+     tab Total Point · Point % · Win % (U-RP1), "57% poin" di poster/caption (U-RP3), belum main = 0% di urutan Mexicano
+     (U-RP4), Point % selalu di statline Detail (U-RP5).
 
 ---
 
@@ -872,6 +939,8 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
     (2026-11-17, §16)
 13. Review UX hi-fi P4–P7: Kosongkan skor / Hapus WO dengan batas per mode, perilaku kecil P5, tombol mati Buat bagan,
     semua rekomendasi reviewer; rilis 3.9.0, GU9 + skala teks 3.10.0 (2026-11-18, §17)
+14. Peringkat Point % (poin didapat ÷ poin dimainkan) sebagai tab ketiga, default Americano dan urutan Mexicano; Win %
+    tidak diganti, Total Point tetap ada sebagai pilihan; ikut 3.9.0 (2026-11-20, §18)
 
 ---
 
@@ -902,7 +971,7 @@ Rencana rilis (keputusan 120, 2026-11-18):
 
 | Versi | Kategori | Isi | Alasan kategori |
 |-------|----------|-----|-----------------|
-| **3.9.0** | MINOR | Kosongkan skor / Hapus WO (§17.1–17.9), A-8, A-9, B-10, B-21 (17.10), tombol mati Buat bagan (17.11), P6 visual (C-7, C-18, C-15), P4 frame/catatan | Perilaku baru yang kompatibel; tanpa kolom simpanan baru, `schemaVersion` tetap 2 (17.12) |
+| **3.9.0** | MINOR | Kosongkan skor / Hapus WO (§17.1–17.9), A-8, A-9, B-10, B-21 (17.10), tombol mati Buat bagan (17.11), P6 visual (C-7, C-18, C-15), P4 frame/catatan; **Point %** metode ketiga + default Americano + urutan Mexicano (§18, keputusan 122–126, task RP-n) | Perilaku baru yang kompatibel; tanpa kolom simpanan baru, `schemaVersion` tetap 2 (17.12, 18.9). Point % mengubah default Americano dan urutan Mexicano, tapi Total Point tetap bisa dipilih dan data lama terbaca apa adanya, sama seperti 3.3.0 mengganti default (MINOR) |
 | **3.10.0** | MINOR | GU9 ubah format babak (sheet 19f), A-15 skala teks sampai 1,3 | Perilaku baru; bentuk data dinilai saat fitur ditulis |
 
 ---
@@ -1111,6 +1180,12 @@ Ukuran lain, 8 round:
   - Kalau digabung, Maya · Nanda (23 dari 4 match) di atas Eko · Fajar (18 dari 3 match, menang semua) — contoh bias.
 - Data 13C, Win %: Garuda #1 Eko · Fajar 100% · #2 Andi · Budi 67% · #3 Citra · Dewi 33% (+3) · #4 Gita · Hadi 33% (−2);
   Matcha #1 Maya · Nanda 75% · #2 Kiki · Lina 50% · #3 Indra · Joko 0%.
+- Data 13C, Point % (sejak 3.9.0, §18; didapat ÷ dimainkan, WO R3 = 6–0 untuk Maya · Nanda): Garuda #1 Eko · Fajar 72%
+  (18 ÷ 25, +11) · #2 Andi · Budi 52% (14 ÷ 27, +1) · #3 Gita · Hadi 47% (14 ÷ 30, −2) · #4 Citra · Dewi 43% (10 ÷ 23:
+  kalah 7 game + 6 dari WO, +3); Matcha #1 Maya · Nanda 64% (23 ÷ 36, +4) · #2 Kiki · Lina 46% (16 ÷ 35, −3) · #3 Indra ·
+  Joko 29% (10 ÷ 34, −14). Gita · Hadi di atas Citra · Dewi, kebalikan Win % (keduanya 33%, selisih memisahkan).
+- Default per klub mengikuti format (4.2): Race to/Best of → Win %, Americano → Point %. Skor klub (13.5, K2) tidak
+  berubah: tetap match menang → Total Point klub, karena kedua klub ada di setiap match.
 - Klasemen, Detail, Bagikan, caption, dan Live memakai nomor yang sama (seperti `standingEntriesProvider` sekarang).
 
 ### 13.7 Interaksi dengan fitur yang ada
@@ -1174,7 +1249,7 @@ Ukuran lain, 8 round:
 - **AC-S15a** Mixed Americano 21, WO dengan pemenang Andi (nilai WO 14) dan Budi (17): Total Point klub +16; klasemen
   pemain Andi +14, Budi +17; selisih klub dan pemain tidak berubah.
 - **AC-S16** Seri Americano 20 (10–10) memberi ½ ke tiap klub: "6½ – 5½".
-- **AC-S17** Klasemen per klub data 13C sama persis dengan 13.6 (Total Point dan Win %); Detail, Bagikan, caption, dan
+- **AC-S17** Klasemen per klub data 13C sama persis dengan 13.6 (Total Point dan Win %; sejak 3.9.0 juga Point %); Detail, Bagikan, caption, dan
   Live memakai nomor yang sama.
 - **AC-S18** Round tambahan 13A setelah R6: satuan 12 match (R7–R12), sheet "lewat booking 01:00", Garuda +3, Matcha +4;
   nol match sesama klub. 4 / 2 pasangan: satuan 4 match.
@@ -1300,16 +1375,22 @@ dibuat (termasuk match WO).
 
 ### 14.3 Urutan Mexicano (dasar memasangkan)
 
-Pemain diurutkan:
+Pemain diurutkan (sejak 3.9.0, keputusan 124; sebelumnya langkah 1 = Total Point):
 
-1. **Total Point** turun (4.2: game/poin dimenangkan + nilai WO 4.4).
+1. **Point %** turun, angka bulat seperti di Klasemen (4.2, 4.3; WO seperti skor nilai WO – 0, 4.4).
 2. **Selisih** turun (4.3; WO tidak mengubah selisih).
 3. Masih sama → **undian terkunci per round** (`lockedDraw(drawSeed + nomor round)`, undian yang sama dengan prioritas
    main 3.4), lalu id.
 
-- Selalu Total Point, **apa pun tab** yang dipilih host di Klasemen; memilih Win % tidak mengubah pasangan (U1).
-- Dihitung dari match Selesai/WO di round yang sudah dibuat. Pemain yang belum main dihitung 0 poin, selisih 0, dan
-  diurutkan dengan angka itu seperti pemain lain (di Klasemen mereka tetap di grup "Belum main").
+- Selalu Point %, **apa pun tab** yang dipilih host di Klasemen; memilih Total Point atau Win % tidak mengubah pasangan
+  (U1, keputusan 124).
+- Dihitung dari match Selesai/WO di round yang sudah dibuat. Pemain yang belum main dihitung 0 poin, Point % 0, selisih
+  0, dan diurutkan dengan angka itu seperti pemain lain (di Klasemen mereka tetap di grup "Belum main"; U8 tetap, usulan
+  U-RP4 §18.8).
+- Pemain yang baru istirahat tidak lagi tertinggal satu match: Point %-nya tetap (contoh 18D).
+- Contoh 14A–14C di bawah ditulis dengan Total Point. Hasil Buat round-nya **sama** dengan Point %: di 14A dan 14C semua
+  pemain main sama banyak dan tiap match total 21, jadi urutan Point % = urutan Total Point; di R2 14B yang main dan
+  urutannya juga sama (Indra, Joko 0%). Beda baru muncul setelah ada yang istirahat dan main lagi (18D).
 - Langkah 1–2 = angka yang menentukan nomor Klasemen, jadi pemain dengan nomor lebih kecil selalu lebih dulu. Hanya
   pemain bernomor sama yang urutannya ditentukan undian, bukan nama (U2): nama membuat pemain berawalan "A" selalu di
   posisi 1 dan mendapat partner posisi 3, bukan 4.
@@ -1450,10 +1531,10 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 | Kelola court | Sama dengan Mixed (`logic.md` §10): court ditambah saat round berjalan dan istirahat ≥ 4 → 4 teratas prioritas yang istirahat langsung main, disusun dengan 14.5 dari urutan Mexicano saat itu (skor round berjalan yang sudah masuk ikut dihitung). Round berikutnya court baru ikut urutan nomor (14.4). Hapus court: sama. |
 | Waktu booking, Tambah jam, Lanjutkan turnamen, Akhiri | Sama dengan Mixed. Lanjutkan (dari Jadwal atau Beranda) meneruskan Klasemen; round berikutnya dipasangkan dari Klasemen itu. Match Tidak dimainkan kembali Belum. |
 | Status Sementara/Final (4.6) | Sama dengan Mixed. |
-| Klasemen (4.2, 4.3, 5.7) | Satu baris per pemain seperti Mixed. Default **Total Point** (Americano, keputusan 21). Tab Win % tetap ada; tidak mengubah pasangan (14.3). |
+| Klasemen (4.2, 4.3, 5.7) | Satu baris per pemain seperti Mixed. Default **Total Point** (Americano, keputusan 21); sejak 3.9.0 default **Point %** (keputusan 123), tiga tab. Tab lain tidak mengubah pasangan (14.3). |
 | Detail pemain | Seperti Mixed (partner tampil, beda partner/lawan). |
 | Beranda | "Padel · Mexicano · 8 pemain" (nama turnamen menggantikannya kalau ada). Turnamen terakhir Mexicano tampil sebagai baris riwayat → sheet Lanjutkan, seperti Mixed. |
-| Bagikan | Seperti Mixed: per pemain, nilai Total Point + selisih, baris kecil "Padel · Mexicano · tanggal". Caption sama dengan Mixed. |
+| Bagikan | Seperti Mixed: per pemain, nilai metode (default Total Point; sejak 3.9.0 Point %) + selisih, baris kecil "Padel · Mexicano · tanggal". Caption sama dengan Mixed. |
 | Live score | Seperti Mixed. Penonton melihat Jadwal, Klasemen, Detail; nama mode "Mexicano". Web/app versi lama tidak boleh menampilkan Mexicano sebagai Mixed (14.8). |
 | Sparing | Tidak menawarkan Mexicano (keputusan 27). Turnamen Sparing tidak berubah. |
 | Fixed (round tambahan, Atur pasangan) | Tidak berlaku. |
@@ -1489,7 +1570,8 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
   beban ulang terkecil dari ketiganya, dan seri → yang lebih dulu di A, B, C.
 - **AC-M9** Ukuran: 4/1 tanpa istirahat; 5/1 satu istirahat per round, setelah R5 semua 4 match; 7/2 hanya Court 1
   dipakai, 3 istirahat; 30/10 Court 1–7 dipakai, Court 8–10 kosong, 2 istirahat per round.
-- **AC-M10** Tab Klasemen Win % lalu Buat R(n+1) → round sama persis dengan saat tab Total Point.
+- **AC-M10** Tab Klasemen Win % lalu Buat R(n+1) → round sama persis dengan saat tab Total Point (sejak 3.9.0: ketiga
+  tab memberi round yang sama, dari urutan Point %, AC-RP11).
 - **AC-M11** Sebelum skor round terakhir lengkap, daftar "Istirahat · Prioritas main di R(n+1)" dan "Istirahat lagi di
   R(n+1)" sudah tampil, dan setelah semua skor masuk, hasil Buat R(n+1) sama persis: semua dari daftar Prioritas main
   ikut main, semua dari "Istirahat lagi" istirahat, apa pun skornya.
@@ -1499,14 +1581,16 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 - **AC-M14** App di-kill setelah semua skor R2 masuk → dibuka lagi → Buat R3 sama persis dengan tanpa kill. Live
   melanjutkan kode yang sama.
 - **AC-M15** WO 14A R2 Court 2 (Gita · Budi): Eko 20, Dewi 17, Gita 9, Budi 6; selisih keempatnya sama dengan setelah R1;
-  urutan R3 memakai angka ini.
+  urutan R3 memakai angka ini. Sejak 3.9.0 urutan R3 memakai Point %: Eko 20 ÷ 32 = 63%, Dewi 17 ÷ 32 = 53% (nilai WO
+  11 – 0), Gita 9 ÷ 32 = 28%, Budi 6 ÷ 32 = 19% (kalah 11 dari WO).
 - **AC-M16** Kelola pemain Mexicano: tidak ada tambah pemain; Keluarkan mati saat aktif 4; Kembalikan ada untuk pemain
   yang dikeluarkan setelah round terakhir dibuat dan hilang setelah round berikutnya dibuat tanpa dia.
 - **AC-M17** Kelola court: 12 pemain / 2 court, R1 berjalan → tambah Court 3 → match baru berisi 4 pemain istirahat
   teratas prioritas, disusun 14.5 dari urutan Mexicano saat itu; R2 memakai 3 court, kelompok teratas di Court 1.
 - **AC-M18** Court 1 habis lebih dulu dari Court 2 → round berikutnya kelompok teratas di Court 2.
 - **AC-M19** Beranda "Padel · Mexicano · 8 pemain"; turnamen terakhir Mexicano → Lanjutkan; poster "Padel · Mexicano ·
-  tanggal"; Klasemen, Detail, Bagikan, caption, dan Live memakai nomor yang sama, default Total Point.
+  tanggal"; Klasemen, Detail, Bagikan, caption, dan Live memakai nomor yang sama, default Total Point (sejak 3.9.0
+  Point %, keputusan 123).
 - **AC-M20** Simpanan 3.3.x Fixed/Mixed/Sparing dimuat tanpa perubahan; semua test dan golden yang ada lulus tanpa
   diubah, kecuali golden frame yang digambar ulang di hi-fi (03a–03e, 13h–13j, 14f, 14g, komponen kartu mode), yang
   mengikuti frame baru. Simpanan atau payload Mexicano dibuka versi ≤ 3.3.x → ditolak, tidak tampil sebagai Mixed, dan HP host versi
@@ -1520,7 +1604,8 @@ Total setelah R3 = 126 = 3 × 21 × 2. R4 mengulang pasangan R1 dengan sisi atas
 - Race to / Best of di Mexicano (keputusan 24).
 - Kompensasi poin untuk yang istirahat (mis. rata-rata poinnya), supaya pemain yang baru istirahat tidak turun ke court
   bawah.
-- Urutan Mexicano dari poin per match (rata-rata) alih-alih Total Point.
+- ~~Urutan Mexicano dari poin per match (rata-rata) alih-alih Total Point.~~ Dikerjakan 3.9.0 lewat Point %
+  (keputusan 124, §18).
 - Menghindari ulang lawan atau ulang match persis.
 - Varian lain: Mexicano pasangan tetap ("Team Mexicano"), round final khusus (mis. 1+4 vs 2+3 di round terakhir),
   King of the Court (pemenang naik court).
@@ -1534,7 +1619,8 @@ host 2026-11-12 (keputusan 44–47). Semua usulan di bawah sudah menjadi keputus
 
 **Usulan PM (semuanya disetujui host):**
 
-- **U1.** Urutan Mexicano selalu Total Point → selisih, apa pun tab Klasemen (14.3).
+- **U1.** Urutan Mexicano selalu Total Point → selisih, apa pun tab Klasemen (14.3). Diubah keputusan 124 (2026-11-20):
+  Point % → selisih, tetap apa pun tab.
 - **U2.** Seri di urutan Mexicano diundi terkunci per round, bukan diurut nama (14.3).
 - **U3.** Beban ulang = jumlah kali berpasangan; susunan dengan beban terkecil, seri → A, B, C (14.5).
 - **U4.** Kelompok teratas di court bernomor terkecil yang dipakai (14.4).
@@ -1952,7 +2038,8 @@ Format grup Race to 6 (Win %); Semifinal Race to 6, Perebutan juara 3 Race to 4,
   2. Masih belum pasti → host memilih pasangan yang lolos (dan siapa peringkat 1 kalau itu juga belum pasti) di langkah
      Buat bagan.
 - **Metode yang menentukan lolos** = default format grup (keputusan 21: Race to / Best of → Win %, Americano → Total
-  Point); Klasemen grup tanpa toggle metode (GU8, pertanyaan Q1).
+  Point); Klasemen grup tanpa toggle metode (GU8, pertanyaan Q1). Sejak 3.9.0 default Americano = Point % (keputusan
+  123), jadi grup Americano lolos dari Point % → selisih (U-RP6, keputusan 129).
 - **Dikunci** (dialog konfirmasi, seperti kunci pasangan): siapa lolos, A1/A2 dst., dan **skor fase grup** (tidak bisa
   diubah lagi, GU6, pertanyaan Q2). Pilihan host disimpan; app ditutup sebelum konfirmasi → belum ada yang berubah.
 - Setelah dikunci, round gugur ditambahkan ke Jadwal dan bagan tampil.
@@ -2096,7 +2183,7 @@ Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1�
 | Akhiri | Boleh kapan saja; match Belum → Tidak dimainkan; bagan tidak dibuat kalau masih fase grup; peringkat akhir 16.8; tidak bisa dilanjutkan. Dialog "Akhiri turnamen?" (Batal / Akhiri, seperti 06e) menulis akibat per fase (PATCH 3.8.1): lihat di bawah tabel. |
 | Lanjutkan turnamen | Tidak ada, seperti Fixed (3.2 A); tidak tampil di riwayat Beranda. |
 | Resume (5.10) | App ditutup di fase grup, saat memilih yang lolos (belum konfirmasi), atau di gugur → dibuka lagi di keadaan tersimpan terakhir. |
-| Klasemen toggle (4.2) | Tidak ada di Grup + Gugur (GU8, Q1). |
+| Klasemen toggle (4.2) | Tidak ada di Grup + Gugur (GU8, Q1). Kolom nilai tabel grup = metode default format grup; sejak 3.9.0 Americano → Point % (U-RP6). |
 | Detail Pemain (5.8) | Subjudul "Peringkat n · babak · olahraga · Grup + Gugur" (mis. "Peringkat 1 · Juara · Padel · Grup + Gugur"), tanpa metode dan format skor: metode tetap (GU8) dan format beda per babak (22j). Baris statistik = fase grup saja (format bisa beda per babak, poin dan game tidak dijumlah); riwayat semua match dengan nama babak (GU13). |
 | Live score (5.11) | Penonton melihat match gugur sebagai daftar round dengan nama babak, tanpa bagan (keputusan 101); Klasemen grup + peringkat akhir seperti host. Relay tidak berubah. |
 | Bagikan (5.9) | Podium dan Lengkap dari peringkat akhir; aturan podium 64–65, 68–69 tetap. Kolom kanan poster dan baris caption menulis babak, bukan nilai · selisih (GU16, hi-fi 22l–22r, keputusan 103), mis. caption "1. Citra + Dewi — Juara", "5. Eko + Fajar — Grup A · 3". Bagan di poster belum sekarang. |
@@ -2210,7 +2297,8 @@ Keputusan host 2026-11-17: 93–101 di §10 (jangan dibuka ulang).
   sesudahnya (Q2).
 - **GU7.** Head-to-head satu kali, jumlah menang di antara yang seri saja; berlaku juga untuk seri di #1 (penentu A1/A2),
   bukan hanya batas 2 vs 3.
-- **GU8.** Metode lolos = default format grup (keputusan 21), Klasemen grup tanpa toggle (Q1).
+- **GU8.** Metode lolos = default format grup (keputusan 21), Klasemen grup tanpa toggle (Q1). Sejak 3.9.0 default
+  Americano = Point % (keputusan 123, U-RP6).
 - **GU9.** Format babak gugur default = format grup; N genap (Best of/Americano) jadi N + 1; gugur hanya N ganjil.
   Format babak dan juara 3 bisa diubah sampai babak itu punya skor — **ditunda ke 3.8.x** (keputusan 104): di 3.8.0
   format babak dan juara 3 hanya diatur di Konfigurasi.
@@ -2566,3 +2654,300 @@ belum ada skor: Batalkan R3 → R2 Court 2 bisa dikosongkan atau dikoreksi → B
   terbaca oleh app 3.9.0, app 3.8.x, dan halaman penonton (cek decoder, `docs/data.md`, `docs/security.md`).
 - Turnamen 3.8.x terbuka di 3.9.0 tanpa perubahan; semua test dan golden lama lulus kecuali frame yang memang berubah
   (02b, 04b, 04g, 07i, 07j, 11c, 20b).
+
+---
+
+## 18. Point % — metode peringkat ketiga (3.9.0)
+
+> **Diputuskan host 2026-11-20** (keputusan 122–126, §10; "setuju 4 usulan. tapi gw mau Total Point tetap ada sebagai
+> pilihan"), ikut rilis **3.9.0 (MINOR)** sebagai jalur terpisah (task RP-n). Aturan bertanda **U-RPn** adalah usulan
+> PM yang disetujui host 2026-11-20 (keputusan 129, 18.8).
+> Desain layar menyusul dari designer; hi-fi diubah setelah frame disetujui.
+
+### 18.0 Situasi nyata
+
+- Mixed dan Mexicano di klub hampir selalu punya pemain lebih banyak dari slot court (10 pemain di 2 court → 2
+  istirahat per round), ada yang datang telat (menyusul, 3.4) dan ada yang pulang duluan. Jumlah main antar pemain
+  berbeda sampai beberapa match sepanjang turnamen.
+- Total Point menjumlah poin, jadi pemain yang mainnya lebih sedikit tertinggal karena kurang main, bukan karena kalah.
+  Simulasi main session (2026-11-20, 600 turnamen per skenario): rata-rata 0,7–1,3 posisi di bawah kemampuannya.
+  Di Mexicano akibatnya terasa langsung: yang baru istirahat turun ke court bawah (14B).
+- Win % adil terhadap jumlah main tapi kasar di Americano, tempat tiap poin memang tujuannya: menang 11–10 dan 21–0
+  sama nilainya, dan nilai kembar 7–19% baris (nomor sama atau hanya dipisah selisih).
+- Host bertanya apakah "persen poin terhadap jumlah main" bisa menangani jumlah main yang tidak sama, dan ingin Total
+  Point tetap bisa dipilih (kebiasaan klub: "siapa paling banyak poin malam ini").
+- Semua tetap di satu HP host, offline; penonton live memilih metode sendiri.
+
+### 18.1 Aturan inti
+
+- **RP1. Rumus.** Point % = Σ game/poin didapat ÷ Σ game/poin dimainkan × 100, dengan dimainkan = didapat + kalah,
+  dijumlah dari semua match **Selesai** dan **WO** pemain itu (Belum dan Tidak dimainkan tidak dihitung, 4.5). Satuan
+  ikut format skor: Race to/Best of = game, Americano = poin. Contoh: 12–9 dan 10–11 → (12 + 10) ÷ (21 + 21) = 52%.
+- **RP2. Seri** dihitung apa adanya dari poin: 10–10 → 50%. W–L–D tidak dipakai Point %.
+- **RP3. WO** = skor "nilai WO – 0" (keputusan 125, 18.3).
+- **RP4. Pemisah dan nomor** sama dengan 4.3: Point % (angka bulat yang tampil, 18.2) → selisih → nomor sama, baris
+  diurutkan nama; nomor rapat #1, #2, #2, #3. Total Point dan Win % tidak dipakai sebagai pemisah.
+- **RP5. Belum main** (0 match Selesai/WO): tetap di grup "Belum main" tanpa nomor, seperti 4.3. Tidak ada pembagian
+  dengan nol: setiap match Selesai punya total ≥ 1 (pemenang minimal ⌊N ÷ 2⌋ + 1, Race to minimal N) dan setiap nilai
+  WO ≥ 1, jadi pemain yang punya match selalu punya dimainkan ≥ 1. Urutan Mexicano memakai 0% untuk yang belum main
+  (14.3, U-RP4).
+- **RP6. Default** (keputusan 123): Race to dan Best of → Win %; Americano → Point % (Fixed, Mixed, Mexicano, Sparing
+  per klub, penonton live). Pilihan tab tetap tidak disimpan (4.2).
+- **RP7. Tab** (U-RP1): **Total Point · Point % · Win %** di Klasemen host, Klasemen per klub Sparing, dan Klasemen
+  penonton. Grup + Gugur tetap tanpa tab (GU8).
+- **RP8. Urutan Mexicano** (keputusan 124): Point % → selisih → undian terkunci, apa pun tab (14.3).
+- **RP9.** Point % hanya turunan dari match yang tersimpan, seperti Total Point dan Win % (K7 §17): Kosongkan skor,
+  Hapus WO, koreksi skor, Tukar pemain, dan Batalkan Rn langsung mengubah Point % tanpa aturan tambahan.
+
+### 18.2 Angka yang tampil dan pembanding (U-RP2)
+
+- Point % tampil **bulat tanpa desimal**, ,5 ke atas, di semua tempat: Klasemen, Detail, poster, caption, penonton
+  live. Sama dengan Win % di app (Detail Win % juga bulat, rekomendasi B-18 2026-11-20).
+- Hitungan bulat memakai bilangan bulat, bukan pecahan desimal, supaya semua HP dan web sama:
+  `bulat = (200 × didapat + dimainkan) ÷ (2 × dimainkan)`, sisa dibuang. 5 ÷ 8 = 62,5% → **63%**; 44 ÷ 84 = 52,38% →
+  **52%**.
+- **Nomor dibandingkan dari angka bulat ini**, lalu selisih (keputusan 17: nomor hanya dari angka yang tampil). Kalau
+  dibandingkan dari nilai persis, dua baris "52%" dengan selisih sama bisa bernomor beda tanpa alasan terlihat, dan
+  baris "52% · +1" bisa di atas "52% · +5". Akibatnya nomor sama sedikit lebih sering daripada di simulasi (0,3–2%,
+  nilai persis), tapi selalu terbaca.
+- Di Americano dengan jumlah main sama dan semua match sampai total N, selisih naik bersama poin, jadi urutan tetap
+  sama dengan Total Point walaupun dua persen bulat sama.
+- Win % tidak berubah: dibandingkan dari nilai persis seperti sebelum 3.9.0.
+
+### 18.3 WO (keputusan 125)
+
+- Pemenang WO: didapat + **nilai WO dia sendiri** (4.4: Race to N → N; Best of/Americano → rata-rata skor match yang dia
+  mainkan, bulat ,5 ke atas, minimal ⌊N ÷ 2⌋ + 1; belum pernah main → ⌊N ÷ 2⌋ + 1), kalah + 0.
+- Pasangan WO: didapat + 0, kalah + **nilai WO pasangan lawan**. Fixed dan Race to: satu angka (kedua pemenang selalu
+  sama). Mixed/Mexicano/Sparing Mixed dengan Best of/Americano: rata-rata nilai kedua pemenang, bulat ,5 ke atas (rumus
+  K11, 13.5).
+- Selisih tetap tidak berubah oleh WO (4.4), dan Total Point tetap seperti sekarang.
+- Akibat yang terlihat: menang WO menaikkan Point % ke arah 100%, kalah WO menurunkannya; pemain yang hanya punya WO =
+  100% (menang) atau 0% (kalah). Nilai WO pemenang ikut berubah tiap dia main lagi (4.4), jadi Point %-nya juga.
+
+### 18.4 Contoh hitung
+
+**Contoh 18A — Americano 21, jumlah main tidak sama** (Padel, Mixed, 5 pemain, 1 court, 4 round; tiap round satu
+istirahat menurut prioritas 3.4: R1 Eko, R2 Dewi, R3 Citra, R4 Budi).
+
+| Round | Match | Skor |
+|-------|-------|------|
+| R1 | Andi · Budi vs Citra · Dewi | 12–9 |
+| R2 | Andi · Citra vs Budi · Eko | 10–11 |
+| R3 | Andi · Eko vs Budi · Dewi | 8–13 |
+| R4 | Andi · Dewi vs Citra · Eko | 11–10 |
+
+| Pemain | Main | W–L | Didapat / kalah | +/− | Total Point | Point % | Win % |
+|--------|------|-----|-----------------|-----|-------------|---------|-------|
+| Andi | 4 | 2–2 | 41 / 43 | −2 | 41 | 41 ÷ 84 = 48,8 → **49%** | 50% |
+| Budi | 3 | 3–0 | 36 / 27 | +9 | 36 | 36 ÷ 63 = 57,1 → **57%** | 100% |
+| Citra | 3 | 0–3 | 29 / 34 | −5 | 29 | 29 ÷ 63 = 46,0 → **46%** | 0% |
+| Dewi | 3 | 2–1 | 33 / 30 | +3 | 33 | 33 ÷ 63 = 52,4 → **52%** | 67% |
+| Eko | 3 | 1–2 | 29 / 34 | −5 | 29 | 29 ÷ 63 = 46,0 → **46%** | 33% |
+
+- **Point % (default):** #1 Budi 57% · #2 Dewi 52% · #3 Andi 49% · #4 Citra 46% (−5) · #4 Eko 46% (−5).
+- Total Point: #1 Andi 41 · #2 Budi 36 · #3 Dewi 33 · #4 Citra, Eko 29 (−5). Andi #1 hanya karena main sekali lebih
+  banyak, padahal 2–2 dan selisihnya −2.
+- Win %: #1 Budi 100% · #2 Dewi 67% · #3 Andi 50% · #4 Eko 33% · #5 Citra 0%.
+- Jumlah poin didapat 168 = 4 match × 21 × 2.
+
+**Contoh 18B — Race to 6, 1W–2L di atas 2W–1L** (Tennis, Fixed, 4 pasangan, round-robin 3 round; data A/B 4.2).
+
+| Round | Court 1 | Court 2 |
+|-------|---------|---------|
+| R1 | Andi · Budi 5–6 Citra · Dewi | Eko · Fajar 6–2 Gita · Hadi |
+| R2 | Andi · Budi 5–6 Eko · Fajar | Citra · Dewi 6–5 Gita · Hadi |
+| R3 | Andi · Budi 6–0 Gita · Hadi | Citra · Dewi 0–6 Eko · Fajar |
+
+| Pasangan | W–L | Game didapat / kalah | +/− | Win % | Point % | Total Point |
+|----------|-----|----------------------|-----|-------|---------|-------------|
+| Eko · Fajar | 3–0 | 18 / 7 | +11 | 100% | 72% | 18 |
+| Citra · Dewi | 2–1 | 12 / 16 | −4 | 67% | 43% | 12 |
+| Andi · Budi | 1–2 | 16 / 12 | +4 | 33% | 57% | 16 |
+| Gita · Hadi | 0–3 | 7 / 18 | −11 | 0% | 28% | 7 |
+
+- **Win % (default Race to):** #1 Eko · Fajar · #2 Citra · Dewi · #3 Andi · Budi · #4 Gita · Hadi.
+- Point %: #1 Eko · Fajar 72% · #2 Andi · Budi 57% · #3 Citra · Dewi 43% · #4 Gita · Hadi 28%. Andi · Budi kalah dua
+  kali tapi di atas Citra · Dewi yang menang dua kali: inilah alasan Point % tidak menggantikan Win % dan tidak jadi
+  default Race to/Best of (keputusan 122–123). Jumlah main sama, jadi urutan Point % = Total Point.
+
+**Contoh 18C — WO di Mixed Americano 21** (Padel, 8 pemain, 2 court; nilai WO beda antar pemenang).
+
+| Round | Court 1 | Court 2 |
+|-------|---------|---------|
+| R1 | Andi · Eko 13–8 Citra · Fajar | Budi · Gita 16–5 Dewi · Hadi |
+| R2 | Andi · Fajar 15–6 Dewi · Gita | Budi · Hadi 18–3 Citra · Eko |
+| R3 | Andi · Budi **WO** (Citra · Dewi absen) | Eko · Gita 11–10 Fajar · Hadi |
+
+- Nilai WO (4.4): Andi (13 + 15) ÷ 2 = **14**; Budi (16 + 18) ÷ 2 = **17**. Kalah untuk Citra dan Dewi masing-masing =
+  (14 + 17) ÷ 2 = 15,5 → **16**.
+
+| Pemain | Didapat / kalah | Point % | +/− | Total Point | Win % |
+|--------|-----------------|---------|-----|-------------|-------|
+| Budi | 34 + 17 = 51 / 8 | 51 ÷ 59 = 86,4 → **86%** | +26 | 51 | 100% |
+| Andi | 28 + 14 = 42 / 14 | 42 ÷ 56 = **75%** | +14 | 42 | 100% |
+| Fajar | 33 / 30 | 33 ÷ 63 = 52,4 → **52%** | +3 | 33 | 33% |
+| Gita | 33 / 30 | **52%** | +3 | 33 | 67% |
+| Hadi | 33 / 30 | **52%** | +3 | 33 | 33% |
+| Eko | 27 / 36 | 27 ÷ 63 = 42,9 → **43%** | −9 | 27 | 67% |
+| Citra | 11 / 31 + 16 = 47 | 11 ÷ 58 = 19,0 → **19%** | −20 | 11 | 0% |
+| Dewi | 11 / 31 + 16 = 47 | **19%** | −20 | 11 | 0% |
+
+- **Point % (default):** #1 Budi 86% · #2 Andi 75% · #3 Fajar, Gita, Hadi 52% (+3) · #4 Eko 43% · #5 Citra, Dewi 19%.
+- Selisih tidak berubah oleh WO: Andi +14 dan Citra −20 sama dengan setelah R2.
+- Tanpa WO (Hapus WO, match R3 Court 1 kembali Belum): Andi 28 ÷ 42 = 67%, Budi 34 ÷ 42 = 81%, Citra dan Dewi
+  11 ÷ 42 = 26%.
+- Race to 6 dan Fixed: data 13C (13.6) — Citra · Dewi kalah WO dari Maya · Nanda = 0–6: Citra · Dewi 10 ÷ 23 = 43%,
+  Maya · Nanda 23 ÷ 36 = 64%.
+
+**Contoh 18D — urutan Mexicano setelah istirahat** (lanjutan 14B, 10 pemain, 2 court; skor R2 sama dengan data
+designer 16-mexicano: Andi · Gita 12–9 Fajar · Eko, Budi · Indra 10–11 Dewi · Joko).
+
+| Pemain | Main | Didapat / dimainkan | Point % | +/− | Total Point |
+|--------|------|---------------------|---------|-----|-------------|
+| Citra | 1 (istirahat R2) | 15 / 21 | **71%** | +9 | 15 |
+| Andi | 2 | 27 / 42 | **64%** | +12 | 27 |
+| Hadi | 1 (istirahat R2) | 12 / 21 | **57%** | +3 | 12 |
+| Joko | 1 | 11 / 21 | **52%** | +1 | 11 |
+| Fajar | 2 | 21 / 42 | **50%** | 0 | 21 |
+| Gita | 2 | 21 / 42 | **50%** | 0 | 21 |
+| Indra | 1 | 10 / 21 | **48%** | −1 | 10 |
+| Eko | 2 | 18 / 42 | **43%** | −6 | 18 |
+| Dewi | 2 | 17 / 42 | **40%** | −8 | 17 |
+| Budi | 2 | 16 / 42 | **38%** | −10 | 16 |
+
+- R3 (14B): Citra, Hadi, Indra, Joko pasti main; anggap undian R3 membuat Budi dan Dewi istirahat.
+- **Point % (sejak 3.9.0):** Court 1 = Citra, Andi, Hadi, Joko (susunan A, beban 0: Citra · Hadi vs Andi · Joko);
+  Court 2 = Fajar dan Gita (urutan keduanya dari undian R3, 50% dan 0 sama), Indra, Eko.
+- Total Point (sampai 3.8.x): Court 1 = Andi, Fajar, Gita, Eko; Court 2 = Citra, Hadi, Joko, Indra. Citra, #1 di Point %,
+  turun ke court bawah hanya karena istirahat.
+
+**Contoh 18E — pembulatan dan nomor** (Americano 21, semua match sampai total 21; angka per pemain, untuk test
+`compare`).
+
+| Pemain | Main | Didapat / kalah | Persis | Tampil | +/− | Nomor |
+|--------|------|-----------------|--------|--------|-----|-------|
+| Sari | 6 | 66 / 60 | 52,38% | 52% | +6 | #1 |
+| Qori | 4 | 44 / 40 | 52,38% | 52% | +4 | #2 |
+| Rani | 6 | 65 / 61 | 51,59% | 52% | +4 | #2 |
+| Tono | 6 | 64 / 62 | 50,79% | 51% | +2 | #3 |
+
+- Qori dan Rani: nilai persis beda, angka tampil dan selisih sama → **nomor sama**, baris diurutkan nama.
+- Best of 5, satu pemain menang 3–0 dan kalah 2–3: 5 ÷ 8 = 62,5% → **63%** (,5 ke atas).
+
+### 18.5 Per layar dan interaksi fitur
+
+| Layar / fitur | Perilaku Point % |
+|---------------|------------------|
+| Klasemen (5.7, 09a–09h) | Tiga tab Total Point · Point % · Win % (U-RP1). Tab Point %: kolom nilai "57%", judul kolom "Point %", pemisah +/− seperti sekarang. Dibuka di default format (RP6). |
+| Detail (5.8, 10a–10e) | Subjudul ikut tab: "Peringkat 1 · Point % · Padel · Mixed · Americano 21". Baris statistik menampilkan Point % di semua tab (U-RP5), bulat, "–" kalau belum main. Riwayat match tidak berubah. Sparing dan Grup + Gugur tetap tanpa metode di subjudul (§13.7, §16.9). |
+| Bagikan, poster (5.9, 11a–11m, 18a–18t) | Nilai metode = Point %: "57% poin · +9" (Race to/Best of "57% game · +9") di tempat Total Point menulis satuan (Ringkas, Lengkap Feed satu kolom); "57% · +9" di tempat tanpa satuan (Lengkap dua kolom, Story) (U-RP3). Podium dan nomor dari aturan 18.2. |
+| Caption | Baris peringkat untuk tab Point %: `{n}. {nama} — {Total Point} {satuan} · {Point %}% {satuan} ({W-L[-D]}, {selisih} {satuan})`, Point % menggantikan Win %, contoh 18A "1. Budi — 36 poin · 57% poin (3-0, +9 poin)". Tab Total Point dan Win % tidak berubah (U-RP3). |
+| Penonton live (5.11, 12-an) | Tiga tab, default sama dengan host, dihitung di halaman penonton dari match di payload. Payload dan relay tidak berubah. |
+| Sparing (§13.6) | Klasemen per klub tiga tab, default per format; data 13C 13.6. **Skor klub (K2) tidak berubah** (match menang → Total Point klub); papan dan kepala klub poster tetap "56 game · +13" di semua tab. |
+| Mexicano (§14) | Default Point %; urutan memasangkan Point % → selisih → undian (14.3, 18D). |
+| Grup + Gugur (§16) | Klasemen grup tanpa tab; kolom nilai = default format grup; grup Americano → Point % dan lolos dari Point % → selisih (U-RP6). Peringkat akhir tetap dari babak (16.8). |
+| Pemain telat, Kelola pemain, Tukar pemain, Kelola court | Tidak ada aturan baru; jumlah main yang beda memang yang ditangani Point %. |
+| Kosongkan skor / Hapus WO (§17), koreksi skor | Point % ikut berubah dari match (RP9, contoh 18C tanpa WO). |
+| Estimasi, Jadwal, Beranda | Tidak berubah. |
+
+### 18.6 Kriteria penerimaan
+
+- **AC-RP1** Klasemen host (Fixed, Mixed, Mexicano) menampilkan tiga tab berurutan Total Point · Point % · Win %; ganti tab
+  mengurutkan ulang dan mengubah kolom nilai; pilihan bertahan selama turnamen itu; app dibuka ulang atau turnamen
+  berganti → kembali ke default.
+- **AC-RP2** Klasemen dibuka pertama kali: Race to 6 → Win %; Best of 5 → Win %; Americano 21 dan 24 → Point %; Mexicano →
+  Point %; Sparing Americano → Point % di kedua klub; Sparing Race to → Win %.
+- **AC-RP3** Data 18A, tab Point %: #1 Budi 57% +9 · #2 Dewi 52% +3 · #3 Andi 49% −2 · #4 Citra 46% −5 · #4 Eko 46% −5;
+  tab Total Point dan Win % sama dengan 18A.
+- **AC-RP4** Data 18B, default Win %: Citra · Dewi #2, Andi · Budi #3; tab Point %: Andi · Budi 57% #2, Citra · Dewi 43% #3.
+- **AC-RP5** Data 18C, tab Point %: Budi 86%, Andi 75%, Fajar/Gita/Hadi 52% sama-sama #3, Eko 43% #4, Citra/Dewi 19% sama-sama
+  #5; selisih Andi +14, Citra −20. Hapus WO R3 Court 1 → Andi 67%, Budi 81%, Citra dan Dewi 26%.
+- **AC-RP6** Data 18E: Sari #1, Qori dan Rani #2, Tono #3; 3–0 + 2–3 di Best of 5 tampil 63%. Hitungan bulat sama di
+  Android, iOS, dan web.
+- **AC-RP7** Pemain belum main tetap di "Belum main" tanpa nomor dan tanpa Point %; Detail-nya "–"; tidak ada error atau
+  "NaN" di Klasemen, Detail, poster, caption, maupun halaman penonton.
+- **AC-RP8** Seri Americano 20 10–10 → kedua sisi 50% untuk match itu; pemain yang hanya punya match itu tampil 50%.
+- **AC-RP9** Detail pemain dari tab Point %: subjudul "Peringkat n · Point % · …"; baris statistik menampilkan Point % juga saat
+  dibuka dari tab Total Point atau Win %.
+- **AC-RP10** Bagikan dari tab Point %: poster Ringkas/Lengkap menulis Point % + selisih dengan aturan satuan 18.5; nomor dan
+  yang naik podium sama dengan Klasemen tab Point %; caption 18A baris pertama "1. Budi — 36 poin · 57% poin (3-0, +9
+  poin)". Bagikan dari tab Total Point / Win %: poster dan caption sama persis dengan 3.8.1.
+- **AC-RP11** Mexicano data 18D: Buat R3 dengan undian Budi dan Dewi istirahat → Court 1 Citra, Andi, Hadi, Joko. Tab
+  Total Point, Point %, atau Win % saat Buat R3 → round sama persis. Contoh 14A–14C (AC-M4, AC-M7) tetap lulus tanpa
+  diubah.
+- **AC-RP12** Sparing data 13C, tab Point %: angka 13.6; skor klub 7 – 5 dan "56 game · +13" sama di ketiga tab.
+- **AC-RP13** Grup + Gugur dengan format grup Americano: tabel grup kolom Point %, tanpa tab; yang lolos ke bagan = 2 teratas
+  tabel itu (U-RP6). Grup Race to/Best of tidak berubah.
+- **AC-RP14** Penonton live: tiga tab, default sama dengan host, angka dan nomor sama dengan HP host untuk tab yang sama;
+  payload tidak berisi metode; HP host 3.8.x yang mengirim ke halaman penonton 3.9.0 tetap tampil benar.
+- **AC-RP15** Simpanan dari 3.8.x dimuat di 3.9.0 tanpa migrasi: turnamen Americano yang tadinya terbuka di Total Point kini
+  terbuka di Point %; Mexicano yang sedang berjalan membuat round berikutnya dari Point % (round yang sudah dibuat tidak
+  berubah); test dan golden lama lulus kecuali yang memang berubah (tab Klasemen, default Americano/Mexicano, statline
+  Detail).
+- **AC-RP16** Semua kriteria di atas jalan offline (kecuali live).
+
+### 18.7 Data uji untuk tech lead
+
+- **18A** (Mixed Americano 21, 5 pemain, 1 court, 4 match di tabel): Point % 49 / 57 / 46 / 52 / 46 (Andi, Budi, Citra,
+  Dewi, Eko); Total Point 41 / 36 / 29 / 33 / 29; selisih −2 / +9 / −5 / +3 / −5; jumlah didapat 168.
+- **18B** (Fixed Race to 6, 4 pasangan, 6 match): Point % Eko · Fajar 72, Citra · Dewi 43, Andi · Budi 57, Gita · Hadi 28;
+  jumlah game didapat 53.
+- **18C** (Mixed Americano 21, 8 pemain, 5 match + 1 WO): nilai WO Andi 14, Budi 17, kalah WO 16; didapat/dimainkan per
+  pemain di tabel; jumlah didapat 241 = 5 × 42 + 14 + 17.
+- **18D** (Mexicano 14B setelah R2): Point % per pemain di tabel; urutan R3 dengan undian disuntik (seperti 14.6).
+- **18E** (`compare` + pembulatan): empat baris di tabel, ditambah 5 ÷ 8 → 63, 44 ÷ 84 → 52, 65 ÷ 126 → 52, 64 ÷ 126 → 51.
+- **13C** (Sparing Race to 6): Point % 13.6.
+- **AC-M15** (14A dengan WO R2 Court 2): Eko 63%, Dewi 53%, Gita 28%, Budi 19% (62,5 → 63 menguji ,5 ke atas).
+
+### 18.8 Usulan PM (disetujui host 2026-11-20, keputusan 129)
+
+- **U-RP1. Urutan tab Total Point · Point % · Win %.** Dua metode berbasis poin bersebelahan, Win % (berbasis menang)
+  di ujung; posisi Total Point dan Win % yang sudah dikenal host tidak berpindah ujung.
+- **U-RP2. Bulat tanpa desimal, nomor dari angka bulat** (18.2). Alasan: keputusan 17, dan Win % di app juga bulat.
+- **U-RP3. Satuan di poster dan caption** (18.5): "57% poin" membedakan Point % dari Win % ("57%") di tempat yang
+  menulis satuan; caption menulis Point % menggantikan Win % hanya saat tab Point %, supaya caption Total Point / Win %
+  lama tidak berubah.
+- **U-RP4. Belum main = 0% di urutan Mexicano** (U8 tetap). Alasan: satu-satunya kasus adalah pemain yang istirahat di
+  R1 (pemain tidak bisa ditambah di Mexicano, keputusan 27), dan contoh 14B tetap berlaku. Nilai netral (50%) di
+  "Belum sekarang".
+- **U-RP5. Detail menampilkan Point % di semua tab** (angka pemain tidak tergantung tab, seperti Total Point dan Win %
+  di statline sekarang); designer menentukan letak supaya muat di 390.
+- **U-RP6. Grup + Gugur grup Americano lolos dari Point %** (GU8 menunjuk default keputusan 21, yang diubah keputusan 123).
+  Turnamen Grup + Gugur Americano yang sedang di fase gugur saat update: slot A1/A2 dan bagan tetap terkunci (GU6), tapi
+  tabel "Fase grup" diurutkan Point %, jadi label slot bisa jatuh di baris yang bukan 1–2. Diterima karena jarang
+  (turnamen harus melintasi update).
+
+### 18.9 Data & versi (keputusan 126)
+
+- **MINOR, ikut 3.9.0.** Tidak ada kolom simpanan baru; `schemaVersion` tetap 2; metode tidak disimpan dan tidak ada di
+  payload live (Point % dihitung ulang dari match). App 3.8.x membuka simpanan 3.9.0 dan payload 3.9.0 seperti biasa
+  (tanpa tab Point %).
+- Perilaku yang berubah untuk data lama (diterima, sama seperti 3.3.0 mengganti default): Klasemen Americano terbuka di
+  Point %, sehingga nomor bisa beda dari poster yang dibagikan sebelum update; Mexicano yang berjalan memasangkan round
+  berikutnya dari Point %, jadi Batalkan Rn + Buat Rn melintasi update bisa memberi round lain; grup Americano yang belum
+  dibuat bagannya bisa berganti 2 teratas (U-RP6).
+- Task RP-n (`docs/tasks.md`, ditulis main session/tech lead): spec `logic.md`, frame designer, kode
+  `services/ranking/**` + test, golden.
+
+### 18.10 Belum sekarang
+
+- Point % sebagai default Race to/Best of, atau menggantikan Win % (keputusan 122).
+- Satu tabel gabungan Sparing (dua klub) dengan Point %; skor klub dari Point %.
+- Point % satu desimal; Win % dibandingkan dari angka bulat.
+- Nilai netral (50%) untuk pemain yang belum main di urutan Mexicano.
+- Memilih atau menyimpan metode di Konfigurasi / per turnamen; metode host dikirim ke penonton.
+- Point % di babak gugur (peringkat akhir tetap dari babak).
+- Kompensasi lain untuk yang istirahat (14.10) selain yang sudah diberi Point %.
+
+### 18.11 Pertanyaan untuk host (dijawab "setuju" 2026-11-20, keputusan 129)
+
+- **Q1 (U-RP2).** Point % saya tampilkan bulat ("52%") seperti Win %, dan nomor dibandingkan dari angka bulat itu,
+  supaya dua baris "52% · +4" selalu bernomor sama; akibatnya pemain 52,4% dan 51,6% dengan selisih sama berbagi nomor.
+  Rekomendasi: setujui.
+- **Q2 (U-RP6).** Grup + Gugur menentukan 2 besar grup dari metode default format grup, jadi grup Americano sekarang
+  lolos dari Point %, bukan Total Point; di grup semua pasangan main sama banyak, jadi bedanya kecil (hanya match yang
+  berhenti lebih awal dan WO). Rekomendasi: ikut Point %, supaya satu aturan default berlaku di semua mode.
+- **Q3 (U-RP1, U-RP3–U-RP5).** Urutan tab Total Point · Point % · Win %, satuan "57% poin" di poster/caption, pemain belum
+  main 0% di urutan Mexicano, dan Point % selalu tampil di Detail. Rekomendasi: setujui semuanya; bentuk final di frame
+  designer.

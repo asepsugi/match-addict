@@ -432,6 +432,13 @@ Terbesar: 30 pemain, 2 grup (8 + 7 pasangan, 49 match grup) + 2 SF, Final, Juara
 - Properti (boleh digabung dengan GG-4): setiap state yang dihasilkan rangkaian skor/WO/ubah-skor acak `KnockoutBracket` lolos
   `canEncode` dan `decode(encode(x)) == x`.
 
+## Kosongkan skor / Hapus WO + Point % (3.9.0, MINOR)
+
+Tanpa kunci baru, `schemaVersion` tetap 2 (keputusan 126, 128 #9; spec `design/spec/logic.md` §19.9). Keadaan baru yang
+bisa tersimpan sejak 3.9.0 tetap sah di aturan baca lama: round Fixed lama yang dikosongkan (match kembali `pending` di
+tengah turnamen) dan SF gugur yang dikosongkan/dihapus WO-nya (babak sesudahnya kembali `tbd`) lolos GR13–GR16, jadi app
+3.8.x membukanya. Metode Klasemen (Point %) tidak disimpan dan tidak ada di payload live.
+
 ## Auto-save & resume
 
 - Auto-save-nya satu `listenSelf` di `TournamentController.build()`. Semua mutasi controller berakhir di `state =`,
