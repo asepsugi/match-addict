@@ -23,9 +23,10 @@ Future<bool> downloadShareFiles(List<XFile> files) async {
       (document['body'] as JSObject).callMethod<JSAny?>('appendChild'.toJS, anchor);
       anchor.callMethod<JSAny?>('click'.toJS);
       anchor.callMethod<JSAny?>('remove'.toJS);
-      // Jeda sebelum unduhan kedua supaya browser tidak menganggapnya satu ledakan; URL dilepas sesudahnya.
+      // URL dilepas belakangan: dilepas tepat setelah click, Safari bisa membatalkan unduhannya.
+      Future<void>.delayed(const Duration(seconds: 30), () => url.callMethod<JSAny?>('revokeObjectURL'.toJS, href));
+      // Jeda sebelum unduhan kedua supaya browser tidak menganggapnya satu ledakan.
       if (i < files.length - 1) await Future<void>.delayed(const Duration(milliseconds: 250));
-      url.callMethod<JSAny?>('revokeObjectURL'.toJS, href);
     }
     return true;
   } catch (_) {
