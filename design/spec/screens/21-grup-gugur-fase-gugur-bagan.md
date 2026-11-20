@@ -202,7 +202,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Contoh 16B: Tennis, 20 mnt, 2 court × 3 jam, 24 pemain = 12 pasangan, 4 grup × 3. Semua babak Race to 6 kecuali Juara 3 Race to 4 dan Final Race to 9 (contoh). Lolos: A1 Andi · Budi, A2 Citra · Dewi, B1 Indra · Joko, B2 Gita · Hadi, C1 Maya · Nanda, C2 Rudi · Sari, D1 Tono · Umi, D2 Vina · Wawan.
 - Bagan silang (keputusan 97): PF1 A1–B2, PF2 C1–D2 di paruh atas; PF3 B1–A2, PF4 D1–C2 di paruh bawah. A1 dan A2 paling cepat bertemu di Final (AC-G8).
-- Tiga babak tidak muat di 390 dengan nama terbaca (tiga kolom = ±112 pt, nama terpotong). Jadi bagan digeser horizontal per kolom: kolom 160, jarak 14, dua babak terlihat penuh, babak ketiga mengintip 10 pt sebagai tanda bisa digeser. Bagan terpotong di tepi body (358), tidak sampai tepi layar; label kolom menjorok 12 pt, jadi bagian yang mengintip hanya tepi kartu dan garis, tanpa potongan huruf.
+- Tiga babak tidak muat di 390 dengan nama terbaca (tiga kolom = ±112 pt, nama terpotong). Jadi bagan digeser horizontal per kolom: kolom 153, jarak 14, dua babak terlihat penuh, babak ketiga mengintip 24 pt sebagai tanda bisa digeser (C-7, keputusan 120). Bagan terpotong di tepi body (358), tidak sampai tepi layar; label kolom menjorok 12 pt, jadi kolom yang mengintip di kanan memperlihatkan tepi kartu, garis, dan awal nama babaknya ("Fi…").
 - Posisi geser awal: kolom babak pertama yang masih ada match kosong rata kiri, dibatasi ujung kanan (21x). Geser berhenti per kolom.
 - Round gugur: R7 PF1 + PF2, R8 PF3 + PF4, R9 SF1 + SF2, R10 Final + Juara 3 → 10 round × 20 mnt = 200 mnt, lewat booking 00:20 (AC-G4).
 
@@ -230,7 +230,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
 
-- Perempat final selesai → geseran awal = ujung kanan (Semifinal + Final). Kolom Perempat final tinggal 10 pt di kiri (hanya tepi kartu dan garis); geser ke kanan untuk melihatnya lagi.
+- Perempat final selesai → geseran awal = ujung kanan (Semifinal + Final). Kolom Perempat final tinggal 24 pt di kiri (ujung kartu dengan skornya, ujung kepala kartu dan label kolom, garis); geser ke kanan untuk melihatnya lagi.
 - SF1 6–4 terisi: Andi · Budi ke Final, Vina · Wawan ke Juara 3. SF2 di R9 masih jalan.
 
 ## 21y · Bagan · 4 grup · selesai

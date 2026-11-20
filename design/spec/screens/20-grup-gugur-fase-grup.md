@@ -16,6 +16,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 - Tanpa baris Istirahat di fase grup (GU5), juga untuk grup ganjil yang punya bye.
 - Urutan match di tiap grup = circle method generator round-robin (3.3): pasangan 1–4, 2–3, 1–3, 4–2, 1–2, 3–4. R1: Andi · Budi – Gita · Hadi, Indra · Joko – Oki · Putri.
 - Menu ⋯ sama dengan 06d (Live score, Akhiri turnamen).
+- 12 match grup Belum → "Buat bagan · tunggu 12 match" (20b).
 
 ## 20b · Jadwal fase grup · sebagian terisi
 
@@ -26,6 +27,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 - R1: Andi · Budi 4–6 Gita · Hadi, Indra · Joko 6–1 Oki · Putri. R2: Citra · Dewi 6–3 Eko · Fajar, Kiki · Lina 3–6 Maya · Nanda. R3 Court 1: Andi · Budi 6–3 Eko · Fajar; Court 2 belum. Klasemen saat ini: 20d (5 dari 12 match).
 - Hitung mundur 01:30 = booking 2 jam − 2 round × 15 mnt, sama dengan 13k.
 - Kunci round Fixed tetap berlaku (GU5): R4 terbuka setelah Court 2 R3 terisi (20c). Skor round sebelumnya tetap bisa diubah sampai bagan dibuat.
+- Action bar fase grup selama ada match grup Belum (keputusan 119, §17.11): ikon Klasemen + tombol mati "Buat bagan · tunggu N match", pola 13m. N = match grup Belum di semua round grup, bukan hanya round berjalan: di sini 12 − 5 = 7. R3 Court 2 diisi → "tunggu 6 match"; 12 terisi → "Buat bagan" aktif (20e); satu dikosongkan lagi → "tunggu 1 match". Diakhiri (20q) dan penonton live: tanpa Buat bagan.
+- Beda dengan Fixed 06v yang menyembunyikan "Tambah round": Tambah round opsional, Buat bagan langkah wajib.
 
 ## 20c · Jadwal fase grup · membuka round yang terkunci
 
@@ -53,7 +56,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`
 
-- Semua 12 match grup Selesai/WO dan turnamen belum diakhiri (GU6, AC-G6): Klasemen pindah jadi ikon di kiri dan tombol utama "Buat bagan", pola 06v. Satu match grup masih Belum → tetap 20b ("Klasemen" saja, tanpa Buat bagan).
+- Semua 12 match grup Selesai/WO dan turnamen belum diakhiri (GU6, AC-G6): Klasemen pindah jadi ikon di kiri dan tombol utama "Buat bagan", pola 06v. Satu match grup masih Belum → tombol mati "Buat bagan · tunggu 1 match" (pola 20b, keputusan 119).
 - Skor Grup A = 16D-ii: R4 Gita · Hadi 4–6 Citra · Dewi, R5 Andi · Budi 6–4 Citra · Dewi, R6 Eko · Fajar 6–2 Gita · Hadi. Grup B = 16E: R4 Oki · Putri 4–6 Kiki · Lina, R5 Indra · Joko 6–2 Kiki · Lina, R6 Maya · Nanda 6–2 Oki · Putri. Klasemen: 20f.
 - Hitung mundur 00:30 = booking 2 jam − 6 round × 15 mnt (round lengkap, pola 13l).
 - "Buat bagan": tidak ada pilihan host → langsung dialog 20g; ada seri yang harus dipilih host → sheet 20i dulu.
@@ -140,6 +143,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 - Grup yang berbagi court bergantian satu match per round urut huruf (GU4): R1/R3/R5 = A dan B, R2/R4/R6 = C dan D. Label grup membedakan round-nya; tidak ada pasangan main di dua round beruntun.
 - Grup 3 pasangan: 2–3, 1–3, 1–2 (circle method, satu bye tiap putaran, tanpa baris Istirahat). R1: Citra · Dewi 6–4 Eko · Fajar, Indra · Joko 6–2 Kiki · Lina. R2: Rudi · Sari 6–3 Oki · Putri, Qori · Yuni 4–6 Vina · Wawan. R3: Andi · Budi 6–1 Eko · Fajar, Gita · Hadi 6–4 Kiki · Lina. R4 Court 1: Maya · Nanda 6–3 Oki · Putri.
 - Hitung mundur 02:00 = 3 jam − 3 round × 20 mnt. 2 grup di 1 court tampil sama: satu baris per round, A dan B bergantian.
+- 12 match grup (4 grup × 3), 7 terisi → "Buat bagan · tunggu 5 match" (20b).
 
 ## 20n · Klasemen grup · 4 grup · Sementara
 
@@ -170,6 +174,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 - Grup B ganjil: putaran 3 match dipotong 2 + 1, jadi Court 4 tanpa match di round genap; court tanpa match tidak tampil (pola 06r), tidak ada baris "kosong". R1: Court 1 Andi · Budi – Oki · Putri, Court 2 Sari · Tono – Dodi · Elsa, Court 3 Citra · Dewi – Maya · Nanda, Court 4 Umar · Vina – Bayu · Cici; Qori · Rudi bye di R1–R2 tanpa baris Istirahat.
 - Baris tetap urut nomor court, jadi grup bisa berselang (A, B, A); label grup yang membedakan.
 - Court yang tidak dipakai sama sekali di fase grup (16C, 6 pasangan, 3 court: Court 3) juga tidak tampil; tampilannya sama dengan 20a.
+- 49 match grup (A 28 + B 21), R1 (4) + R2 Court 1 terisi → "Buat bagan · tunggu 44 match" (20b).
 
 ## 20q · Jadwal fase grup · turnamen diakhiri
 

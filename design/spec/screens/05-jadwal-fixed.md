@@ -25,6 +25,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Semua tab bisa dibuka untuk melihat lawan berikutnya, tapi baris di round yang terkunci tidak bisa diketuk dan tidak punya tombol "Isi skor".
 - Kotak info "Round belum bisa dimulai" diganti satu baris dengan ikon gembok.
+- Round di catatan = round paling akhir yang belum lengkap sebelum round yang dilihat (U-5): biasanya R(n−1); setelah match round lama dikosongkan bisa lebih awal (06ab).
 
 ## 06c · Turnamen diakhiri
 
@@ -105,3 +106,32 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarStepper`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`, `CourtColorPicker`
 
 - Booking semua court habis (atau sisanya kurang dari satu match): tombol mati sampai jam ditambah minimal satu court, sama dengan 08d.
+
+## 06aa · Match round lama dikosongkan · round berjalan lagi
+
+![06aa](../../frames/06aa.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+
+- Contoh 06a lebih lanjut: R1–R4 lengkap, R5 belum (R3 Court 1 Andi P · Budi S 4–6 Eko M · Fajar K; R4 Court 1 Andi P · Budi S 6–2 Gina R · Hana T, Court 2 Eko M · Fajar K 3–6 Indra W · Joko S). R3 Court 2 yang salah diisi dikosongkan (07q): Fixed boleh di round mana pun (keputusan 114).
+- R3 jadi round berjalan lagi: titik live dan hitung mundur sisa booking pindah ke R3, baris Court 2 kembali "Isi skor". R4 dan R5 terkunci lagi (06ab). Status Sementara; "Tambah round" tidak muncul sampai semua match terisi (06v).
+- Tab default tetap aturan 06a: round pertama yang masih ada match kosong = R3.
+
+## 06ab · Round terkunci lagi · skor tetap terlihat
+
+![06ab](../../frames/06ab.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+
+- Catatan kunci menyebut round paling akhir yang belum lengkap sebelum round yang dilihat (U-5): R3, bukan R(n−1). R5 juga "Terbuka setelah semua skor R3 terisi" karena R4 lengkap. Tanpa match yang dikosongkan hasilnya sama dengan 06b.
+- Baris pudar tetap menulis skornya: skor R4 tetap dihitung di Klasemen dan Detail, tetapi baris tidak bisa diketuk ke Input Skor sampai R3 Court 2 terisi. Tanpa hitung mundur: bukan round berjalan.
+- Sama di Sparing Fixed (17A-ii) dan fase grup Grup + Gugur sebelum Buat bagan (17D).
+
+## 06ac · Diakhiri · match dikosongkan jadi tidak dimainkan
+
+![06ac](../../frames/06ac.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+
+- Setelah 07r: R5 Court 1 (dulu 6–5) jadi "Tidak dimainkan" seperti Court 2, tidak bisa diketuk lagi; Fixed yang diakhiri tidak bisa dilanjutkan (K6). Status tetap Final; Klasemen dihitung ulang tanpa match itu (K7).
+- Mixed dan Mexicano yang diakhiri: match itu juga "Tidak dimainkan", lalu Lanjutkan turnamen (06m) mengembalikannya ke Belum.

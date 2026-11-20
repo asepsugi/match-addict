@@ -41,6 +41,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
 
+- Pratinjau di sheet: nama pemain yang masuk ditulis tebal tinta (gaya nama pemenang), tanpa label (C-15); sama di semua pratinjau Tukar (17g, 17j, 17l, 17p). Baris match di Jadwal setelah Tukar tidak menebalkan apa pun.
 - Pratinjau: Budi di tempat Dewi (posisi persis, partner Eko dan lawan tetap, T3).
 - Tukar = satu perubahan turnamen, tanpa dialog: bisa dibalik dengan tukar lagi (T9), dan pratinjau sudah menunjukkan hasilnya. Sheet tertutup, kembali ke Jadwal tanpa toast (seperti Simpan skor, 07b) → 17e.
 

@@ -55,7 +55,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Satu baris per babak, urut main: (Perempat final), Semifinal, Perebutan juara 3, Final (keputusan 99, GU1). 2 grup → tiga baris; 4 grup → empat (19j). Ketuk baris → sheet babak di atasnya (19f, 19g).
 - Contoh 16A: Semifinal Race to 6, Perebutan juara 3 Race to 4, Final Race to 9 → baris Gugur di layar "Race to 4–9".
-- Sheet jenis kelola, tanpa footer. Format babak dan Perebutan juara 3 hanya diatur di sini; mengubahnya setelah jadwal dibuat ditunda ke 3.8.x (keputusan 104).
+- Sheet jenis kelola, tanpa footer. Format babak dan Perebutan juara 3 hanya diatur di sini; mengubahnya setelah jadwal dibuat ditunda ke 3.10.0 (keputusan 104, 120).
 
 ## 19f · Sheet Final · di atas sheet Gugur
 

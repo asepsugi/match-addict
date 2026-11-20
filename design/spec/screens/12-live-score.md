@@ -105,6 +105,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarSegmented`, `StandingTable`
 
 - Sama dengan host minus Bagikan, dan tanpa tag: subjudulnya panjang, dan tag ada di Jadwal tempat penonton datang dan kembali. Isinya tetap ikut diperbarui. Metode (Total Point / Win %) dipilih sendiri oleh tiap penonton, tidak ikut pilihan host.
 - Baris diketuk → Detail (12k). Kembali → Jadwal.
+- Data = 09a (Americano 24, R3 lengkap), sengaja bukan turnamen 12h (Americano 21, R3 1/2): frame ini menggambar beda tampilan penonton dengan host, angkanya sama dengan 09a supaya bisa dibandingkan.
 
 ## 12k · Live · Detail pemain
 
@@ -113,6 +114,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarSegmented`, `StandingTable`
 Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScoreRow`, `StatLine`
 
 - Sama persis dengan Detail host (10a/10b/10c), tanpa tag seperti Klasemen; ikut diperbarui saat ada skor baru.
+- Data = 10a (Americano 24, R3 lengkap), sengaja bukan turnamen 12h (Americano 21, R3 1/2): frame ini menggambar beda tampilan penonton dengan host, angkanya sama dengan 10a supaya bisa dibandingkan.
 
 ## 12l · Live · diakhiri
 
