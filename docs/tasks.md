@@ -69,11 +69,33 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
   berhenti dan lapor.
 - KS-8 tambahan: Atur pasangan + back browser (A-9), unduh dua file di Chrome desktop dan Safari (B-10, §19.12 #2).
 
-### Status (2026-11-18)
+### Status (2026-11-20, serah terima ke sesi baru)
 
-- KS-0 selesai (dab6e14). KS-1…KS-3 selesai + digabung (4c75cbd), hi-fi v98 dipublish, disetujui host 2026-11-20
-  tanpa catatan. KS-4 (desainer) + KS-6 (tech-lead) jalan paralel 2026-11-20.
+- KS-0 selesai (dab6e14). KS-1…KS-3 digabung (4c75cbd), hi-fi v98 disetujui host 2026-11-20 tanpa catatan.
+- KS-4 selesai: 13 frame P4 (09h, 10e, 12p, 12q, 15z1–15z4, 17s, 17t, 22s–22u), hi-fi v99 terbit. KS-6 selesai: spec
+  `logic.md` §19 + rincian KS-7a…KS-7e (di atas). Keduanya di b0d1e7f.
+- **Langkah pertama sesi baru:** konfirmasi singkat ke host 9 rekomendasi di bawah (host menjawab "oke" 2026-11-20
+  bersamaan dengan permintaan serah terima; pastikan itu persetujuan sebelum mengubah PRD), lalu catat sebagai keputusan
+  bernomor (lanjut dari 121) di PRD §17 + hi-fi + Cakupan, dan perbarui KS-7e.
+  1. B-7 (09h): nama Mixed panjang dua baris (tinggi 62), bukan potong satu baris → kode + ubah 09h.
+  2. B-8 (12p): penonton tanpa internet → "Tidak ada internet" + "Coba lagi" (sekarang memuat terus = 12o) → kode + ubah 12p.
+  3. B-9 (12q): perilaku app dipertahankan (sheet tetap terbuka, toast di atasnya) → golden saja.
+  4. B-18 (10e): Detail membulatkan Win % (`winPercent.round()`); perbaiki catatan 09b ("1 desimal" salah) → golden saja.
+  5. C-3 (17s/17t): Batal/Tukar ke slot footer `MabarSheet` (menempel), pratinjau tidak ikut digulir → kode + ubah 17s/17t.
+  6. C-4 (22s–22u): Beranda/dialog Grup + Gugur tulis "Grup + Gugur" + nama babak ("Semifinal"), bukan "Fixed"/"Round 7"
+     → kode + gambar ulang 22s–22u.
+  7. C-10: "Pilih klub" (15z2) sudah sesuai usulan disetujui; kode ganti "Tambah" mati di KS-7. Dua varian Sparing (Kelola
+     court "mulai R…", Tukar 12 kandidat) ditunda, digambar nanti dengan fixture `tool/sparing_proto`.
+  8. Frame baru: sheet WO gugur dengan "Hapus WO" mati + pesan 21l (desainer, kelompok kecil).
+  9. `docs/data.md` + satu baris: keadaan data baru 3.9.0 (round Fixed lama kosong, SF dikosongkan) tetap sah di GR13–GR16,
+     `schemaVersion` 2 (main session).
+- Setelah itu: KS-5 (B-22 pemisah di `components.md`, Cakupan "Sudah disetujui", render, publish) → KS-7 gelombang 1
+  (7a opus/medium + 7c + 7d paralel, worktree, base = HEAD `fitur-3-9-0`) → review 7a fresh tech-lead → 7b → 7e → KS-8 → KS-9.
+- Catatan tech-lead: B-10 di 3.8.1 web sudah mengunduh sendiri lewat fallback share_plus tanpa caption/toast; spec
+  mematikan `downloadFallbackEnabled`. Risiko unduhan ganda Chrome / share Safari setelah render async → cek di KS-8.
 - 3.8.1+25 masih belum di-push (ditahan host).
+- **Topik baru dari host (2026-11-20):** ide baru soal penentuan ranking di statistik permainan (Klasemen). Bahas di
+  sesi baru sebelum/terpisah dari KS-7; isi idenya belum disampaikan. Jangan ubah aturan ranking sebelum dibahas.
 
 ---
 
