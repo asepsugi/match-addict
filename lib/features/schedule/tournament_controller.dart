@@ -13,6 +13,7 @@ import '../../services/schedule/knockout_bracket.dart';
 import '../../services/schedule/player_swap.dart';
 import '../../services/schedule/round_robin_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
+import '../../services/scoring/score_reset.dart';
 import '../../services/storage/last_settings.dart';
 import '../../services/storage/tournament_codec.dart';
 import '../../services/storage/tournament_store.dart';
@@ -338,6 +339,21 @@ class TournamentController extends Notifier<ActiveTournament?> {
   /// [reason] null menghapus alasan lama (alasan yang dilepas di sheet WO benar-benar hilang).
   void markWalkover(String matchId, {required String loserPairId, WoReason? reason}) =>
       _updateMatch(matchId, (m) => m.asWalkover(loserPairId: loserPairId, reason: reason));
+
+  /// Kosongkan skor (PRD §17, logic.md §19.2). false = ditolak, state tidak berubah. Sengaja tidak lewat
+  /// [_updateMatch]: jalur Grup + Gugur di sana menolak gugur tanpa pemenang, jadi Kosongkan gugur diam-diam gagal.
+  bool clearScore(String matchId) => _reset(matchId, ResetAction.clearScore);
+
+  /// Hapus WO: kembali ke skor lama kalau ada, kalau tidak Belum (Tidak dimainkan setelah diakhiri).
+  bool removeWalkover(String matchId) => _reset(matchId, ResetAction.removeWalkover);
+
+  bool _reset(String matchId, ResetAction action) {
+    final current = state;
+    final next = current == null ? null : ScoreReset.apply(current, matchId, action);
+    if (next == null) return false;
+    state = next;
+    return true;
+  }
 
   void _updateMatch(String matchId, MatchGame Function(MatchGame) change) {
     final current = state;
