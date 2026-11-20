@@ -23,7 +23,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 - Dua bagian, urutan kerja dari atas: pasangan yang sudah jadi, lalu pemain yang belum berpasangan. Pemain yang sudah dipasangkan pindah ke daftar atas, tidak lagi tampil pudar di bawah, jadi tiap nama hanya ada di satu tempat.
 - Chip dua kolom rata 44 pt (`.chips.cols`), bukan chip yang membungkus tidak rata. Slot kosong bergaris putus dihapus; progres ada di label "1 dari 4 pasangan".
 - Ketuk A (gelap), lalu B → baris baru di daftar atas. Ketuk A lagi melepas pilihan. Catatan di bawah chip mengikuti keadaan: "Ketuk dua pemain…" atau "Ketuk satu lagi untuk dipasangkan dengan A".
-- "Urungkan" melepas pasangan terakhir dan pilihan yang menggantung; mati kalau belum ada pasangan. Pindah ke Manual mengosongkan semua pasangan tanpa konfirmasi; kembali ke Acak membuang hasil manual.
+- "Urungkan" melepas pasangan terakhir dan pilihan yang menggantung; mati kalau belum ada pasangan.
+- Acak → Manual mengosongkan daftar tanpa dialog (pasangan acak bisa dibuat lagi). Manual → Acak dengan pasangan yang sudah jadi → dialog "Buang N pasangan manual?" (04i; di frame ini N = 1). Belum ada pasangan jadi (paling banyak satu pemain terpilih) → langsung Acak tanpa dialog (keputusan 116).
 
 ## 04c · Jumlah pemain ganjil
 
@@ -71,7 +72,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `PairList`, `MabarChip`
 
 - Andi P + Rizky H mengisi nomor 1. Budi S tidak dipasangkan → tidak ikut round tambahan. Catatan "Ketuk dua pemain…" hilang selama tinggal satu chip.
-- Simpan → kembali ke sheet Tambah round (04h); belum ada yang berubah di turnamen sampai "Buat R…" diketuk. Kembali (←) membuang perubahan.
+- Simpan → kembali ke sheet Tambah round (04h); belum ada yang berubah di turnamen sampai "Buat R…" diketuk.
+- ← (tombol, back HP, back browser) di keadaan ini → dialog "Buang perubahan pasangan?" (04j), karena susunan pasangan dan pemain pengganti berbeda dari saat layar dibuka. Tanpa perubahan → keluar tanpa dialog (keputusan 116).
 - Tombol mati dengan alasan "· minimal 2 pasangan" kalau pasangannya kurang dari dua.
 
 ## 04h · Sheet tambah round · pasangan diatur
@@ -82,3 +84,27 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Baris Pasangan menulis hasil Atur pasangan: jumlah pasangan · pasangan baru · pemain yang tidak main. Estimasi ikut daftar baru (jumlah pasangan ganjil → +2 per putaran, 06y).
 - "Buat R15–R16": pemain pengganti masuk daftar pemain turnamen, pasangan baru dipakai mulai R15. Pasangan yang tidak berubah tetap satu baris di Klasemen; yang berubah tampil per pemain (09g).
+
+## 04i · Dialog · buang pasangan manual
+
+![04i](../../frames/04i.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarSegmented`, `PairList`, `MabarChip`, `showMabarSheet`, `showMabarConfirm`
+
+- Ketuk Acak di Manual saat 3 pasangan sudah jadi (Andi P · Budi S, Citra L · Dewant R, Eko M · Fajar K) dan Gina R terpilih (keputusan 116, PRD 17.10 A-9). Latar = keadaan saat Acak diketuk; segmen tetap Manual selama dialog terbuka.
+- N = jumlah pasangan manual yang sudah jadi; pemain terpilih yang belum berpasangan tidak dihitung.
+- Batal → tetap Manual; tiga pasangan dan Gina R terpilih utuh. Buang (clay) → Acak dengan pasangan acak baru (pola 04a, 5 pasangan).
+- Dialog tanpa paragraf: judul sudah menyebut akibat dan jumlahnya. `showMabarConfirm` varian bahaya.
+- N = 0 (belum ada pasangan jadi, paling banyak satu pemain terpilih) → langsung Acak tanpa dialog. Acak → Manual selalu tanpa dialog.
+- Sama di Pasangan sparing Fixed (14b; N = pasangan manual kedua klub) dan Pasangan Grup + Gugur (19n). Layar Grup (19r–19y) tanpa dialog (keputusan 103).
+
+## 04j · Atur pasangan · dialog buang perubahan
+
+![04j](../../frames/04j.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `PairList`, `MabarChip`, `showMabarSheet`, `showMabarConfirm`
+
+- Latar = 04g persis. ← (tombol app bar, back HP, back browser) saat susunan pasangan atau pemain pengganti berbeda dari saat layar dibuka (keputusan 116, PRD 17.10 A-9): di sini pasangan 1 Andi P · Budi S jadi Andi P · Rizky H, dan Rizky H ditambahkan.
+- Batal → tetap di Atur pasangan; susunan dan riwayat Urungkan utuh. Buang (clay) → kembali ke sheet Tambah round tanpa perubahan dari layar ini (baris Pasangan seperti sebelum dibuka); Rizky H tidak masuk turnamen.
+- Tidak ada perubahan (dibuka lalu langsung ←, atau semua langkah di-Urungkan sampai susunannya sama lagi) → keluar tanpa dialog. "Simpan pasangan" tidak memunculkan dialog.
+- Dialog tanpa paragraf, varian bahaya, sama dengan 04i.

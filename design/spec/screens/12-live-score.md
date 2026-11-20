@@ -73,7 +73,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `MabarToast`
 
 - Satu-satunya saat live butuh internet di HP host. Setelah menyala, sinyal putus hanya menunda kiriman (12d).
-- Toast 19 pt di atas action bar, sama dengan "Hasil disalin" (11c).
+- Toast 19 pt di atas action bar, sama dengan toast Bagikan (11c, 11n).
 
 ## 12h · Live · Jadwal Mixed · bernama
 
