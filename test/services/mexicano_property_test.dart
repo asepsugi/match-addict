@@ -107,14 +107,14 @@ void main() {
               for (final s in RankingCalculator.rank(
                 players: ps,
                 matches: before,
-                method: RankingMethod.totalGames,
+                method: RankingMethod.pointPercent,
                 format: _fmt,
               ))
                 s.player.id: s,
             };
             final oracle = ids.toList()
               ..sort((a, b) {
-                final byRank = RankingCalculator.compare(standing[a]!, standing[b]!, RankingMethod.totalGames);
+                final byRank = RankingCalculator.compare(standing[a]!, standing[b]!, RankingMethod.pointPercent);
                 if (byRank != 0) return byRank;
                 final byDraw = draw[a]!.compareTo(draw[b]!);
                 return byDraw != 0 ? byDraw : a.compareTo(b);

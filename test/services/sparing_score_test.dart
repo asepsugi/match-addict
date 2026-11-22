@@ -5,8 +5,12 @@ import 'package:match_addict/services/ranking/ranking_calculator.dart';
 
 import 'sparing_score_fixture.dart';
 
-String _row(StandingEntry e, {bool percent = false}) {
-  final value = percent ? '${e.standing.winPercent.round()}%' : '${e.standing.totalPoint}';
+String _row(StandingEntry e, {bool percent = false, bool pointPercent = false}) {
+  final value = pointPercent
+      ? '${e.standing.pointPercent}%'
+      : percent
+      ? '${e.standing.winPercent.round()}%'
+      : '${e.standing.totalPoint}';
   return '${e.position} ${e.label} $value ${e.standing.diffLabel}';
 }
 
@@ -18,7 +22,7 @@ List<String> _table(ActiveTournament a, Club club, RankingMethod method) {
     format: a.config.format,
   );
   final group = clubStandings(active: a, standings: standings, method: method).firstWhere((g) => g.club.id == club.id);
-  return [for (final e in group.entries) _row(e, percent: method == RankingMethod.winPercent)];
+  return [for (final e in group.entries) _row(e, percent: method == RankingMethod.winPercent, pointPercent: method == RankingMethod.pointPercent)];
 }
 
 void main() {
@@ -159,6 +163,36 @@ void main() {
         '2 Kiki + Lina 16 −3',
         '3 Indra + Joko 10 −14',
       ]);
+    });
+
+    test('AC-RP12 13C Point % akhir: sama di kedua klub, kalah WO 6 untuk Citra + Dewi; skor klub tetap', () {
+      expect(_table(end, garuda, RankingMethod.pointPercent), [
+        '1 Eko + Fajar 72% +11',
+        '2 Andi + Budi 52% +1',
+        '3 Gita + Hadi 47% −2',
+        '4 Citra + Dewi 43% +3',
+      ]);
+      expect(_table(end, matcha, RankingMethod.pointPercent), [
+        '1 Maya + Nanda 64% +4',
+        '2 Kiki + Lina 46% −3',
+        '3 Indra + Joko 29% −14',
+      ]);
+      final woLoser = RankingCalculator.rank(
+        players: end.config.players,
+        matches: end.matches,
+        method: RankingMethod.pointPercent,
+        format: end.config.format,
+      ).firstWhere((s) => s.player.id == 'p-citra');
+      expect((woLoser.woPointsConceded, woLoser.pointsPlayed), (6, 23));
+      final club = ClubResult.of(end)!;
+      expect((club.detailLabel(club.first), club.detailLabel(club.second)), ('56 game · +13', '49 game · −13'));
+    });
+
+    test('woPairValue: ,5 ke atas (K11)', () {
+      expect(RankingCalculator.woPairValue(14, 17), 16);
+      expect(RankingCalculator.woPairValue(11, 11), 11);
+      expect(RankingCalculator.woPairValue(13, 14), 14);
+      expect(RankingCalculator.woPairValue(6, 6), 6);
     });
 
     test('Win % akhir 13p', () {

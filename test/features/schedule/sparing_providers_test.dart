@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/features/live/live_view_controller.dart';
 import 'package:match_addict/features/schedule/sparing_providers.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/models/models.dart';
@@ -57,6 +58,36 @@ void main() {
       expect(c.read(rankingMethodProvider), RankingMethod.winPercent, reason: 'turnamen dimuat lagi → default');
     });
 
+    test('AC-RP2: default per format; Americano → Point %, ganti tab bertahan, ganti turnamen → default', () async {
+      final americano = fixedSparing(c13, format: const ScoreFormat(ScoringMethod.americano, 21));
+      final c = await seed(americano);
+      addTearDown(c.dispose);
+      expect(c.read(rankingMethodProvider), RankingMethod.pointPercent);
+
+      c.read(rankingMethodProvider.notifier).state = RankingMethod.totalGames;
+      c.read(tournamentProvider);
+      expect(c.read(rankingMethodProvider), RankingMethod.totalGames);
+
+      c.read(tournamentProvider.notifier).state = fixedSparing(c13);
+      expect(
+        c.read(rankingMethodProvider),
+        RankingMethod.winPercent,
+        reason: 'turnamen berganti → default format baru',
+      );
+    });
+
+    test('AC-RP14: penonton memakai default yang sama dengan host (tanpa metode di payload)', () {
+      final americano = fixedSparing(c13, format: const ScoreFormat(ScoringMethod.americano, 21));
+      final viewer = ProviderContainer(
+        overrides: [
+          liveViewProvider.overrideWith(() => _Watching(LiveView(LiveViewStatus.live, americano))),
+          tournamentProvider.overrideWith(LiveTournamentController.new),
+        ],
+      );
+      addTearDown(viewer.dispose);
+      expect(viewer.read(rankingMethodProvider), RankingMethod.pointPercent);
+    });
+
     test('tanpa turnamen: kosong', () {
       final c = ProviderContainer(overrides: [tournamentStoreProvider.overrideWithValue(TournamentStore.memory())]);
       addTearDown(c.dispose);
@@ -64,4 +95,13 @@ void main() {
       expect(c.read(clubStandingEntriesProvider), isEmpty);
     });
   });
+}
+
+/// Penonton dengan hasil relay yang sudah ada (pola test/hifi/screens/live_test.dart).
+class _Watching extends LiveViewController {
+  final LiveView view;
+  _Watching(this.view);
+
+  @override
+  LiveView? build() => view;
 }

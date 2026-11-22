@@ -157,12 +157,13 @@ class ScoreFormat {
   String toString() => label;
 }
 
-enum RankingMethod { winPercent, totalGames }
+enum RankingMethod { winPercent, totalGames, pointPercent }
 
 extension RankingMethodX on RankingMethod {
   String get label => switch (this) {
     RankingMethod.winPercent => 'Win %',
     RankingMethod.totalGames => 'Total Point',
+    RankingMethod.pointPercent => 'Point %',
   };
 }
 

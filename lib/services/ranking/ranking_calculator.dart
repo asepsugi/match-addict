@@ -19,6 +19,10 @@ class PlayerStanding {
   /// masuk [gameDiff] — selisih kedua tim tidak berubah oleh WO.
   final int woPoints;
 
+  /// Poin kalah dari WO (keputusan 125): nilai WO pasangan lawan. Hanya untuk Point %: tidak masuk [gameDiff]
+  /// maupun [totalPoint].
+  final int woPointsConceded;
+
   const PlayerStanding({
     required this.player,
     this.wins = 0,
@@ -28,6 +32,7 @@ class PlayerStanding {
     this.gamesLost = 0,
     this.woLosses = 0,
     this.woPoints = 0,
+    this.woPointsConceded = 0,
   });
 
   /// Hanya match yang benar-benar dihitung (selesai + WO).
@@ -44,6 +49,13 @@ class PlayerStanding {
 
   int get gameDiff => gamesWon - gamesLost;
 
+  /// Dimainkan (RP1) = didapat ([totalPoint]) + kalah ([gamesLost] + [woPointsConceded]).
+  int get pointsPlayed => totalPoint + gamesLost + woPointsConceded;
+
+  /// Point % sudah bulat (PRD 18.2): bilangan bulat saja, ,5 ke atas, sama di HP dan web (bukan double + round).
+  /// 0 kalau [pointsPlayed] 0, tidak pernah NaN.
+  int get pointPercent => pointsPlayed == 0 ? 0 : (200 * totalPoint + pointsPlayed) ~/ (2 * pointsPlayed);
+
   /// Selisih seperti tampil di Klasemen, Detail, dan poster: "+12", "−4" (tanda minus, bukan strip), "0".
   String get diffLabel => signedDiffLabel(gameDiff);
 
@@ -55,6 +67,7 @@ class PlayerStanding {
     int gamesLost = 0,
     int woLosses = 0,
     int woPoints = 0,
+    int woPointsConceded = 0,
   }) => PlayerStanding(
     player: player,
     wins: this.wins + wins,
@@ -64,6 +77,7 @@ class PlayerStanding {
     gamesLost: this.gamesLost + gamesLost,
     woLosses: this.woLosses + woLosses,
     woPoints: this.woPoints + woPoints,
+    woPointsConceded: this.woPointsConceded + woPointsConceded,
   );
 }
 
@@ -87,10 +101,10 @@ class RankingCalculator {
 
   /// Metode yang dipakai Klasemen sebelum host memilih sendiri (PRD 4.2, keputusan host 2026-11-11). Race to dan
   /// Best of dimenangkan per match, jadi jumlah menang dulu, seperti klasemen round-robin resmi tennis/padel;
-  /// di Americano tiap poin memang tujuannya, jadi Total Point.
+  /// di Americano tiap poin memang tujuannya, jadi Point % (keputusan 123; sebelumnya Total Point).
   static RankingMethod defaultMethod(ScoreFormat format) => switch (format.method) {
     ScoringMethod.raceTo || ScoringMethod.bestOf => RankingMethod.winPercent,
-    ScoringMethod.americano => RankingMethod.totalGames,
+    ScoringMethod.americano => RankingMethod.pointPercent,
   };
 
   /// Nilai metode (Total Point atau Win %) → selisih: dua angka yang tampil di setiap baris Klasemen dan
@@ -100,10 +114,16 @@ class RankingCalculator {
   static int compare(PlayerStanding a, PlayerStanding b, RankingMethod method) {
     final byMethod = switch (method) {
       RankingMethod.totalGames => b.totalPoint.compareTo(a.totalPoint),
+      // Angka bulat yang tampil (U-RP2); Win % tetap nilai persis.
+      RankingMethod.pointPercent => b.pointPercent.compareTo(a.pointPercent),
       RankingMethod.winPercent => b.winPercent.compareTo(a.winPercent),
     };
     return byMethod != 0 ? byMethod : b.gameDiff.compareTo(a.gameDiff);
   }
+
+  /// Nilai WO satu pasangan pemenang dari nilai WO kedua pemainnya, ,5 ke atas (K11, keputusan 125). Dipakai
+  /// [rank] (poin kalah pasangan WO) dan skor klub sparing: satu aturan, satu tempat.
+  static int woPairValue(int a, int b) => (a + b + 1) ~/ 2;
 
   /// Nilai satu kali menang WO per pemain, dari match yang benar-benar dimainkan (PRD 4.4). Sama dengan nilai yang
   /// dikreditkan [rank] ke tiap pemenang WO; skor klub sparing memakainya lagi (K11) supaya aturannya tidak
@@ -153,22 +173,37 @@ class RankingCalculator {
     }
 
     // WO sesudah semua match yang dimainkan: nilai menang WO memakai rata-rata skor pemain itu sendiri,
-    // jadi ikut berubah setiap kali dia main lagi (PRD 4.4).
-    final played = {for (final e in table.entries) e.key: (games: e.value.gamesWon, count: e.value.matchesPlayed)};
+    // jadi ikut berubah setiap kali dia main lagi (PRD 4.4). Dihitung untuk semua id di [matches], bukan hanya
+    // [players]: pemanggil bisa mengoper sebagian pemain sedangkan pemenang WO lawannya tidak ikut (logic.md 20.2).
+    final own = <String, ({int games, int count})>{};
+    for (final m in matches) {
+      if (m.status != MatchStatus.done) continue;
+      for (final pair in [m.pair1, m.pair2]) {
+        final games = pair.id == m.pair1.id ? m.pair1TotalGames : m.pair2TotalGames;
+        for (final id in pair.playerIds) {
+          final c = own[id];
+          own[id] = (games: (c?.games ?? 0) + games, count: (c?.count ?? 0) + 1);
+        }
+      }
+    }
+    int valueOf(String id) => _woValue(format, own[id]?.games ?? 0, own[id]?.count ?? 0);
+
     for (final m in matches) {
       if (m.status != MatchStatus.wo) continue;
       final winnerId = m.winnerPairId;
+      final winner = m.pair1.id == winnerId ? m.pair1 : m.pair2;
+      final conceded = woPairValue(valueOf(winner.player1Id), valueOf(winner.player2Id));
       for (final pair in [m.pair1, m.pair2]) {
         final won = winnerId == pair.id;
         for (final id in pair.playerIds) {
           final current = table[id];
           if (current == null) continue;
-          final own = played[id]!;
           table[id] = current._add(
             wins: won ? 1 : 0,
             losses: won ? 0 : 1,
             woLosses: won ? 0 : 1,
-            woPoints: won ? _woValue(format, own.games, own.count) : 0,
+            woPoints: won ? valueOf(id) : 0,
+            woPointsConceded: won ? 0 : conceded,
           );
         }
       }
