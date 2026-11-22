@@ -26,6 +26,8 @@ void main() {
     ],
   );
 
+  final _pointPercent = rankingMethodProvider.overrideWith((ref) => RankingMethod.pointPercent);
+
   Future<void> winPercent(WidgetTester tester) => tester.tap(find.text('Win %').first);
   Future<void> scrollDown(WidgetTester tester) => tester.drag(find.byType(ListView), const Offset(0, -2000));
 
@@ -54,6 +56,9 @@ void main() {
     expect(find.text('56 game · +13'), findsOneWidget);
     expect(find.text('49 game · −13'), findsOneWidget);
     expect(find.text('1 match WO'), findsOneWidget);
+    for (final t in ['Total Point', 'Point %', 'Win %']) {
+      expect(find.text(t), findsWidgets); // tiga tab (RP-3b)
+    }
     expect(find.text('Padel · Fixed · Final · 6 round · 12 match'), findsOneWidget);
     expect(appBarScrolled(tester), isTrue); // digulir: garis bawah app bar muncul
   });
@@ -96,6 +101,20 @@ void main() {
     expectBoard(first: '7', second: '5', balls: 1);
     expect(find.text('56 game · +13'), findsOneWidget);
     expect(find.text('Win %'), findsNWidgets(3)); // tab + kolom di dua tabel
+  });
+
+  testWidgets('AC-RP12 13C tab Point %: persen per pasangan, skor klub tidak berubah', (tester) async {
+    tester.view.physicalSize = const Size(390, 844) * hifiPixelRatio;
+    tester.view.devicePixelRatio = hifiPixelRatio;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(screen(sparingFull(), extra: [_pointPercent]));
+    await tester.pumpAndSettle();
+    expectBoard(first: '7', second: '5', balls: 1);
+    expect(find.text('56 game · +13'), findsOneWidget);
+    // Garuda 72, 52, 47, 43; Matcha 64, 46, 29 (logic.md 20.8 AC-RP12).
+    for (final v in ['72', '52', '47', '43', '64', '46', '29']) {
+      expect(find.text(v), findsOneWidget, reason: 'Point % $v');
+    }
   });
 
   testWidgets('14p pasangan diatur ulang: baris campuran, Belum main per klub, papan tetap 7 – 5', (tester) async {
@@ -144,7 +163,9 @@ void main() {
     ],
   );
 
-  testWidgets('15s Mixed Final: Fajar 21 (+7) di atas Budi 21 (+2), Joko 26 (+5) di atas Nanda 26 (-4)', (tester) async {
+  testWidgets('15s Mixed Final: Fajar 21 (+7) di atas Budi 21 (+2), Joko 26 (+5) di atas Nanda 26 (-4)', (
+    tester,
+  ) async {
     await expectMatchesHifi(tester, mixedScreen(mixedSparing15f()), '15s');
     expectBoard(first: '10', second: '6', balls: 1);
     expect(find.text('83 game · +14'), findsOneWidget);
@@ -169,8 +190,12 @@ void main() {
   });
 
   testWidgets('15t Americano: WO di skor klub, Total Point klub Matcha 58, Maya 24, Lina 18', (tester) async {
-    await expectMatchesHifi(tester, mixedScreen(mixedSparing15t()), '15t', act: scrollDown);
+    await expectMatchesHifi(tester, mixedScreen(mixedSparing15t(), extra: [_pointPercent]), '15t', act: scrollDown);
     expectBoard(first: '4', second: '2', balls: 1);
+    // Americano: tabel dibuka di Point % (keputusan 123); harness memaksa Total Point, jadi dioverride dan dicek teks.
+    expect(find.text('Point %'), findsWidgets);
+    expect(find.text('73'), findsOneWidget); // Maya 24/33 (14-sparing/15 spec, WO = nilai WO - 0)
+    expect(find.text('67'), findsWidgets); // Andi, Budi 14/21
     // Total Point klub (58) = 46 poin main + nilai WO klub 12 (K11): dari ClubResult, bukan jumlah baris pemain.
     expect(find.text('59 poin · +13'), findsOneWidget);
     expect(find.text('58 poin · −13'), findsOneWidget);
