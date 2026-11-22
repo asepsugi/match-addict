@@ -324,6 +324,12 @@ table.map { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .statline div:first-child { border-left: 0; }
 .statline b { display: block; font-size: 28px; line-height: 1; }
 .statline span { display: block; font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+/* .statline.s5 — Detail sejak 3.9.0 (RP-1): lima angka Poin · Point % · Win · W–L–D · Selisih. Kolom flex 4·4·4·5·5
+   (W–L–D dan selisih lebih lebar), padding samping 4, label satu baris; angka yang lebih lebar dari kolomnya diperkecil
+   (FittedBox scaleDown), tidak dipotong. */
+.statline.s5 { grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr) minmax(0, 5fr) minmax(0, 5fr); }
+.statline.s5 div { padding: 14px 4px 12px; }
+.statline.s5 span { white-space: nowrap; }
 
 /* Lapisan: sheet, dialog, menu, toast */
 .scrim { position: absolute; inset: 0; background: rgba(15,30,44,.46); }
@@ -2931,23 +2937,23 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
   <div class="screens">
 
     <div class="scr">
-      <div class="cap"><b>09a</b><span>Mixed · Total Point · nomor sama</span></div>
+      <div class="cap"><b>09a</b><span>Mixed · Point % · dibuka pertama (Americano)</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R3 · 6 dari 6 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b class="on">Point %</b><b>Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
-            <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Poin</span></div>
-            <div class="rrow"><b class="r lead n">1</b><span class="nm">Andi P</span><span class="mp n">3</span><span class="c3 n">3–0–0</span><span class="df n">+12</span><b class="c4 n">42</b></div>
-            <div class="rrow"><b class="r lead n">1</b><span class="nm">Dewant R</span><span class="mp n">3</span><span class="c3 n">3–0–0</span><span class="df n">+12</span><b class="c4 n">42</b></div>
-            <div class="rrow"><b class="r n">2</b><span class="nm">Hana T</span><span class="mp n">3</span><span class="c3 n">1–1–1</span><span class="df n">0</span><b class="c4 n">36</b></div>
-            <div class="rrow"><b class="r n">3</b><span class="nm">Fajar K</span><span class="mp n">3</span><span class="c3 n">0–2–1</span><span class="df n">−12</span><b class="c4 n">30</b></div>
-            <div class="rrow"><b class="r n">4</b><span class="nm">Gina R</span><span class="mp n">2</span><span class="c3 n">1–0–1</span><span class="df n">+6</span><b class="c4 n">27</b></div>
-            <div class="rrow"><b class="r n">5</b><span class="nm">Citra L</span><span class="mp n">2</span><span class="c3 n">1–1–0</span><span class="df n">+4</span><b class="c4 n">26</b></div>
-            <div class="rrow"><b class="r n">6</b><span class="nm">Joko S</span><span class="mp n">2</span><span class="c3 n">1–1–0</span><span class="df n">−2</span><b class="c4 n">23</b></div>
-            <div class="rrow"><b class="r n">7</b><span class="nm">Eko M</span><span class="mp n">2</span><span class="c3 n">0–1–1</span><span class="df n">−4</span><b class="c4 n">22</b></div>
-            <div class="rrow"><b class="r n">8</b><span class="nm">Budi S</span><span class="mp n">2</span><span class="c3 n">0–2–0</span><span class="df n">−8</span><b class="c4 n">20</b></div>
-            <div class="rrow"><b class="r n">8</b><span class="nm">Indra W</span><span class="mp n">2</span><span class="c3 n">0–2–0</span><span class="df n">−8</span><b class="c4 n">20</b></div>
+            <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Point %</span></div>
+            <div class="rrow"><b class="r lead n">1</b><span class="nm">Andi P</span><span class="mp n">3</span><span class="c3 n">3–0–0</span><span class="df n">+12</span><b class="c4 n">58</b></div>
+            <div class="rrow"><b class="r lead n">1</b><span class="nm">Dewant R</span><span class="mp n">3</span><span class="c3 n">3–0–0</span><span class="df n">+12</span><b class="c4 n">58</b></div>
+            <div class="rrow"><b class="r n">2</b><span class="nm">Gina R</span><span class="mp n">2</span><span class="c3 n">1–0–1</span><span class="df n">+6</span><b class="c4 n">56</b></div>
+            <div class="rrow"><b class="r n">3</b><span class="nm">Citra L</span><span class="mp n">2</span><span class="c3 n">1–1–0</span><span class="df n">+4</span><b class="c4 n">54</b></div>
+            <div class="rrow"><b class="r n">4</b><span class="nm">Hana T</span><span class="mp n">3</span><span class="c3 n">1–1–1</span><span class="df n">0</span><b class="c4 n">50</b></div>
+            <div class="rrow"><b class="r n">5</b><span class="nm">Joko S</span><span class="mp n">2</span><span class="c3 n">1–1–0</span><span class="df n">−2</span><b class="c4 n">48</b></div>
+            <div class="rrow"><b class="r n">6</b><span class="nm">Eko M</span><span class="mp n">2</span><span class="c3 n">0–1–1</span><span class="df n">−4</span><b class="c4 n">46</b></div>
+            <div class="rrow"><b class="r n">7</b><span class="nm">Budi S</span><span class="mp n">2</span><span class="c3 n">0–2–0</span><span class="df n">−8</span><b class="c4 n">42</b></div>
+            <div class="rrow"><b class="r n">7</b><span class="nm">Indra W</span><span class="mp n">2</span><span class="c3 n">0–2–0</span><span class="df n">−8</span><b class="c4 n">42</b></div>
+            <div class="rrow"><b class="r n">8</b><span class="nm">Fajar K</span><span class="mp n">3</span><span class="c3 n">0–2–1</span><span class="df n">−12</span><b class="c4 n">42</b></div>
             <div class="rrow sub"><span></span><span>Belum main</span><span></span><span></span><span></span><span></span></div>
             <div class="rrow idle"><span class="r n">–</span><span class="nm">Gilang S</span><span class="mp">–</span><span class="c3">–</span><span class="df">–</span><span class="c4">–</span></div>
           </div>
@@ -2955,15 +2961,12 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
       </div>
       <ul>
-        <li>Poin sama dipisah selisih (kolom +/−). Poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan (1, 1, 2 … 8, 8); yang bernomor sama urut nama. Head-to-head tidak dipakai lagi: alasan urutan harus terbaca dari angka di tabel (keputusan host 2026-11-02).</li>
-        <li>Kolom +/− = selisih poin (atau game): yang dimenangkan dikurangi yang kalah, dijumlah lintas match. Menang/kalah WO tidak mengubah selisih. Ada di kedua metode, sama dengan baris poster (11a).</li>
-        <li>Kolom Main = jumlah match yang sudah dimainkan (selesai + WO, sama dengan W + L + D). Mixed bisa berbeda antar pemain (pemain telat, istirahat), jadi kelihatan kenapa Total Point-nya tertinggal.</li>
-        <li>Kolom W–L–D = win–loss–draw (menang–kalah–seri), singkatan Inggris seperti Win % dan Total Point. Seri tidak lagi ditulis kecil di bawah nama, jadi tinggi semua baris sama. Kolom D hanya ada kalau format skornya bisa seri (Americano total genap, Best of genap); Race to dan format ganjil cukup W–L (09c), supaya tidak ada kolom yang isinya selalu 0.</li>
-        <li>Subjudul: olahraga · mode · status · round · match, sama urutannya dengan Detail ("Peringkat 1 · Total Point · Padel · Mixed · Americano 24"; Detail menambah metode dan format skor).</li>
-        <li>Medali emas/perak/perunggu dihapus; peringkat 1 diberi bola. Baris bisa diketuk → Detail.</li>
-        <li>"Belum main" = pemain tanpa match selesai/WO (pemain baru, sisa ganjil di Fixed). Pemain yang keluar tetap tampil tanpa tanda. Catatan "n match WO" di bawah tabel hanya kalau ada WO (09d).</li>
-        <li>Baru: Mixed disebut "Final" hanya setelah diakhiri atau saat waktu booking habis dengan round terakhir lengkap (09f). Sekarang Mixed jadi FINAL tiap round lengkap padahal round masih bisa dibuat.</li>
-        <li>Contoh dihitung dari 6 match sungguhan (Americano 24, total genap jadi bisa seri): Hana–Gina vs Eko–Fajar 12–12.</li>
+        <li>Americano (juga Mexicano) membuka Klasemen di Point %; Race to dan Best of di Win % (keputusan 123). Tab berurutan Total Point · Point % · Win % (keputusan 129, U-RP1). Pilihan host bertahan selama turnamen itu, tidak disimpan; turnamen berganti atau app dibuka ulang → kembali ke default.</li>
+        <li>Point % = poin didapat ÷ poin dimainkan (didapat + kalah) dari match Selesai dan WO, dibulatkan tanpa desimal (,5 ke atas). Kolom menulis angka saja seperti Win % (09b); tanda % ada di judul kolom "Point %".</li>
+        <li>Nomor dari angka bulat yang tampil, lalu selisih (keputusan 129, U-RP2): Budi dan Indra (20 ÷ 48) serta Fajar (30 ÷ 72) sama-sama 42; selisih −8 di atas −12, jadi Budi dan Indra #7, Fajar #8. Angka dan selisih sama → nomor sama, urut nama (Andi, Dewant #1).</li>
+        <li>Data sama dengan 09i (Total Point) dan 09b (Win %). Hana 36 poin dari 3 match (#2 di Total Point) turun ke #4 karena 36 ÷ 72 = 50%; Gina 27 poin dari 2 match naik ke #2 (27 ÷ 48 = 56%).</li>
+        <li>Kolom Main, W–L–D, +/−, grup "Belum main", bola peringkat 1, dan ketuk baris → Detail sama dengan 09i. Detail Andi dari tab ini: "Peringkat 1 · Point % · …" (10a).</li>
+        <li>Hitungan (fixture <code>ranking_fixture.dart</code> set1, <code>logic.md</code> §20.8): Americano 24, tiap match total 24, jadi dimainkan = 24 × Main. Andi 42/72 → 58 · Dewant 42/72 → 58 · Gina 27/48 → 56 · Citra 26/48 → 54 · Hana 36/72 → 50 · Joko 23/48 → 48 · Eko 22/48 → 46 · Budi 20/48 → 42 · Indra 20/48 → 42 · Fajar 30/72 → 42.</li>
       </ul>
     </div>
 
@@ -2971,7 +2974,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>09b</b><span>Mixed · Win %</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R3 · 6 dari 6 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b class="on">Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b>Point %</b><b class="on">Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
             <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Win %</span></div>
@@ -2992,9 +2995,9 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
       </div>
       <ul>
-        <li>Kolom Main, W–L–D, dan +/− tetap di kedua metode: ganti metode hanya mengubah urutan dan kolom terakhir. W–L–D juga yang menjelaskan Win %: seri dihitung setengah menang (1–1–1 → 50%).</li>
+        <li>Kolom Main, W–L–D, dan +/− tetap di ketiga metode: ganti metode hanya mengubah urutan dan kolom terakhir. W–L–D juga yang menjelaskan Win %: seri dihitung setengah menang (1–1–1 → 50%).</li>
         <li>Win % dibulatkan tanpa desimal, di tabel maupun Detail (keputusan 128, B-18; 10e). Win % sama dipisah selisih, sama dengan Total Point: Citra +4 di atas Hana 0 dan Joko −2. Total Point tidak lagi jadi pemisah karena tidak tampil di tabel Win %.</li>
-        <li>Metode saat Klasemen dibuka mengikuti format skor: Race to dan Best of → Win %, Americano → Total Point (keputusan host 2026-11-11). Pilihan host bertahan selama turnamen itu, tidak disimpan; turnamen berganti atau resume → kembali ke default formatnya.</li>
+        <li>Metode saat Klasemen dibuka mengikuti format skor: Race to dan Best of → Win %, Americano dan Mexicano → Point % (keputusan 123; sebelum 3.9.0 Americano → Total Point). Pilihan host bertahan selama turnamen itu, tidak disimpan; turnamen berganti atau resume → kembali ke default formatnya.</li>
       </ul>
     </div>
 
@@ -3002,7 +3005,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>09c</b><span>Fixed · final</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Tennis · Fixed · Final · 5 round · 10 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Point %</b><b>Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
             <div class="rrow head"><span>#</span><span>Pasangan</span><span>Main</span><span>W–L</span><span>+/−</span><span>Game</span></div>
@@ -3027,7 +3030,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>09d</b><span>Mixed · Total Point · peringkat 1 & 2 beda</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R4 · 7 dari 8 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Point %</b><b>Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
             <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Poin</span></div>
@@ -3047,7 +3050,8 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
       </div>
       <ul>
-        <li>Hanya satu bola: Eko (43) di peringkat 1, Budi (42) di peringkat 2. Nomor 1 hanya dobel kalau poin dan selisihnya sama (09a). Dewant dan Indra sama-sama 25 poin +2 → berbagi nomor 7, Gina lanjut di 8.</li>
+        <li>Tab Total Point dipilih host; Americano dibuka di Point % (09a).</li>
+        <li>Hanya satu bola: Eko (43) di peringkat 1, Budi (42) di peringkat 2. Nomor 1 hanya dobel kalau poin dan selisihnya sama (09i). Dewant dan Indra sama-sama 25 poin +2 → berbagi nomor 7, Gina lanjut di 8.</li>
         <li>Contoh dihitung dari 7 match sungguhan R1–R4: satu seri (Budi–Indra vs Citra–Gina 12–12) dan satu WO. Budi dan Joko menang WO, jadi masing-masing dapat poin rata-rata dari match yang mereka mainkan: Budi (16 + 12) ÷ 2 = 14; Joko rata-ratanya 8,5, di bawah skor menang terkecil Americano 24 (13–11), jadi dapat 13. Tanpa aturan ini Budi hanya 28 poin dan turun ke peringkat 5 padahal tidak kalah sekali pun.</li>
       </ul>
     </div>
@@ -3056,7 +3060,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>09e</b><span>Mixed · Win % · urutan berubah</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R4 · 7 dari 8 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b class="on">Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b>Point %</b><b class="on">Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
             <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Win %</span></div>
@@ -3085,7 +3089,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>09f</b><span>Mixed · Final (setelah diakhiri)</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Final · 4 round · 7 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Point %</b><b>Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
             <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Poin</span></div>
@@ -3105,6 +3109,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
       </div>
       <ul>
+        <li>Tab Total Point dipilih host; Americano dibuka di Point % (09a).</li>
         <li>Mixed jadi Final kalau (a) sudah "Akhiri turnamen" (06e), atau (b) waktu booking semua court habis dan round terakhir sudah lengkap (06l), karena tidak ada lagi yang bisa dimainkan tanpa tindakan host. Di kode: <code>isFinished || (courtsAvailableAt(now).isEmpty &amp;&amp; isRoundComplete(n))</code> — waktu habis menurut jam sungguhan.</li><li>Subjudul memakai pola Final yang sama dengan Fixed (09c): jumlah round dan match yang dimainkan, bukan "R4 · 7 dari 8 match", karena progres round tidak bermakna lagi setelah selesai. Contoh untuk data 09a: "Padel · Mixed · Final · 3 round · 6 match".</li>
         <li>Match yang belum dimainkan saat Akhiri jadi "Tidak dimainkan" dan tidak dihitung (di sini R4 Andi–Hana vs Budi–Gina); jumlahnya ditulis di catatan bawah bersama WO.</li>
         <li>Kalau dilanjutkan atau ditambah jam lewat "Lanjutkan turnamen" (08c), status kembali Sementara dan subjudul kembali ke pola "R… · x dari y match". Waktu habis tapi round terakhir belum lengkap: tetap Sementara sampai skornya terisi atau diakhiri.</li>
@@ -3116,7 +3121,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>09g</b><span>Fixed · pasangan diatur ulang</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Fixed · Final · 16 round · 32 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Point %</b><b>Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
             <div class="rrow head"><span>#</span><span>Pasangan</span><span>Main</span><span>W–L</span><span>+/−</span><span>Poin</span></div>
@@ -3146,7 +3151,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>09h</b><span>Mixed · 30 pemain · nama panjang</span></div>
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R2 · 8 dari 8 match</p></div></div>
-        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Win %</b></div></div>
+        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Point %</b><b>Win %</b></div></div>
         <div class="body flush" style="padding-top:12px;gap:10px">
           <div class="rank">
             <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L</span><span>+/−</span><span>Poin</span></div>
@@ -3184,7 +3189,124 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         </div>
         <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
       </div>
-      <ul><li>Nama ditulis seperti diketik host (tanpa disingkat). Kolom nama 108 pt: nama yang lebih panjang dipotong satu baris dengan elipsis, sama dengan baris pemain lain dan app sekarang (<code>StandingTable</code>, satu baris). "Muhammad Rifqi A" dan "Muhammad Rizky H" terpotong sama; nama lengkap ada di Detail (ketuk baris → judul Detail).</li><li>Tabel lebih panjang dari layar: tabel digulir, app bar, pilihan metode, dan action bar tetap. Frame menampilkan bagian atas; 30 baris, tanpa "Belum main" (semua sudah main).</li><li>Data (fixture): Padel · Mixed · Americano 21 (ganjil → W–L tanpa D, 09c), 30 pemain, 4 court. R1: Andi Pratama · Dewantoro Rahman 14–7 Budi Santoso · Christina Lestari; Eko Mulyadi · Fajar Kurniawan 11–10 Gina Rahmawati · Hana Tanjung; Indra Wijaya · Joko Susilo 9–12 Kiki Amelia · Lina Marlina; Maya Puspita · Nanda Rizaldi 13–8 Oki Setiawan · Putri Anggraini. R2: Muhammad Rizky H · Muhammad Rifqi A 12–9 Sari Dewi · Tono Budiman; Umar Faruq · Vina Kartika 6–15 Wulan Sari · Yoga Prasetyo; Zaki Maulana · Bayu Saputra 10–11 Dimas Aditya · Galih Permana; Rina Kusuma · Hendra Gunawan 8–13 Dewantoro Rahman · Gina Rahmawati.</li><li>Nomor rapat dari poin lalu selisih (09a): Dewantoro 27 (2 match), Gina 23, lalu nomor sama urut nama. Jumlah W = jumlah L = 16 (8 match × 2 pemain menang).</li></ul>
+      <ul><li>Tab Total Point dipilih host; Americano dibuka di Point % (09a).</li><li>Nama ditulis seperti diketik host (tanpa disingkat). Kolom nama 108 pt: nama yang lebih panjang dipotong satu baris dengan elipsis, sama dengan baris pemain lain dan app sekarang (<code>StandingTable</code>, satu baris). "Muhammad Rifqi A" dan "Muhammad Rizky H" terpotong sama; nama lengkap ada di Detail (ketuk baris → judul Detail).</li><li>Tabel lebih panjang dari layar: tabel digulir, app bar, pilihan metode, dan action bar tetap. Frame menampilkan bagian atas; 30 baris, tanpa "Belum main" (semua sudah main).</li><li>Data (fixture): Padel · Mixed · Americano 21 (ganjil → W–L tanpa D, 09c), 30 pemain, 4 court. R1: Andi Pratama · Dewantoro Rahman 14–7 Budi Santoso · Christina Lestari; Eko Mulyadi · Fajar Kurniawan 11–10 Gina Rahmawati · Hana Tanjung; Indra Wijaya · Joko Susilo 9–12 Kiki Amelia · Lina Marlina; Maya Puspita · Nanda Rizaldi 13–8 Oki Setiawan · Putri Anggraini. R2: Muhammad Rizky H · Muhammad Rifqi A 12–9 Sari Dewi · Tono Budiman; Umar Faruq · Vina Kartika 6–15 Wulan Sari · Yoga Prasetyo; Zaki Maulana · Bayu Saputra 10–11 Dimas Aditya · Galih Permana; Rina Kusuma · Hendra Gunawan 8–13 Dewantoro Rahman · Gina Rahmawati.</li><li>Nomor rapat dari poin lalu selisih (09i): Dewantoro 27 (2 match), Gina 23, lalu nomor sama urut nama. Jumlah W = jumlah L = 16 (8 match × 2 pemain menang).</li></ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>09i</b><span>Mixed · Total Point · nomor sama</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R3 · 6 dari 6 match</p></div></div>
+        <div class="seg-wrap"><div class="seg"><b class="on">Total Point</b><b>Point %</b><b>Win %</b></div></div>
+        <div class="body flush" style="padding-top:12px;gap:10px">
+          <div class="rank">
+            <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Poin</span></div>
+            <div class="rrow"><b class="r lead n">1</b><span class="nm">Andi P</span><span class="mp n">3</span><span class="c3 n">3–0–0</span><span class="df n">+12</span><b class="c4 n">42</b></div>
+            <div class="rrow"><b class="r lead n">1</b><span class="nm">Dewant R</span><span class="mp n">3</span><span class="c3 n">3–0–0</span><span class="df n">+12</span><b class="c4 n">42</b></div>
+            <div class="rrow"><b class="r n">2</b><span class="nm">Hana T</span><span class="mp n">3</span><span class="c3 n">1–1–1</span><span class="df n">0</span><b class="c4 n">36</b></div>
+            <div class="rrow"><b class="r n">3</b><span class="nm">Fajar K</span><span class="mp n">3</span><span class="c3 n">0–2–1</span><span class="df n">−12</span><b class="c4 n">30</b></div>
+            <div class="rrow"><b class="r n">4</b><span class="nm">Gina R</span><span class="mp n">2</span><span class="c3 n">1–0–1</span><span class="df n">+6</span><b class="c4 n">27</b></div>
+            <div class="rrow"><b class="r n">5</b><span class="nm">Citra L</span><span class="mp n">2</span><span class="c3 n">1–1–0</span><span class="df n">+4</span><b class="c4 n">26</b></div>
+            <div class="rrow"><b class="r n">6</b><span class="nm">Joko S</span><span class="mp n">2</span><span class="c3 n">1–1–0</span><span class="df n">−2</span><b class="c4 n">23</b></div>
+            <div class="rrow"><b class="r n">7</b><span class="nm">Eko M</span><span class="mp n">2</span><span class="c3 n">0–1–1</span><span class="df n">−4</span><b class="c4 n">22</b></div>
+            <div class="rrow"><b class="r n">8</b><span class="nm">Budi S</span><span class="mp n">2</span><span class="c3 n">0–2–0</span><span class="df n">−8</span><b class="c4 n">20</b></div>
+            <div class="rrow"><b class="r n">8</b><span class="nm">Indra W</span><span class="mp n">2</span><span class="c3 n">0–2–0</span><span class="df n">−8</span><b class="c4 n">20</b></div>
+            <div class="rrow sub"><span></span><span>Belum main</span><span></span><span></span><span></span><span></span></div>
+            <div class="rrow idle"><span class="r n">–</span><span class="nm">Gilang S</span><span class="mp">–</span><span class="c3">–</span><span class="df">–</span><span class="c4">–</span></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
+      </div>
+      <ul>
+        <li>Data 09a, setelah host mengetuk tab Total Point.</li>
+        <li>Poin sama dipisah selisih (kolom +/−). Poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan (1, 1, 2 … 8, 8); yang bernomor sama urut nama. Head-to-head tidak dipakai lagi: alasan urutan harus terbaca dari angka di tabel (keputusan host 2026-11-02).</li>
+        <li>Kolom +/− = selisih poin (atau game): yang dimenangkan dikurangi yang kalah, dijumlah lintas match. Menang/kalah WO tidak mengubah selisih. Ada di ketiga metode, sama dengan baris poster (11a).</li>
+        <li>Kolom Main = jumlah match yang sudah dimainkan (selesai + WO, sama dengan W + L + D). Mixed bisa berbeda antar pemain (pemain telat, istirahat), jadi kelihatan kenapa Total Point-nya tertinggal.</li>
+        <li>Kolom W–L–D = win–loss–draw (menang–kalah–seri), singkatan Inggris seperti Win % dan Total Point. Seri tidak lagi ditulis kecil di bawah nama, jadi tinggi semua baris sama. Kolom D hanya ada kalau format skornya bisa seri (Americano total genap, Best of genap); Race to dan format ganjil cukup W–L (09c), supaya tidak ada kolom yang isinya selalu 0.</li>
+        <li>Subjudul: olahraga · mode · status · round · match, sama urutannya dengan Detail ("Peringkat 1 · Total Point · Padel · Mixed · Americano 24"; Detail menambah metode dan format skor).</li>
+        <li>Medali emas/perak/perunggu dihapus; peringkat 1 diberi bola. Baris bisa diketuk → Detail.</li>
+        <li>"Belum main" = pemain tanpa match selesai/WO (pemain baru, sisa ganjil di Fixed). Pemain yang keluar tetap tampil tanpa tanda. Catatan "n match WO" di bawah tabel hanya kalau ada WO (09d).</li>
+        <li>Baru: Mixed disebut "Final" hanya setelah diakhiri atau saat waktu booking habis dengan round terakhir lengkap (09f). Sekarang Mixed jadi FINAL tiap round lengkap padahal round masih bisa dibuat.</li>
+        <li>Contoh dihitung dari 6 match sungguhan (Americano 24, total genap jadi bisa seri): Hana–Gina vs Eko–Fajar 12–12.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>09j</b><span>Mixed · Point % · jumlah main beda</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R4 · 4 dari 4 match</p></div></div>
+        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b class="on">Point %</b><b>Win %</b></div></div>
+        <div class="body flush" style="padding-top:12px;gap:10px">
+          <div class="rank">
+            <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L</span><span>+/−</span><span>Point %</span></div>
+            <div class="rrow"><b class="r lead n">1</b><span class="nm">Budi</span><span class="mp n">3</span><span class="c3 n">3–0</span><span class="df n">+9</span><b class="c4 n">57</b></div>
+            <div class="rrow"><b class="r n">2</b><span class="nm">Dewi</span><span class="mp n">3</span><span class="c3 n">2–1</span><span class="df n">+3</span><b class="c4 n">52</b></div>
+            <div class="rrow"><b class="r n">3</b><span class="nm">Andi</span><span class="mp n">4</span><span class="c3 n">2–2</span><span class="df n">−2</span><b class="c4 n">49</b></div>
+            <div class="rrow"><b class="r n">4</b><span class="nm">Citra</span><span class="mp n">3</span><span class="c3 n">0–3</span><span class="df n">−5</span><b class="c4 n">46</b></div>
+            <div class="rrow"><b class="r n">4</b><span class="nm">Eko</span><span class="mp n">3</span><span class="c3 n">1–2</span><span class="df n">−5</span><b class="c4 n">46</b></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
+      </div>
+      <ul>
+        <li>Data 18A (PRD §18.4, fixture <code>point_percent_fixture</code>): Padel · Mixed · Americano 21, 5 pemain, 1 court. R1 Andi · Budi 12–9 Citra · Dewi · R2 Andi · Citra 10–11 Budi · Eko · R3 Andi · Eko 8–13 Budi · Dewi · R4 Andi · Dewi 11–10 Citra · Eko. Istirahat R1 Eko, R2 Dewi, R3 Citra, R4 Budi.</li>
+        <li>Andi main 4, yang lain 3. Point %: Budi 36/63 → 57 #1, Dewi 33/63 → 52 #2, Andi 41/84 → 49 #3; Citra dan Eko 29/63 → 46 dengan selisih −5 → nomor sama #4, urut nama.</li>
+        <li>Tab lain, data sama: Total Point Andi 41 #1 (main sekali lebih banyak, padahal 2–2 dan −2), Budi 36 #2, Dewi 33 #3, Citra dan Eko 29 #4; Win % Budi 100 #1, Dewi 67 #2, Andi 50 #3, Eko 33 #4, Citra 0 #5.</li>
+        <li>Americano 21 ganjil → W–L tanpa D. Jumlah Main 16 = 4 match × 4 pemain; W 8 = L 8; poin didapat 168 = 4 × 21 × 2.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>09k</b><span>Fixed · Race to · tab Point %</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Tennis · Fixed · Final · 3 round · 6 match</p></div></div>
+        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b class="on">Point %</b><b>Win %</b></div></div>
+        <div class="body flush" style="padding-top:12px;gap:10px">
+          <div class="rank">
+            <div class="rrow head"><span>#</span><span>Pasangan</span><span>Main</span><span>W–L</span><span>+/−</span><span>Point %</span></div>
+            <div class="rrow" style="min-height:62px"><b class="r lead n">1</b><span class="nm">Eko<br>Fajar</span><span class="mp n">3</span><span class="c3 n">3–0</span><span class="df n">+11</span><b class="c4 n">72</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">2</b><span class="nm">Andi<br>Budi</span><span class="mp n">3</span><span class="c3 n">1–2</span><span class="df n">+4</span><b class="c4 n">57</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">3</b><span class="nm">Citra<br>Dewi</span><span class="mp n">3</span><span class="c3 n">2–1</span><span class="df n">−4</span><b class="c4 n">43</b></div>
+            <div class="rrow" style="min-height:62px"><b class="r n">4</b><span class="nm">Gita<br>Hadi</span><span class="mp n">3</span><span class="c3 n">0–3</span><span class="df n">−11</span><b class="c4 n">28</b></div>
+          </div>
+        </div>
+        <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
+      </div>
+      <ul>
+        <li>Race to dan Best of dibuka di Win % (keputusan 122–123); frame ini setelah host mengetuk Point %. Satuannya game: game didapat ÷ game dimainkan.</li>
+        <li>Data 18B (PRD §18.4): R1 Andi · Budi 5–6 Citra · Dewi, Eko · Fajar 6–2 Gita · Hadi · R2 Andi · Budi 5–6 Eko · Fajar, Citra · Dewi 6–5 Gita · Hadi · R3 Andi · Budi 6–0 Gita · Hadi, Citra · Dewi 0–6 Eko · Fajar.</li>
+        <li>Andi · Budi (1–2) 16/28 → 57 di atas Citra · Dewi (2–1) 12/28 → 43; di Win % urutannya terbalik (Citra · Dewi #2, Andi · Budi #3). Kolom W–L tetap tampil, jadi kedua urutan terbaca dari tabel.</li>
+        <li>Eko · Fajar 18/25 → 72, Gita · Hadi 7/25 → 28; game didapat 53. Jumlah main sama, jadi urutan Point % = Total Point (18, 16, 12, 7).</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>09l</b><span>Mixed · Point % · WO</span></div>
+      <div class="app">
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Klasemen</h1><p>Padel · Mixed · Sementara · R4 · 7 dari 8 match</p></div></div>
+        <div class="seg-wrap"><div class="seg"><b>Total Point</b><b class="on">Point %</b><b>Win %</b></div></div>
+        <div class="body flush" style="padding-top:12px;gap:10px">
+          <div class="rank">
+            <div class="rrow head"><span>#</span><span>Pemain</span><span>Main</span><span>W–L–D</span><span>+/−</span><span>Point %</span></div>
+            <div class="rrow"><b class="r lead n">1</b><span class="nm">Budi S</span><span class="mp n">3</span><span class="c3 n">2–0–1</span><span class="df n">+8</span><b class="c4 n">68</b></div>
+            <div class="rrow"><b class="r n">2</b><span class="nm">Eko M</span><span class="mp n">3</span><span class="c3 n">3–0–0</span><span class="df n">+14</span><b class="c4 n">60</b></div>
+            <div class="rrow"><b class="r n">3</b><span class="nm">Andi P</span><span class="mp n">3</span><span class="c3 n">2–1–0</span><span class="df n">+10</span><b class="c4 n">57</b></div>
+            <div class="rrow"><b class="r n">4</b><span class="nm">Indra W</span><span class="mp n">2</span><span class="c3 n">1–0–1</span><span class="df n">+2</span><b class="c4 n">52</b></div>
+            <div class="rrow"><b class="r n">5</b><span class="nm">Joko S</span><span class="mp n">3</span><span class="c3 n">1–2–0</span><span class="df n">−14</span><b class="c4 n">49</b></div>
+            <div class="rrow"><b class="r n">6</b><span class="nm">Fajar K</span><span class="mp n">3</span><span class="c3 n">2–1–0</span><span class="df n">−4</span><b class="c4 n">47</b></div>
+            <div class="rrow"><b class="r n">7</b><span class="nm">Hana T</span><span class="mp n">2</span><span class="c3 n">0–2–0</span><span class="df n">−6</span><b class="c4 n">44</b></div>
+            <div class="rrow"><b class="r n">8</b><span class="nm">Citra L</span><span class="mp n">3</span><span class="c3 n">0–2–1</span><span class="df n">−10</span><b class="c4 n">43</b></div>
+            <div class="rrow"><b class="r n">9</b><span class="nm">Dewant R</span><span class="mp n">3</span><span class="c3 n">1–2–0</span><span class="df n">+2</span><b class="c4 n">40</b></div>
+            <div class="rrow"><b class="r n">10</b><span class="nm">Gina R</span><span class="mp n">3</span><span class="c3 n">0–2–1</span><span class="df n">−2</span><b class="c4 n">37</b></div>
+          </div>
+          <p class="small muted" style="padding:0 20px">1 match WO</p>
+        </div>
+        <div class="actionbar"><span class="btn btn-primary"><svg class="ic ic-s"><use href="#i-share"/></svg>Bagikan</span></div>
+      </div>
+      <ul>
+        <li>Data 09d (fixture <code>ranking_fixture.dart</code> set2), tab Point % = tab saat dibuka. WO dihitung sebagai skor "nilai WO – 0" (keputusan 125): Budi menang WO dengan nilai 14 → 42/62 → 68, #1 tanpa kalah; Joko nilai 13 → 30/61 → 49.</li>
+        <li>Dewant dan Gina yang kalah WO: didapat 0, kalah 14 (rata-rata nilai WO Budi dan Joko, 13,5 → 14) → Dewant 25/62 → 40, Gina 23/62 → 37. Selisih tidak berubah oleh WO, jadi Dewant tetap +2 tapi di #9.</li>
+        <li>Lainnya (Americano 24, tiap match total 24): Eko 43/72 → 60 · Andi 41/72 → 57 · Indra 25/48 → 52 · Fajar 34/72 → 47 · Hana 21/48 → 44 · Citra 31/72 → 43. Tidak ada angka kembar, jadi tidak ada nomor sama.</li>
+      </ul>
     </div>
 
   </div>
@@ -3200,9 +3322,9 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
     <div class="scr">
       <div class="cap"><b>10a</b><span>Pemain · Mixed</span></div>
       <div class="app">
-        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Andi P</h1><p>Peringkat 1 · Total Point · Padel · Mixed · Americano 24</p></div></div>
+        <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Andi P</h1><p>Peringkat 1 · Point % · Padel · Mixed · Americano 24</p></div></div>
         <div class="body">
-          <div class="statline"><div><b class="n">42</b><span>Poin</span></div><div><b class="n">100<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">3–0–0</b><span>W–L–D</span></div><div><b class="n">+12</b><span>Selisih poin</span></div></div>
+          <div class="statline s5"><div><b class="n">42</b><span>Poin</span></div><div><b class="n">58<small style="font-size:16px">%</small></b><span>Point %</span></div><div><b class="n">100<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">3–0–0</b><span>W–L–D</span></div><div><b class="n">+12</b><span>Selisih poin</span></div></div>
           <div class="group">
             <div class="row"><span class="grow">Beda partner</span><b class="n" style="font-size:20px">3 / 10</b></div>
             <div class="row"><span class="grow">Beda lawan</span><b class="n" style="font-size:20px">5 / 10</b></div>
@@ -3217,7 +3339,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         </div>
       </div>
       <ul>
-        <li>Avatar inisial bergradien dihapus. Subjudul: peringkat · metode · olahraga · mode · format skor. Angka dan metode mengikuti pilihan di Klasemen (09a Total Point → "Peringkat 1 · Total Point"; dibuka dari Win % → "Peringkat n · Win %"). Kalau tidak muat di 390, olahraga yang dibuang dulu (PATCH 3.8.1, B-6). Belum main: "Belum main" tanpa metode (10c).</li><li>Label statistik mengikuti format skor, bukan mode: "Poin" / "Selisih poin" untuk Americano, "Game" / "Selisih game" untuk Race to dan Best of; W–L–D hanya kalau format bisa seri, selain itu W–L (10b). Format di subjudul yang menjelaskan kenapa labelnya berbeda.</li>
+        <li>Avatar inisial bergradien dihapus. Subjudul: peringkat · metode · olahraga · mode · format skor. Angka dan metode mengikuti pilihan di Klasemen (09a Point % → "Peringkat 1 · Point %"; dari Total Point 09i → "Peringkat 1 · Total Point"; dari Win % → "Peringkat n · Win %", 10e). Kalau tidak muat di 390, olahraga yang dibuang dulu (PATCH 3.8.1, B-6). Belum main: "Belum main" tanpa metode (10c).</li><li>Label statistik mengikuti format skor, bukan mode: "Poin" / "Selisih poin" untuk Americano, "Game" / "Selisih game" untuk Race to dan Best of; W–L–D hanya kalau format bisa seri, selain itu W–L (10b). Format di subjudul yang menjelaskan kenapa labelnya berbeda.</li><li>Statline lima angka (sejak 3.9.0): Poin · Point % · Win · W–L–D · Selisih. Tiga angka pertama = tiga metode dalam urutan tab Klasemen. Point % dan Win tampil di semua tab, angka pemain tidak ikut tab (keputusan 129, U-RP5); bulat seperti tabel, "–" kalau belum main (10c). Andi 42 ÷ 72 = 58%.</li><li>Label "Point %" (bukan "Point") supaya tidak terbaca salah ketik "Poin" di sebelahnya; sama dengan nama tab dan subjudul. Kolom flex 4 · 4 · 4 · 5 · 5 (W–L–D dan selisih lebih lebar), angka 28 pt, label 12 pt satu baris; "Selisih game" (10b) dan "100%" muat. Angka yang lebih lebar dari kolomnya (W–L–D dua digit, mis. "10–5–1") diperkecil, tidak dipotong. Urutan = urutan tab, label "Point %" (keputusan host 130).</li>
         <li>"Beda partner/lawan" dibanding semua pemain lain (termasuk yang keluar). "Kalah WO" tetap.</li>
         <li>Riwayat: terbaru di atas. Baru: Mixed menampilkan partner di tiap match. Baris atas selalu tim pemain ini, ditulis seperti Fixed (10b): nama sendiri dulu lalu partner ("Andi P · Dewant R"), lawan di baris bawah dengan "vs". Hasil: tebal + bola = menang, pudar = kalah, "Seri", "WO" (menang/kalah). Match kosong dan tidak dimainkan tidak masuk. Tidak bisa diketuk.</li>
       </ul>
@@ -3228,7 +3350,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Gina R · Hana T</h1><p>Peringkat 2 · Total Point · Tennis · Fixed · Race to 6</p></div></div>
         <div class="body">
-          <div class="statline"><div><b class="n">23</b><span>Game</span></div><div><b class="n">75<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">3–1</b><span>W–L</span></div><div><b class="n">+7</b><span>Selisih game</span></div></div>
+          <div class="statline s5"><div><b class="n">23</b><span>Game</span></div><div><b class="n">70<small style="font-size:16px">%</small></b><span>Point %</span></div><div><b class="n">75<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">3–1</b><span>W–L</span></div><div><b class="n">+7</b><span>Selisih game</span></div></div>
           <div class="group">
             <div class="row"><span class="grow">Beda lawan</span><b class="n" style="font-size:20px">8 / 8</b></div>
             <div class="row"><span class="grow">Kalah WO</span><b class="n" style="font-size:20px">0</b></div>
@@ -3245,7 +3367,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <ul>
         <li>Baru: judul berisi kedua nama pasangan. Sekarang hanya nama anggota pertama yang tampil dan anggota kedua tidak bisa dibuka.</li>
         <li>"Beda partner" disembunyikan di Fixed karena selalu 1.</li>
-        <li>Pada riwayat Fixed, baris atas selalu pasangan ini (tebal kalau menang).</li><li>Menang WO menulis tambahan game/poinnya dengan warna pudar ("+6"), supaya jumlah riwayat cocok dengan angka di atas: 5 + 6 + 6 + 6 = 23. Selisih tidak berubah (+7).</li>
+        <li>Pada riwayat Fixed, baris atas selalu pasangan ini (tebal kalau menang).</li><li>Menang WO menulis tambahan game/poinnya dengan warna pudar ("+6"), supaya jumlah riwayat cocok dengan angka di atas: 5 + 6 + 6 + 6 = 23. Selisih tidak berubah (+7).</li><li>Point % dalam game: didapat 23 (termasuk 6 dari WO) ÷ dimainkan 33 (kalah 6 + 1 + 0 + 3, kalah WO lawan 0) = 69,7 → 70%. Dibuka dari tab Total Point (09c), jadi subjudul "Total Point"; Point % tetap tampil.</li>
       </ul>
     </div>
 
@@ -3254,7 +3376,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Gilang S</h1><p>Belum main · Padel · Mixed · Americano 24</p></div></div>
         <div class="body">
-          <div class="statline"><div><b class="n" style="color:#A3AEB8">–</b><span>Poin</span></div><div><b class="n" style="color:#A3AEB8">–</b><span>Win</span></div><div><b class="n" style="color:#A3AEB8">–</b><span>W–L–D</span></div><div><b class="n" style="color:#A3AEB8">–</b><span>Selisih poin</span></div></div>
+          <div class="statline s5"><div><b class="n" style="color:#A3AEB8">–</b><span>Poin</span></div><div><b class="n" style="color:#A3AEB8">–</b><span>Point %</span></div><div><b class="n" style="color:#A3AEB8">–</b><span>Win</span></div><div><b class="n" style="color:#A3AEB8">–</b><span>W–L–D</span></div><div><b class="n" style="color:#A3AEB8">–</b><span>Selisih poin</span></div></div>
           <div class="group">
             <div class="row"><span class="grow">Beda partner</span><b class="n" style="font-size:20px">0 / 10</b></div>
             <div class="row"><span class="grow">Beda lawan</span><b class="n" style="font-size:20px">0 / 10</b></div>
@@ -3265,7 +3387,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         </div>
       </div>
       <ul>
-        <li>Kotak info abu-abu diganti "Belum ada match" (tanpa kalimat kedua, PATCH 3.8.1, B-13); riwayat muncul setelah skor pertama pemain ini diisi. Pemain tidak ditemukan / tidak ada turnamen: teks tengah "Belum ada turnamen berjalan".</li>
+        <li>Kotak info abu-abu diganti "Belum ada match" (tanpa kalimat kedua, PATCH 3.8.1, B-13); riwayat muncul setelah skor pertama pemain ini diisi. Pemain tidak ditemukan / tidak ada turnamen: teks tengah "Belum ada turnamen berjalan".</li><li>Kelima angka statline "–", termasuk Point % (tidak ada pembagian dengan nol, PRD 18.1 RP5).</li>
       </ul>
     </div>
 
@@ -3274,7 +3396,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Andi P</h1><p>Peringkat 2 · Total Point · Padel · Fixed · Americano 21</p></div></div>
         <div class="body">
-          <div class="statline"><div><b class="n">91</b><span>Poin</span></div><div><b class="n">75<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">6–2</b><span>W–L</span></div><div><b class="n">+14</b><span>Selisih poin</span></div></div>
+          <div class="statline s5"><div><b class="n">91</b><span>Poin</span></div><div><b class="n">54<small style="font-size:16px">%</small></b><span>Point %</span></div><div><b class="n">75<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">6–2</b><span>W–L</span></div><div><b class="n">+14</b><span>Selisih poin</span></div></div>
           <div class="group">
             <div class="row"><span class="grow">Beda partner</span><b class="n" style="font-size:20px">2 / 16</b></div>
             <div class="row"><span class="grow">Beda lawan</span><b class="n" style="font-size:20px">14 / 14</b></div>
@@ -3296,7 +3418,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <ul>
         <li>Baris Klasemen per pemain di Fixed (09g) membuka Detail pemain itu saja, bukan pasangan: judul satu nama.</li>
         <li>"Beda partner" yang disembunyikan di Fixed (10b) muncul kalau partnernya lebih dari satu: 2 / 16 (pemain lain di turnamen, termasuk Rizky H). Beda lawan dibanding pemain lain selain partnernya sendiri: 17 − 1 − 2 = 14.</li>
-        <li>Riwayat: baris atas tim sendiri dengan nama sendiri dulu, seperti Mixed (10a), jadi partner yang berbeda terbaca (R15 Andi P · Rizky H, R13 Andi P · Budi S).</li>
+        <li>Riwayat: baris atas tim sendiri dengan nama sendiri dulu, seperti Mixed (10a), jadi partner yang berbeda terbaca (R15 Andi P · Rizky H, R13 Andi P · Budi S).</li><li>Point % dari riwayat: didapat 6 + 13 + 12 + 11 + 12 + 9 + 15 + 13 = 91, kalah 15 + 8 + 9 + 10 + 9 + 12 + 6 + 8 = 77; 91 ÷ 168 (8 match × 21) = 54,2 → 54%.</li>
       </ul>
     </div>
 
@@ -3305,7 +3427,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="app">
         <div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Fajar K</h1><p>Peringkat 7 · Win % · Padel · Mixed · Americano 24</p></div></div>
         <div class="body">
-          <div class="statline"><div><b class="n">30</b><span>Poin</span></div><div><b class="n">17<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">0–2–1</b><span>W–L–D</span></div><div><b class="n">−12</b><span>Selisih poin</span></div></div>
+          <div class="statline s5"><div><b class="n">30</b><span>Poin</span></div><div><b class="n">42<small style="font-size:16px">%</small></b><span>Point %</span></div><div><b class="n">17<small style="font-size:16px">%</small></b><span>Win</span></div><div><b class="n">0–2–1</b><span>W–L–D</span></div><div><b class="n">−12</b><span>Selisih poin</span></div></div>
           <div class="group">
             <div class="row"><span class="grow">Beda partner</span><b class="n" style="font-size:20px">3 / 10</b></div>
             <div class="row"><span class="grow">Beda lawan</span><b class="n" style="font-size:20px">5 / 10</b></div>
@@ -3319,7 +3441,7 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
           </div>
         </div>
       </div>
-      <ul><li>Data 09a/09b (Americano 24, 6 match): Fajar K 0–2–1, dibuka dari Klasemen Win % (09b, #7) → "Peringkat 7 · Win %". Win % = (0 + ½ seri) ÷ 3 = 16,67%.</li><li>Statline menulis Win % dibulatkan tanpa desimal, "17%", sama dengan tabel 09b (app sekarang). Kolom statline tetap muat untuk "100%".</li><li>Poin 9 + 9 + 12 = 30, selisih −6 −6 + 0 = −12. Beda partner 3 / 10 (Joko S, Indra W, Hana T); beda lawan 5 / 10 (Dewant R, Citra L, Andi P, Gina R, Eko M; Gina dihitung sekali).</li><li>Riwayat seri (R3 12–12): kedua baris tanpa bola dan tidak pudar, sama dengan baris seri di Jadwal.</li></ul>
+      <ul><li>Data 09a/09b (Americano 24, 6 match): Fajar K 0–2–1, dibuka dari Klasemen Win % (09b, #7) → "Peringkat 7 · Win %". Win % = (0 + ½ seri) ÷ 3 = 16,67%.</li><li>Statline menulis Win % dibulatkan tanpa desimal, "17%", sama dengan tabel 09b (app sekarang). Kolom statline tetap muat untuk "100%".</li><li>Point % 30 ÷ 72 = 41,7 → 42% tetap tampil walau dibuka dari tab Win % (sama dengan baris Fajar di 09a).</li><li>Poin 9 + 9 + 12 = 30, selisih −6 −6 + 0 = −12. Beda partner 3 / 10 (Joko S, Indra W, Hana T); beda lawan 5 / 10 (Dewant R, Citra L, Andi P, Gina R, Eko M; Gina dihitung sekali).</li><li>Riwayat seri (R3 12–12): kedua baris tanpa bola dan tidak pudar, sama dengan baris seri di Jadwal.</li></ul>
     </div>
 
   </div>
@@ -5332,8 +5454,8 @@ Andi<span class="caret"></span></div><span class="thumb" style="top:80px"></span
         <tr><td>Sheet Lanjutkan Turnamen</td><td>Jam per court 0–6, sisa waktu, estimasi match, court berkurang, match tidak dimainkan, tombol mati</td><td>08c–08d</td></tr>
         <tr><td>07 Input Skor</td><td>Skor tennis per set, Americano + isi otomatis, seri, semua pesan validasi, batas angka di keypad, ubah skor (Perbarui), WO dari match yang sudah diisi, Best of / Americano berhenti lebih awal + total lebih dari N</td><td>07a–07i, 07k, 07m–07o</td></tr>
         <tr><td>07b Walkover</td><td>Pilih pasangan, pemenang WO, alasan, Batal/Simpan, WO yang sudah ada</td><td>07j</td></tr>
-        <tr><td>08 Klasemen</td><td>Sementara/Final, Total Point / Win %, baris Mixed &amp; pasangan Fixed, seri, selisih negatif, jumlah WO, Bagikan, ketuk ke Detail</td><td>09a–09f</td></tr>
-        <tr><td>09 Detail Pemain</td><td>Statistik, beda partner/lawan, kalah WO, riwayat menang/kalah/seri/WO, belum ada match</td><td>10a–10c</td></tr>
+        <tr><td>08 Klasemen</td><td>Sementara/Final, Total Point / Point % / Win % (default per format), baris Mixed &amp; pasangan Fixed, seri, selisih negatif, jumlah WO, Bagikan, ketuk ke Detail · Point %: dibuka pertama Americano, nomor dari angka bulat, jumlah main beda, Race to tab Point %, WO</td><td>09a–09l</td></tr>
+        <tr><td>09 Detail Pemain</td><td>Statistik (lima angka, Point % di semua tab), subjudul per metode, beda partner/lawan, kalah WO, riwayat menang/kalah/seri/WO, belum ada match</td><td>10a–10e</td></tr>
         <tr><td>Baru: Nama turnamen</td><td>Kotak nama di Atur turnamen (kosong / diisi), nama di baris riwayat, banner turnamen berjalan, dialog mulai baru, baris kecil poster (Feed satu baris, Story dua), ringkasan bertanggal, caption</td><td>03a, 03h, 03o, 01a, 01e, 01h, 11a, 11d, 11f</td></tr>
         <tr><td>Baru: Live score</td><td>Menu ⋯ Live score (Fixed, Mixed, setelah diakhiri), dialog mulai, gagal tanpa internet, sheet link (terkirim / menunggu internet), Bagikan link, Hentikan + dialog; halaman penonton: Jadwal Mixed bernama &amp; Fixed, Klasemen, Detail, Final, Offline, tidak ditemukan / tidak bisa dibuka, memuat</td><td>06c, 06d, 06i, 12a–12o</td></tr>
         <tr><td>Baru: Sparing · tahap 1</td><td>Pemain: dua blok klub (kosong, terisi atas/bawah, klub &lt; 2 pemain, nama klub kosong, nama klub sama, pemain di dua klub) · Atur turnamen: estimasi Fixed dari jadwal, Mixed, court aktif lebih sedikit · Jadwal Fixed: round berjalan, semua match terisi · Jadwal Mixed: round berjalan, Istirahat per klub · Klasemen: skor klub + tabel per klub, Sementara, Final, Win % · Bagikan: poster Ringkas + caption; gambar Feed/Story Ringkas, Lengkap Fixed 4 + 3 dan Mixed 8 + 6 (pratinjau, Feed, Story, tema lembut), terpadat 16 + 14. Tahap 2 di panel di bawah.</td><td>13a–13w</td></tr>
@@ -5414,7 +5536,7 @@ Andi<span class="caret"></span></div><span class="thumb" style="top:80px"></span
         <li><b>3.9.0 Kosongkan skor / Hapus WO</b> (keputusan host 113–114, 121, 2026-11-18, PRD §17; KS-1, frame 06aa–06ac, 07p–07x, 20b): skor dikosongkan dengan ⌫ sampai kedua kotak kosong → "Kosongkan skor" (sekunder clay) + dialog per mode; Mixed/Mexicano hanya round terakhir, Fixed dan Sparing Fixed round mana pun, grup dilarang setelah bagan dibuat, gugur boleh selama babak sesudahnya belum terisi (pesan 21l); match WO lewat "Hapus WO" di sheet WO; boleh juga setelah turnamen diakhiri (match jadi Tidak dimainkan).</li>
         <li><b>3.9.0 perilaku kecil P5 + C-17 + P6</b> (keputusan host 115–120, 2026-11-18; KS-2, KS-3): Hapus semua + Urungkan (02e); dialog buang pasangan manual dan perubahan Atur pasangan (04i, 04j); Bagikan gagal → dua PNG diunduh + hasil disalin, toast "Gambar diunduh · hasil disalin" (11n); lawan WO dihitung di Beda lawan; tombol mati "Buat bagan · tunggu N match"; bagan mengintip 24 pt, label 13 px, nama masuk tebal di pratinjau Tukar. Nama di 11c/11n = data 09a (B-16).</li>
         <li><b>3.9.0 frame P4</b> (keputusan host 128, 2026-11-20; KS-4, frame 09h, 10e, 12p, 12q, 15z1–15z4, 17s, 17t, 22s–22u): nama Mixed panjang dua baris; penonton tanpa internet "Tidak ada internet" + "Coba lagi"; toast Hentikan offline di atas sheet; Win % Detail bulat; Batal/Tukar menempel di footer sheet Tukar; Beranda/dialog menulis nama format + nama babak; "Pilih klub" Sparing. Ditunda: Kelola court Sparing "mulai R…", Tukar 12 kandidat Sparing. Menyusul: sheet WO gugur dengan "Hapus WO" mati + pesan 21l. Aturan pemisah di Komponen → <code>#pemisah</code> (B-22).</li>
-        <li><b>Point % metode ketiga</b> (keputusan host 122–126, 129, 2026-11-20, PRD §18): tab Total Point · Point % · Win %; default Americano dan Mexicano → Point %, Race to/Best of tetap Win %; urutan Mexicano dari Point %; WO = skor "nilai WO – 0"; bulat, nomor dari angka bulat; "57% poin" di poster/caption; Point % selalu di statline Detail; grup Americano Grup + Gugur lolos dari Point %. Frame menyusul (RP-1).</li>
+        <li><b>Point % metode ketiga</b> (keputusan host 122–126, 129, 2026-11-20, PRD §18): tab Total Point · Point % · Win %; default Americano dan Mexicano → Point %, Race to/Best of tetap Win %; urutan Mexicano dari Point %; WO = skor "nilai WO – 0"; bulat, nomor dari angka bulat; "57% poin" di poster/caption; Point % selalu di statline Detail; grup Americano Grup + Gugur lolos dari Point %. Frame: Klasemen 09a (dibuka di Point %), 09j–09l baru, 09i (= 09a lama, tab Total Point), tiga tab di 09a–09l; Detail 10a–10e (statline lima angka, 10a subjudul "Point %"); statline urutan tab, label "Point %", kolom tabel angka saja tanpa "%" (keputusan host 130, 2026-11-22; RP-1 kelompok 1). Frame lain menyusul (RP-1).</li>
         <li><b>Label "Group - Playoff"</b> (keputusan host 127, 2026-11-20): nama format "Grup + Gugur" di UI menjadi "Group - Playoff" di semua tempat yang menampilkannya (Konfigurasi <code>.seg</code>, subjudul, poster/caption, Beranda/dialog); "Fase grup", "Gugur", dan nama babak tetap. Frame menyusul (GL).</li>
         <li><b>PATCH 3.8.1 review UX: kontras, area ketuk, Semantics</b> (keputusan host 110–112, 2026-11-18; UX-0, temuan di <code>design/review/</code>): alasan tombol wait ink-3 penuh (A-1) · skor tim kalah ink-3 (A-3, B-3) · tab belum terbuka ink-3 + gembok 12 pt (A-4, C-8) · nomor court di lingkaran 19/800 (A-5) · placeholder ink-3 + tepi isian kosong <code>edge</code> #7D8A96 1,5 pt; faint bukan lagi placeholder (A-6) · tema lembut bertepi 1 pt tinta 20% (B-19) · bagan: nama kalah ink-3, garis pemenang bertepi ink (C-16) · area ketuk ≥ 48 di Fondasi, chip grup 40 × 40 jarak 8 (A-7, B-5, C-6); ikon tukar tetap 44 × 42 · tabel Semantics di Komponen (A-11, B-4, C-5) · Simpan–keypad 24 (B-11) · ⌫ mati tanpa kotak aktif (07i, B-12) · tag "Offline · 19.48" (12m, B-17).</li>
         <li><b>PATCH 3.8.1 review UX: teks (P3 + K3)</b> (keputusan host 110–112, 2026-11-18; UX-1, temuan di <code>design/review/</code>): dialog Akhiri per mode, judul dan tombol tetap: Fixed "… Turnamen tidak bisa dilanjutkan." (06e, 14k), Mixed/Mexicano tetap (A-2); Grup + Gugur frame baru <b>20r</b> fase grup "… Bagan tidak dibuat; peringkat dari posisi grup." dan <b>21z</b> sebelum Final "Final dan Juara 3 tidak dimainkan. … sama-sama #1." (C-1) · paragraf "Pemain baru langsung ikut main…" dihapus dari 08a, 15l, 15m; "Keluar · skornya tetap dihitung" → "Keluar" (A-10, K3) · dialog Buat jadwal "Pasangan tidak bisa diubah sampai semua round selesai." (04d, 14d, A-12) · baris pasang tanpa subjudul, langkah 1 tanpa keterangan, catatan kaki "Hanya dari Safari" (01a, 01b, 01i, A-16) · sheet dari 06l / 15f berjudul dan bertombol "Tambah jam" (08c, 08d, 15j), dari 06m/Beranda tetap "Lanjutkan turnamen"; tombol utama setelah selesai/diakhiri "Klasemen", bukan "Lihat klasemen" (06c, 12f, 12l, 14l, 20q, 21i, 21j, 21r, 21t, 21y; A-17) · subjudul Detail menyebut metode "Peringkat 1 · Total Point · …" (10a, 10b, 10d, 12k; B-6) · 10c "Belum ada match" (B-13) · subjudul Bagikan "Sementara" / "Final" (11a, 11b, 11c, 11e, 11h, 11i, 13q, 13s, 13u, 18a, 18b, 22l, 22p; B-14) · kalimat hasil Americano "menang 13–8" seperti format lain (07g, 07h, 07m; B-15) · penonton 12l "Istirahat" tanpa prioritas (B-20) · label "Tanpa grup · 8 pasangan" (19r, 19s, 19w; C-13) · subjudul tab babak "Padel · R7" (21b, 21c, 21e, 21f, 21i, 21o, 21q, 21s, 21v; C-14) · semua isian yang tidak fokus, kosong maupun terisi, bertepi <code>edge</code> 1,5 pt (keputusan host 2026-11-18 atas A-6), termasuk kotak nama court <code>.inline-field</code> · label sheet Tambah jam / Lanjutkan "Jam booking" · 01i langkah 2–3 tanpa keterangan · Akhiri saat Perempat final / Semifinal belum lengkap menyebut babak yang batal saja (keputusan host 2026-11-18 atas pertanyaan UX-1).</li>

@@ -387,16 +387,16 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   (sekunder, clay) → dialog "Kosongkan skor Court 1?" · "Match kembali belum dimainkan." · Batal / Kosongkan. Sheet WO
   tersimpan: "Hapus WO" di kanan kepala sheet. Batas per mode 17.3.
 
-### 5.7 Klasemen (09a–09g)
+### 5.7 Klasemen (09a–09l)
 - Tabel: # · nama · Main (jumlah match dimainkan, WO ikut) · W–L–D (W–L kalau format tidak bisa seri) · +/− (selisih)
   · nilai metode; peringkat 1 diberi bola.
 - Toggle Total Point / Win %, status di subjudul, catatan WO / tidak dimainkan, ketuk baris → Detail. Tombol Bagikan.
-- Sejak 3.9.0 (§18): toggle tiga tab **Total Point · Point % · Win %**; kolom nilai tab Point % = persen bulat ("57%"),
+- Sejak 3.9.0 (§18): toggle tiga tab **Total Point · Point % · Win %**; kolom nilai tab Point % = persen bulat tanpa tanda % ("57", seperti kolom Win %; keputusan 130),
   judul kolom "Point %" seperti "Win %". Bentuk final di hi-fi (frame baru, designer).
 - Pemain tanpa match selesai/WO di grup "Belum main". Fixed: satu baris per pasangan; pasangan yang berubah, pemain
   yang tidak ikut lagi, dan pemain pengganti tampil per pemain (09g).
 
-### 5.8 Detail Pemain (10a–10d)
+### 5.8 Detail Pemain (10a–10e)
 - Satu baris statistik (label mengikuti format skor: Poin/Game), beda partner/lawan, kalah WO, riwayat match terbaru
   di atas (Mixed menampilkan partner; menang WO menulis "+N"). Fixed menampilkan "Beda partner" hanya kalau
   pasangannya pernah diatur ulang (10d).
@@ -407,7 +407,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 - Belum ada match: riwayat menulis "Belum ada match" saja (PATCH 3.8.1).
 - Sejak 3.9.0 (§18.5): metode Point % di subjudul ditulis "Point %" ("Peringkat 1 · Point % · Padel · Mixed ·
   Americano 21"); baris statistik menampilkan Point % pemain itu di **semua** tab (angka pemain tidak tergantung tab),
-  bulat seperti Klasemen, "–" kalau belum main. Letak dan muat di 390 oleh designer (usulan U-RP5).
+  bulat seperti Klasemen, "–" kalau belum main. Statline lima angka: Poin/Game · Point % · Win · W–L–D · Selisih,
+  label sel "Point %" (keputusan 130; 10a–10e).
 - Beda partner / Beda lawan dihitung dari match Selesai dan WO; di match WO kedua sisi ikut, sama dengan kolom Main
   (keputusan 118, B-21; contoh 13C Maya · Nanda 8 / 8, 17.10).
 
@@ -490,8 +491,8 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
 | Jadwal Mixed (+ sheet Cara kerja Mixed, strip court + hitung mundur) | 06f–06u |
 | Sheet Kelola pemain, Tambah jam / Lanjutkan turnamen, Kelola court + detail court | 08a–08k |
 | Input Skor + sheet Walkover (+ Kosongkan skor / Hapus WO §17, 3.9.0: frame baru menyusul dari designer) | 07a–07o |
-| Klasemen | 09a–09g |
-| Detail Pemain | 10a–10d |
+| Klasemen | 09a–09l |
+| Detail Pemain | 10a–10e |
 | Bagikan | 11a–11m |
 | Live score: menu, dialog, sheet di HP host; halaman penonton (Jadwal, Klasemen, Detail) | 12a–12o |
 | Sparing (§13): umum, Fixed, Mixed | 13a–13w, 14a–14y, 15a–15y |
@@ -915,6 +916,10 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
      nomor dibandingkan dari angka bulat (U-RP2); Q2 grup Americano Grup + Gugur lolos dari Point % (U-RP6); Q3 urutan
      tab Total Point · Point % · Win % (U-RP1), "57% poin" di poster/caption (U-RP3), belum main = 0% di urutan Mexicano
      (U-RP4), Point % selalu di statline Detail (U-RP5).
+130. **Bentuk Point % di Klasemen dan Detail** (2026-11-22, host: "1. 10a 2. Point % 3. setuju", hi-fi v101): statline
+     Detail lima angka berurutan seperti tab, Poin/Game · Point % · Win · W–L–D · Selisih (10a; varian 10f Point % di
+     ujung dibuang); label sel "Point %", bukan "Point" (tidak terbaca salah ketik "Poin"); kolom nilai tabel Klasemen
+     tab Point % angka saja ("58") seperti kolom Win %. Frame 09a–09l, 10a–10e.
 
 ---
 
@@ -2841,7 +2846,7 @@ designer 16-mexicano: Andi · Gita 12–9 Fajar · Eko, Budi · Indra 10–11 De
 
 | Layar / fitur | Perilaku Point % |
 |---------------|------------------|
-| Klasemen (5.7, 09a–09h) | Tiga tab Total Point · Point % · Win % (U-RP1). Tab Point %: kolom nilai "57%", judul kolom "Point %", pemisah +/− seperti sekarang. Dibuka di default format (RP6). |
+| Klasemen (5.7, 09a–09h) | Tiga tab Total Point · Point % · Win % (U-RP1). Tab Point %: kolom nilai "57" (angka saja, keputusan 130), judul kolom "Point %", pemisah +/− seperti sekarang. Dibuka di default format (RP6). |
 | Detail (5.8, 10a–10e) | Subjudul ikut tab: "Peringkat 1 · Point % · Padel · Mixed · Americano 21". Baris statistik menampilkan Point % di semua tab (U-RP5), bulat, "–" kalau belum main. Riwayat match tidak berubah. Sparing dan Grup + Gugur tetap tanpa metode di subjudul (§13.7, §16.9). |
 | Bagikan, poster (5.9, 11a–11m, 18a–18t) | Nilai metode = Point %: "57% poin · +9" (Race to/Best of "57% game · +9") di tempat Total Point menulis satuan (Ringkas, Lengkap Feed satu kolom); "57% · +9" di tempat tanpa satuan (Lengkap dua kolom, Story) (U-RP3). Podium dan nomor dari aturan 18.2. |
 | Caption | Baris peringkat untuk tab Point %: `{n}. {nama} — {Total Point} {satuan} · {Point %}% {satuan} ({W-L[-D]}, {selisih} {satuan})`, Point % menggantikan Win %, contoh 18A "1. Budi — 36 poin · 57% poin (3-0, +9 poin)". Tab Total Point dan Win % tidak berubah (U-RP3). |
