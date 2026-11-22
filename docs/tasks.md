@@ -78,6 +78,13 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
   teks ikut GL), C-10 (15z2 "Pilih klub"); golden saja = B-9 (12q), B-18 (10e). Frame #8 (sheet WO gugur "Hapus WO"
   mati) masih menunggu designer — gabung dengan RP-1/GL.
 - Berikutnya: KS-7 gelombang 1 (7a + 7c + 7d paralel).
+- 2026-11-22: KS-7a/7b/7c/7d digabung (review KS-7a Approve). RP-3a digabung setelah review (perbaikan test 18E,
+  AC-M19). **`fitur-3-9-0` tidak boleh ke `main` sebelum RP-3b + RP-3c**: Klasemen Americano terbuka di Point % tanpa
+  tab, kolom/poster/caption masih Total Point/Win %. Koreksi spec (tech-lead berikutnya): §20.11 #12 salah — golden
+  tidak berubah karena `hifiScreen` memaksa Total Point (`screen_harness.dart:12`), jadi RP-3b/3d wajib meng-override
+  `rankingMethodProvider` ke `pointPercent` untuk frame default; kalimat baris 4.2 di §20.8 menggabungkan dua contoh PRD.
+  Keputusan 130 (bentuk Point % Klasemen/Detail) — frame 09a–09l, 10a–10e (hi-fi v102). RP-1 kelompok 2 (Bagikan) dan
+  3 (Mexicano/Sparing/live/Grup + GL + sheet WO gugur) jalan.
 
 ### Status (2026-11-20, serah terima ke sesi baru — lama)
 
