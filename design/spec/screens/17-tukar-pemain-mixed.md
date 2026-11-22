@@ -182,7 +182,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
 
 - Latar = 06o (30 pemain, 2 court, R3): ikon tim Sari D · Dewant R di Court 2. Kandidat = 22 pemain yang istirahat di R3: 8 di "Prioritas main di R4" dan 14 di "Istirahat lagi di R4", urutan dan label sama dengan daftar di Jadwal.
-- Sheet setinggi batas 92%. Judul "Tukar pemain" tetap; pratinjau, Diganti, kedua grup kandidat, dan Batal/Tukar digulir bersama dalam satu daftar (app sekarang). Frame ini posisi awal: tombol belum terlihat.
+- Sheet setinggi batas 92% (keputusan 128, C-3). Tetap: judul, pratinjau, dan Diganti di atas; Batal/Tukar di footer yang menempel. Hanya daftar kandidat (kedua grup) yang digulir. Frame ini posisi awal: kandidat terpotong di atas footer, Tukar mati sampai dua pilihan (17b).
+- Garis 1 pt di tepi tempat isi tersembunyi: di atas footer selama masih ada kandidat di bawah (frame ini); di bawah Diganti begitu daftar digulir (17t). Isi yang muat di sheet (17d, 6 kandidat) tanpa garis dan tanpa gulir; letak footer sama di semua sheet Tukar.
 
 ## 17t · Sheet · tukar · 22 kandidat · digulir ke bawah
 
@@ -190,5 +191,6 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
 
-- Lanjutan 17s: Sari D dipilih di Diganti, lalu daftar digulir ke bawah dan Hendra G (terakhir di "Istirahat lagi di R4") dipilih. Pratinjau dan Diganti ikut tergulir ke atas; Batal/Tukar di ujung daftar.
-- Tukar aktif karena dua pilihan sudah ada; pratinjau (tergulir, tidak terlihat di frame) menulis **Hendra G** · Dewant R tebal seperti 17d. Tukar menutup sheet tanpa dialog (17e).
+- Lanjutan 17s: Sari D dipilih di Diganti, lalu daftar kandidat digulir sampai ujung dan Hendra G (terakhir di "Istirahat lagi di R4") dipilih. Pratinjau dan Diganti tidak ikut tergulir: pratinjau langsung menulis **Hendra G** · Dewant R tebal seperti 17d.
+- Grup "Istirahat · Prioritas main di R4" sudah lewat ke balik garis di bawah Diganti; yang terlihat mulai dari label "Istirahat lagi di R4". Garis di atas footer hilang karena daftar sudah di ujung (jarak 16 di bawah kandidat terakhir).
+- Tukar aktif karena dua pilihan sudah ada; Tukar menutup sheet tanpa dialog (17e).

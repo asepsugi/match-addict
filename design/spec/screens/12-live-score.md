@@ -157,10 +157,13 @@ Komponen: `MabarAppBar`, `LiveScreen`
 
 ![12p](../../frames/12p.png)
 
-Komponen: `MabarAppBar`, `LiveScreen`
+Komponen: `MabarAppBar`, `MabarButton`, `LiveScreen`
 
-- HP penonton tanpa internet saat link dibuka: cek pertama gagal dan belum ada data, jadi layar tetap memuat (bola berputar), sama dengan 12o. Tanpa pesan dan tanpa tombol; tag "Offline" (12m) hanya untuk penonton yang sudah punya data.
-- Dicek ulang tiap 10 detik, dan langsung saat tab dibuka lagi. Cek pertama yang berhasil menampilkan jadwal (12h), "Live tidak ditemukan" (12n), atau "Live tidak bisa dibuka".
+- Keputusan 128 (B-8). HP penonton tanpa internet saat link dibuka: belum ada data dan dua cek berturut-turut gagal (cek pertama + cek otomatis 10 detik kemudian, aturan "dua kegagalan" yang sama dengan 12m). Sebelum itu layar memuat (12o). Pola 12n: judul tengah + satu tombol sekunder kecil, tanpa kalimat lain.
+- "Coba lagi" → cek langsung (12r). Berhasil → isi link ditampilkan: jadwal (12h), Final (12l), "Live tidak ditemukan" (12n), atau "Live tidak bisa dibuka". Tetap gagal → kembali ke 12p tanpa toast.
+- Cek otomatis tetap jalan tiap 10 detik, dan langsung saat tab dibuka lagi; cek yang berhasil pindah ke jadwal tanpa perlu mengetuk. Cek otomatis yang gagal tidak mengubah tampilan.
+- Beda dengan 12m: tag "Offline · jam" hanya untuk penonton yang sudah punya data (jadwal tetap tampil). Sekali data sudah masuk, putus internet selalu 12m, tidak pernah 12p.
+- Judul dibacakan pembaca layar saat muncul (`liveRegion`).
 
 ## 12q · Toast · gagal hentikan · tanpa internet
 
@@ -171,3 +174,13 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 - "Hentikan" di dialog 12e saat HP host tanpa internet: data di server tidak bisa dihapus, jadi live tetap menyala dan link tetap terbuka untuk penonton (data terakhir 19.48). Dialog tertutup, sheet Live score tetap terbuka (latar = 12d), toast "Tidak ada internet · live belum dihentikan" dengan ikon `wifi-slash`, sama dengan 12g.
 - Posisi toast 19 pt di atas "Bagikan link" (seperti "Link disalin" di sheet ini), bukan 118 pt seperti di atas action bar, supaya tombol tidak tertutup.
 - Host mencoba "Hentikan" lagi setelah ada sinyal; tidak dicoba otomatis.
+
+## 12r · Live · tanpa internet · mencoba lagi
+
+![12r](../../frames/12r.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `LiveScreen`
+
+- Setelah "Coba lagi" di 12p: tombol mati dan bola wordmark kecil (18) di kiri teks berputar selama cek berjalan, paling sedikit 1 detik supaya ketukan terlihat walau gagal seketika. Judul dan letak tombol tidak bergeser.
+- Hasil sama dengan cek otomatis: berhasil → 12h (atau 12l, 12n, "Live tidak bisa dibuka"); gagal → 12p.
+- Pembaca layar: tombol "Coba lagi, sedang mencoba" `enabled: false`.
