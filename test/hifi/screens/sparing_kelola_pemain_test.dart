@@ -54,7 +54,9 @@ void main() {
   });
 
   // 15z2: nama terisi, klub belum dipilih → tombol mati bertuliskan "Pilih klub" (C-10).
-  testWidgets('15z2 nama terisi, klub belum dipilih', variant: TargetPlatformVariant.only(TargetPlatform.iOS), (tester) async {
+  testWidgets('15z2 nama terisi, klub belum dipilih', variant: TargetPlatformVariant.only(TargetPlatform.iOS), (
+    tester,
+  ) async {
     await expectMatchesHifi(
       tester,
       screen(mixedSparing13m()),
@@ -64,6 +66,44 @@ void main() {
         await tester.enterText(find.byType(TextField), 'Oki');
       },
     );
+  });
+
+  // 15z1: nama dicek terhadap kedua klub; pesan clay di bawah chip klub.
+  testWidgets('15z1 nama sudah ada di klub lain', variant: TargetPlatformVariant.only(TargetPlatform.iOS), (
+    tester,
+  ) async {
+    await expectMatchesHifi(
+      tester,
+      screen(mixedSparing13m()),
+      '15z1',
+      act: (tester) async {
+        await openPlayers(tester);
+        await tester.enterText(find.byType(TextField), 'andi');
+        await tester.tap(find.widgetWithText(MabarChip, 'Matcha Club'));
+        await tester.pump();
+        await tester.tap(find.widgetWithText(MabarButton, 'Tambah'));
+      },
+    );
+    expect(find.text('Andi sudah ada di PB Garuda'), findsOneWidget);
+  });
+
+  // 15z3: batas 30 pemain aktif berlaku untuk kedua klub bersama.
+  testWidgets('15z3 30 pemain aktif: Tambah ditolak', variant: TargetPlatformVariant.only(TargetPlatform.iOS), (
+    tester,
+  ) async {
+    await expectMatchesHifi(
+      tester,
+      screen(mixedSparing15d()),
+      '15z3',
+      act: (tester) async {
+        await openPlayers(tester);
+        await tester.enterText(find.byType(TextField), 'Rudi');
+        await tester.tap(find.widgetWithText(MabarChip, 'Matcha Club'));
+        await tester.pump();
+        await tester.tap(find.widgetWithText(MabarButton, 'Tambah'));
+      },
+    );
+    expect(find.text('Maksimal 30 pemain aktif'), findsOneWidget);
   });
 
   // Frame 15m menampilkan PB Garuda 4 baris saja ("daftar digulir", catatan frame), padahal 8 aktif: layar menggambar
@@ -91,7 +131,7 @@ void main() {
 
     await tester.enterText(find.byType(TextField), 'Oki');
     await tester.pump();
-    expect(find.widgetWithText(MabarButton, 'Pilih klub'), findsOneWidget, reason: 'klub belum dipilih: alasan di tombol');
+    expect(find.widgetWithText(MabarButton, 'Pilih klub'), findsOneWidget, reason: 'klub belum dipilih');
     expect(tester.widget<MabarButton>(find.widgetWithText(MabarButton, 'Pilih klub')).onPressed, isNull);
     await tester.tap(find.widgetWithText(MabarChip, 'Matcha Club'));
     await tester.pump();

@@ -22,6 +22,7 @@ import 'grup_gugur_fixture.dart';
 import 'live_fixture.dart';
 import 'ranking_fixture.dart';
 import 'schedule_fixture.dart';
+import 'sparing_mixed_fixture.dart';
 import 'screen_harness.dart';
 
 /// Golden Live score, frame 12a–12o (Fixed 12f dan 12i di `jadwal_fixed_test.dart`). HP host: latar 06h (Padel
@@ -159,6 +160,27 @@ void main() {
     expect(find.text('Isi skor'), findsNothing);
     expect(find.bySemanticsLabel('Menu'), findsNothing);
     expect(find.bySemanticsLabel('Kembali'), findsNothing);
+  });
+
+  // 15z4: penonton sparing Mixed, papan skor klub di atas daftar match (keadaan 15b).
+  testWidgets('15z4 penonton Mixed sparing: skor klub, tag Live', (tester) async {
+    final s = mixedSparing15b();
+    final view = LiveView(LiveViewStatus.live, s.active);
+    // Jam frame 15z4 = 19.47 (sisa 01:13), bukan jam fixture 12h.
+    await expectMatchesHifi(
+      tester,
+      hifiScreen(
+        const LiveScreen(),
+        overrides: [
+          liveCodeProvider.overrideWithValue('K7Q2MX'),
+          liveViewProvider.overrideWith(() => Watching(view)),
+          tournamentProvider.overrideWith(LiveTournamentController.new),
+          clockProvider.overrideWithValue(() => s.now),
+        ],
+      ),
+      '15z4',
+    );
+    expect(find.text('Isi skor'), findsNothing);
   });
 
   testWidgets('12j Klasemen tanpa Bagikan', (tester) async {
