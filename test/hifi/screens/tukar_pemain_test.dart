@@ -186,6 +186,64 @@ void main() {
     }
   });
 
+  // 17s/17t (C-3, keputusan 128): latar 06o (30 pemain, R3 Court 2 belum diisi), 22 pemain istirahat = 8 prioritas
+  // + 14 istirahat lagi. Pratinjau + Diganti tetap, hanya kandidat yang digulir, footer menempel.
+  final tall = mixedTournament(
+    const [
+      <MatchSpec>[('Putri', 'Oki', 'Tari', 'Gina', 11, 10), ('Lina', 'Wulan', 'Kiki', 'Tono', 12, 9)],
+      <MatchSpec>[('Fajar', 'Galih', 'Rizky', 'Joko', 11, 10), ('Nanda', 'Eko', 'Hendra', 'Bayu', 12, 9)],
+      <MatchSpec>[('Citra', 'Vina', 'Maya', 'Dimas', 13, 8), ('Sari', 'Dewant', 'Umar', 'Andi', null, null)],
+    ],
+    players: 30,
+    id: 't-06o-30',
+  );
+  final tallNow = fixtureStart.add(const Duration(minutes: 40));
+
+  testWidgets('golden 17s', (tester) async {
+    await expectMatchesHifi(tester, screen(tall, tallNow), '17s', act: (t) => tapIcon(t, 'Sari D · Dewant R'));
+    // Hanya kandidat yang digulir: kedua grup ada, Tukar mati.
+    expect(find.text('Diganti'), findsOneWidget);
+    expect(tester.widget<MabarButton>(find.widgetWithText(MabarButton, 'Tukar')).onPressed, isNull);
+  });
+
+  testWidgets('golden 17t', (tester) async {
+    await expectMatchesHifi(
+      tester,
+      screen(tall, tallNow),
+      '17t',
+      act: (t) async {
+        await tapIcon(t, 'Sari D · Dewant R');
+        await pick(t, ['Sari D']);
+        await t.drag(find.byType(SingleChildScrollView).last, const Offset(0, -2000));
+        await t.pumpAndSettle();
+        await pick(t, ['Hendra G']);
+      },
+    );
+  });
+
+  testWidgets('Sheet Tukar bergulir: pratinjau dan Diganti tidak ikut tergulir, garis hanya saat ada isi tersembunyi', (
+    tester,
+  ) async {
+    await tester.pumpWidget(screen(tall, tallNow));
+    await tester.pumpAndSettle();
+    await tapIcon(tester, 'Sari D · Dewant R');
+    final diganti = tester.getTopLeft(find.text('Diganti')).dy;
+    final footer = tester.getTopLeft(find.text('Batal')).dy;
+    final under = find.byKey(const ValueKey('sheet-line-under'));
+    final over = find.byKey(const ValueKey('sheet-line-over'));
+    // Posisi awal: kandidat terpotong di atas footer.
+    expect(under, findsNothing);
+    expect(over, findsOneWidget);
+    await tester.drag(find.byType(SingleChildScrollView).last, const Offset(0, -2000));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Diganti')).dy, diganti);
+    expect(tester.getTopLeft(find.text('Batal')).dy, footer);
+    // Di ujung: garis di bawah Diganti, tidak ada lagi di atas footer.
+    expect(under, findsOneWidget);
+    expect(over, findsNothing);
+    expect(find.text('Hendra G'), findsWidgets);
+  });
+
   /// Layar dengan toko yang dihitung dan controller sungguhan (auto-save aktif), supaya tukar dan Batal terbukti
   /// lewat jalur yang sama dengan app.
   Future<({_CountingStore store, ProviderContainer container})> pumpLive(
