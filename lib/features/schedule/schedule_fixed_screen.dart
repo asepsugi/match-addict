@@ -198,7 +198,7 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
                         const Icon(MabarIcons.lockSimple, size: MabarSize.iconInButton, color: MabarColors.ink3),
                         const SizedBox(width: 8),
                         Text(
-                          'Terbuka setelah semua skor R${selected - 1} terisi',
+                          'Terbuka setelah semua skor R${active.lockedBy(selected) ?? selected - 1} terisi',
                           style: MabarType.body.copyWith(fontSize: 14, color: MabarColors.ink3),
                         ),
                       ],
@@ -249,6 +249,23 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
                       ),
                       Expanded(
                         child: MabarButton(label: 'Buat bagan', icon: MabarIcons.trophy, onPressed: _createBracket),
+                      ),
+                    ]
+                  : !watching && active.waitsForBracket
+                  // C-17 (20b): bagan butuh semua match grup terisi; N = match grup Belum di semua round grup.
+                  ? [
+                      MabarIconButton(
+                        icon: MabarIcons.ranking,
+                        semanticLabel: 'Klasemen',
+                        solid: true,
+                        onPressed: () => context.push('/leaderboard'),
+                      ),
+                      Expanded(
+                        child: MabarButton(
+                          label: 'Buat bagan',
+                          meta: '· tunggu ${active.pendingGroupMatches} match',
+                          variant: MabarButtonVariant.wait,
+                        ),
                       ),
                     ]
                   : !watching && active.canAddRounds

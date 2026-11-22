@@ -14,6 +14,9 @@ enum MabarButtonVariant {
   /// Hanya untuk satu aksi "lanjutkan yang sedang berjalan" di Beranda.
   ball,
   secondary,
+
+  /// `.btn-secondary.danger`: kartu putih bergaris, teks clay ("Kosongkan skor", 07p).
+  secondaryDanger,
   danger,
   ghost,
 
@@ -65,6 +68,7 @@ class MabarButton extends StatelessWidget {
             MabarButtonVariant.primary => (MabarColors.ink, Colors.white),
             MabarButtonVariant.ball => (MabarColors.ball, MabarColors.ink),
             MabarButtonVariant.secondary => (MabarColors.card, MabarColors.ink),
+            MabarButtonVariant.secondaryDanger => (MabarColors.card, MabarColors.clay),
             MabarButtonVariant.danger => (MabarColors.clay, Colors.white),
             MabarButtonVariant.ghost => (Colors.transparent, MabarColors.court),
             MabarButtonVariant.wait => (Colors.transparent, MabarColors.ink3),
@@ -106,7 +110,7 @@ class MabarButton extends StatelessWidget {
         color: bg,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: variant == MabarButtonVariant.secondary && !off
+          side: (variant == MabarButtonVariant.secondary || variant == MabarButtonVariant.secondaryDanger) && !off
               ? const BorderSide(color: MabarColors.line, width: 1.5)
               : BorderSide.none,
         ),

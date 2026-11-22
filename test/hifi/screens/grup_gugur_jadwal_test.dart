@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/core/widgets/mabar_layers.dart';
 import 'package:match_addict/features/schedule/group_knockout/create_bracket_flow.dart';
 import 'package:match_addict/features/schedule/group_knockout/gk_labels.dart';
@@ -203,11 +204,11 @@ void main() {
   });
 
   group('perilaku', () {
-    testWidgets('AC-G6: satu match grup Belum = tanpa Buat bagan', (tester) async {
+    testWidgets('AC-G6 + AC-B1: match grup Belum = Buat bagan mati, tunggu N match (20b: 12 − 5 = 7)', (tester) async {
       await tester.pumpWidget(screen(gg20b(), at20b));
       await tester.pumpAndSettle();
-      expect(find.text('Buat bagan'), findsNothing);
-      expect(find.text('Klasemen'), findsOneWidget);
+      expect(find.text('· tunggu 7 match'), findsOneWidget);
+      expect(tester.widget<MabarButton>(find.widgetWithText(MabarButton, 'Buat bagan')).onPressed, isNull);
     });
 
     testWidgets('AC-G7: Batal di dialog tidak mengubah turnamen', (tester) async {

@@ -99,6 +99,11 @@ void main() {
       // Kepala poster "Klasemen sementara" diturunkan dari isFinal (share_content.dart).
       expect(b.isFinal(_sparingNow), isFalse);
       expect(b.canAddRounds, isFalse);
+      // AC-K10: m12 diisi lagi (skor lama) → Tambah round kembali.
+      final refilled = b.copyWith(
+        tournament: b.tournament.copyWith(matches: [for (final m in b.matches) m.id == 'm12' ? a.matchById('m12')! : m]),
+      );
+      expect(refilled.canAddRounds, isTrue);
       expect(_clubTable(b, garuda), [
         '1 Eko + Fajar 18 +11',
         '2 Andi + Budi 14 +1',

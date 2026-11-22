@@ -21,10 +21,16 @@ Future<T?> showMabarSheet<T>(
   String? subtitle,
   required WidgetBuilder builder,
   WidgetBuilder? footer,
+  WidgetBuilder? action,
 }) => showMabarSheetRoute<T>(
   context,
-  builder: (context) =>
-      MabarSheet(title: title, subtitle: subtitle, footer: footer?.call(context), child: builder(context)),
+  builder: (context) => MabarSheet(
+    title: title,
+    subtitle: subtitle,
+    footer: footer?.call(context),
+    action: action?.call(context),
+    child: builder(context),
+  ),
 );
 
 /// Route bottom sheet [showMabarSheet] untuk sheet yang menyusun [MabarSheet] sendiri, karena judul atau subjudulnya

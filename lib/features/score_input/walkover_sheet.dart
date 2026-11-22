@@ -6,28 +6,62 @@ import '../../core/widgets/mabar_inputs.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../../services/schedule/knockout_bracket.dart';
+import '../../services/scoring/score_reset.dart';
 import 'knockout_text.dart';
+import 'reset_text.dart';
 
-class WalkoverResult {
+/// Hasil sheet WO: simpan WO baru, atau Hapus WO yang sudah dikonfirmasi di dialog (07t–07v). Penghapusan sendiri
+/// dijalankan layar Input Skor lewat controller; sheet hanya meneruskan keputusan host.
+sealed class WalkoverOutcome {
+  const WalkoverOutcome();
+}
+
+class WalkoverResult extends WalkoverOutcome {
   final String loserPairId;
   final WoReason? reason;
 
   const WalkoverResult({required this.loserPairId, this.reason});
 }
 
+class RemoveWalkover extends WalkoverOutcome {
+  const RemoveWalkover();
+}
+
 /// Sheet 07j "Walkover" — pilih pasangan yang tidak main (lawan menang WO) dan alasan opsional. Membuka
 /// WO yang sudah ada: pilihan dan alasan terisi.
-Future<WalkoverResult?> showWalkoverSheet(
+Future<WalkoverOutcome?> showWalkoverSheet(
   BuildContext context, {
   required ActiveTournament active,
   required MatchGame match,
 }) {
   final court = active.courtById(match.courtId).name;
-  return showMabarSheet<WalkoverResult>(
+  // "Hapus WO" (07t) hanya untuk match WO dan kalau mode mengizinkan; gugur yang ditolak (GU11) tampil mati + 21l.
+  final remove = match.status == MatchStatus.wo
+      ? ScoreReset.check(active, match.id, ResetAction.removeWalkover)
+      : const ResetUnavailable();
+  return showMabarSheet<WalkoverOutcome>(
     context,
     title: 'Walkover',
     subtitle: knockoutWalkoverSubtitle(active, match) ?? 'Round ${match.roundNumber} · $court',
-    builder: (_) => _Walkover(active: active, match: match),
+    action: switch (remove) {
+      ResetUnavailable() => null,
+      ResetBlocked() => (_) => const MabarTextButton(label: 'Hapus WO', tone: MabarTextTone.danger),
+      final ResetAllowed allowed => (sheet) => MabarTextButton(
+        label: 'Hapus WO',
+        tone: MabarTextTone.danger,
+        onPressed: () async {
+          final ok = await showMabarConfirm(
+            sheet,
+            title: resetDialogTitle(active, match, ResetAction.removeWalkover),
+            message: resetDialogMessage(active, allowed),
+            confirmLabel: resetConfirmLabel(ResetAction.removeWalkover),
+            destructive: true,
+          );
+          if (ok && sheet.mounted) Navigator.pop(sheet, const RemoveWalkover());
+        },
+      ),
+    },
+    builder: (_) => _Walkover(active: active, match: match, removeBlocked: remove is ResetBlocked ? remove.flip : null),
   );
 }
 
@@ -35,7 +69,10 @@ class _Walkover extends StatefulWidget {
   final ActiveTournament active;
   final MatchGame match;
 
-  const _Walkover({required this.active, required this.match});
+  /// Hapus WO ditolak (GU11): catatan 21l tampil di sheet walau pilihan yang sedang diubah tidak membalik pemenang.
+  final FlipBlocked? removeBlocked;
+
+  const _Walkover({required this.active, required this.match, this.removeBlocked});
 
   @override
   State<_Walkover> createState() => _WalkoverState();
@@ -70,9 +107,11 @@ class _WalkoverState extends State<_Walkover> {
     final flip = winner == null || match.phase is! KnockoutPhase
         ? null
         : KnockoutBracket.flipCheck(widget.active, match.id, winner.id);
-    final blocked = flip is FlipBlocked
+    final saveBlocked = flip is FlipBlocked;
+    final blocking = flip is FlipBlocked ? flip : widget.removeBlocked;
+    final blocked = blocking != null
         ? knockoutBlockedMessage(
-            flip,
+            blocking,
             match.phase! as KnockoutPhase,
             _names(match.winnerPairId == match.pair1.id ? match.pair1 : match.pair2, ' & '),
           )
@@ -130,7 +169,7 @@ class _WalkoverState extends State<_Walkover> {
                   child: MabarButton(
                     label: 'Simpan WO',
                     variant: MabarButtonVariant.danger,
-                    onPressed: loser == null || blocked != null
+                    onPressed: loser == null || saveBlocked
                         ? null
                         : () => Navigator.pop(context, WalkoverResult(loserPairId: loser, reason: _reason)),
                   ),
