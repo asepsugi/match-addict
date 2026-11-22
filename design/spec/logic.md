@@ -2403,7 +2403,8 @@ Format kolom: didapat / dimainkan → Point % · selisih · Total Point · W–L
 | AC-RP5 18C-hapus | 18C, match WO R3 Court 1 → pending (Hapus WO) | Andi 28/42 → 67, Budi 34/42 → 81, Citra = Dewi 11/42 → 26; selisih Andi +14, Citra −20 tidak berubah |
 | AC-RP6 18E | `PlayerStanding` langsung (tanpa match): Sari 66/60, Qori 44/40, Rani 65/61, Tono 64/62 (gamesWon/gamesLost, `wins ≥ 1`) | `pointPercent` 52, 52, 52, 51; `standingEntries(pointPercent)`: Sari #1, Qori #2, Rani #2, Tono #3. Best of 5 3–0 + 2–3 → 63 |
 | AC-RP6 bulat | `PlayerStanding(gamesWon, gamesLost)` | 5/3 → 63 · 44/40 → 52 · 65/61 → 52 · 64/62 → 51 · 16/14 → 53 · 16/15 → 52 · 10/10 → 50 (AC-RP8) · 0/0 → 0 |
-| 4.2 | Race to 6: Gita·Andi 2W–1L 16/15 (+1), Dewi·Citra 1W–2L 16/14 (+2); A 5–6, 5–6, 6–0; B 6–5, 6–5, 0–6 | Win %: Gita·Andi di atas; Point %: Dewi·Citra 53 di atas Gita·Andi 52. A 57 di atas B 43 (Win %: B di atas) |
+| 4.2 contoh 1 | Race to 6, tiga match: Gita·Andi 2W–1L 16/31 (kalah 15, +1), Dewi·Citra 1W–2L 16/30 (kalah 14, +2) | Win %: Gita·Andi 67 di atas Dewi·Citra 33. Total Point 16 sama → selisih: Dewi·Citra di atas. Point %: Dewi·Citra 53 di atas Gita·Andi 52 |
+| 4.2 contoh 2 (= 18B) | Race to 6: A 5–6, 5–6, 6–0 (16 game, 1W–2L); B 6–5, 6–5, 0–6 (12 game, 2W–1L) | Win %: B di atas A. Total Point: A di atas B. Point %: A 57 di atas B 43 |
 | AC-RP8 | Mixed Americano 20, satu match 10–10, pemain lain belum main | keempat pemain 50%, nomor sama #1; sisanya "Belum main" |
 | AC-RP11 18D | 14B: undian R1/R2 = §14.4, skor R1 15–6, 9–12, R2 12–9, 10–11; undian R3 disuntik **Andi, Fajar, Gita, Eko, Citra, Hadi, Indra, Joko, Budi, Dewi** | setelah R2: Citra 15/21 → 71 · +9; Andi 27/42 → 64 · +12; Hadi 12/21 → 57 · +3; Joko 11/21 → 52 · +1; Fajar 21/42 → 50 · 0; Gita 21/42 → 50 · 0; Indra 10/21 → 48 · −1; Eko 18/42 → 43 · −6; Dewi 17/42 → 40 · −8; Budi 16/42 → 38 · −10. R3: Budi, Dewi istirahat; C1 Citra, Andi, Hadi, Joko beban 0/0/1 → **A Citra·Hadi vs Andi·Joko**; C2 Fajar, Gita, Indra, Eko beban 1/1/0 → **C Fajar·Gita vs Indra·Eko** (undian lain dengan Gita di atas Fajar → Gita·Fajar vs Indra·Eko). Sama persis saat `rankingMethodProvider` = tiap tab |
 | AC-M15 (berubah) | 14A, R2 Court 2 WO (Gita·Budi kalah) | Eko 20/32 → 63 · −3; Citra 26/42 → 62 · +10; Andi 25/42 → 60 · +8; Fajar 23/42 → 55 · +4; Dewi 17/32 → 53 · −9; Hadi 22/42 → 52 · +2; Gita 9/32 → 28 · −3; Budi 6/32 → 19 · −9 (kalah 11 dari WO). Tanpa seri → undian apa pun: R3 **C1 Eko, Citra, Andi, Fajar beban 1/1/0 → C Eko·Citra vs Andi·Fajar · C2 Dewi, Hadi, Gita, Budi beban 0/1/1 → A Dewi·Gita vs Hadi·Budi**. Sampai 3.8.x R3 = R3 (a); test `mexicano_test.dart` "AC-M15" diubah ke angka ini |
@@ -2461,12 +2462,13 @@ Format kolom: didapat / dimainkan → Point % · selisih · Total Point · W–L
    bisa `pointPercent` → label/nilai tabel grup lewat `switch` yang sama.
 10. Caption Total Point / Win % byte-sama dengan 3.8.1; poster dari tab Total Point / Win % sama persis (AC-RP10).
 11. Skor klub Sparing (K2) dan kepala klub poster tetap Total Point klub di semua tab.
-12. **Golden yang berubah karena default Americano berganti** (tanpa kode layar diubah): semua frame Americano/Mexicano
-    yang membuka Klasemen, Detail, atau Bagikan di metode default — 09a/09b/09d–09f (set1/set2), 10a/10c, 11a/11c (data
-    09a), 14u (Sparing Americano 20), 15t (Mixed Sparing Americano 21), 16x yang menampilkan Klasemen/R3, 12x penonton
-    dengan data Americano. Test yang ingin tetap menggambar Total Point wajib menyetel `rankingMethodProvider` (pola
-    yang sudah ada untuk Race to). Statline Detail berubah di **semua** frame Detail (U-RP5): 10a–10e, 14v, 14w, 15u,
-    15v, 22j, 22k, dan Detail penonton bila ada. Daftar persis per task di `docs/tasks.md`.
+12. **Golden frame default Americano tidak berubah sendiri**: `hifiScreen` memaksa Total Point
+    (`test/hifi/screens/screen_harness.dart:12`), jadi test frame yang di hi-fi kini terbuka di Point % wajib
+    meng-override `rankingMethodProvider` ke `pointPercent`. Frame itu: semua frame Americano/Mexicano yang membuka
+    Klasemen, Detail, atau Bagikan di metode default — 09a/09b/09d–09f (set1/set2), 10a/10c, 11a/11c (data 09a), 14u
+    (Sparing Americano 20), 15t (Mixed Sparing Americano 21), 16x yang menampilkan Klasemen/R3, 12x penonton dengan
+    data Americano. Statline Detail berubah di **semua** frame Detail (U-RP5): 10a–10e, 14v, 14w, 15u, 15v, 22j, 22k,
+    dan Detail penonton bila ada. Daftar persis per task di `docs/tasks.md`.
 13. Test lama yang berubah angka/hasil hanya: AC-M15 R3, 16g R3, oracle `mexicano_property_test`, dan golden di #12.
     Test lain yang gagal = regresi.
 
