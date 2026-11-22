@@ -58,6 +58,8 @@ class DetailPlayerScreen extends ConsumerWidget {
 
     final stats = <StatLineItem>[
       (value: played ? '${s.totalPoint}' : '–', unit: null, label: unit),
+      // Urutan = urutan tab Klasemen; Point % dan Win selalu tampil, tidak ikut tab (keputusan 129–130).
+      (value: played ? '${s.pointPercent}' : '–', unit: played ? '%' : null, label: 'Point %'),
       (value: played ? '${s.winPercent.round()}' : '–', unit: played ? '%' : null, label: 'Win'),
       (
         value: !played ? '–' : (format.canDraw ? '${s.wins}–${s.losses}–${s.draws}' : '${s.wins}–${s.losses}'),

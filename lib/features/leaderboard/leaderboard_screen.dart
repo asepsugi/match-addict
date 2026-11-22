@@ -95,7 +95,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       return StandingTable(
         subjectLabel: fixed ? 'Pasangan' : 'Pemain',
         recordLabel: format.canDraw ? 'W–L–D' : 'W–L',
-        valueLabel: shown == RankingMethod.winPercent ? 'Win %' : '${unit[0].toUpperCase()}${unit.substring(1)}',
+        valueLabel: switch (shown) {
+          RankingMethod.totalGames => '${unit[0].toUpperCase()}${unit.substring(1)}',
+          RankingMethod.pointPercent => 'Point %',
+          RankingMethod.winPercent => 'Win %',
+        },
         stageLabel: stage ? 'Babak' : null,
         rows: [
           for (final (i, e) in entries.indexed)
@@ -106,9 +110,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                 played: e.standing.matchesPlayed,
                 record: record(e.standing),
                 diff: e.standing.diffLabel,
-                value: shown == RankingMethod.winPercent
-                    ? '${e.standing.winPercent.round()}'
-                    : '${e.standing.totalPoint}',
+                value: switch (shown) {
+                  RankingMethod.totalGames => '${e.standing.totalPoint}',
+                  RankingMethod.pointPercent => '${e.standing.pointPercent}',
+                  RankingMethod.winPercent => '${e.standing.winPercent.round()}',
+                },
                 tag: slotPairIds == null ? null : KnockoutBracket.seedOf(active, slotPairIds[i]),
                 stage: stage ? e.stage : null,
                 // Fixed: anggota pertama mewakili pasangannya (statistiknya sama).
@@ -152,7 +158,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: MabarSegmented<RankingMethod>(
-                options: const [(RankingMethod.totalGames, 'Total Point'), (RankingMethod.winPercent, 'Win %')],
+                options: const [
+                  (RankingMethod.totalGames, 'Total Point'),
+                  (RankingMethod.pointPercent, 'Point %'),
+                  (RankingMethod.winPercent, 'Win %'),
+                ],
                 selected: method,
                 onChanged: (m) => ref.read(rankingMethodProvider.notifier).state = m,
               ),

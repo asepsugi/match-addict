@@ -79,3 +79,56 @@ ActiveTournament fixedFinal() {
   );
 }
 
+/// 09j (data 18A, PRD §18.4): Padel Mixed Americano 21, 5 pemain, 1 court; Andi main 4, yang lain 3.
+final data18a = mixedTournament(
+  const [
+    [('Andi', 'Budi', 'Citra', 'Dewi', 12, 9)],
+    [('Andi', 'Citra', 'Budi', 'Eko', 10, 11)],
+    [('Andi', 'Eko', 'Budi', 'Dewi', 8, 13)],
+    [('Andi', 'Dewi', 'Citra', 'Eko', 11, 10)],
+  ],
+  roster: const ['Andi', 'Budi', 'Citra', 'Dewi', 'Eko'],
+  courtCount: 1,
+);
+
+/// 09k (data 18B, PRD §18.4): Fixed Race to 6, 4 pasangan (Andi·Budi, Citra·Dewi, Eko·Fajar, Gita·Hadi), 3 round.
+ActiveTournament data18b() {
+  const names = ['Andi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita', 'Hadi'];
+  final players = [for (var i = 0; i < 8; i++) Player(id: 'p$i', name: names[i])];
+  final pairs = [for (var i = 0; i < 4; i++) Pair(id: 'pair$i', player1Id: 'p${2 * i}', player2Id: 'p${2 * i + 1}')];
+  // (round, pair1, pair2, skor1, skor2)
+  const results = [
+    (1, 0, 1, 5, 6), (1, 2, 3, 6, 2), //
+    (2, 0, 2, 5, 6), (2, 1, 3, 6, 5),
+    (3, 0, 3, 6, 0), (3, 1, 2, 0, 6),
+  ];
+  final matches = [
+    for (final (i, (r, a, b, s1, s2)) in results.indexed)
+      MatchGame(
+        id: 'm$i',
+        roundNumber: r,
+        matchNumberInRound: i.isEven ? 1 : 2,
+        courtId: 'c${i.isEven ? 1 : 2}',
+        pair1: pairs[a],
+        pair2: pairs[b],
+      ).withScore([SetScore(side1: s1, side2: s2)]),
+  ];
+  return ActiveTournament(
+    tournament: Tournament(
+      id: 't-18b',
+      createdAt: fixtureStart,
+      config: TournamentConfig(
+        sport: SportType.tennis,
+        mode: PartnerMode.fixed,
+        matchDurationMinutes: 20,
+        courts: const [
+          Court(id: 'c1', name: 'Court 1', colorIndex: 0, bookingDurationMinutes: 120),
+          Court(id: 'c2', name: 'Court 2', colorIndex: 1, bookingDurationMinutes: 120),
+        ],
+        players: players,
+        fixedPairs: pairs,
+      ),
+      matches: matches,
+    ),
+  );
+}
