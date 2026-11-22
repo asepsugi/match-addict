@@ -1,7 +1,7 @@
 import '../../models/models.dart';
 import 'ranking_calculator.dart';
 
-/// Klasemen satu grup (G7): hanya match grup itu, metode default format grup (keputusan 21, tanpa toggle).
+/// Klasemen satu grup (G7): hanya match grup itu, metode default format grup (keputusan 21/123, tanpa toggle).
 class GroupTable {
   final int group;
   final List<StandingEntry> entries;

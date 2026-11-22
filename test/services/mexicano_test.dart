@@ -106,6 +106,10 @@ class _Sim {
 /// "Citra 26 (+10)".
 String _tp(Map<String, PlayerStanding> s, String id) => '$id ${s[id]!.totalPoint} (${s[id]!.diffLabel})';
 
+/// "Eko 20/32 63% (−3)": didapat/dimainkan, Point % bulat, selisih.
+String _pp(Map<String, PlayerStanding> s, String id) =>
+    '$id ${s[id]!.totalPoint}/${s[id]!.pointsPlayed} ${s[id]!.pointPercent}% (${s[id]!.diffLabel})';
+
 /// Pemain yang main di [matches].
 Set<String> _playersOf(Iterable<MatchGame> matches) => {
   for (final m in matches) ...[...m.pair1.playerIds, ...m.pair2.playerIds],
@@ -277,7 +281,7 @@ void main() {
       expect(loads(['Hadi', 'Dewi', 'Gita', 'Budi']), [1, 0, 1]);
     });
 
-    test('AC-M15 WO R2 Court 2 (Gita · Budi absen): Eko 20, Dewi 17, Gita 9, Budi 6; R3 = R3 (a) undian apa pun', () {
+    test('AC-M15 WO R2 Court 2 (Gita · Budi absen): Point % (20.8); R3 tanpa seri = undian apa pun', () {
       for (final draw in [
         ['Andi', 'Budi', 'Citra', 'Dewi', 'Hadi', 'Eko', 'Fajar', 'Gita'],
         ['Andi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Hadi', 'Fajar', 'Gita'],
@@ -292,12 +296,28 @@ void main() {
         final s = sim.standings();
         expect(
           [
+            for (final id in ['Eko', 'Citra', 'Andi', 'Fajar', 'Dewi', 'Hadi', 'Gita', 'Budi']) _pp(s, id),
+          ],
+          [
+            'Eko 20/32 63% (−3)',
+            'Citra 26/42 62% (+10)',
+            'Andi 25/42 60% (+8)',
+            'Fajar 23/42 55% (+4)',
+            'Dewi 17/32 53% (−9)',
+            'Hadi 22/42 52% (+2)',
+            'Gita 9/32 28% (−3)',
+            'Budi 6/32 19% (−9)',
+          ],
+        );
+        // Total Point tetap seperti 3.8.x (bukan penentu urutan lagi).
+        expect(
+          [
             for (final id in ['Eko', 'Dewi', 'Gita', 'Budi']) _tp(s, id),
           ],
           ['Eko 20 (−3)', 'Dewi 17 (−9)', 'Gita 9 (−3)', 'Budi 6 (−9)'],
         );
         sim.next(draw: draw);
-        expect(_round(sim.history, 3), ['Citra·Hadi vs Andi·Fajar', 'Eko·Budi vs Dewi·Gita']);
+        expect(_round(sim.history, 3), ['Eko·Citra vs Andi·Fajar', 'Dewi·Gita vs Hadi·Budi']);
       }
     });
   });
@@ -359,7 +379,41 @@ void main() {
       sim.withdrawn.add('Gita');
       sim.next(draw: ['Citra', 'Hadi', 'Indra', 'Joko', 'Andi', 'Dewi', 'Eko', 'Fajar', 'Budi']);
       expect(sim.resting[3], ['Budi']);
-      expect(_round(sim.history, 3), ['Andi·Eko vs Fajar·Dewi', 'Citra·Joko vs Hadi·Indra']);
+      expect(_round(sim.history, 3), ['Citra·Hadi vs Andi·Joko', 'Fajar·Dewi vs Indra·Eko']);
+    });
+
+    test('18D AC-RP11: urutan Point % setelah R2, R3 dengan undian disuntik, sama di tiap tab', () {
+      final sim = upToR2();
+      sim.score(2, [(12, 9), (10, 11)]);
+      final s = sim.standings();
+      expect(
+        [
+          for (final id in ['Citra', 'Andi', 'Hadi', 'Joko', 'Fajar', 'Gita', 'Indra', 'Eko', 'Dewi', 'Budi'])
+            _pp(s, id),
+        ],
+        [
+          'Citra 15/21 71% (+9)',
+          'Andi 27/42 64% (+12)',
+          'Hadi 12/21 57% (+3)',
+          'Joko 11/21 52% (+1)',
+          'Fajar 21/42 50% (0)',
+          'Gita 21/42 50% (0)',
+          'Indra 10/21 48% (−1)',
+          'Eko 18/42 43% (−6)',
+          'Dewi 17/42 40% (−8)',
+          'Budi 16/42 38% (−10)',
+        ],
+      );
+      sim.next(draw: ['Andi', 'Fajar', 'Gita', 'Eko', 'Citra', 'Hadi', 'Indra', 'Joko', 'Budi', 'Dewi']);
+      expect(sim.resting[3]!.toSet(), {'Budi', 'Dewi'});
+      expect(_round(sim.history, 3), ['Citra·Hadi vs Andi·Joko', 'Fajar·Gita vs Indra·Eko']);
+    });
+
+    test('18D undian lain: Gita di atas Fajar → Gita·Fajar vs Indra·Eko', () {
+      final sim = upToR2();
+      sim.score(2, [(12, 9), (10, 11)]);
+      sim.next(draw: ['Andi', 'Gita', 'Fajar', 'Eko', 'Citra', 'Hadi', 'Indra', 'Joko', 'Budi', 'Dewi']);
+      expect(_round(sim.history, 3)[1], 'Gita·Fajar vs Indra·Eko');
     });
   });
 
@@ -552,9 +606,7 @@ void main() {
       expect(_round(read().matches, 4), expected(before));
       // R4 memang dari angka baru: dengan skor R2 lama susunannya berbeda.
       final withOld = before.copyWith(
-        tournament: before.tournament.copyWith(
-          matches: [for (final m in before.matches) m.id == r2c2.id ? r2c2 : m],
-        ),
+        tournament: before.tournament.copyWith(matches: [for (final m in before.matches) m.id == r2c2.id ? r2c2 : m]),
       );
       expect(_round(read().matches, 4), isNot(expected(withOld)));
     });

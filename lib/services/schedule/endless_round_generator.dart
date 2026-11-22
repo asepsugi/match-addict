@@ -132,7 +132,7 @@ class EndlessRoundGenerator {
     );
   }
 
-  /// Urutan Mexicano (PRD 14.3): Total Point turun → selisih turun ([RankingCalculator.compare] Total Point, apa pun
+  /// Urutan Mexicano (PRD 14.3): Point % turun → selisih turun ([RankingCalculator.compare] Point %, apa pun
   /// tab Klasemen) → [draw] naik → id. Sengaja bukan urutan [RankingCalculator.rank] (pemisah nama) atau nomor
   /// Klasemen (null untuk yang belum main): pemain belum main ikut diurut dengan 0 / 0.
   static List<Player> mexicanoOrder(
@@ -145,13 +145,13 @@ class EndlessRoundGenerator {
       for (final s in RankingCalculator.rank(
         players: players,
         matches: history,
-        method: RankingMethod.totalGames,
+        method: RankingMethod.pointPercent,
         format: format,
       ))
         s.player.id: s,
     };
     return [...players]..sort((a, b) {
-      final byRank = RankingCalculator.compare(standing[a.id]!, standing[b.id]!, RankingMethod.totalGames);
+      final byRank = RankingCalculator.compare(standing[a.id]!, standing[b.id]!, RankingMethod.pointPercent);
       if (byRank != 0) return byRank;
       // Undian wajib memuat semua pemain aktif (jebakan 1); id yang hilang = pemanggil keliru, gagal keras.
       final byDraw = draw[a.id]!.compareTo(draw[b.id]!);

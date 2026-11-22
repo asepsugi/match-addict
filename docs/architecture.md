@@ -135,16 +135,18 @@ cabang dimulai dari `config.isSparing`; turnamen biasa tidak berubah (AC-S19). S
 
 ## Mexicano (3.4.0)
 
-Mode ketiga: siapa main = prioritas main Mixed apa adanya, yang main dikelompokkan berempat per court menurut Total
-Point → selisih → undian (PRD §14, aturan + data test `design/spec/logic.md` §14, task `docs/tasks.md`). Mesin Mixed
-dipakai ulang; tidak ada generator atau layar kedua.
+Mode ketiga: siapa main = prioritas main Mixed apa adanya, yang main dikelompokkan berempat per court menurut Point %
+(sejak 3.9.0, keputusan 124; sebelumnya Total Point) → selisih → undian (PRD §14 + §18.6, aturan + data test
+`design/spec/logic.md` §14 dan §20.6, task `docs/tasks.md`). Mesin Mixed dipakai ulang; tidak ada generator atau layar
+kedua.
 - **Model**: `PartnerMode.mexicano`; `PartnerModeX.isEndless` (Mixed + Mexicano) menggantikan `== PartnerMode.mixed`
   di semua turunan round-per-round (`isFinal`, `runningRound`, `canManageCourts`, `canResume`, `canCancelLastRound`,
   `startIfNeeded`, `resume`), **kecuali** `addPlayer` (Mexicano tanpa tambah pemain). `ScoreFormat.forMexicano`
   (Konfigurasi), `ActiveTournament.canReinstate` (Mexicano: hadir di setiap round yang sudah dibuat).
 - **Generator** (`EndlessRoundGenerator`, file yang sama dengan Mixed): `lockedDraw` (diekstrak dari `priorityOrder`,
-  nilai identik), `generateMexicanoRound`, `mexicanoOrder` (`RankingCalculator.compare` Total Point + undian + id),
-  `mexicanoArrangement` (A/B/C, beban = `_History.partnerCount`). `courtMatch` bercabang Mexicano tanpa `Random`.
+  nilai identik), `generateMexicanoRound`, `mexicanoOrder` (`RankingCalculator.compare` Point % + undian + id; tidak
+  menerima metode, jadi tidak tergantung tab), `mexicanoArrangement` (A/B/C, beban = `_History.partnerCount`).
+  `courtMatch` bercabang Mexicano tanpa `Random`.
   `restingAfterLastRound` dan `courtUse` tidak berubah. Jadwal = `schedule_mixed_screen.dart` (router memilih Fixed vs
   lainnya).
 - **Invariant:** selisih main antar pemain aktif ≤ 1 setelah setiap round; kelompok court ke-i = pemain ke-4i..4i+3
@@ -241,17 +243,31 @@ turunan dari match.
 
 ## Ranking & klasemen
 
-- `ranking/ranking_calculator.dart` — dua metode: Win % dan **Total Point** (`gamesWon`, yaitu jumlah game yang
-  dimenangkan lintas match: 6-5, 4-6, 3-6 → 13). Default mengikuti format skor (`RankingCalculator.defaultMethod`, keputusan host
-  2026-11-11): Race to dan Best of → Win %, Americano → Total Point. `rankingMethodProvider` menonton id + format
-  turnamen, jadi pilihan host bertahan selama turnamen dan kembali ke default saat turnamen berganti; test yang
-  menggambar frame Total Point untuk Race to wajib menyetel metodenya. Metode "Kombinasi" sudah dihapus karena isinya identik dengan Win %.
+- `ranking/ranking_calculator.dart` — tiga metode (`RankingMethod`): Win %, **Total Point** (`totalPoint` = `gamesWon`
+  + `woPoints`; 6-5, 4-6, 3-6 → 13), dan **Point %** (3.9.0, PRD §18, `logic.md` §20). Default mengikuti format skor
+  (`RankingCalculator.defaultMethod`, keputusan 21/123): Race to dan Best of → Win %, Americano (termasuk Mexicano dan
+  Sparing Americano) → Point %. Grup + Gugur memakai default yang sama untuk tabel grup dan lolos (`groupTables`).
+  `rankingMethodProvider` menonton id + format turnamen, jadi pilihan host bertahan selama turnamen dan kembali ke
+  default saat turnamen berganti. Golden `hifiScreen` menyetel Total Point (`hifiTotalPoint`), jadi frame tab Win % /
+  Point % wajib mengetuk tab atau menimpa provider. Metode "Kombinasi" sudah dihapus karena isinya identik dengan Win %.
+- **Point %** = didapat ÷ dimainkan, dibulatkan dengan bilangan bulat saja: `pointPercent = (200·didapat + dimainkan)
+  ~/ (2·dimainkan)` (,5 ke atas, sama di HP dan web; jangan `double` + `round`). Didapat = `totalPoint`; dimainkan =
+  `pointsPlayed` = `totalPoint + gamesLost + woPointsConceded`; dimainkan 0 → 0 (tidak pernah NaN). Seri 10–10 → 50.
+  Data 18A–18E dan invariant berseed: `test/services/point_percent_test.dart`.
 - Urutan = `RankingCalculator.compare`: nilai metode → selisih (`gameDiff`), lalu nama hanya untuk mengurutkan yang
-  nomornya sama. Keputusan host 2026-11-02: hanya angka yang tampil di Klasemen/poster yang menentukan nomor, jadi
-  head-to-head (di Mixed bisa berputar A > B > C > A) dan Total Point sebagai pemisah Win % dihapus.
+  nomornya sama. Point % dibandingkan dari **angka bulat yang tampil** (52 = 52 walau 52,38 vs 51,59); Win % tetap dari
+  nilai persis. Metode lain tidak pernah jadi pemisah. Keputusan host 2026-11-02: hanya angka yang tampil di
+  Klasemen/poster yang menentukan nomor, jadi head-to-head (di Mixed bisa berputar A > B > C > A) dan Total Point
+  sebagai pemisah Win % dihapus.
 - WO (PRD 4.4, `ScoreFormat.woWinnerScore`): menang/kalah dihitung; pemenang dapat N game di Race to, di
   Best of/Americano rata-rata skornya sendiri dari match yang dia mainkan (bulat ,5 ke atas) tapi minimal ⌊N÷2⌋+1; yang
-  kalah 0. Nilai itu masuk `woPoints` → `totalPoint`, **tidak** ke `gameDiff`. Format lama tetap: WO tanpa game.
+  kalah 0 game. Nilai itu masuk `woPoints` → `totalPoint`, **tidak** ke `gameDiff`. Format lama tetap: WO tanpa game.
+  Nilai pemenang dihitung dari **semua id di `matches`**, bukan hanya `players` yang dioper: `mexicanoOrder` dan
+  `courtMatch` memanggil `rank` dengan sebagian pemain, padahal pemenang WO lawannya bisa sedang istirahat (invariant:
+  Point % seorang pemain tidak tergantung daftar `players`). Pasangan yang kalah WO mendapat `woPointsConceded` =
+  `RankingCalculator.woPairValue(nilai pemenang 1, nilai pemenang 2)` (rata-rata ,5 ke atas); hanya masuk
+  `pointsPlayed`, tidak ke `gameDiff`, `totalPoint`, maupun skor klub. Skor klub Sparing (K11) memanggil `woPairValue`
+  yang sama.
   `cancelled` & `pending` diabaikan total. Tes dengan data frame 09a–09f/10b: `test/services/ranking_v2_test.dart`.
 - `standingEntries()` (di `ranking/ranking_calculator.dart`) — mengubah klasemen per pemain jadi baris tampilan. Mode
   Fixed: pasangan yang tidak pernah berganti (`standingPairs`) statistik kedua anggotanya identik, jadi dua baris kembar

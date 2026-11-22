@@ -210,10 +210,12 @@ void main() {
     expect((citraDewant.totalPoint, citraDewant.woLosses), (0, 1));
   });
 
-  test('metode default ikut format skor: Race to dan Best of → Win %, Americano → Total Point (PRD 4.2)', () {
+  test('metode default ikut format skor: Race to dan Best of → Win %, Americano → Point % (PRD 4.2, AC-RP2)', () {
     expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.raceTo, 6)), RankingMethod.winPercent);
     expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.bestOf, 5)), RankingMethod.winPercent);
-    expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.americano, 24)), RankingMethod.totalGames);
+    expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.americano, 24)), RankingMethod.pointPercent);
+    expect(RankingCalculator.defaultMethod(const ScoreFormat(ScoringMethod.americano, 21)), RankingMethod.pointPercent);
+    expect(RankingCalculator.defaultMethod(ScoreFormat.standard.forMexicano), RankingMethod.pointPercent);
   });
 
   // "Sparing Senin" (Race to 6): dua kali menang tipis di atas satu kali menang telak — Win % 67% vs 33%;

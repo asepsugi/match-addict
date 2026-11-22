@@ -437,4 +437,34 @@ void main() {
       expect(GroupKnockoutRanking.groupTables(rr), isEmpty);
     });
   });
+
+  group('AC-RP13 grup Americano 21 (default Point %, keputusan 123)', () {
+    // Grup A: Eko Total Point 32 (51%), Andi 31 (49%), Citra 30 (57%, ada 11–0), Gita 23 (43%).
+    // Total Point meloloskan Eko + Andi; Point % meloloskan Citra + Eko.
+    ActiveTournament americano() => gkTournament(format: const ScoreFormat(ScoringMethod.americano, 21))
+        .play('Andi', 'Citra', 11, 10)
+        .play('Citra', 'Gita', 11, 0)
+        .play('Citra', 'Eko', 9, 12)
+        .play('Eko', 'Andi', 12, 9)
+        .play('Eko', 'Gita', 8, 13)
+        .play('Andi', 'Gita', 11, 10);
+
+    test('groupTables[0].method = pointPercent; tabel urut Point %; 2 lolos = Citra, Eko', () {
+      final a = americano();
+      final t = GroupKnockoutRanking.groupTables(a)[0];
+      expect(t.method, RankingMethod.pointPercent);
+      expect(
+        [
+          for (final e in t.entries)
+            '${e.position} ${e.players.first.name} ${e.standing.totalPoint} ${e.standing.pointPercent}%',
+        ],
+        ['1 Citra 30 57%', '2 Eko 32 51%', '3 Andi 31 49%', '4 Gita 23 43%'],
+      );
+      expect(GroupKnockoutRanking.qualifierPlan(a).slots[0], ['Citra', 'Eko']);
+    });
+
+    test('grup Race to: tetap Win % (byte-sama 3.8.1)', () {
+      expect(GroupKnockoutRanking.groupTables(groups16E())[0].method, RankingMethod.winPercent);
+    });
+  });
 }

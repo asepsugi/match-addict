@@ -111,11 +111,8 @@ class ClubResult {
         final winner = firstWins ? m.pair1 : m.pair2;
         final w = firstWins ? i1 : i2;
         half[w] += 2;
-        // Rata-rata nilai WO kedua pemenang, dibulatkan ,5 ke atas. Di Mixed Best of/Americano nilai keduanya bisa
-        // beda; Fixed dan Race to selalu sama sehingga hasilnya = nilai pasangan.
-        final a = woValues[winner.player1Id] ?? 0;
-        final b = woValues[winner.player2Id] ?? 0;
-        points[w] += (a + b + 1) ~/ 2;
+        // Rata-rata nilai WO kedua pemenang, ,5 ke atas (satu aturan dengan poin kalah Point %).
+        points[w] += RankingCalculator.woPairValue(woValues[winner.player1Id] ?? 0, woValues[winner.player2Id] ?? 0);
       }
     }
 

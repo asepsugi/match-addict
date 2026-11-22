@@ -207,12 +207,12 @@ void main() {
       expect(find.textContaining('Padel · Mexicano · Americano 21'), findsOneWidget);
     });
 
-    test('Klasemen default Total Point; poster "Padel · Mexicano · tanggal", baris "pemain"', () {
+    test('Klasemen default Point % (keputusan 123); poster "Padel · Mexicano · tanggal", baris "pemain"', () {
       final container = ProviderContainer(
         overrides: [tournamentProvider.overrideWith(() => LoadedTournament(mexicanoTournament(2)))],
       );
       addTearDown(container.dispose);
-      expect(container.read(rankingMethodProvider), RankingMethod.totalGames);
+      expect(container.read(rankingMethodProvider), RankingMethod.pointPercent);
 
       final active = container.read(tournamentProvider)!;
       final entries = container.read(standingEntriesProvider);
