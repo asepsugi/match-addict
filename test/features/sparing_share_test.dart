@@ -26,6 +26,7 @@ void main() {
       standings: standingEntries(standings: standings, method: method),
       format: format,
       now: sparingAt(6),
+      method: method,
       clubStandings: clubStandings(active: active, standings: standings, method: method),
     );
   }

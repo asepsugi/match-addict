@@ -27,6 +27,7 @@ class ResultTextBuilder {
     required List<StandingEntry> standings,
     required ShareFormat format,
     required DateTime now,
+    required RankingMethod method,
     List<ClubStandings> clubStandings = const [],
   }) {
     final tournament = active.tournament;
@@ -50,11 +51,11 @@ class ResultTextBuilder {
       for (final (i, group) in clubStandings.indexed) {
         if (i > 0) buffer.writeln();
         buffer.writeln('$status · ${group.club.name}');
-        _writeStandings(buffer, config, group.entries);
+        _writeStandings(buffer, config, group.entries, method);
       }
     } else {
       buffer.writeln(status);
-      _writeStandings(buffer, config, standings);
+      _writeStandings(buffer, config, standings, method);
     }
 
     if (format == ShareFormat.lengkap) {
@@ -78,7 +79,12 @@ class ResultTextBuilder {
   }
 
   /// Baris bernomor lalu "Belum main: …".
-  static void _writeStandings(StringBuffer buffer, TournamentConfig config, List<StandingEntry> standings) {
+  static void _writeStandings(
+    StringBuffer buffer,
+    TournamentConfig config,
+    List<StandingEntry> standings,
+    RankingMethod method,
+  ) {
     final unit = config.format.unit;
     for (final entry in standings) {
       final position = entry.position;
@@ -92,7 +98,10 @@ class ResultTextBuilder {
       final diff = s.gameDiff;
       buffer.writeln(
         '$position. ${entry.label} — ${s.totalPoint} $unit · '
-        '${s.winPercent.toStringAsFixed(1)}% '
+        '${switch (method) {
+          RankingMethod.pointPercent => '${s.pointPercent}% $unit',
+          _ => '${s.winPercent.toStringAsFixed(1)}%',
+        }} '
         '(${s.wins}-${s.losses}${config.format.canDraw ? '-${s.draws}' : ''}, ${diff >= 0 ? '+' : ''}$diff $unit)',
       );
     }

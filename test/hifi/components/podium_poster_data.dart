@@ -26,11 +26,32 @@ const podiumFrames = <String, List<PodiumFrameCase>>{
           PodiumBlockData(level: 2, face: '2', balls: 1),
         ],
         rows: [
-          PodiumRowData(badge: '1', gold: true, names: ['Andi Pratama'], value: '42', detail: 'poin · +12'),
-          PodiumRowData(badge: '1', gold: true, names: ['Dewant Rahman'], value: '42', detail: 'poin · +12'),
-          PodiumRowData(badge: '2', gold: false, names: ['Hana Taslim'], value: '36', detail: 'poin · 0'),
+          PodiumRowData(badge: '1', gold: true, names: ['Andi Pratama'], value: '58%', detail: 'poin · +12'),
+          PodiumRowData(badge: '1', gold: true, names: ['Dewant Rahman'], value: '58%', detail: 'poin · +12'),
+          PodiumRowData(badge: '2', gold: false, names: ['Gina Rosalia'], value: '56%', detail: 'poin · +6'),
         ],
         facts: 'Padel · 11 pemain · R3 · 6 dari 6 match',
+      ),
+    ),
+  ],
+  '11o': [
+    PodiumFrameCase(
+      'padel',
+      PodiumPosterData(
+        sport: SportType.padel,
+        title: 'Mabar Jumat PB Garuda',
+        subtitle: 'Klasemen akhir · 6 Nov 2026',
+        blocks: [
+          PodiumBlockData(level: 2, face: '2', balls: 1),
+          PodiumBlockData(level: 1, face: '1', balls: 1),
+          PodiumBlockData(level: 3, face: '3', balls: 1),
+        ],
+        rows: [
+          PodiumRowData(badge: '1', gold: true, names: ['Budi'], value: '57%', detail: 'poin · +9'),
+          PodiumRowData(badge: '2', gold: false, names: ['Dewi'], value: '52%', detail: 'poin · +3'),
+          PodiumRowData(badge: '3', gold: false, names: ['Andi'], value: '49%', detail: 'poin · −2'),
+        ],
+        facts: 'Padel · 5 pemain · 4 round · 4 match',
       ),
     ),
   ],
@@ -47,9 +68,9 @@ const podiumFrames = <String, List<PodiumFrameCase>>{
           PodiumBlockData(level: 2, face: '2', balls: 1),
         ],
         rows: [
-          PodiumRowData(badge: '1', gold: true, names: ['Andi Pratama'], value: '42', detail: 'poin · +12'),
-          PodiumRowData(badge: '1', gold: true, names: ['Dewant Rahman'], value: '42', detail: 'poin · +12'),
-          PodiumRowData(badge: '2', gold: false, names: ['Hana Taslim'], value: '36', detail: 'poin · 0'),
+          PodiumRowData(badge: '1', gold: true, names: ['Andi Pratama'], value: '58%', detail: 'poin · +12'),
+          PodiumRowData(badge: '1', gold: true, names: ['Dewant Rahman'], value: '58%', detail: 'poin · +12'),
+          PodiumRowData(badge: '2', gold: false, names: ['Gina Rosalia'], value: '56%', detail: 'poin · +6'),
         ],
         facts: '11 pemain · R3 · 6 dari 6 match',
       ),

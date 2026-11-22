@@ -86,6 +86,7 @@ void main() {
     standings: containerOf(active, at21f).read(standingEntriesProvider),
     format: format,
     now: at21f,
+    method: RankingMethod.winPercent,
   );
 
   Future<void> peachLengkap(WidgetTester tester) async {

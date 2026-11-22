@@ -73,6 +73,32 @@ List<StandingEntry> _fixedStandings(ActiveTournament active, List<Pair> pairs) =
     );
 
 void main() {
+  group('Point % (RP-3c)', () {
+    test('Ringkas: "67%" + "game · +3" (bentuk Total Point dengan nilai persen)', () {
+      final active = _active(8);
+      final data = podiumPosterData(
+        active: active,
+        entries: _standings(active),
+        method: RankingMethod.pointPercent,
+        isFinal: false,
+      );
+      expect(data.rows.first.value, '67%');
+      expect(data.rows.first.detail, 'game · +3');
+    });
+
+    test('Lengkap: nilai "67%", satuan di detail', () {
+      final active = _active(8);
+      final data = sharePosterData(
+        active: active,
+        entries: _standings(active),
+        method: RankingMethod.pointPercent,
+        isFinal: false,
+      );
+      expect(data.rows.first.value, '67%');
+      expect(data.rows.first.detail, 'game');
+    });
+  });
+
   group('sharePosterData', () {
     test('Ringkas = podium: kepala, nilai Total Point + satuan + selisih, fakta tanpa tanggal', () {
       final active = _active(8);

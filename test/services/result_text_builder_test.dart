@@ -5,6 +5,7 @@ import 'package:match_addict/services/ranking/ranking_calculator.dart';
 import 'package:match_addict/services/share/result_text_builder.dart';
 
 import '../hifi/screens/grup_gugur_fixture.dart';
+import 'point_percent_fixture.dart';
 
 const _players = [
   Player(id: 'a', name: 'Andi P'),
@@ -76,6 +77,7 @@ void main() {
         standings: standings,
         format: ShareFormat.ringkas,
         now: DateTime(2026, 9, 14, 1),
+        method: RankingMethod.winPercent,
       );
 
       expect(text, contains('🏆 Match Addict · Padel'));
@@ -99,6 +101,7 @@ void main() {
         standings: standings,
         format: ShareFormat.ringkas,
         now: DateTime(2026, 9, 14, 1),
+        method: RankingMethod.winPercent,
       );
       expect(text.split('\n').first, '🏆 PB Garuda x Matcha Club · Padel');
       expect(text, isNot(contains('Match Addict')));
@@ -110,6 +113,7 @@ void main() {
         standings: standings,
         format: ShareFormat.lengkap,
         now: DateTime(2026, 9, 14, 1),
+        method: RankingMethod.winPercent,
       );
 
       expect(text, contains('Hasil per Round'));
@@ -128,7 +132,7 @@ void main() {
 
     test('klasemen akhir kalau turnamen sudah diakhiri', () {
       final finished = ActiveTournament(tournament: tournament.copyWith(isFinished: true));
-      final text = ResultTextBuilder.build(active: finished, standings: standings, format: ShareFormat.ringkas, now: DateTime(2026, 9, 14, 1));
+      final text = ResultTextBuilder.build(active: finished, standings: standings, format: ShareFormat.ringkas, now: DateTime(2026, 9, 14, 1), method: RankingMethod.winPercent);
       expect(text, contains('Klasemen Akhir'));
     });
 
@@ -145,7 +149,7 @@ void main() {
     setUpAll(() => initializeDateFormatting('id'));
 
     String caption(ActiveTournament a) =>
-        ResultTextBuilder.build(active: a, standings: const [], format: ShareFormat.lengkap, now: at21f);
+        ResultTextBuilder.build(active: a, standings: const [], format: ShareFormat.lengkap, now: at21f, method: RankingMethod.winPercent);
 
     test('Hasil per Round berlabel Grup A · / Semifinal · / Final · / Juara 3 ·', () {
       final lines = caption(gg21i()).split('\n');
@@ -171,6 +175,50 @@ void main() {
       expect(text, contains('  Final · Andi+Budi vs Pemenang SF2 → tidak dimainkan'));
       expect(text, contains('  Juara 3 · Maya+Nanda vs Kalah SF2 → tidak dimainkan'));
       expect(text, isNot(contains('?')));
+    });
+  });
+
+  group('ResultTextBuilder · Point % (U-RP3, 18A)', () {
+    final players = playersOf(names18a);
+    final active = ActiveTournament(
+      tournament: Tournament(
+        id: 't18a',
+        createdAt: DateTime(2026, 11, 6),
+        config: TournamentConfig(
+          sport: SportType.padel,
+          mode: PartnerMode.mixed,
+          matchDurationMinutes: 15,
+          courts: const [Court(id: 'c1', name: 'Court 1', colorIndex: 0, bookingDurationMinutes: 120)],
+          players: players,
+          format: americano21,
+          name: 'Mabar Jumat PB Garuda',
+        ),
+        matches: matches18a,
+      ),
+    );
+
+    List<String> lines(RankingMethod method) {
+      final standings = standingEntries(
+        standings: RankingCalculator.rank(players: players, matches: matches18a, method: method, format: americano21),
+        method: method,
+      );
+      final text = ResultTextBuilder.build(
+        active: active,
+        standings: standings,
+        format: ShareFormat.ringkas,
+        now: DateTime(2026, 11, 6, 23),
+        method: method,
+      );
+      return text.split('\n').skip(4).toList();
+    }
+
+    test('Point %: baris pertama persis', () {
+      expect(lines(RankingMethod.pointPercent).first, '1. Budi — 36 poin · 57% poin (3-0, +9 poin)');
+    });
+
+    test('Total Point dan Win % tetap bentuk lama (Win % satu desimal)', () {
+      expect(lines(RankingMethod.totalGames).first, '1. Andi — 41 poin · 50.0% (2-2, -2 poin)');
+      expect(lines(RankingMethod.winPercent).first, '1. Budi — 36 poin · 100.0% (3-0, +9 poin)');
     });
   });
 }
