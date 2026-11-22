@@ -83,6 +83,9 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
 **Update 2026-11-22 (sesi keempat):** RP-3b (`1307ed0`) dan RP-3c (`8837d5d`) digabung, test Klasemen/Detail/Bagikan
 lulus; koreksi spec butir 4 selesai (`99ac61d`). Branch kini boleh ke `main` dari sisi RP (tetap tunggu KS-8/KS-9).
 Berikutnya: KS-7e + GL kode (satu engineer), lalu RP-3d.
+**Update lanjutan 2026-11-22:** GL + KS-7e (C-4, C-10, golden B-9/B-18) `770ccef`; RP-3d `e84071d`; frame 09h/12p/17s/17t
+digambar ulang + 12r (keputusan 132, hi-fi v106); KS-7e sisa B-7/B-8/C-3 `6774e8b`. **Sisa:** frame + golden tabel grup
+Americano 21 dengan WO (AC-RP13, keputusan 131 #4) → KS-8 → KS-9.
 
 **Urutan berikutnya** (playbook tim-proyek; maks 3 agen paralel, worktree dengan base = HEAD `fitur-3-9-0`):
 1. **RP-3b** Klasemen + Detail dan **RP-3c** Bagikan + caption, paralel (baris tabel jalur RP di bawah; berkas tidak
