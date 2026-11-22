@@ -214,12 +214,10 @@ class StandingTable extends StatelessWidget {
             textAlign: TextAlign.center,
             style: MabarType.numM.copyWith(fontSize: 20, color: MabarColors.ink2),
           );
-    final names = Text(
-      r.names.join('\n'),
-      maxLines: r.names.length,
-      overflow: TextOverflow.ellipsis,
-      style: MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink),
-    );
+    final nameStyle = MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink);
+    final names = r.names.length > 1
+        ? Text(r.names.join('\n'), maxLines: r.names.length, overflow: TextOverflow.ellipsis, style: nameStyle)
+        : _singleName(r.names.single, nameStyle);
     return _row(
       // Pasangan Fixed: dua nama ditumpuk, baris 62 (09c).
       minHeight: r.names.length > 1 ? 62 : MabarSize.rankRow,
@@ -258,6 +256,24 @@ class StandingTable extends StatelessWidget {
     );
   }
 
+  /// `.rrow.two` (09h): satu nama Mixed yang muat tetap satu baris (tinggi 44); yang lebih lebar dari kolom turun ke
+  /// baris kedua di batas kata dan barisnya setinggi 62 seperti baris pasangan Fixed. Lebih dari dua baris →
+  /// elipsis. Tinggi 62 dipaksa lewat sel setinggi 61 (baris setelah garis atas 1 pt, lihat [_row]).
+  Widget _singleName(String name, TextStyle style) => LayoutBuilder(
+    builder: (context, box) {
+      final painter = TextPainter(
+        text: TextSpan(text: name, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 2,
+      )..layout(maxWidth: box.maxWidth);
+      final two = painter.computeLineMetrics().length > 1;
+      painter.dispose();
+      final text = Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: style);
+      return two ? SizedBox(height: 61, child: Align(alignment: Alignment.centerLeft, child: text)) : text;
+    },
+  );
+
   /// Kolom Babak (22a): "Juara" tinta tebal, babak gugur tinta kedua, posisi grup ("Grup A · 3") abu.
   Widget _stage(String stage) {
     final (color, weight) = switch (stage) {
@@ -284,12 +300,15 @@ class StandingTable extends StatelessWidget {
           textAlign: TextAlign.center,
           style: MabarType.numM.copyWith(fontSize: 20, color: _idleNumber),
         ),
-        Text(
-          names.join('\n'),
-          maxLines: names.length,
-          overflow: TextOverflow.ellipsis,
-          style: MabarType.body.copyWith(color: MabarColors.ink3),
-        ),
+        if (names.length > 1)
+          Text(
+            names.join('\n'),
+            maxLines: names.length,
+            overflow: TextOverflow.ellipsis,
+            style: MabarType.body.copyWith(color: MabarColors.ink3),
+          )
+        else
+          _singleName(names.single, MabarType.body.copyWith(color: MabarColors.ink3)),
         for (var i = 0; i < _columns - 2; i++) Text('–', textAlign: TextAlign.right, style: dash),
       ],
     );
