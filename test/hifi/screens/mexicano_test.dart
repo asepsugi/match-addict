@@ -126,6 +126,10 @@ void main() {
 
   testWidgets('16g Gita sudah melewatkan R3: tanpa Kembalikan', (tester) async {
     await expectMatchesHifi(tester, screen(r3, 36), '16g', act: openPlayers);
+    // R3 Point % (logic.md 20.8 16g, AC-RP11): A Citra·Hadi vs Andi·Joko, B Fajar·Dewi vs Indra·Eko, Budi istirahat.
+    for (final m in ['Citra · Hadi', 'Andi · Joko', 'Fajar · Dewi', 'Indra · Eko']) {
+      expect(find.text(m), findsOneWidget, reason: m);
+    }
     expect(find.text('Kembalikan'), findsNothing);
     expect(find.text('Gita'), findsOneWidget);
     expect(find.text('Keluar'), findsOneWidget);

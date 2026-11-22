@@ -29,12 +29,16 @@ void main() {
     expect(find.text('Peringkat 1 · PB Garuda · Padel · Fixed · Race to 6'), findsOneWidget);
     expect(find.text('6 / 6'), findsOneWidget);
     expect(find.text('Beda partner'), findsNothing);
+    expect(find.text('Point %'), findsOneWidget); // statline lima angka (RP-3c)
+    expect(find.text('72%', findRichText: true), findsOneWidget); // 18/25 (20.8 AC-RP12)
   });
 
   testWidgets('14w Detail pasangan klub kedua: Peringkat 1, Beda lawan 8 / 8', (tester) async {
     await expectMatchesHifi(tester, screen(sparingFull(), 'p-maya'), '14w');
     expect(find.text('Peringkat 1 · Matcha Club · Padel · Fixed · Race to 6'), findsOneWidget);
     expect(find.text('8 / 8'), findsOneWidget);
+    expect(find.text('Point %'), findsOneWidget);
+    expect(find.text('64%', findRichText: true), findsOneWidget); // 23/36, menang WO = 6-0 (keputusan 125)
     // AC-S7: tim sendiri di atas, R2 "Maya · Nanda" sebelum "Eko · Fajar".
     final maya = tester.getTopLeft(find.text('Maya · Nanda').last).dy;
     expect(maya, lessThan(tester.getTopLeft(find.text('vs Eko · Fajar')).dy));
@@ -54,6 +58,8 @@ void main() {
     expect(find.textContaining('PB Garuda · Padel · Mixed · Race to 6'), findsOneWidget);
     expect(find.text('3 / 7'), findsOneWidget); // 8 pemain Garuda - 1
     expect(find.text('6 / 6'), findsOneWidget); // 6 pemain Matcha
+    expect(find.text('Point %'), findsOneWidget);
+    expect(find.text('63%', findRichText: true), findsOneWidget); // 22/35
   });
 
   testWidgets('15v Detail Mixed sparing klub kedua: Lina, Beda partner 5 / 5, Beda lawan 7 / 8', (tester) async {
@@ -62,6 +68,8 @@ void main() {
     expect(find.textContaining('Matcha Club · Padel · Mixed · Race to 6'), findsOneWidget);
     expect(find.text('5 / 5'), findsOneWidget); // 6 pemain Matcha - 1
     expect(find.text('7 / 8'), findsOneWidget); // 8 pemain Garuda
+    expect(find.text('Point %'), findsOneWidget);
+    expect(find.text('49%', findRichText: true), findsOneWidget); // 29/59
   });
 
   testWidgets('Pemain sparing yang belum main: subjudul "Belum main · klub · …" (Oki, 15l)', (tester) async {

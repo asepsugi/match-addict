@@ -12,6 +12,7 @@ import 'package:match_addict/features/live/live_screen.dart';
 import 'package:match_addict/features/live/live_view_controller.dart';
 import 'package:match_addict/features/schedule/schedule_mixed_screen.dart';
 import 'package:match_addict/features/schedule/widgets/resting_list.dart';
+import 'package:match_addict/models/models.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/services/live/live_relay.dart';
 import 'package:match_addict/services/schedule/endless_round_generator.dart';
@@ -191,11 +192,14 @@ void main() {
         overrides: [
           liveCodeProvider.overrideWithValue('K7Q2MX'),
           tournamentProvider.overrideWith(() => LoadedTournament(set1)),
+          rankingMethodProvider.overrideWith((ref) => RankingMethod.pointPercent),
         ],
       ),
       '12j',
     );
     expect(find.text('Bagikan'), findsNothing);
+    expect(find.text('Point %'), findsNWidgets(2)); // tab + kolom, Point % aktif
+    expect(find.text('58'), findsNWidgets(2)); // Andi dan Dewant 42/72 (20.8)
   });
 
   testWidgets('12k Detail pemain', (tester) async {
@@ -206,10 +210,13 @@ void main() {
         overrides: [
           liveCodeProvider.overrideWithValue('K7Q2MX'),
           tournamentProvider.overrideWith(() => LoadedTournament(set1)),
+          rankingMethodProvider.overrideWith((ref) => RankingMethod.pointPercent),
         ],
       ),
       '12k',
     );
+    expect(find.text('Point %'), findsOneWidget);
+    expect(find.text('58%', findRichText: true), findsOneWidget);
   });
 
   testWidgets('12l diakhiri: tanpa tag, Klasemen', (tester) async {
@@ -221,7 +228,9 @@ void main() {
     expect(find.text('Live'), findsNothing);
   });
 
-  testWidgets('12l diakhiri: satu daftar Istirahat berisi semua yang istirahat, tanpa prioritas (B-20)', (tester) async {
+  testWidgets('12l diakhiri: satu daftar Istirahat berisi semua yang istirahat, tanpa prioritas (B-20)', (
+    tester,
+  ) async {
     // 30 pemain (data 06o): setelah R3 ada yang diprioritaskan dan ada yang "istirahat lagi"; penonton melihat
     // keduanya dalam satu daftar, bukan hanya yang diprioritaskan.
     const rounds = [

@@ -44,6 +44,7 @@ void main() {
     expect(find.text('Total Point'), findsNothing);
     expect(find.text('Peringkat'), findsNothing);
     expect(find.text('A1'), findsNothing);
+    expect(find.text('Win %'), findsWidgets); // grup Race to 6 tetap Win %
   });
 
   testWidgets('20f nomor sama di #1 (1, 1, 2, 3), tetap Sementara walau semua terisi', (tester) async {
@@ -83,6 +84,8 @@ void main() {
     for (final slot in ['A1', 'A2', 'B1', 'B2']) {
       expect(find.text(slot), findsOneWidget);
     }
+    expect(find.text('Win %'), findsWidgets); // grup Race to 6: kolom Win %, tanpa tab (keputusan 129)
+    expect(find.text('Point %'), findsNothing);
   });
 
   testWidgets('22c tanpa Perebutan juara 3: dua Semifinal #3', (tester) async {
@@ -128,10 +131,14 @@ void main() {
     expect(find.text('Final · Race to 9'), findsOneWidget);
     expect(find.text('Semifinal · Race to 6'), findsOneWidget);
     expect(find.text('Beda lawan'), findsNothing);
+    expect(find.text('Point %'), findsOneWidget); // statline lima angka, fase grup saja (GU13)
+    expect(find.text('55%', findRichText: true), findsOneWidget); // 16/29
   });
 
   testWidgets('22k Detail pasangan tidak lolos: #5, hanya match grup', (tester) async {
     await expectMatchesHifi(tester, detail(gg21i(), 'Eko'), '22k');
     expect(find.text('Peringkat 5 · Grup A · 3 · Padel · Group - Playoff'), findsOneWidget);
+    expect(find.text('Point %'), findsOneWidget);
+    expect(find.text('46%', findRichText: true), findsOneWidget); // 12/26
   });
 }
