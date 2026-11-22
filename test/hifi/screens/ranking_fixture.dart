@@ -132,3 +132,30 @@ ActiveTournament data18b() {
     ),
   );
 }
+
+/// 09h (09-klasemen.md): Padel Mixed Americano 21, 30 pemain, 4 court, R1–R2 selesai; delapan nama tidak muat satu
+/// baris di kolom 108 pt.
+final data09h = mixedTournament(
+  const [
+    [
+      ('Andi Pratama', 'Dewantoro Rahman', 'Budi Santoso', 'Christina Lestari', 14, 7),
+      ('Eko Mulyadi', 'Fajar Kurniawan', 'Gina Rahmawati', 'Hana Tanjung', 11, 10),
+      ('Indra Wijaya', 'Joko Susilo', 'Kiki Amelia', 'Lina Marlina', 9, 12),
+      ('Maya Puspita', 'Nanda Rizaldi', 'Oki Setiawan', 'Putri Anggraini', 13, 8),
+    ],
+    [
+      ('Muhammad Rizky H', 'Muhammad Rifqi A', 'Sari Dewi', 'Tono Budiman', 12, 9),
+      ('Umar Faruq', 'Vina Kartika', 'Wulan Sari', 'Yoga Prasetyo', 6, 15),
+      ('Zaki Maulana', 'Bayu Saputra', 'Dimas Aditya', 'Galih Permana', 10, 11),
+      ('Rina Kusuma', 'Hendra Gunawan', 'Dewantoro Rahman', 'Gina Rahmawati', 8, 13),
+    ],
+  ],
+  roster: const [
+    'Andi Pratama', 'Budi Santoso', 'Christina Lestari', 'Dewantoro Rahman', 'Eko Mulyadi', 'Fajar Kurniawan',
+    'Gina Rahmawati', 'Hana Tanjung', 'Indra Wijaya', 'Joko Susilo', 'Kiki Amelia', 'Lina Marlina', 'Maya Puspita',
+    'Nanda Rizaldi', 'Oki Setiawan', 'Putri Anggraini', 'Muhammad Rizky H', 'Muhammad Rifqi A', 'Sari Dewi',
+    'Tono Budiman', 'Umar Faruq', 'Vina Kartika', 'Wulan Sari', 'Yoga Prasetyo', 'Zaki Maulana', 'Bayu Saputra',
+    'Dimas Aditya', 'Galih Permana', 'Rina Kusuma', 'Hendra Gunawan',
+  ],
+  courtCount: 4,
+);

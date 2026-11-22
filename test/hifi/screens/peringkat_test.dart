@@ -49,6 +49,13 @@ void main() {
     await expectMatchesHifi(tester, screen(set2(), method: RankingMethod.pointPercent), '09l');
   });
 
+  testWidgets('09h Mixed 30 pemain, nama panjang turun ke baris kedua (tinggi 62)', (tester) async {
+    await expectMatchesHifi(tester, screen(data09h), '09h');
+    // Nama yang muat tetap satu baris, yang tidak muat dua baris.
+    expect(tester.getSize(find.text('Dewantoro Rahman')).height, greaterThan(30));
+    expect(tester.getSize(find.text('Andi Pratama')).height, lessThan(30));
+  });
+
   testWidgets('09b Win %', (tester) async {
     await expectMatchesHifi(tester, screen(set1), '09b', act: winPercent);
   });

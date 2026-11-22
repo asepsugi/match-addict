@@ -26,6 +26,13 @@ enum LiveViewStatus {
   /// Kode salah, live dihentikan, atau terhapus (12n).
   gone,
 
+  /// Dua cek berturut-turut gagal dan belum pernah ada data: "Tidak ada internet" + "Coba lagi" (12p). Beda dengan
+  /// [offline] (12m), yang hanya untuk penonton yang sudah punya data.
+  noInternet,
+
+  /// "Coba lagi" di [noInternet] sedang berjalan (12r): tombol mati, bola berputar, paling sedikit [LiveViewController.minRetry].
+  retrying,
+
   /// Data dari versi app host yang tidak bisa dibaca (`schemaVersion` lain).
   unreadable,
 }
@@ -44,6 +51,9 @@ class LiveView {
 class LiveViewController extends Notifier<LiveView?> {
   static const interval = Duration(seconds: 10);
   static const finalInterval = Duration(minutes: 1);
+
+  /// Lama tampilan "mencoba" paling sedikit, supaya ketukan terlihat walau cek gagal seketika (12r).
+  static const minRetry = Duration(seconds: 1);
 
   int? _rev;
   int _failures = 0;
@@ -76,11 +86,21 @@ class LiveViewController extends Notifier<LiveView?> {
     if (!hidden && code != null && state?.status != LiveViewStatus.gone) unawaited(_check(code));
   }
 
-  Future<void> _check(String code) async {
+  /// "Coba lagi" di 12p: cek yang sama dengan cek otomatis, hanya tampilannya ditahan [minRetry] (12r).
+  Future<void> retry() async {
+    final code = ref.read(liveCodeProvider);
+    if (code == null || state?.status != LiveViewStatus.noInternet) return;
+    state = const LiveView(LiveViewStatus.retrying);
+    await _check(code, hold: Future<void>.delayed(minRetry));
+  }
+
+  /// [hold] (khusus [retry]) menahan hasil sampai selesai, supaya hasil yang cepat tidak mematikan putaran bola.
+  Future<void> _check(String code, {Future<void>? hold}) async {
     _timer?.cancel();
     final active = state?.active;
     try {
       final result = await ref.read(liveRelayProvider).fetch(code, since: _rev);
+      if (hold != null) await hold;
       if (_disposed) return;
       switch (result) {
         case LiveSnapshot(:final rev, :final payload):
@@ -101,14 +121,18 @@ class LiveViewController extends Notifier<LiveView?> {
       }
       _failures = 0;
     } catch (_) {
+      if (hold != null) await hold;
       if (_disposed) return;
       _failures++;
-      if (_failures >= 2) {
-        state = LiveView(active == null ? LiveViewStatus.loading : LiveViewStatus.offline, active, _lastOk);
+      // Cek otomatis yang gagal tidak mengakhiri "mencoba" milik [retry].
+      final retrying = state?.status == LiveViewStatus.retrying && hold == null;
+      if (_failures >= 2 && !retrying) {
+        state = LiveView(active == null ? LiveViewStatus.noInternet : LiveViewStatus.offline, active, _lastOk);
       }
     }
     if (_hidden) return;
     final done = state?.active?.isFinal(ref.read(clockProvider)()) ?? false;
+    _timer?.cancel();
     _timer = Timer(done ? finalInterval : interval, () => _check(code));
   }
 }

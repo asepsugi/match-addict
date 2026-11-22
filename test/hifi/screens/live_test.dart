@@ -312,4 +312,42 @@ void main() {
   testWidgets('12o memuat', (tester) async {
     await expectMatchesHifi(tester, watch(const LiveView(LiveViewStatus.loading), still: true), '12o');
   });
+
+  testWidgets('12p tanpa internet, belum ada data: Coba lagi', (tester) async {
+    await expectMatchesHifi(tester, watch(const LiveView(LiveViewStatus.noInternet)), '12p');
+    expect(find.text('Tidak ada internet'), findsOneWidget);
+    expect(find.text('Coba lagi'), findsOneWidget);
+  });
+
+  testWidgets('12r mencoba lagi: tombol mati, bola berputar', (tester) async {
+    await expectMatchesHifi(tester, watch(const LiveView(LiveViewStatus.retrying), still: true), '12r');
+    expect(find.bySemanticsLabel('Coba lagi, sedang mencoba'), findsOneWidget);
+  });
+
+  testWidgets('Coba lagi di 12p memanggil retry: layar mencoba lalu kembali ke 12p tanpa toast', (tester) async {
+    final offline = MockClient((_) async => throw http.ClientException('tidak ada internet'));
+    await tester.pumpWidget(
+      hifiScreen(
+        const LiveScreen(),
+        overrides: [
+          liveCodeProvider.overrideWithValue('K7Q2MX'),
+          liveRelayProvider.overrideWithValue(LiveRelay(client: offline)),
+          tournamentProvider.overrideWith(LiveTournamentController.new),
+          clockProvider.overrideWithValue(() => start),
+        ],
+      ),
+    );
+    await tester.pump();
+    await tester.pump(LiveViewController.interval);
+    expect(find.text('Coba lagi'), findsOneWidget);
+    await tester.tap(find.text('Coba lagi'));
+    await tester.pump();
+    expect(find.bySemanticsLabel('Coba lagi, sedang mencoba'), findsOneWidget);
+    await tester.pump(LiveViewController.minRetry);
+    expect(find.text('Coba lagi'), findsOneWidget);
+    expect(find.bySemanticsLabel('Coba lagi, sedang mencoba'), findsNothing);
+    // Hentikan Timer cek otomatis berikutnya.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
 }

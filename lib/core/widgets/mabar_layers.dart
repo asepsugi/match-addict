@@ -48,6 +48,11 @@ class MabarSheet extends StatelessWidget {
   /// Satu aksi teks di kanan judul ("Hapus" di detail court), seperti WO di app bar Input Skor.
   final Widget? action;
 
+  /// `.sfix` — bagian atas yang tetap (pratinjau + Diganti di sheet Tukar, 17s/17t). Non-null = hanya [child] yang
+  /// digulir (`.sscroll`) dan [footer] menempel di bawahnya (`.sfoot`); garis 1 pt (`.under` / `.over`) muncul di tepi
+  /// tempat isi tersembunyi. Null = seluruh isi digulir seperti sheet lain.
+  final Widget? fixed;
+
   const MabarSheet({
     super.key,
     required this.title,
@@ -55,6 +60,7 @@ class MabarSheet extends StatelessWidget {
     required this.child,
     this.footer,
     this.action,
+    this.fixed,
   });
 
   @override
@@ -107,11 +113,88 @@ class MabarSheet extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Flexible(child: SingleChildScrollView(child: child)),
-            if (footer != null) ...[const SizedBox(height: 16), footer!],
+            if (fixed case final fixed?) ...[
+              fixed,
+              // `.sfix` padding-bottom 16 sebelum daftar yang digulir.
+              const SizedBox(height: 16),
+              Flexible(child: _StickyScroll(child: child, hasFooter: footer != null)),
+              if (footer != null) footer!,
+            ] else ...[
+              Flexible(child: SingleChildScrollView(child: child)),
+              if (footer != null) ...[const SizedBox(height: 16), footer!],
+            ],
           ],
         ),
       ),
+    );
+  }
+}
+
+/// `.sscroll` — daftar yang digulir di bawah [MabarSheet.fixed], padding bawah 16, dengan garis 1 pt full-bleed di
+/// tepi atas selama sudah tergulir (`.sfix.under`) dan di tepi bawah selama masih ada isi di bawah (`.sfoot.over`).
+class _StickyScroll extends StatefulWidget {
+  final Widget child;
+
+  /// Ada footer di bawah: kalau daftar memang bergulir, footer diberi `.sfoot` padding-top 12 di bawah garisnya.
+  final bool hasFooter;
+  const _StickyScroll({required this.child, required this.hasFooter});
+
+  @override
+  State<_StickyScroll> createState() => _StickyScrollState();
+}
+
+class _StickyScrollState extends State<_StickyScroll> {
+  bool _under = false;
+  bool _over = false;
+  bool _scrollable = false;
+
+  /// Notifikasi metrik dikirim setelah frame, jadi posisi awal (isi terpotong di bawah) juga terbaca.
+  bool _onMetrics(ScrollMetrics m) {
+    final under = m.pixels > 0.5;
+    final over = m.pixels < m.maxScrollExtent - 0.5;
+    final scrollable = m.maxScrollExtent > 0.5;
+    if (under != _under || over != _over || scrollable != _scrollable) {
+      setState(() {
+        _under = under;
+        _over = over;
+        _scrollable = scrollable;
+      });
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget line(bool shown, {required bool top}) => Positioned(
+      left: -16,
+      right: -16,
+      top: top ? 0 : null,
+      bottom: top ? null : 0,
+      height: 1,
+      child: shown ? ColoredBox(key: ValueKey(top ? 'sheet-line-under' : 'sheet-line-over'), color: MabarColors.line) : const SizedBox(),
+    );
+    final list = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        NotificationListener<ScrollMetricsNotification>(
+          onNotification: (n) => _onMetrics(n.metrics),
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (n) => _onMetrics(n.metrics),
+            child: SingleChildScrollView(padding: const EdgeInsets.only(bottom: 16), child: widget.child),
+          ),
+        ),
+        line(_under, top: true),
+        line(_over, top: false),
+      ],
+    );
+    // Isi yang muat (17d) tetap berjarak 16 ke footer; hanya yang bergulir memakai garis + 12 `.sfoot`.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Flexible(child: list),
+        if (widget.hasFooter && _scrollable) const SizedBox(height: 12),
+      ],
     );
   }
 }

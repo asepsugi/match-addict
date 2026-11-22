@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,6 +32,8 @@ class LiveScreen extends ConsumerWidget {
     return switch (status) {
       null || LiveViewStatus.gone => const _LiveMessage('Live tidak ditemukan'),
       LiveViewStatus.unreadable => const _LiveMessage('Live tidak bisa dibuka'),
+      LiveViewStatus.noInternet ||
+      LiveViewStatus.retrying => _LiveNoInternet(retrying: status == LiveViewStatus.retrying),
       _ when active == null => const _LiveLoading(),
       _ =>
         active.config.mode == PartnerMode.fixed
@@ -70,21 +74,73 @@ class _LiveMessage extends StatelessWidget {
           style: MabarType.sheetTitle.copyWith(color: MabarColors.ink, height: 1.15),
         ),
         const SizedBox(height: 14),
-        const MabarButton(label: 'Buka Match Addict', variant: MabarButtonVariant.secondary, small: true, onPressed: openHome),
+        const MabarButton(
+          label: 'Buka Match Addict',
+          variant: MabarButtonVariant.secondary,
+          small: true,
+          onPressed: openHome,
+        ),
+      ],
+    ),
+  );
+}
+
+/// 12p / 12r: pola 12n (judul tengah + satu tombol sekunder kecil). "Coba lagi" memanggil cek yang sama dengan cek
+/// otomatis; saat mencoba tombol mati dan bola 18 berputar di kirinya. Judul `liveRegion` supaya dibacakan saat muncul.
+class _LiveNoInternet extends ConsumerWidget {
+  final bool retrying;
+  const _LiveNoInternet({required this.retrying});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => _Centered(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            'Tidak ada internet',
+            textAlign: TextAlign.center,
+            style: MabarType.sheetTitle.copyWith(color: MabarColors.ink, height: 1.15),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Semantics(
+          label: retrying ? 'Coba lagi, sedang mencoba' : null,
+          button: retrying ? true : null,
+          enabled: retrying ? false : null,
+          excludeSemantics: retrying,
+          child: MabarButton(
+            label: 'Coba lagi',
+            variant: MabarButtonVariant.secondary,
+            small: true,
+            leading: retrying ? const _SpinningBall(size: 18) : null,
+            onPressed: retrying ? null : () => unawaited(ref.read(liveViewProvider.notifier).retry()),
+          ),
+        ),
       ],
     ),
   );
 }
 
 /// 12o: bola wordmark berputar sampai pengecekan pertama kembali (diam kalau animasi dimatikan).
-class _LiveLoading extends StatefulWidget {
+class _LiveLoading extends StatelessWidget {
   const _LiveLoading();
 
   @override
-  State<_LiveLoading> createState() => _LiveLoadingState();
+  Widget build(BuildContext context) => const _Centered(child: _SpinningBall(size: 40));
 }
 
-class _LiveLoadingState extends State<_LiveLoading> with SingleTickerProviderStateMixin {
+/// Bola wordmark berputar (12o, 12r); diam kalau animasi dimatikan.
+class _SpinningBall extends StatefulWidget {
+  final double size;
+  const _SpinningBall({required this.size});
+
+  @override
+  State<_SpinningBall> createState() => _SpinningBallState();
+}
+
+class _SpinningBallState extends State<_SpinningBall> with SingleTickerProviderStateMixin {
   late final _spin = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
 
   @override
@@ -104,7 +160,8 @@ class _LiveLoadingState extends State<_LiveLoading> with SingleTickerProviderSta
   }
 
   @override
-  Widget build(BuildContext context) => _Centered(
-    child: RotationTransition(turns: _spin, child: const MabarBall(size: 40)),
+  Widget build(BuildContext context) => RotationTransition(
+    turns: _spin,
+    child: MabarBall(size: widget.size),
   );
 }
