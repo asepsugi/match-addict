@@ -194,3 +194,17 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 - Latar = 20b (R3, 5 dari 12 match), lewat menu ⋯ → Akhiri turnamen. Judul dan tombol sama dengan 06e; isinya menyebut akibat khusus fase grup (PATCH 3.8.1, C-1).
 - Akhiri: match Belum jadi "Tidak dimainkan", bagan tidak dibuat, peringkat akhir = urut posisi grup Sementara (16.8, 16.9), hasilnya seperti 20q. Grup + Gugur tidak bisa dilanjutkan, sama dengan Fixed.
+
+## 20s · Klasemen grup · Americano 21 · Point % · satu WO
+
+![20s](../../frames/20s.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `StandingTable`
+
+- Data AC-RP13 (keputusan 131 #4): Padel, Group - Playoff, format grup Americano 21, 16 pemain = 8 pasangan, 2 grup, urutan match = 16A (circle method). Semua 12 match grup terisi, bagan belum dibuat. Pola tabel dan subjudul = 20f; kolom nilai "Point %" angka saja, tanpa tab metode (GU8).
+- Grup A: R1 Andi · Budi 6–15 Gita · Hadi, R2 Citra · Dewi 14–7 Eko · Fajar, R3 Andi · Budi 15–6 Eko · Fajar, R4 Gita · Hadi 14–7 Citra · Dewi, R5 Andi · Budi 11–10 Citra · Dewi, R6 Eko · Fajar menang WO atas Gita · Hadi (Gita · Hadi tidak bisa main).
+- Nilai WO Eko = Fajar = rata-rata sendiri (7 + 6) ÷ 2 = 6,5 → 7, di bawah skor menang terkecil → 11 (4.4); `woPairValue(11, 11)` = 11 kalah untuk Gita dan Hadi (20.4). Selisih tidak berubah oleh WO.
+- Hitungan Grup A (Total Point · didapat/dimainkan → Point % · selisih → nomor): Gita · Hadi 29 · 29/53 (29 + kalah 13 + WO 11) → 55 · +16 #1; Andi · Budi 32 · 32/63 → 51 · +1 #2; Citra · Dewi 31 · 31/63 → 49 · −1 #3; Eko · Fajar 24 (13 + WO 11) · 24/53 → 45 · −16 #4. Point % = `(200 × didapat + dimainkan) ~/ (2 × dimainkan)`.
+- 2 teratas Point % = Gita · Hadi, Andi · Budi (A1, A2); 2 teratas Total Point = Andi · Budi 32, Citra · Dewi 31 (Gita · Hadi 29 di #3). Yang lolos ke bagan = 2 teratas tabel ini (U-RP6, AC-RP13); di 3.8.x (Total Point) Citra · Dewi yang lolos.
+- Grup B: R1 Indra · Joko 14–7 Oki · Putri, R2 Kiki · Lina 9–12 Maya · Nanda, R3 Indra · Joko 12–9 Maya · Nanda, R4 Oki · Putri 8–13 Kiki · Lina, R5 Indra · Joko 13–8 Kiki · Lina, R6 Maya · Nanda 13–8 Oki · Putri. Indra · Joko 39/63 → 62 · +15 #1; Maya · Nanda 34/63 → 54 · +5 #2; Kiki · Lina 30/63 → 48 · −3 #3; Oki · Putri 23/63 → 37 · −17 #4. Tanpa WO, urutan Total Point sama → B1 Indra · Joko, B2 Maya · Nanda.
+- Σ didapat Grup A 105 + WO 11 = 116, Σ selisih 0; Grup B 126, Σ selisih 0. Americano 21 tidak bisa seri, jadi kolom W–L. Grup B berlanjut di bawah action bar seperti 22b.
