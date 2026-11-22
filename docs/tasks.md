@@ -88,8 +88,13 @@ digambar ulang + 12r (keputusan 132, hi-fi v106); KS-7e sisa B-7/B-8/C-3 `6774e8
 Americano 21 dengan WO (AC-RP13, keputusan 131 #4) → KS-8 → KS-9.
 **AC-RP13 selesai 2026-11-22:** frame 20s (`90ccaf4`) + golden 20s (angka app = catatan frame). Render hi-fi kini
 inkremental + `tool/hifi_frame.py` (`fd71bf0`), sidik awal `design/frames/fingerprints.json`. **Sisa: KS-8 → KS-9.**
-**KS-8/KS-9 2026-11-22:** full test lulus (2006, 1 skip); build web OK (`sw.js` 13521c4c3e87). Cek web di Chrome belum
-bisa dari Claude (ekstensi tidak tersambung) → host cek manual (B-10, share sheet ditutup, A-9). Versi 3.9.0+26 di-commit
+**KS-8/KS-9 2026-11-22:** full test lulus (2006, 1 skip); build web OK (`sw.js` 13521c4c3e87). Cek web Chrome desktop (build
+lokal, `navigator.share` diganti JS): sheet ditutup (AbortError) → tanpa unduhan/toast ✅; share gagal → unduh
+`match-addict-feed-1080x1080.png` + `…-story-1080x1920.png` (PNG 1080×1080/1080×1920) + toast "Gambar diunduh · hasil
+disalin" ✅ — catatan: Chrome menahan unduhan kedua sampai "Allow" di prompt "Download multiple files" (sekali per situs,
+perilaku bawaan Chrome, tidak diubah). A-9 Atur pasangan: back browser tanpa perubahan → keluar tanpa dialog; dengan
+perubahan → "Buang perubahan pasangan?", Batal tetap di layar (back berikutnya dialog lagi), Buang → keluar tanpa
+perubahan ✅. Safari belum dicek (host). Versi 3.9.0+26 di-commit
 lokal di `fitur-3-9-0`. **Sisa:** hasil cek web host → merge ke `main` + push setelah host bilang (urutan dengan 3.8.1).
 
 **Urutan berikutnya** (playbook tim-proyek; maks 3 agen paralel, worktree dengan base = HEAD `fitur-3-9-0`):
