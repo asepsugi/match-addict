@@ -79,7 +79,7 @@ class DetailPlayerScreen extends ConsumerWidget {
       if (entry.stage case final stage?) stage,
       if (clubPos != null) clubPos.club.name,
       if (withSport) config.sport.label,
-      if (groupKnockout) 'Grup + Gugur' else ...[config.mode.label, format.label],
+      if (groupKnockout) 'Group - Playoff' else ...[config.mode.label, format.label],
     ].join(' · ');
 
     return Scaffold(

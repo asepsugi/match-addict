@@ -122,8 +122,9 @@ class _ManagePlayersState extends ConsumerState<_ManagePlayers> {
               ),
               const SizedBox(width: 8),
               // Sama tinggi dengan kolom nama di sebelahnya.
+              // Sparing, nama terisi tapi klub belum dipilih: tombol mati menulis alasannya (15z2, C-10).
               MabarButton(
-                label: 'Tambah',
+                label: clubs != null && _clubId == null && _name.text.trim().isNotEmpty ? 'Pilih klub' : 'Tambah',
                 expand: false,
                 height: 48,
                 onPressed: clubs != null && (_clubId == null || _name.text.trim().isEmpty) ? null : _add,

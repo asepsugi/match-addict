@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:match_addict/core/widgets/mabar_layers.dart';
 import 'package:match_addict/features/detail_player/detail_player_screen.dart';
 import 'package:match_addict/features/leaderboard/leaderboard_screen.dart';
 import 'package:match_addict/features/live/live_host_controller.dart';
@@ -14,12 +15,14 @@ import 'package:match_addict/features/schedule/widgets/resting_list.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/services/live/live_relay.dart';
 import 'package:match_addict/services/schedule/endless_round_generator.dart';
+import 'package:match_addict/services/storage/tournament_store.dart';
 
 import '../hifi_golden.dart';
 import 'grup_gugur_fixture.dart';
 import 'live_fixture.dart';
 import 'ranking_fixture.dart';
 import 'schedule_fixture.dart';
+import 'sparing_mixed_fixture.dart';
 import 'screen_harness.dart';
 
 /// Golden Live score, frame 12a–12o (Fixed 12f dan 12i di `jadwal_fixed_test.dart`). HP host: latar 06h (Padel
@@ -93,6 +96,45 @@ void main() {
     await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
   });
 
+  // 12q (B-9): sheet tetap terbuka di bawah toast, live tetap menyala. Sesi live sungguhan (bukan ShownLive), supaya
+  // "Hentikan" benar-benar memanggil relay yang gagal.
+  testWidgets('12q gagal hentikan tanpa internet: toast di atas sheet', (tester) async {
+    final store = TournamentStore.memory();
+    await store.saveLive(
+      LiveSession(
+        tournamentId: host.tournament.id,
+        code: 'K7Q2MX',
+        token: 'token',
+        sentAt: start.add(const Duration(minutes: 48)),
+      ),
+    );
+    final offline = MockClient((_) async => throw http.ClientException('tidak ada internet'));
+    await expectMatchesHifi(
+      tester,
+      hifiScreen(
+        ScheduleMixedScreen(config: host.config),
+        overrides: [
+          tournamentStoreProvider.overrideWithValue(store),
+          tournamentProvider.overrideWith(() => LoadedTournament(host)),
+          clockProvider.overrideWithValue(() => hostNow),
+          liveRelayProvider.overrideWithValue(LiveRelay(client: offline)),
+        ],
+      ),
+      '12q',
+      act: (tester) async {
+        await openLive(tester);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Hentikan'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.descendant(of: find.byType(MabarConfirmDialog), matching: find.text('Hentikan')));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+      },
+    );
+    expect(find.text('Live score'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
+  });
+
   // --- Penonton ---------------------------------------------------------------------------------------------
 
   Widget watch(LiveView view, {Duration elapsed = Duration.zero, bool still = false}) => hifiScreen(
@@ -118,6 +160,27 @@ void main() {
     expect(find.text('Isi skor'), findsNothing);
     expect(find.bySemanticsLabel('Menu'), findsNothing);
     expect(find.bySemanticsLabel('Kembali'), findsNothing);
+  });
+
+  // 15z4: penonton sparing Mixed, papan skor klub di atas daftar match (keadaan 15b).
+  testWidgets('15z4 penonton Mixed sparing: skor klub, tag Live', (tester) async {
+    final s = mixedSparing15b();
+    final view = LiveView(LiveViewStatus.live, s.active);
+    // Jam frame 15z4 = 19.47 (sisa 01:13), bukan jam fixture 12h.
+    await expectMatchesHifi(
+      tester,
+      hifiScreen(
+        const LiveScreen(),
+        overrides: [
+          liveCodeProvider.overrideWithValue('K7Q2MX'),
+          liveViewProvider.overrideWith(() => Watching(view)),
+          tournamentProvider.overrideWith(LiveTournamentController.new),
+          clockProvider.overrideWithValue(() => s.now),
+        ],
+      ),
+      '15z4',
+    );
+    expect(find.text('Isi skor'), findsNothing);
   });
 
   testWidgets('12j Klasemen tanpa Bagikan', (tester) async {
