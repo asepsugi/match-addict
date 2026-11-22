@@ -29,7 +29,7 @@ String rankingStatus(ActiveTournament active, DateTime now) => active.isFinal(no
 String rankingModeLabel(ActiveTournament active, DateTime now) {
   final config = active.config;
   if (!config.isGroupKnockout) return config.mode.label;
-  if (active.isFinal(now)) return 'Grup + Gugur';
+  if (active.isFinal(now)) return 'Group - Playoff';
   return active.hasBracket ? 'Gugur' : 'Fase grup';
 }
 

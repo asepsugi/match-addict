@@ -515,7 +515,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                     // 19a: tepat di bawah kartu mode, tanpa label.
                     if (_mode == PartnerMode.fixed && _knockoutOffered) ...[
                       MabarSegmented<bool>(
-                        options: const [(false, 'Round-robin'), (true, 'Grup + Gugur')],
+                        options: const [(false, 'Round-robin'), (true, 'Group - Playoff')],
                         selected: _knockout,
                         onChanged: (on) => _change(() => _knockout = on),
                       ),

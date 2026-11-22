@@ -14,7 +14,7 @@ String _dateOf(ActiveTournament active) {
 
 /// Mode di subjudul Bagikan dan baris kecil poster: Grup + Gugur menulis "Grup + Gugur" (22l, 22p), bukan mode
 /// pasangannya ("Fixed").
-String shareModeLabel(TournamentConfig config) => config.isGroupKnockout ? 'Grup + Gugur' : config.mode.label;
+String shareModeLabel(TournamentConfig config) => config.isGroupKnockout ? 'Group - Playoff' : config.mode.label;
 
 /// Kepala kedua poster (16.2 "Kepala"): bernama → nama + "Klasemen akhir|sementara · {tanggal}"; tanpa nama →
 /// "Klasemen akhir|sementara" + "{olahraga} · {mode} · {tanggal}".

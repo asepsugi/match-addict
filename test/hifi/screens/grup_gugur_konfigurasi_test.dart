@@ -57,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> groupKnockout(WidgetTester tester) => tapText(tester, 'Grup + Gugur');
+  Future<void> groupKnockout(WidgetTester tester) => tapText(tester, 'Group - Playoff');
 
   /// Sheet Gugur → sheet babak [round]; format diubah lewat [act].
   Future<void> inRound(WidgetTester tester, String round, Future<void> Function() act) async {
@@ -78,7 +78,7 @@ void main() {
     testWidgets('19a Fixed · Round-robin · 16 pemain', (tester) async {
       await expectMatchesHifi(tester, screen(SportType.padel, 16), '19a');
       expect(find.text('Round-robin'), findsOneWidget);
-      expect(find.text('Grup + Gugur'), findsOneWidget);
+      expect(find.text('Group - Playoff'), findsOneWidget);
       expect(find.text('Skor'), findsOneWidget);
       expect(row('Race to 6 · 15 menit'), findsOneWidget);
       expect((button(tester).label, button(tester).meta), ('Lanjut', '· ±8 round · 16 match'));
@@ -279,15 +279,15 @@ void main() {
     testWidgets('AC-G1: segmented hanya Fixed biasa dengan 6+ pasangan', (tester) async {
       for (final (players, offered) in [(10, false), (12, true), (22, true), (24, true)]) {
         await pumpScreen(tester, SportType.padel, players);
-        expect(find.text('Grup + Gugur'), offered ? findsOneWidget : findsNothing, reason: '$players pemain');
+        expect(find.text('Group - Playoff'), offered ? findsOneWidget : findsNothing, reason: '$players pemain');
       }
       await pumpScreen(tester, SportType.padel, 24);
       await tester.tap(find.text('Mixed'));
       await tester.pump();
-      expect(find.text('Grup + Gugur'), findsNothing);
+      expect(find.text('Group - Playoff'), findsNothing);
       await tester.tap(find.text('Mexicano'));
       await tester.pump();
-      expect(find.text('Grup + Gugur'), findsNothing);
+      expect(find.text('Group - Playoff'), findsNothing);
       // Sparing: tidak pernah (GU14).
       tester.view.physicalSize = const Size(390, 844) * hifiPixelRatio;
       tester.view.devicePixelRatio = hifiPixelRatio;
@@ -303,7 +303,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Grup + Gugur'), findsNothing);
+      expect(find.text('Group - Playoff'), findsNothing);
     });
 
     testWidgets('Pindah ke Mixed lalu kembali ke Fixed memulihkan pilihan Grup + Gugur', (tester) async {
@@ -433,7 +433,7 @@ void main() {
 
       testWidgets('simpanan Grup + Gugur di bawah 12 pemain (tanpa segmented) → round-robin biasa', (tester) async {
         await pumpScreen(tester, SportType.padel, 8, overrides: withStore(last(2)));
-        expect(find.text('Grup + Gugur'), findsNothing);
+        expect(find.text('Group - Playoff'), findsNothing);
         expect(find.text('Skor'), findsOneWidget);
       });
     });

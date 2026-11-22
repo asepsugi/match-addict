@@ -124,7 +124,7 @@ void main() {
   testWidgets('22l Ringkas: podium Final, kolom kanan = babak, tanpa nilai · selisih', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     await expectMatchesHifi(tester, screen(named(gg21i()), at21f), '22l');
-    expect(find.text('Padel · Grup + Gugur · Final'), findsOneWidget);
+    expect(find.text('Padel · Group - Playoff · Final'), findsOneWidget);
     expect(find.text('Garuda Open 2026'), findsOneWidget);
     expect(find.text('Klasemen akhir · 17 Nov 2026'), findsOneWidget);
     expect(find.text('Juara'), findsOneWidget);
@@ -205,7 +205,7 @@ void main() {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     await expectMatchesHifi(tester, screen(gg21i(), at21f), '22p', act: peachLengkap);
     expect(find.text('Klasemen akhir'), findsOneWidget);
-    expect(find.text('Padel · Grup + Gugur · 17 Nov 2026'), findsOneWidget);
+    expect(find.text('Padel · Group - Playoff · 17 Nov 2026'), findsOneWidget);
     expect(find.text('8 pasangan · 8 round · 16 match'), findsOneWidget);
     expect(find.text('Grup A · 3'), findsOneWidget);
     expect(find.text('Grup B · 4'), findsOneWidget);

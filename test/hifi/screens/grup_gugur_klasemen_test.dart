@@ -64,7 +64,7 @@ void main() {
 
   testWidgets('22a peringkat akhir: nomor tingkat babak, kolom Babak', (tester) async {
     await expectMatchesHifi(tester, screen(gg21i(), at21f), '22a');
-    expect(find.text('Padel · Grup + Gugur · Final · 8 round · 16 match'), findsOneWidget);
+    expect(find.text('Padel · Group - Playoff · Final · 8 round · 16 match'), findsOneWidget);
     expect(rows(tester), [
       (1, 'Citra · Dewi'),
       (2, 'Andi · Budi'),
@@ -108,7 +108,7 @@ void main() {
 
   testWidgets('22g diakhiri di fase grup: Peringkat = posisi grup', (tester) async {
     await expectMatchesHifi(tester, screen(gg20q(), at20b), '22g');
-    expect(find.text('Padel · Grup + Gugur · Final · 4 round · 7 match'), findsOneWidget);
+    expect(find.text('Padel · Group - Playoff · Final · 4 round · 7 match'), findsOneWidget);
     expect(find.text('5 match tidak dimainkan'), findsOneWidget);
     expect(find.text('Grup A · 1'), findsOneWidget);
   });
@@ -123,7 +123,7 @@ void main() {
 
   testWidgets('22j Detail pasangan juara: angka fase grup, riwayat semua match berlabel babak', (tester) async {
     await expectMatchesHifi(tester, detail(gg21i(), 'Citra'), '22j');
-    expect(find.text('Peringkat 1 · Juara · Padel · Grup + Gugur'), findsOneWidget);
+    expect(find.text('Peringkat 1 · Juara · Padel · Group - Playoff'), findsOneWidget);
     expect(find.text('Grup A · Race to 6'), findsOneWidget);
     expect(find.text('Final · Race to 9'), findsOneWidget);
     expect(find.text('Semifinal · Race to 6'), findsOneWidget);
@@ -132,6 +132,6 @@ void main() {
 
   testWidgets('22k Detail pasangan tidak lolos: #5, hanya match grup', (tester) async {
     await expectMatchesHifi(tester, detail(gg21i(), 'Eko'), '22k');
-    expect(find.text('Peringkat 5 · Grup A · 3 · Padel · Grup + Gugur'), findsOneWidget);
+    expect(find.text('Peringkat 5 · Grup A · 3 · Padel · Group - Playoff'), findsOneWidget);
   });
 }
