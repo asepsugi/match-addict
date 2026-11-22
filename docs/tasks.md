@@ -94,7 +94,9 @@ lokal, `navigator.share` diganti JS): sheet ditutup (AbortError) → tanpa unduh
 disalin" ✅ — catatan: Chrome menahan unduhan kedua sampai "Allow" di prompt "Download multiple files" (sekali per situs,
 perilaku bawaan Chrome, tidak diubah). A-9 Atur pasangan: back browser tanpa perubahan → keluar tanpa dialog; dengan
 perubahan → "Buang perubahan pasangan?", Batal tetap di layar (back berikutnya dialog lagi), Buang → keluar tanpa
-perubahan ✅. Safari belum dicek (host). Versi 3.9.0+26 di-commit
+perubahan ✅. Safari belum dicek (host).
+**Rilis 2026-11-22:** `main` fast-forward ke `c8671c9` (3.8.1 + 3.9.0+26), push → workflow deploy sukses, live di
+Pages (`sw.js` 3ee271b01407). Sisa: uji Bagikan di Safari (host). Versi 3.9.0+26 di-commit
 lokal di `fitur-3-9-0`. **Sisa:** hasil cek web host → merge ke `main` + push setelah host bilang (urutan dengan 3.8.1).
 
 **Urutan berikutnya** (playbook tim-proyek; maks 3 agen paralel, worktree dengan base = HEAD `fitur-3-9-0`):

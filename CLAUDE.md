@@ -132,12 +132,10 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   `docs/data.md` → Grup + Gugur (`schemaVersion` tetap 2). Rilis 3.8.0+24 live 2026-11-17 (90ebba2). Sisa: uji alur 16A di HP (host). GU9 ubah format babak ditunda 3.8.x.
 - PATCH 3.8.1 review UX hi-fi (keputusan 110–112): temuan di `design/review/`, task UX-0…UX-6 di `docs/tasks.md`,
   branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di `main` lokal (a7b506a),
-  hi-fi v97 terbit. Sisa: push (deploy) — ditahan host.
+  hi-fi v97 terbit; live 2026-11-22 bersama 3.9.0.
 - 3.9.0 (MINOR) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame + Point %
   (PRD §17–18, keputusan 113–132, hi-fi v107) + label "Group - Playoff" (keputusan 127): kode selesai di branch
-  `fitur-3-9-0`, versi 3.9.0+26 (KS-9 lokal), full test lulus 2026-11-22. Sisa: cek web KS-8 (unduh 2 PNG Chrome/Safari,
-  share sheet ditutup, back di Atur pasangan) oleh host, merge ke `main` + push (deploy) setelah host bilang — urutan
-  dengan 3.8.1 tanya host. 3.10.0 = GU9 + A-15.
+  `fitur-3-9-0`; rilis 3.9.0+26 live 2026-11-22 (c8671c9, bersama 3.8.1). Sisa: uji Bagikan di Safari (host). 3.10.0 = GU9 + A-15.
 
 ## Area docs
 
