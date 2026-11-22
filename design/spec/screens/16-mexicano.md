@@ -2,7 +2,7 @@
 
 > Dihasilkan `tool/hifi_extract.py` dari `design/hifi.html`. Jangan diedit langsung.
 
-Mode ketiga (PRD §14, keputusan host 23–32, 2026-11-11): R1 diundi, round berikutnya pemain dikelompokkan berempat per court menurut Klasemen Total Point. Konfigurasi di 03c, 03e, 03q; Jadwal memakai layar dan kontrol Jadwal Mixed. Contoh: PRD 14B, Padel, Americano 21, 15 menit, 10 pemain, 2 court × 2 jam. Frame Mixed yang berlaku apa adanya untuk Mexicano didaftar di Cakupan.
+Mode ketiga (PRD §14, keputusan host 23–32, 2026-11-11): R1 diundi, round berikutnya pemain dikelompokkan berempat per court menurut Point % (sejak 3.9.0, keputusan 124; sampai 3.8.x Total Point). Konfigurasi di 03c, 03e, 03q; Jadwal memakai layar dan kontrol Jadwal Mixed. Contoh: PRD 14B, Padel, Americano 21, 15 menit, 10 pemain, 2 court × 2 jam. Frame Mixed yang berlaku apa adanya untuk Mexicano didaftar di Cakupan.
 
 ## 16a · R1 lengkap · siap buat R2
 
@@ -12,7 +12,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Contoh PRD 14B: Padel, Americano 21, 15 menit, 10 pemain (Andi … Joko), 2 court × 2 jam. Undian R1 = urutan nama, jadi Indra dan Joko istirahat; yang main dikelompokkan berempat urut undian: Court 1 Andi, Budi, Citra, Dewi → 1 + 3 lawan 2 + 4.
 - Layar dan kontrolnya = Jadwal Mixed (PRD 14.2, keputusan 25): tab, baris match, Istirahat, Klasemen, Pemain (n), Buat R(n+1), menu ⋯. Yang berbeda hanya siapa lawan siapa. Subjudul tidak menyebut mode, sama dengan Mixed ("Padel · Americano 21").
-- Skor R1 = data test 14A: 15–6 dan 9–12. Klasemen setelah R1 (Total Point): Andi, Citra 15 (+9) · Fajar, Hadi 12 (+3) · Eko, Gita 9 (−3) · Budi, Dewi 6 (−9) · Indra, Joko belum main.
+- Skor R1 = data test 14A: 15–6 dan 9–12. Klasemen setelah R1 (Point %, default Mexicano): Andi, Citra 15/21 → 71 (+9) · Fajar, Hadi 12/21 → 57 (+3) · Eko, Gita 9/21 → 43 (−3) · Budi, Dewi 6/21 → 29 (−9) · Indra, Joko belum main. Semua main 1 match bertotal 21, jadi urutannya sama dengan Total Point.
 - R1 tidak bisa dibatalkan, sama dengan Mixed.
 
 ## 16b · R2 baru · pasangan dari Klasemen · ada yang istirahat
@@ -22,7 +22,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
 
 - R2 = tabel 14B. Siapa main = prioritas main Mixed apa adanya: Indra, Joko (0 main) dulu, lalu urut undian R2 → Citra dan Hadi istirahat, walau Citra #1 di Klasemen.
-- Yang main diurutkan Total Point → selisih → undian R2: Andi 15, Fajar 12, Gita 9, Eko 9, Budi 6, Dewi 6, Indra 0, Joko 0. Court 1 = empat teratas (Andi · Gita lawan Fajar · Eko), Court 2 = empat berikutnya. Kelompok teratas selalu di court bernomor terkecil yang dipakai.
+- Yang main diurutkan Point % → selisih → undian R2 (keputusan 124, apa pun tab Klasemen): Andi 71, Fajar 57, Gita 43, Eko 43, Budi 29, Dewi 29, Indra 0, Joko 0 (belum main = 0%, U-RP4). Pasangan sama dengan urutan Total Point (15, 12, 9, 9, 6, 6, 0, 0) karena tiap match bertotal 21. Court 1 = empat teratas (Andi · Gita lawan Fajar · Eko), Court 2 = empat berikutnya. Kelompok teratas selalu di court bernomor terkecil yang dipakai.
 - Di dalam tim nama posisi lebih kecil ditulis dulu; sisi atas = tim berisi posisi 1.
 - "Istirahat · Prioritas main di R3" sudah pasti sebelum skor R2 masuk: siapa yang istirahat tidak tergantung skor, hanya lawannya (AC-M11).
 - Batalkan R2: syarat sama dengan Mixed (06h); dialog 16e.
@@ -34,7 +34,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
 
 - Pengganti sheet Cara kerja Mixed (06k) untuk Mexicano; muncul otomatis sekali saat R1 dibuat, setelah itu lewat menu ⋯ (16d). Jenis info, satu tombol "Mengerti". Teks disetujui host (keputusan 40, 43).
-- Isi = aturan PRD 14.3–14.5 apa adanya: urutan Total Point (lalu selisih, lalu undian), empat pemain per court berurutan, posisi 1 + 3 lawan 2 + 4, partner berulang dihindari di court itu. Aturan Fairness memakai dua kalimat Mixed yang tetap berlaku (keputusan 25); "Pasangan baru diprioritaskan" Mixed tidak dipakai karena pasangan ditentukan Klasemen.
+- Isi = aturan PRD 14.3–14.5 apa adanya: urutan Point % (lalu selisih, lalu undian; sejak 3.9.0, keputusan 124, sampai 3.8.x "Urut Total Point"), empat pemain per court berurutan, posisi 1 + 3 lawan 2 + 4, partner berulang dihindari di court itu. Aturan Fairness memakai dua kalimat Mixed yang tetap berlaku (keputusan 25); "Pasangan baru diprioritaskan" Mixed tidak dipakai karena pasangan ditentukan Klasemen.
 - Estimasi sama dengan Mixed (rumus 06k): Max Round = 120 ÷ 15 = 8; Total Match = 8 × 2 = 16; Match/Pemain = ⌊16 × 4 ÷ 10⌋ = ±6; Court Aktif 2.
 - Layar di belakangnya = R1 yang baru dibuat (pasangan R1 16a, belum ada skor).
 
@@ -74,6 +74,6 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`
 
 - R3 sudah dibuat tanpa Gita → baris Gita tanpa aksi: tidak bisa kembali (keputusan 29, AC-M16). Nama dan skornya tetap di Klasemen.
-- Data R3 (contoh designer, lanjutan 14B dengan Gita keluar): skor R2 Andi · Gita 12–9 Fajar · Eko, Budi · Indra 10–11 Dewi · Joko. Total Point setelah R2: Andi 27 (+12), Gita 21 (0), Fajar 21 (0), Eko 18 (−6), Dewi 17 (−8), Budi 16 (−10), Citra 15 (+9), Hadi 12 (+3), Joko 11 (+1), Indra 10 (−1); jumlah 168 = 4 match × 42.
-- R3: Citra, Hadi, Indra, Joko (1 main) pasti main; dari Andi, Budi, Dewi, Eko, Fajar (2 main) undian R3 menaruh Budi terakhir → Budi istirahat. Urutan yang main: Andi, Fajar, Eko, Dewi | Citra, Hadi, Joko, Indra. Susunan 1 + 3 lawan 2 + 4 di kedua court tanpa partner berulang (beban 0).
+- Data R3 (contoh designer, lanjutan 14B dengan Gita keluar): skor R2 Andi · Gita 12–9 Fajar · Eko, Budi · Indra 10–11 Dewi · Joko. Point % setelah R2 (PRD 18D, `logic.md` §20.8 16g): Citra 15/21 → 71 (+9), Andi 27/42 → 64 (+12), Hadi 12/21 → 57 (+3), Joko 11/21 → 52 (+1), Fajar 21/42 → 50 (0), Gita 21/42 → 50 (0), Indra 10/21 → 48 (−1), Eko 18/42 → 43 (−6), Dewi 17/42 → 40 (−8), Budi 16/42 → 38 (−10); poin didapat 168 = 4 match × 42.
+- R3: Citra, Hadi, Indra, Joko (1 main) pasti main; dari Andi, Budi, Dewi, Eko, Fajar (2 main) undian R3 menaruh Budi terakhir → Budi istirahat. Urutan yang main (Point %, Gita keluar): Citra, Andi, Hadi, Joko | Fajar, Indra, Eko, Dewi. Court 1: 1 + 3 lawan 2 + 4 = Citra · Hadi lawan Andi · Joko (beban 0). Court 2: 1 + 3 = Fajar · Eko sudah partner di R2 (beban 1), jadi 1 + 4 lawan 2 + 3 = Fajar · Dewi lawan Indra · Eko (beban 0). Sampai 3.8.x (urut Total Point) R3 = Andi · Eko lawan Fajar · Dewi, Citra · Joko lawan Hadi · Indra.
 - Batalkan R3 (belum ada skor) → R2 kembali jadi round terakhir, jadi Gita belum melewatkan round dan "Kembalikan" muncul lagi seperti 16f (keputusan 39).

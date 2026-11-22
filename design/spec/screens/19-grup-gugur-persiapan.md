@@ -10,7 +10,7 @@ Persiapan turnamen Grup + Gugur (PRD §16.1–16.2, keputusan 93–109, GU1–GU
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `ModePicker`
 
-- Pilihan format turnamen (`.seg` Round-robin / Grup + Gugur, istilah GU1) muncul tepat di bawah kartu mode, hanya saat Fixed dipilih **dan** pemain ≥ 12 (6 pasangan, G2). Di bawah 12 pemain, Mixed, Mexicano, dan Sparing (GU14) segmented ini tidak ada, jadi 03a–03q dan 13h–13j tetap seperti sekarang (8 pemain).
+- Pilihan format turnamen (`.seg` Round-robin / Group - Playoff, istilah GU1; label sejak 3.9.0, keputusan 127, ditulis persis dengan strip berspasi) muncul tepat di bawah kartu mode, hanya saat Fixed dipilih **dan** pemain ≥ 12 (6 pasangan, G2). Di bawah 12 pemain, Mixed, Mexicano, dan Sparing (GU14) segmented ini tidak ada, jadi 03a–03q dan 13h–13j tetap seperti sekarang (8 pemain).
 - Tanpa label grup: dua pilihan sudah menjelaskan diri, seperti kartu mode. Default Round-robin; layar ini sama dengan 03a ditambah satu baris segmented, estimasi tetap ±round dari booking: 120 ÷ 15 = 8 round × 2 court = 16 match.
 - Pindah ke Mixed/Mexicano menyembunyikan segmented; kembali ke Fixed memulihkan pilihan terakhir di layar itu (asumsi).
 

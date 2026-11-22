@@ -15,7 +15,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Nomor dari tingkat babak (16.8): Juara, Final, Juara 3, Semifinal, lalu yang tidak lolos per posisi grup. Posisi grup sama = nomor sama (#5 Eko · Fajar dan Kiki · Lina, posisi 3); nomor rapat. Yang senomor urut nama.
 - Kolom Babak menggantikan Main, W–L, +/−, dan nilai (GU16): angka fase grup tidak menentukan nomor, jadi tidak ditampilkan di sini. Pasangan yang tidak lolos menulis grup · posisi grup ("Grup A · 3").
 - Juara 4 menulis "Semifinal" (16F): kalah di Semifinal lalu kalah Perebutan juara 3. #1 diberi bola seperti Klasemen lain. Ketuk baris → Detail pasangan (22j).
-- Status Final setelah Final dan Perebutan juara 3 terisi; subjudul pola 09c dengan "Grup + Gugur" di tempat mode. Bagikan memakai urutan tab Peringkat.
+- Status Final setelah Final dan Perebutan juara 3 terisi; subjudul pola 09c dengan nama format "Group - Playoff" di tempat mode (keputusan 127). Bagikan memakai urutan tab Peringkat.
 
 ## 22b · Klasemen · Fase grup · setelah bagan · Final
 
@@ -25,6 +25,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Tabel grup = 20f apa adanya (nomor 4.3, tanpa tab metode), ditambah slot lolos di kanan nama (16.8): A1, A2, B1, B2. Huruf slot sama dengan dialog Buat bagan (20g).
 - Andi · Budi dan Citra · Dewi sama-sama #1; slot A1/A2 dari head-to-head (R5 6–4) atau pilihan host (20i–20k) terbaca dari kode slotnya, nomor tabel tidak berubah.
+- Format grup Race to 6 → kolom Win %; grup Americano → kolom Point % dan slot lolos dari Point % → selisih (keputusan 129, U-RP6), tetap tanpa tab.
 - Angka hanya match grup; match gugur tidak masuk tabel ini (G7). Tab ini tetap ada setelah Final. Halaman digulir seperti 20n; Grup B berlanjut di bawah action bar.
 
 ## 22c · Klasemen · Peringkat · tanpa Perebutan juara 3 · Final
@@ -101,7 +102,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScoreRow`, `StatLine`
 
 - Subjudul: peringkat · babak (sama dengan baris Klasemen 22a) · olahraga · format turnamen. Format skor tidak di subjudul karena beda per babak (GU9).
-- Baris angka = fase grup saja (GU13): 6 + 6 + 4 = 16 game, 2–1, 16 − 13 = +3, 67% — sama dengan baris tabel Grup A (22b). Label "Grup A · Race to 6" di atasnya = grup dan format fase grup.
+- Baris angka = fase grup saja (GU13): 6 + 6 + 4 = 16 game, Point % 16 ÷ 29 = 55%, Win 67%, 2–1, 16 − 13 = +3 — sama dengan baris tabel Grup A (22b). Statline lima angka seperti 10b (sejak 3.9.0, keputusan 130); Point % tampil walau tabel grup Race to memakai Win %. Label "Grup A · Race to 6" di atasnya = grup dan format fase grup.
 - "Beda lawan" tidak ditampilkan: di fase grup selalu semua pasangan grup sendiri. Kalah WO = fase grup.
 - Riwayat semua match, terbaru di atas, dengan nama babak di atas nama (komponen .gg-babak dari Jadwal 21): match gugur "Final · Race to 9", "Semifinal · Race to 6"; match grup "Grup A". Hasil gugur tidak masuk angka di atas.
 
@@ -111,6 +112,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 
 Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScoreRow`, `StatLine`
 
+- Statline lima angka (10b): Point % 12 ÷ 26 = 46% (6–2, 3–6, 3–6).
 - Data 16D-ii: #2 di tabel Grup A (1–2, −2), tidak lolos → posisi grup 3 → peringkat akhir #5 (22a).
 - Riwayat hanya match grup; R1, R4, R5 Eko · Fajar tidak main (grup 4 pasangan, satu court).
 
@@ -122,7 +124,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Podium dan lantai tetap (keputusan 60–92): tiga baris teratas peringkat akhir naik, pasangan = dua bola per blok dan dua nama bertumpuk (18a, 18e). Hanya isi kolom kanan panel yang berubah: babak, bukan "nilai · selisih" (GU16).
 - Babak di panel: Archivo 13,5 tebal 800 lebar 88%, warna teks panel (Story 17). Satu teks, tanpa satuan; baris emas tetap lencana #1.
-- Fakta Final "Padel · 8 pasangan · 8 round · 16 match" (pola 11a bernama). Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "Padel · Grup + Gugur · tanggal".
+- Fakta Final "Padel · 8 pasangan · 8 round · 16 match" (pola 11a bernama). Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "Padel · Group - Playoff · tanggal".
 - Caption (Ringkas) — baris peringkat menulis babak, tanpa poin dan Win %: `🏆 Garuda Open 2026 · Padel` `17 November 2026` `Klasemen Akhir` `1. Citra + Dewi — Juara` `2. Andi + Budi — Final` `3. Maya + Nanda — Juara 3` `4. Indra + Joko — Semifinal` `5. Eko + Fajar — Grup A · 3` `5. Kiki + Lina — Grup B · 3` `6. Gita + Hadi — Grup A · 4` `6. Oki + Putri — Grup B · 4` `8 round · 16 match · 17 Nov 2026`
 
 ## 22m · Gambar Ringkas · Feed dan Story · Final · bernama
@@ -160,7 +162,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Lengkap arah B (11b) dengan semua 8 baris peringkat akhir; kolom kanan = babak (GU16), ukuran huruf = nama baris (12,5 di batas), tebal 800. Posisi grup memakai warna baris kecil (--psub; di peach sama dengan teks panel).
 - Kepadatan (keputusan 80): pratinjau 238 ÷ 8 = 29,75 → skala 1,04 (batas). Podium mini pasangan 2 · 1 · 3 seperti 11b.
-- Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "Padel · Grup + Gugur · 17 Nov 2026", fakta "8 pasangan · 8 round · 16 match".
+- Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "Padel · Group - Playoff · 17 Nov 2026", fakta "8 pasangan · 8 round · 16 match".
 - Caption Lengkap = caption 22l + "Hasil per Round"; tiap match diawali nama babak seperti label Jadwal (grup "Grup A", gugur "Semifinal", "Final", "Juara 3"): `Hasil per Round` `· Round 1` ` Grup A · Andi+Budi vs Gita+Hadi → 4-6` ` Grup B · Indra+Joko vs Oki+Putri → 6-1` `…` `· Round 7` ` Semifinal · Andi+Budi vs Maya+Nanda → 6-4` ` Semifinal · Indra+Joko vs Citra+Dewi → 4-6` `· Round 8` ` Final · Andi+Budi vs Citra+Dewi → 7-9` ` Juara 3 · Maya+Nanda vs Indra+Joko → 4-2`
 
 ## 22q · Gambar Lengkap · 2 grup · Feed dan Story · tema peach
@@ -188,7 +190,7 @@ Komponen: `SharePoster`
 Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 
 - Data 16E (Padel, 8 pasangan = 16 pemain, 2 grup, Race to 6), sama dengan 20b/20d: R3 berjalan, 5 dari 12 match grup selesai. Tanpa nama turnamen.
-- Banner sama dengan Fixed biasa (01f): baris kecil "olahraga · mode · n pemain" (mode Fixed), "Round n" = round pertama yang belum lengkap, "x dari y match" dari semua match yang sudah ada. Selama fase grup y = 12 (match grup saja).
+- Banner sama dengan Fixed biasa (01f), tapi di tempat mode tertulis nama format: baris kecil "Padel · Group - Playoff · 16 pemain" (keputusan 127, 128 #6 C-4), "Round n" = round pertama yang belum lengkap (fase grup), "x dari y match" dari semua match yang sudah ada. Selama fase grup y = 12 (match grup saja).
 
 ## 22t · Beranda · Grup + Gugur berjalan · Semifinal
 
@@ -197,7 +199,7 @@ Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 
 - Setelah Buat bagan (21a): match gugur ikut dihitung, jadi y naik dari 12 ke 16 (2 Semifinal, Final, Juara 3). Latar = 21b (Semifinal R7, belum ada skor): 12 dari 16 match.
-- Judul "Round 7" (nomor round), sementara judul Jadwal babak ini "Semifinal" (21b). "Lanjutkan" membuka Jadwal di babak itu.
+- Judul = nama babak "Semifinal", sama dengan judul Jadwal babak itu (21b), bukan "Round 7" (keputusan 128 #6, C-4); babak lain sama dengan judul Jadwal-nya ("Perempat final" 21v, "Final" 21f, "Perebutan juara 3" 21s). Baris kecil "Padel · Group - Playoff · 16 pemain" (keputusan 127). "Lanjutkan" membuka Jadwal di babak itu.
 
 ## 22u · Dialog · mulai turnamen baru saat Grup + Gugur berjalan
 
@@ -205,5 +207,5 @@ Komponen: `MabarButton`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 
 Komponen: `MabarButton`, `MabarTextButton`, `showMabarSheet`, `showMabarConfirm`, `CourtBanner (CourtPainter)`, `HomePanel / SportPicker`
 
-- Latar = 22t. Isi sama dengan 01h untuk turnamen tanpa nama: "olahraga · mode, Round n" → "Padel · Fixed, Round 7". Bernama: nama turnamen, lalu ", Round 7".
+- Latar = 22t. Isi sama dengan 01h untuk turnamen tanpa nama, dengan nama format dan judul banner: "olahraga · format, babak" → "Padel · Group - Playoff, Semifinal" (keputusan 127, 128 #6 C-4); di fase grup "…, Round 3". Bernama: nama turnamen, lalu ", Semifinal".
 - "Hapus & mulai baru" membuang turnamen ini (tidak bisa dilanjutkan, seperti Fixed) dan menghentikan live-nya kalau aktif (12e).

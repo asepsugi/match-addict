@@ -240,3 +240,15 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `S
 - Final 7–9 dan Juara 3 4–2 sudah tersimpan (21i, status Final). Kedua kotak SF1 dikosongkan → "Kosongkan skor" tampil tapi mati, pesan 21l menggantikan kalimat hasil (GU11, keputusan 114). Hanya Final yang sudah ada skor: "Final sudah ada skor · …" (21l).
 - Jalannya (17E): kosongkan Final, lalu Juara 3; sesudah itu SF1 bisa diganti (dialog 21k) atau dikosongkan (07w). Aturan GU11 tidak berubah.
 - Satu angka diketik lagi → pesan hilang, kembali aturan 21k–21m.
+
+## 07y · Gugur · sheet WO dari match WO · Hapus WO mati
+
+![07y](../../frames/07y.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarGroup / MabarRow`, `MabarChip`, `ScoreBoard / ScoreKeypad`, `showMabarSheet`
+
+- Data 21o (SF2 WO · Cedera, Indra · Joko tidak main, tanpa skor lama), lalu Final Andi · Budi 7–9 Citra · Dewi dan Juara 3 Maya · Nanda 4–2 Indra · Joko tersimpan (skor 21i). Host membuka SF2 → WO.
+- Hapus WO mengosongkan pemenang SF2 dari Final dan kalah SF2 dari Juara 3, yang sudah ada skor → ditolak seperti membalik pemenang (GU11, keputusan 114, PRD 17.2; keputusan 128 #8): "Hapus WO" tampil mati (tinta pudar, tidak bisa diketuk), pesan 21l menggantikan kalimat akibat di bawah pilihan sejak sheet dibuka. Tanpa dialog.
+- Hanya Final yang sudah ada skor: "Final sudah ada skor · pemenang SF2 tetap Citra & Dewi". Final dan Juara 3 masih Belum → "Hapus WO" aktif, dialog "Hapus WO SF2?" dengan susunan baru (07u + 21k). Jalan setelah babak berikut berskor: kosongkan Final dan Juara 3 dulu (17E).
+- "Simpan WO" ikut aturan WO membalik pemenang yang sudah ada (21n, GU11): pilihan tersimpan (Indra · Joko) tidak membalik → aktif, mis. untuk mengganti alasan. Pilih Citra · Dewi → membalik → pesan sama, "Simpan WO" mati.
+- Di belakang = Input Skor SF2 match WO tanpa skor lama: kotak kosong, "Perbarui skor" mati (K3, 07t).

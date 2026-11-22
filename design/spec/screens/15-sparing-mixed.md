@@ -192,6 +192,9 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Data 15r setelah WO disimpan. Skor klub 4 – 2 (Matcha: 1 menang + 1 WO). Total Point klub Matcha 58 = 46 poin main + 12 nilai WO klub (K11).
 - Di tabel pemain tiap pemenang WO dapat nilainya sendiri: Maya 12 + 12 = 24, Lina 7 + 11 = 18 (4.4). Jumlah baris pemain tidak sama dengan Total Point klub, karena satu match = satu nilai untuk klub.
 - Americano 21 (ganjil) tidak bisa seri: kolom W–L. Digulir sampai bawah.
+- Americano → kedua tabel dibuka di Point % (keputusan 123). Skor klub 4 – 2 dan "58 poin · −13" tidak ikut tab (K2).
+- Point % (WO = nilai WO – 0, keputusan 125): pemenang WO dapat nilai WO-nya sendiri, pasangan absen kalah nilai WO pasangan lawan (11 + 12) ÷ 2 = 11,5 → 12. Garuda: Andi, Budi 14/21 → 67 (+7, nomor sama, urut nama) · Eko 25/42 → 60 · Dewi, Hadi 11/21 → 52 · Fajar 21/42 → 50 · Gita 13/33 → 39 · Citra 9/33 → 27. Matcha: Maya 24/33 → 73 · Lina 18/32 → 56 · Joko 21/42 → 50 · Indra 19/42 → 45 · Nanda 18/42 → 43 · Kiki 15/42 → 36.
+- Pasangan match (dari skor 15r): R1 Eko · Gita 13–8 Kiki · Nanda, Citra · Fajar 9–12 Joko · Maya · R2 Andi · Budi 14–7 Kiki · Lina, Dewi · Hadi 11–10 Indra · Nanda · R3 Eko · Fajar 12–9 Indra · Joko, Citra · Gita WO Lina · Maya. Lina naik dari #5 (Total Point) ke #2: 18 dari 2 match dengan satu WO.
 
 ## 15u · Detail pemain Mixed sparing · klub pertama
 
@@ -201,6 +204,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 
 - Dari 15s. Sama dengan 10a; subjudul peringkat di klubnya · nama klub (K9). Riwayat: nama sendiri dulu lalu partner, lawan di bawah dengan "vs".
 - Beda partner dari pemain klub sendiri (7 lainnya: 3 / 7), beda lawan dari pemain klub lain (6 / 6), karena sesama klub tidak pernah jadi lawan.
+- Statline lima angka (10b): Point % 22 ÷ (22 + 13) = 62,9 → 63% dari riwayat 6–2, 4–6, 6–3, 6–2.
 
 ## 15v · Detail pemain Mixed sparing · klub kedua
 
@@ -210,6 +214,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 
 - Klub kedua: tim Lina tetap baris atas riwayat (K9), walau di Jadwal baris bawah. 6 match (R2–R4, R6–R8), riwayat digulir.
 - #1 Matcha Club dengan 29 game dari 6 match: peringkat per klub, jadi tidak dibandingkan dengan Dewi (24 dari 4).
+- Statline lima angka (10b): Point % 29 ÷ (29 + 30) = 49,2 → 49% dari riwayat 6–5, 3–6, 6–4, 6–4, 6–5, 2–6; selisih −1.
 
 ## 15w · Beranda · sparing bernama berjalan
 

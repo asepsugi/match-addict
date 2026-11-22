@@ -46,7 +46,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `StandingTable`
 
 - Data 20b (5 dari 12 match). Satu tabel per grup, label "Grup A" di atasnya, nomor mulai 1 di tiap grup, kolom dan aturan nomor sama dengan 09c / 13n; hanya match grup itu yang dihitung (G7).
-- Tanpa tab Total Point / Win % (Q1, GU8): metode = default format grup (Race to / Best of → Win %, Americano → Total Point, kolom terakhir "Poin" atau "Game" seperti 09c). Yang tampil = yang dipakai untuk lolos.
+- Tanpa tab metode (Q1, GU8): metode = default format grup (Race to / Best of → Win %; Americano → Point % sejak 3.9.0, keputusan 129 U-RP6, sampai 3.8.x Total Point). Kolom terakhir "Win %" atau "Point %" (angka saja, seperti 09a). Yang tampil = yang dipakai untuk lolos: grup Americano lolos dari Point % → selisih (AC-RP13). Data contoh ini Race to 6, jadi tetap Win %.
 - Subjudul: olahraga · "Fase grup" (sama dengan Jadwal) · status · round · match, pola 13n. Status tetap Sementara sampai Final terisi (16.8).
 - Belum ada tanda lolos sebelum bagan dibuat (16.8). Ketuk baris → Detail pasangan. Bagikan sama dengan Klasemen lain.
 

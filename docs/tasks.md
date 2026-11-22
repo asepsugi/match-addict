@@ -69,6 +69,41 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
   berhenti dan lapor.
 - KS-8 tambahan: Atur pasangan + back browser (A-9), unduh dua file di Chrome desktop dan Safari (B-10, §19.12 #2).
 
+### Serah terima (2026-11-22, akhir sesi ketiga) — mulai di sini
+
+**Keadaan `fitur-3-9-0`** (belum di-push; 3.8.1+25 di `main` lokal juga masih ditahan host):
+- Selesai + digabung: KS-0…KS-6, KS-7a (review tech-lead Approve), KS-7b, KS-7c, KS-7d, RP-2 (spec `logic.md` §20),
+  RP-3a (logika Point %, review + perbaikan test). Desain RP-1 seluruhnya disetujui host (keputusan 130–131, hi-fi
+  v103): Klasemen 09a–09l, Detail 10a–10e, Bagikan 11a/11c/11n + 11o–11q, Mexicano 16a–16c/16g, live 12j/12k, Sparing
+  13n–15v, Grup + Gugur 22j/22k, frame 07y (sheet WO gugur "Hapus WO" mati), label "Group - Playoff" di frame 19a–22u,
+  Beranda/dialog 22s–22u (C-4).
+- **Branch tidak boleh ke `main` sebelum RP-3b + RP-3c**: Klasemen Americano kini terbuka di Point % tanpa tab;
+  kolom/poster/caption masih Total Point/Win %.
+
+**Urutan berikutnya** (playbook tim-proyek; maks 3 agen paralel, worktree dengan base = HEAD `fitur-3-9-0`):
+1. **RP-3b** Klasemen + Detail dan **RP-3c** Bagikan + caption, paralel (baris tabel jalur RP di bawah; berkas tidak
+   bersinggungan). Catatan untuk brief: (a) `hifiScreen` memaksa Total Point (`test/hifi/screens/screen_harness.dart:12`)
+   — golden frame default Americano wajib meng-override `rankingMethodProvider` ke `pointPercent`; (b) statline
+   `.statline.s5` (keputusan 130) dipakai juga Detail Sparing/Grup/penonton; (c) RP-3c: `test/hifi/components/
+   podium_poster_data.dart` diisi manual untuk 11a/11o, `share_poster_data.dart` ditulis extractor (sudah berisi
+   11p/11q); fixture 18A untuk 11o/11p bernama "Mabar Jumat PB Garuda" · 6 Nov 2026 (keputusan 131 #3); (d) caption
+   §20.7. Review: logika tidak ada lagi → main session periksa diff + golden.
+2. **KS-7e** (keputusan 128) + **GL di kode** (keputusan 127): kode B-7 (09h nama dua baris), B-8 (12p "Tidak ada
+   internet" + "Coba lagi"), C-3 (17s/17t footer sheet Tukar), C-4 (22s–22u), C-10 (15z2 "Pilih klub"); golden saja B-9
+   (12q), B-18 (10e). String "Grup + Gugur" yang tampil ke pemain → "Group - Playoff" (`konfigurasi_screen.dart`,
+   `detail_player_screen.dart`, `leaderboard_screen.dart`, `share_content.dart`, Beranda/dialog; cek dengan grep);
+   golden 19a–22u ikut. Bersinggungan dengan RP-3b di `leaderboard_screen.dart`/`detail_player_screen.dart` → jalankan
+   setelah RP-3b digabung, atau satu engineer untuk keduanya. sonnet/medium.
+3. **RP-3d** golden sisa (Mexicano 16a–16g, Sparing, Grup + Gugur, penonton) setelah RP-3b; plus frame tabel grup
+   Americano 21 dengan WO (keputusan 131 #4): desainer kecil (satu frame) + golden AC-RP13.
+4. Koreksi spec (main session, kecil): `logic.md` §20.11 #12 (golden tidak berubah sendiri karena harness, lihat 1a),
+   §20.8 baris 4.2 (pisahkan dua contoh PRD 4.2).
+5. **KS-8** full test sekali (main session) + cek web dengan `tool/build_web.sh` + Chrome: unduh dua PNG Bagikan gagal
+   di Chrome desktop dan Safari (B-10, nama `match-addict-feed-1080x1080.png`/`…-story-1080x1920.png`), share sheet
+   ditutup tanpa unduhan/toast, back browser di Atur pasangan memunculkan dialog (A-9).
+6. **KS-9** naik versi 3.9.0+26 (`pubspec.yaml` + `lib/core/app_version.dart`), CLAUDE.md riwayat versi, commit
+   `[minor]`; push = deploy hanya setelah host bilang jalan (urutannya dengan 3.8.1 tanya host).
+
 ### Status (2026-11-20, sesi ketiga)
 
 - Host "setuju" semua: 9 rekomendasi KS-4 = **keputusan 128**, Point % 18.11 = **keputusan 129**, GL 127 a–c dikonfirmasi.

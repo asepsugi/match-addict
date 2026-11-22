@@ -920,6 +920,14 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
      Detail lima angka berurutan seperti tab, Poin/Game · Point % · Win · W–L–D · Selisih (10a; varian 10f Point % di
      ujung dibuang); label sel "Point %", bukan "Point" (tidak terbaca salah ketik "Poin"); kolom nilai tabel Klasemen
      tab Point % angka saja ("58") seperti kolom Win %. Frame 09a–09l, 10a–10e.
+131. **Frame Point % sisa + Group - Playoff + 07y disetujui** (2026-11-22, host: "setuju semua rekomendasi", hi-fi v103):
+     Bagikan 11a/11c/11n tab Point % + frame baru 11o, 11p, 11q; Mexicano 16a–16c, 16g (R3 baru); penonton 12j/12k;
+     Sparing 13n–15v; Detail Sparing/Grup + Gugur `.s5`; frame 07y sheet WO gugur "Hapus WO" mati; label "Group -
+     Playoff" di frame 19a–22u; Beranda/dialog 22s–22u digambar ulang (C-4). Enam rekomendasi: (1) di poster dua
+     kolom nama terpanjang boleh elipsis karena "%" (aturan keputusan 92); (2) poster galeri Americano 11d–11m/18b–18s
+     tetap tab Total Point; (3) 11o/11p memakai "Mabar Jumat PB Garuda" · 6 Nov 2026, fixture ikut; (4) frame tabel grup
+     Americano 21 dengan WO (Point %) ditambah bersama golden AC-RP13; (5) tabel Sparing Race to yang terbuka di Total
+     Point dianggap pilihan host; (6) 07y "& Dewi" turun ke baris kedua (pemenggalan alami) diterima.
 
 ---
 

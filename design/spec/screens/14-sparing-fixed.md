@@ -192,6 +192,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Americano 20 (total genap, bisa seri): Gita · Hadi 10–10 Indra · Joko di R2 memberi ½ ke tiap klub → 6½ – 5½ (AC-S16). Kolom W–L–D karena formatnya bisa seri; satuan poin.
 - Setengah ditulis dengan "½" di angka yang sama (bukan 6,5), lebar kolom angka tetap.
+- Americano → tabel kedua klub dibuka di Point % (keputusan 123, AC-RP2). Skor klub dan "122 poin · +4" di papan tidak ikut tab (K2, AC-RP12): Total Point · Point % · Win % hanya mengurutkan tabel.
+- Point % = poin didapat ÷ poin dimainkan, bulat. Tiap match total 20, Garuda main 3 (dimainkan 60), Matcha main 4 (80): Eko · Fajar 38/60 → 63 · Andi · Budi 32/60 → 53 · Citra · Dewi 29/60 → 48 · Gita · Hadi 23/60 → 38; Maya · Nanda 44/80 → 55 · Kiki · Lina 42/80 → 53 (52,5, ,5 ke atas) · Indra · Joko 32/80 → 40. Jumlah main sama di dalam klub, jadi urutan = Total Point.
 - Skor contoh designer: R1 12–8, 9–11 · R2 13–7, 10–10 · R3 11–9, 8–12 · R4 14–6, 7–13 · R5 9–11, 12–8 · R6 11–9, 6–14.
 
 ## 14q · Input Skor · Fixed sparing
@@ -221,6 +223,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 - Dari baris Klasemen 13o. Subjudul: peringkat di klubnya · nama klub · olahraga · mode · format (keputusan host 2026-11-04). Peringkat 1 = #1 PB Garuda, bukan peringkat gabungan.
 - Beda lawan dihitung dari pemain klub lain saja (6 pemain Matcha Club), karena sesama klub tidak pernah jadi lawan: 6 / 6. "Beda partner" tetap disembunyikan selama pasangannya tidak berubah (10b).
 - Riwayat terbaru di atas; baris atas = pasangan ini (tim sendiri), sama dengan 10b.
+- Statline lima angka seperti 10b (sejak 3.9.0): Game · Point % · Win · W–L · Selisih game. Point % 18 ÷ 25 = 72% (6–5, 6–2, 6–0; `logic.md` §20.8 13C), tampil di semua tab.
 
 ## 14w · Detail pasangan · klub kedua
 
@@ -231,6 +234,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 - Klub kedua: di riwayat pasangan ini tetap baris atas walau di Jadwal mereka baris bawah (keputusan host 2026-11-04): Detail dibaca dari sudut pasangan itu, klubnya ada di subjudul.
 - Menang WO R3 menulis "+6" pudar, jadi jumlah riwayat cocok: 6 + 6 + 6 + 5 = 23 (10b). Selisih +4 tanpa WO.
 - Beda lawan dari 8 pemain PB Garuda: 8 / 8.
+- Statline lima angka (10b). Point % menghitung menang WO sebagai 6–0 (keputusan 125): 23 ÷ (23 + 13) = 63,9 → 64% (§20.8 13C); selisih tetap +4.
 
 ## 14x · Beranda · turnamen sparing berjalan
 

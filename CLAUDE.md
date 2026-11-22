@@ -16,9 +16,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r; §17 Kosongkan skor / Hapus WO + perilaku kecil (keputusan 113–121,
   2026-11-18; keputusan 127–128 2026-11-20; task KS-n di `docs/tasks.md`); §18 Point % (keputusan 122–126, 129,
   2026-11-20; hi-fi belum, task RP-n).
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 299 frame layar 390×844 +
-  36 lembar gambar (per 2026-11-18) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,5 MB (per
-  2026-11-18; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 372 frame layar 390×844 dan
+  lembar gambar (per 2026-11-22) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,7 MB (per
+  2026-11-22; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
   lebih ringkas baca `design/spec/screens/<alur>.md` + PNG frame-nya.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu
   `tokens.json`, `components.md`, `logic.md` (aturan logika yang berubah + data test), `screens/*.md` (per alur).
@@ -133,9 +133,10 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   hi-fi v97 terbit. Sisa: push (deploy) — ditahan host.
 - 3.9.0 (MINOR, rencana) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame:
   PRD §17 selesai (keputusan 113–121, 2026-11-18), branch `fitur-3-9-0`, task KS-0…KS-9 di `docs/tasks.md`: KS-0…KS-4
-  (hi-fi v99) + KS-5 + KS-6 (spec `logic.md` §19) selesai 2026-11-20 (keputusan 128 = 9 rekomendasi KS-4); berikutnya
-  KS-7 (kode). Ikut 3.9.0: jalur RP Point % (tab Klasemen ketiga, default Americano + urutan Mexicano; PRD §18,
-  keputusan 122–126, 129) dan GL label "Group - Playoff" (keputusan 127); status di `docs/tasks.md`. 3.10.0 = GU9 + A-15.
+  (hi-fi v99) + KS-5…KS-7d selesai; ikut 3.9.0: jalur RP Point % (PRD §18, keputusan 122–126, 129–131; RP-2 spec
+  `logic.md` §20 + RP-3a logika selesai, desain RP-1 disetujui hi-fi v103) dan GL "Group - Playoff" (keputusan 127).
+  Berikutnya RP-3b/3c, KS-7e + GL kode, RP-3d, KS-8, KS-9: serah terima 2026-11-22 di `docs/tasks.md`. Branch belum
+  boleh ke `main` sebelum RP-3b/3c. 3.10.0 = GU9 + A-15.
 
 ## Area docs
 

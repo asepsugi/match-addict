@@ -2375,8 +2375,8 @@ Satu aturan untuk semua: **di mana Total Point menulis satuan, Point % juga** ("
 | Klasemen host + penonton | `features/leaderboard/leaderboard_screen.dart` (baris 98, 109–111, 155) | `'${s.pointPercent}'`, judul kolom "Point %" (bentuk persis dan tanda % = frame, ikut Win %) | `tableMethod` grup juga bisa `pointPercent` (20.5) → label/nilai tabel grup ikut `switch` |
 | Sparing per klub | sama (`clubStandingEntriesProvider`) | sama | papan skor klub tetap "56 game · +13" |
 | Detail | `features/detail_player/detail_player_screen.dart` (statline 59–68) | item Point % **selalu** (U-RP5), `played ? '${s.pointPercent}' : '–'`, satuan "%" hanya kalau main | label dan letak = frame (5 item di 390). Subjudul "Peringkat n · Point % · …" otomatis lewat `label`; Sparing dan Grup + Gugur tanpa metode di subjudul (tetap). Grup + Gugur: angka = baris tabel grup (GU13) |
-| Poster Lengkap | `features/share/share_content.dart` `sharePosterData` (84–90) | `value: '${s.pointPercent}%'`, `detail: unit` | renderer (`share_poster.dart:494`) sudah menulis `detail` hanya di ukuran bersatuan → "57% poin · +9" / "57% · +9" |
-| Poster Ringkas | `share_content.dart` `podiumPosterData` (139–145) | `('${s.pointPercent}%', '$unit · ${s.diffLabel}')` | kepala klub Sparing (baris 207) tetap Total Point klub |
+| Poster Lengkap | `features/share/share_content.dart` `sharePosterData` (84–90) | `value: '${s.pointPercent}%'`, `detail: unit` | renderer (`share_poster.dart:494`) sudah menulis `detail` hanya di ukuran bersatuan → "57% poin · +9" / "57% · +9"; frame 11p (Feed satu kolom + Story, 18A), 11q (dua kolom, kn 0,82) |
+| Poster Ringkas | `share_content.dart` `podiumPosterData` (139–145) | `('${s.pointPercent}%', '$unit · ${s.diffLabel}')` | kepala klub Sparing (baris 207) tetap Total Point klub; frame 11a/11c/11n (data 09a), 11o (Feed + Story, 18A) |
 | Caption | `services/share/result_text_builder.dart` | baris di bawah | `build(…, required RankingMethod method)`; `share_result_screen.dart` mengoper metode yang sama dengan poster |
 | Urutan Mexicano | 20.6 | — | apa pun tab |
 | Tabel grup | 20.5 | — | tanpa tab |
