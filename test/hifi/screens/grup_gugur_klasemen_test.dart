@@ -5,13 +5,14 @@ import 'package:match_addict/features/leaderboard/leaderboard_screen.dart';
 import 'package:match_addict/features/leaderboard/widgets/standing_table.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
 import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/ranking/group_knockout_ranking.dart';
 
 import '../hifi_golden.dart';
 import 'grup_gugur_fixture.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
 
-/// Golden Klasemen Grup + Gugur (20d, 20f, 20h, 20n, 22a–22i) dan Detail (22j, 22k), docs/tasks.md GG-8.
+/// Golden Klasemen Grup + Gugur (20d, 20f, 20h, 20n, 20s, 22a–22i) dan Detail (22j, 22k), docs/tasks.md GG-8.
 void main() {
   Widget screen(ActiveTournament active, DateTime now) => hifiScreen(
     const LeaderboardScreen(),
@@ -51,6 +52,39 @@ void main() {
     await expectMatchesHifi(tester, screen(gg20e(), at20e), '20f');
     expect(find.textContaining('Sementara'), findsOneWidget);
     expect(rows(tester), [(1, 'Andi · Budi'), (1, 'Citra · Dewi'), (2, 'Eko · Fajar'), (3, 'Gita · Hadi')]);
+  });
+
+  testWidgets('20s AC-RP13: grup Americano 21 + WO → Point %, 2 teratas beda dari Total Point', (tester) async {
+    // Data catatan 20s: Grup A R6 Eko · Fajar menang WO atas Gita · Hadi (nilai WO 11, woPairValue 11).
+    final played = gkTournament(format: const ScoreFormat(ScoringMethod.americano, 21))
+        .play('Andi', 'Gita', 6, 15)
+        .play('Citra', 'Eko', 14, 7)
+        .play('Andi', 'Eko', 15, 6)
+        .play('Gita', 'Citra', 14, 7)
+        .play('Andi', 'Citra', 11, 10)
+        .play('Indra', 'Oki', 14, 7)
+        .play('Kiki', 'Maya', 9, 12)
+        .play('Indra', 'Maya', 12, 9)
+        .play('Oki', 'Kiki', 8, 13)
+        .play('Indra', 'Kiki', 13, 8)
+        .play('Maya', 'Oki', 13, 8);
+    final wo = played.withMatches([
+      for (final m in played.matches)
+        m.phase is GroupPhase && {m.pair1.id, m.pair2.id}.containsAll(['Eko', 'Gita'])
+            ? m.asWalkover(loserPairId: 'Gita')
+            : m,
+    ]);
+    await expectMatchesHifi(tester, screen(wo, at20e), '20s');
+    expect(find.text('Point %'), findsWidgets);
+    expect(find.text('Total Point'), findsNothing); // tanpa tab metode (GU8)
+    expect(rows(tester), [(1, 'Gita · Hadi'), (2, 'Andi · Budi'), (3, 'Citra · Dewi'), (4, 'Eko · Fajar')]);
+    final a = GroupKnockoutRanking.groupTables(wo)[0];
+    expect(a.method, RankingMethod.pointPercent);
+    expect(
+      [for (final e in a.entries) '${e.standing.totalPoint} ${e.standing.pointPercent} ${e.standing.diffLabel}'],
+      ['29 55 +16', '32 51 +1', '31 49 −1', '24 45 −16'],
+    );
+    expect(GroupKnockoutRanking.qualifierPlan(wo).slots[0], ['Gita', 'Andi']);
   });
 
   testWidgets('20h seri tiga pasangan di #2 (1, 2, 2, 2)', (tester) async {

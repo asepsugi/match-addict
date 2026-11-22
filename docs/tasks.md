@@ -86,6 +86,8 @@ Berikutnya: KS-7e + GL kode (satu engineer), lalu RP-3d.
 **Update lanjutan 2026-11-22:** GL + KS-7e (C-4, C-10, golden B-9/B-18) `770ccef`; RP-3d `e84071d`; frame 09h/12p/17s/17t
 digambar ulang + 12r (keputusan 132, hi-fi v106); KS-7e sisa B-7/B-8/C-3 `6774e8b`. **Sisa:** frame + golden tabel grup
 Americano 21 dengan WO (AC-RP13, keputusan 131 #4) → KS-8 → KS-9.
+**AC-RP13 selesai 2026-11-22:** frame 20s (`90ccaf4`) + golden 20s (angka app = catatan frame). Render hi-fi kini
+inkremental + `tool/hifi_frame.py` (`fd71bf0`), sidik awal `design/frames/fingerprints.json`. **Sisa: KS-8 → KS-9.**
 
 **Urutan berikutnya** (playbook tim-proyek; maks 3 agen paralel, worktree dengan base = HEAD `fitur-3-9-0`):
 1. **RP-3b** Klasemen + Detail dan **RP-3c** Bagikan + caption, paralel (baris tabel jalur RP di bawah; berkas tidak
