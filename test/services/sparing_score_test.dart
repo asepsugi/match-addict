@@ -22,7 +22,10 @@ List<String> _table(ActiveTournament a, Club club, RankingMethod method) {
     format: a.config.format,
   );
   final group = clubStandings(active: a, standings: standings, method: method).firstWhere((g) => g.club.id == club.id);
-  return [for (final e in group.entries) _row(e, percent: method == RankingMethod.winPercent, pointPercent: method == RankingMethod.pointPercent)];
+  return [
+    for (final e in group.entries)
+      _row(e, percent: method == RankingMethod.winPercent, pointPercent: method == RankingMethod.pointPercent),
+  ];
 }
 
 void main() {

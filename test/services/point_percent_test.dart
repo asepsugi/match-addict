@@ -40,8 +40,8 @@ Map<String, int> _numbers(
     if (e.position != null) e.label: e.position!,
 };
 
-PlayerStanding _s(int won, int lost, {int wins = 1, int losses = 0}) => PlayerStanding(
-  player: const Player(id: 'x', name: 'x'),
+PlayerStanding _s(int won, int lost, {int wins = 1, int losses = 0, String id = 'x'}) => PlayerStanding(
+  player: Player(id: id, name: id),
   wins: wins,
   losses: losses,
   gamesWon: won,
@@ -136,15 +136,19 @@ void main() {
     });
 
     test('AC-RP6 18E: Point % dari bilangan bulat; batas ,5 naik; nomor dari angka bulat', () {
-      final sari = _s(66, 60);
-      final qori = _s(44, 40);
-      final rani = _s(65, 61);
-      final tono = _s(64, 62);
+      final sari = _s(66, 60, id: 'Sari');
+      final qori = _s(44, 40, id: 'Qori');
+      final rani = _s(65, 61, id: 'Rani');
+      final tono = _s(64, 62, id: 'Tono');
       expect([sari, qori, rani, tono].map((s) => s.pointPercent), [52, 52, 52, 51]);
       // Selisih memisah angka bulat yang sama: Sari +6, Qori +4, Rani +4, Tono +2.
       final ranked = [sari, qori, rani, tono]
         ..sort((a, b) => RankingCalculator.compare(a, b, RankingMethod.pointPercent));
       expect(ranked.map((s) => s.gameDiff), [6, 4, 4, 2]);
+      // Qori 52,38 dan Rani 51,59 sama-sama "52" + selisih sama → nomor sama; dibanding nilai persis mereka terpisah.
+      expect(RankingCalculator.compare(qori, rani, RankingMethod.pointPercent), 0);
+      final entries = standingEntries(standings: ranked, method: RankingMethod.pointPercent);
+      expect({for (final e in entries) e.players.single.id: e.position}, {'Sari': 1, 'Qori': 2, 'Rani': 2, 'Tono': 3});
       expect(_s(5, 3).pointPercent, 63, reason: 'Best of 5: 3–0 lalu 2–3 → 5/8, 62,5 naik');
     });
 
@@ -168,6 +172,7 @@ void main() {
     test('4.2: Dewi·Citra 16/14 (53) di atas Gita·Andi 16/15 (52) di Point %, kebalikan di Win %', () {
       final gita = _s(16, 15, wins: 2, losses: 1);
       final dewi = _s(16, 14, losses: 2);
+      expect((gita.pointPercent, dewi.pointPercent), (52, 53));
       expect(RankingCalculator.compare(gita, dewi, RankingMethod.pointPercent), isPositive);
       expect(RankingCalculator.compare(gita, dewi, RankingMethod.winPercent), isNegative);
     });

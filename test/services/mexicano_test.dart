@@ -388,7 +388,8 @@ void main() {
       final s = sim.standings();
       expect(
         [
-          for (final id in ['Citra', 'Andi', 'Hadi', 'Joko', 'Fajar', 'Gita', 'Indra', 'Eko', 'Dewi', 'Budi']) _pp(s, id),
+          for (final id in ['Citra', 'Andi', 'Hadi', 'Joko', 'Fajar', 'Gita', 'Indra', 'Eko', 'Dewi', 'Budi'])
+            _pp(s, id),
         ],
         [
           'Citra 15/21 71% (+9)',
@@ -605,9 +606,7 @@ void main() {
       expect(_round(read().matches, 4), expected(before));
       // R4 memang dari angka baru: dengan skor R2 lama susunannya berbeda.
       final withOld = before.copyWith(
-        tournament: before.tournament.copyWith(
-          matches: [for (final m in before.matches) m.id == r2c2.id ? r2c2 : m],
-        ),
+        tournament: before.tournament.copyWith(matches: [for (final m in before.matches) m.id == r2c2.id ? r2c2 : m]),
       );
       expect(_round(read().matches, 4), isNot(expected(withOld)));
     });
