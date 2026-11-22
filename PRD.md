@@ -928,6 +928,11 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
      tetap tab Total Point; (3) 11o/11p memakai "Mabar Jumat PB Garuda" · 6 Nov 2026, fixture ikut; (4) frame tabel grup
      Americano 21 dengan WO (Point %) ditambah bersama golden AC-RP13; (5) tabel Sparing Race to yang terbuka di Total
      Point dianggap pilihan host; (6) 07y "& Dewi" turun ke baris kedua (pemenggalan alami) diterima.
+132. **Frame keputusan 128 digambar ulang + 12r** (2026-11-22, host: "setuju rekomendasi", hi-fi v105): 09h nama
+     yang tidak muat dua baris tinggi 62; 12p "Tidak ada internet" + "Coba lagi" setelah dua cek gagal tanpa data, cek
+     otomatis 10 detik tetap jalan; frame baru **12r** saat mencoba lagi (tombol mati + bola berputar, paling sedikit 1
+     detik, gagal → 12p tanpa toast); 17s/17t pratinjau + Diganti tetap, hanya kandidat digulir, Batal/Tukar di footer
+     menempel; **17d** (6 kandidat, muat tanpa gulir) tidak digambar ulang.
 
 ---
 
