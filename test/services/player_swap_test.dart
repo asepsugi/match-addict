@@ -547,6 +547,7 @@ void main() {
           standings: standingEntries(standings: ranked, method: RankingMethod.totalGames),
           format: format,
           now: now,
+          method: RankingMethod.totalGames,
         );
         expect(text.toLowerCase(), isNot(contains('tukar')));
       }

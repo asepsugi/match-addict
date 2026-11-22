@@ -169,7 +169,7 @@ void main() {
 
   testWidgets('11a Ringkas, tema biru, sementara', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
-    await expectMatchesHifi(tester, screen(set1), '11a');
+    await expectMatchesHifi(tester, screen(set1, method: RankingMethod.pointPercent), '11a');
   });
 
   testWidgets('11b Lengkap Fixed 10 pasangan, tema peach', (tester) async {
@@ -191,13 +191,20 @@ void main() {
     ('11e', 8, 4, 'Mabar Jumat PB Garuda', null),
     ('11h', 6, 3, null, ShareTheme.biru),
     ('11i', 6, 3, null, null),
+    ('11q', 6, 3, null, ShareTheme.biru), // 11h dari tab Point % (RP-3c)
   ]) {
     testWidgets('$frame Lengkap Mixed dua kolom', (tester) async {
       await precacheHifiAssets(tester, [SportType.padel.assetPath]);
-      final (active, entries) = mixedFromPoster(frame, rounds: rounds, courts: courts, name: name);
+      final isPointPercent = frame == '11q';
+      final (active, entries) = mixedFromPoster(
+        isPointPercent ? '11h' : frame,
+        rounds: rounds,
+        courts: courts,
+        name: name,
+      );
       await expectMatchesHifi(
         tester,
-        screen(active, entries: entries),
+        screen(active, entries: entries, method: isPointPercent ? RankingMethod.pointPercent : null),
         frame,
         act: (tester) async {
           if (theme != null) {
@@ -521,6 +528,7 @@ void main() {
       tester,
       screen(
         set1,
+        method: RankingMethod.pointPercent,
         hooks: ShareHooks(
           download: (files) async {
             downloaded.addAll(files.map((f) => f.mimeType ?? ''));
@@ -550,6 +558,7 @@ void main() {
       tester,
       screen(
         set1,
+        method: RankingMethod.pointPercent,
         hooks: ShareHooks(
           render: (_) async => throw StateError('render gagal'),
           download: (_) async {

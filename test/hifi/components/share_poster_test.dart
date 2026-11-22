@@ -133,6 +133,15 @@ void main() {
     endless: true,
   );
 
+  // 11p: data 18A tab Point %; Feed menulis satuan, Story tidak (U-RP3, keputusan 77).
+  SharePosterData pointPercent18a(int index) => dataOf(
+    posterRows[('11p', index)]!,
+    title: 'Mabar Jumat PB Garuda',
+    subtitle: 'Klasemen akhir · 6 Nov 2026',
+    facts: 'Padel · 5 pemain · 4 round · 4 match',
+    endless: true,
+  );
+
   // ---------- Kartu pratinjau di layar Bagikan ----------
   for (final (frame, name, data, t) in [
     ('11b', 'K79 Fixed 10 pasangan, peach', fixed10, peach),
@@ -157,6 +166,17 @@ void main() {
   for (final (target, at, index) in [(PodiumPosterTarget.feed, feedAt, 0), (PodiumPosterTarget.story, storyAt, 1)]) {
     testWidgets('11f K81 Mixed 20 bernama ${target.name}', (tester) async {
       await check(tester, frame: '11f', at: at, data: mixed20(index), t: padel, target: target, label: target.name);
+    });
+    testWidgets('11p Point % data 18A ${target.name}', (tester) async {
+      await check(
+        tester,
+        frame: '11p',
+        at: at,
+        data: pointPercent18a(index),
+        t: padel,
+        target: target,
+        label: target.name,
+      );
     });
     testWidgets('11g K79 Fixed 10 pasangan ${target.name}', (tester) async {
       await check(tester, frame: '11g', at: at, data: fixed10(), t: peach, target: target, label: target.name);

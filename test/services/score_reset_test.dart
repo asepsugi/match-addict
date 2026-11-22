@@ -75,6 +75,7 @@ String _caption(ActiveTournament a) {
     standings: standingEntries(standings: standings, method: method),
     format: ShareFormat.ringkas,
     now: _sparingNow,
+    method: method,
     clubStandings: clubStandings(active: a, standings: standings, method: method),
   );
 }

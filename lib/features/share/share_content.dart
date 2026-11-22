@@ -81,12 +81,17 @@ SharePosterData sharePosterData({
       );
     }
     final s = e.standing;
-    final total = method == RankingMethod.totalGames;
+    // Point % = bentuk Total Point dengan nilai persen (logic.md 20.7): satuan di `detail`.
+    final (value, detail) = switch (method) {
+      RankingMethod.totalGames => ('${s.totalPoint}', unit),
+      RankingMethod.winPercent => ('${s.winPercent.round()}%', null),
+      RankingMethod.pointPercent => ('${s.pointPercent}%', unit),
+    };
     return SharePosterRow(
       position: e.position!,
       names: [for (final p in e.players) p.name],
-      value: total ? '${s.totalPoint}' : '${s.winPercent.round()}%',
-      detail: total ? unit : null,
+      value: value,
+      detail: detail,
       diff: s.diffLabel,
     );
   }
@@ -136,12 +141,14 @@ PodiumPosterData podiumPosterData({
   final mini = podiumBlocks(podium);
 
   // Nilai metode + selisih dengan satuan (63): "42" + "poin · +12", "100%" + "· +19".
-  final total = method == RankingMethod.totalGames;
   (String, String) valueOf(StandingEntry e) {
     final s = e.standing;
-    return total
-        ? ('${s.totalPoint}', '${config.format.unit} · ${s.diffLabel}')
-        : ('${s.winPercent.round()}%', '· ${s.diffLabel}');
+    final unit = config.format.unit;
+    return switch (method) {
+      RankingMethod.totalGames => ('${s.totalPoint}', '$unit · ${s.diffLabel}'),
+      RankingMethod.winPercent => ('${s.winPercent.round()}%', '· ${s.diffLabel}'),
+      RankingMethod.pointPercent => ('${s.pointPercent}%', '$unit · ${s.diffLabel}'),
+    };
   }
 
   PodiumRowData rowOf(StandingEntry e) {

@@ -100,6 +100,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
       standings: ref.read(standingEntriesProvider),
       format: _format,
       now: ref.read(clockProvider)(),
+      method: ref.read(rankingMethodProvider),
       clubStandings: ref.read(clubStandingEntriesProvider),
     );
     final outcome = await runShare(

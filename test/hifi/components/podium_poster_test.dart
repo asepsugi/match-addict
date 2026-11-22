@@ -55,6 +55,7 @@ void main() {
   // 18c K61 … 18t K69: Feed + Story satu data.
   const pairs = <(String, String)>[
     ('11d', 'K63 nama turnamen dua baris, fakta 9,3, 1 WO'),
+    ('11o', 'Point % data 18A'),
     ('13r', 'K62 Sparing 7 – 5'),
     ('18c', 'K61 Mixed 2·1·3'),
     ('18d', 'K63 tanpa nama'),
