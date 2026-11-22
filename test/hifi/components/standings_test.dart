@@ -9,8 +9,8 @@ import '../hifi_golden.dart';
 void main() {
   final theme = MabarTheme.light();
 
-  testWidgets('StandingTable: Mixed, nomor sama, belum main (09a)', (tester) async {
-    final at = hifiRect('09a', 'rank');
+  testWidgets('StandingTable: Mixed, Total Point, nomor sama, belum main (09i)', (tester) async {
+    final at = hifiRect('09i', 'rank');
     const rows = [
       (1, 'Andi P', '3–0–0', '+12', '42'),
       (1, 'Dewant R', '3–0–0', '+12', '42'),
@@ -41,7 +41,7 @@ void main() {
           ],
         ),
       ),
-      '09a',
+      '09i',
       at,
       label: 'rank',
     );
@@ -79,12 +79,14 @@ void main() {
   for (final (frame, items) in [
     ('10a', const <StatLineItem>[
       (value: '42', unit: null, label: 'Poin'),
+      (value: '58', unit: '%', label: 'Point %'),
       (value: '100', unit: '%', label: 'Win'),
       (value: '3–0–0', unit: null, label: 'W–L–D'),
       (value: '+12', unit: null, label: 'Selisih poin'),
     ]),
     ('10b', const <StatLineItem>[
       (value: '23', unit: null, label: 'Game'),
+      (value: '70', unit: '%', label: 'Point %'),
       (value: '75', unit: '%', label: 'Win'),
       (value: '3–1', unit: null, label: 'W–L'),
       (value: '+7', unit: null, label: 'Selisih game'),
