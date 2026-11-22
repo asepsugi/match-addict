@@ -33,6 +33,9 @@ class MabarButton extends StatelessWidget {
   final String? meta;
   final IconData? icon;
 
+  /// Pengganti [icon] berupa widget (mis. bola berputar 12r); ukuran ditentukan pemanggil.
+  final Widget? leading;
+
   /// Null = mati (`.btn-off`, kecuali varian [MabarButtonVariant.wait]).
   final VoidCallback? onPressed;
   final MabarButtonVariant variant;
@@ -49,6 +52,7 @@ class MabarButton extends StatelessWidget {
     required this.label,
     this.meta,
     this.icon,
+    this.leading,
     this.onPressed,
     this.variant = MabarButtonVariant.primary,
     this.small = false,
@@ -81,7 +85,7 @@ class MabarButton extends StatelessWidget {
       mainAxisSize: fill ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null) ...[Icon(icon, size: MabarSize.iconInButton, color: fg), const SizedBox(width: 8)],
+        if (leading != null) ...[leading!, const SizedBox(width: 8)] else if (icon != null) ...[Icon(icon, size: MabarSize.iconInButton, color: fg), const SizedBox(width: 8)],
         // Label utuh; kalau sempit, yang dipotong meta-nya (keterangan, bukan aksinya).
         Flexible(
           flex: meta == null ? 1 : 0,

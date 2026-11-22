@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
@@ -344,6 +345,69 @@ void main() {
       expect(status(c), LiveViewStatus.live);
       c.dispose();
       // Riverpod menjadwalkan refresh provider turunan lewat timer 0 ms.
+      await tester.pump(const Duration(milliseconds: 1));
+    });
+
+    testWidgets('dibuka tanpa internet: memuat, dua cek gagal → noInternet; Coba lagi menahan 1 detik (12p/12r)', (
+      tester,
+    ) async {
+      fake.offline = true;
+      final c = watch(tester);
+      await tester.pump();
+      expect(status(c), LiveViewStatus.loading); // satu kegagalan belum cukup
+      await tester.pump(LiveViewController.interval);
+      expect(status(c), LiveViewStatus.noInternet);
+      final notifier = c.read(liveViewProvider.notifier);
+
+      // Tetap gagal: 12r paling sedikit 1 detik, lalu kembali ke 12p; tidak ada permintaan di luar cek yang sama.
+      unawaited(notifier.retry());
+      await tester.pump();
+      expect(status(c), LiveViewStatus.retrying);
+      await tester.pump(LiveViewController.minRetry - const Duration(milliseconds: 1));
+      expect(status(c), LiveViewStatus.retrying);
+      await tester.pump(const Duration(milliseconds: 1));
+      expect(status(c), LiveViewStatus.noInternet);
+
+      // Berhasil: layar sesuai isi.
+      fake.offline = false;
+      unawaited(notifier.retry());
+      await tester.pump();
+      expect(status(c), LiveViewStatus.retrying);
+      await tester.pump(LiveViewController.minRetry);
+      expect(status(c), LiveViewStatus.live);
+      expect(c.read(tournamentProvider), isNotNull);
+      c.dispose();
+      await tester.pump(const Duration(milliseconds: 1));
+    });
+
+    testWidgets('noInternet: cek otomatis 10 detik tetap jalan dan langsung pindah ke jadwal saat berhasil', (
+      tester,
+    ) async {
+      fake.offline = true;
+      final c = watch(tester);
+      await tester.pump();
+      await tester.pump(LiveViewController.interval);
+      expect(status(c), LiveViewStatus.noInternet);
+      await tester.pump(LiveViewController.interval); // gagal lagi: tetap 12p
+      expect(status(c), LiveViewStatus.noInternet);
+      fake.offline = false;
+      await tester.pump(LiveViewController.interval);
+      expect(status(c), LiveViewStatus.live);
+      c.dispose();
+      await tester.pump(const Duration(milliseconds: 1));
+    });
+
+    testWidgets('penonton yang sudah punya data tidak pernah noInternet', (tester) async {
+      final c = watch(tester);
+      await tester.pump();
+      fake.offline = true;
+      await tester.pump(LiveViewController.interval);
+      await tester.pump(LiveViewController.interval);
+      await tester.pump(LiveViewController.interval);
+      expect(status(c), LiveViewStatus.offline);
+      await c.read(liveViewProvider.notifier).retry(); // bukan di 12p: tidak berbuat apa-apa
+      expect(status(c), LiveViewStatus.offline);
+      c.dispose();
       await tester.pump(const Duration(milliseconds: 1));
     });
 
