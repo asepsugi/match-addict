@@ -77,9 +77,21 @@ hi-fi baru, bukan teks versi lama.
 
 ## Hi-fi → frame
 
-- Kalau hi-fi diubah: `python3 tool/hifi_extract.py` me-render ulang `design/frames/` dan menulis ulang
-  `design/spec/screens/` + `components.md` (butuh Google Chrome + internet untuk font). Jangan edit hasilnya dengan
-  tangan. Setiap keputusan dicatat juga di hi-fi → Cakupan → "Sudah disetujui", lalu artifact online dipublish ulang
+- **Hanya frame yang berubah** (keputusan host 2026-11-22): desainer dan engineer membaca, merender, dan menguji hanya
+  frame yang memang berubah atau yang perlu diubah; frame yang jelas tidak berubah tidak dibaca dan tidak dirender.
+  - Baca frame: `python3 tool/hifi_frame.py 09h 17s` (letak baris di hifi.html, caption, catatan, markup, dan hanya
+    CSS berkelas yang mengenainya; `--notes` catatan saja, `--no-css` tanpa CSS). Jangan grep/sed `hifi.html` untuk
+    mencari frame. Token/Fondasi dibaca hanya kalau memang diubah.
+  - Dampak ubah komponen: `python3 tool/hifi_frame.py --uses=rrow.two,sfoot` (frame yang memakai kelas itu).
+  - Frame yang berubah sejak base: `python3 tool/hifi_frame.py --changed-since=<base> --tests` → daftar frame + berkas
+    test golden-nya; engineer menjalankan hanya berkas itu (full suite sekali per merge, di sesi utama).
+- Kalau hi-fi diubah: `python3 tool/hifi_extract.py` menulis ulang `design/spec/screens/` + `components.md` +
+  `rects.json` untuk semua frame (cepat) dan me-render PNG **hanya frame yang sidiknya berubah**
+  (`design/frames/fingerprints.json`: markup frame + CSS yang mengenainya + ikon yang dipakainya; ubah `.sfoot` →
+  17s/17t saja, ubah token `:root` → hampir semua). `--all` render penuh (±50 menit; hanya kalau font/Chrome berganti),
+  `--only=` frame tertentu, `--mark-current` catat sidik tanpa render. PERINGATAN "posisi berubah di rects.json tapi
+  PNG tidak dirender ulang" = sidik terlewat: render frame itu dengan `--only=` dan laporkan. Butuh Google Chrome +
+  internet untuk font. Jangan edit hasilnya dengan tangan. Setiap keputusan dicatat juga di hi-fi → Cakupan → "Sudah disetujui", lalu artifact online dipublish ulang
   dari file yang sama.
 - Kalau `hifi_extract.py` mengubah banyak frame yang isinya tidak tersentuh sementara `rects.json` tetap sama, itu noise
   rasterisasi font sesaat (pernah terjadi 2026-10-22, ~60 golden gagal): jalankan ulang, jangan commit frame itu.

@@ -18,8 +18,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   2026-11-20; hi-fi belum, task RP-n).
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 373 frame layar 390×844 dan
   lembar gambar (per 2026-11-22) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,7 MB (per
-  2026-11-22; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**, baca per bagian (`<section class="flow" id="beranda">`, dst.); untuk satu layar
-  lebih ringkas baca `design/spec/screens/<alur>.md` + PNG frame-nya.
+  2026-11-22; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**; baca frame dengan `tool/hifi_frame.py <id>…` (markup + catatan + CSS yang mengenainya).
+  Desainer dan engineer hanya membaca, merender, dan menguji frame yang berubah (`--changed-since=<base> --tests`,
+  render inkremental `tool/hifi_extract.py`) — `docs/ui-v2.md`.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu
   `tokens.json`, `components.md`, `logic.md` (aturan logika yang berubah + data test), `screens/*.md` (per alur).
 

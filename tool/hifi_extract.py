@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 """Turunkan bahan implementasi dari design/hifi.html.
 
-    python3 tool/hifi_extract.py            # frame PNG + spesifikasi markdown
-    python3 tool/hifi_extract.py --no-png   # markdown saja (cepat)
-    python3 tool/hifi_extract.py --only=20a,20b   # PNG frame tertentu saja (spec + rects tetap semua)
+    python3 tool/hifi_extract.py            # spec + rects semua; PNG hanya frame yang berubah (sidik)
+    python3 tool/hifi_extract.py --no-png   # spec + rects saja, sebut frame yang berubah (cepat)
+    python3 tool/hifi_extract.py --only=20a,20b   # PNG frame tertentu saja
+    python3 tool/hifi_extract.py --all      # PNG semua frame (±50 menit; mis. font atau Chrome berganti)
+    python3 tool/hifi_extract.py --mark-current   # catat sidik tanpa render (PNG yang ada dianggap benar)
+
+Sidik per frame (design/frames/fingerprints.json) = markup frame + aturan CSS yang bisa mengenainya + simbol SVG
+yang dipakainya. Mengubah token di :root atau aturan tanpa kelas membuat semua frame dirender (memang semuanya
+terkena). Font dari Google Fonts tidak ikut sidik: kalau font/Chrome berganti, pakai --all.
 
 Hasil:
 - design/frames/<id>.png — tiap frame di-render Chrome headless pada 2x (layar app: 780×1688,
@@ -138,6 +144,93 @@ def chrome(args):
         finally:
             shutil.rmtree(profile, ignore_errors=True)
     raise RuntimeError('Chrome headless gagal 3 kali: ' + ' '.join(args))
+
+
+FINGERPRINTS = os.path.join(DESIGN, 'frames', 'fingerprints.json')
+
+
+def _css_chunks(css):
+    """CSS → [(selector atau at-rule, teks)] tingkat atas; blok bersarang (@media, @keyframes) tetap utuh."""
+    css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
+    out, depth, start = [], 0, 0
+    for i, ch in enumerate(css):
+        if ch == '{':
+            depth += 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 0:
+                chunk = css[start:i + 1].strip()
+                out.append((chunk[:chunk.index('{')].strip(), chunk))
+                start = i + 1
+    return out
+
+
+class FrameCss:
+    """Bagian head hi-fi yang mengenai satu frame: aturan CSS, simbol SVG, sisa head (font, skrip).
+
+    Aturan dianggap mengenai frame kalau salah satu selektor dalam daftarnya hanya memakai kelas yang ada di markup
+    frame (selektor tanpa kelas — elemen, :root/token, * — selalu); aturan dengan kelas yang tidak ada di frame tidak
+    mungkin cocok. Kelas di dalam :not(...) diabaikan (tetap bisa cocok). At-rule (@media, @keyframes, @font-face)
+    selalu ikut. Dipakai sidik render (di sini) dan `tool/hifi_frame.py`, jadi keduanya sepakat soal "yang mengenai".
+    """
+
+    def __init__(self, s):
+        head = s.split('<div class="doc">')[0]
+        css = ''.join(re.findall(r'<style[^>]*>(.*?)</style>', head, re.S))
+        self.rules = []
+        for sel, text in _css_chunks(css):
+            alts = None if sel.startswith('@') else [
+                set(re.findall(r'\.([\w-]+)', re.sub(r':not\([^)]*\)', '', a))) for a in sel.split(',')]
+            self.rules.append((alts, text))
+        self.symbols = {m.group(1): m.group(0) for m in re.finditer(r'<symbol id="([\w-]+)".*?</symbol>', head, re.S)}
+        self.rest = re.sub(r'<style[^>]*>.*?</style>|<symbol id="[\w-]+".*?</symbol>', '', head, flags=re.S)
+        self.head_classes = {c for attr in re.findall(r'class="([^"]*)"', self.rest) for c in attr.split()}
+
+    def rules_for(self, root, global_rules=True):
+        """global_rules=False: hanya aturan berkelas (tanpa at-rule dan tanpa selektor tanpa kelas seperti :root)."""
+        used = set(self.head_classes)  # kelas di <html>/<body> dan markup head lain juga berlaku
+        for attr in re.findall(r'class="([^"]*)"', root):
+            used.update(attr.split())
+        out = []
+        for alts, t in self.rules:
+            if alts is None or not any(alts):
+                if global_rules:
+                    out.append(t)
+            elif any(a <= used for a in alts if a):
+                out.append(t)
+        return out
+
+    def symbols_for(self, root):
+        return [self.symbols[i] for i in sorted(set(re.findall(r'#([\w-]+)', root))) if i in self.symbols]
+
+
+def fingerprints(s, flows):
+    """Sidik tiap frame: sisa head + markup frame + aturan CSS yang mengenainya + simbol SVG yang dipakainya."""
+    import hashlib
+    ctx = FrameCss(s)
+    out = {}
+    for flow in flows:
+        for f in flow['frames']:
+            root = f['root']
+            parts = [ctx.rest, root] + ctx.rules_for(root) + ctx.symbols_for(root)
+            out[f['id']] = hashlib.sha256('\0'.join(parts).encode()).hexdigest()[:16]
+    return out
+
+
+def changed_frames(s, flows):
+    """Frame yang sidiknya berbeda dari render terakhir, atau PNG-nya belum ada."""
+    old = json.load(open(FINGERPRINTS)) if os.path.exists(FINGERPRINTS) else {}
+    new = fingerprints(s, flows)
+    return [i for i, h in new.items()
+            if old.get(i) != h or not os.path.exists(os.path.join(DESIGN, 'frames', i + '.png'))], new
+
+
+def save_fingerprints(new, rendered):
+    """Simpan sidik hanya untuk frame yang benar-benar dirender (frame lain tetap sidik lamanya)."""
+    old = json.load(open(FINGERPRINTS)) if os.path.exists(FINGERPRINTS) else {}
+    merged = {i: (new[i] if i in rendered else old[i]) for i in new if i in rendered or i in old}
+    with open(FINGERPRINTS, 'w', encoding='utf-8') as f:
+        f.write('{\n' + ',\n'.join(f'  {json.dumps(k)}: {json.dumps(v)}' for k, v in merged.items()) + '\n}\n')
 
 
 def render_pngs(s, flows):
@@ -291,13 +384,33 @@ def main():
     flows = frames(s)
     write_specs(flows, css_rules(), s)
     print(sum(len(f['frames']) for f in flows), 'frame,', len(flows), 'alur → design/spec/')
+    rects_path = os.path.join(DESIGN, 'spec', 'rects.json')
+    old_rects = json.load(open(rects_path)) if os.path.exists(rects_path) else {}
     write_rects(s, flows)
     write_poster_data(flows)
+    changed, new = changed_frames(s, flows)
+    if '--mark-current' in sys.argv:  # PNG yang ada dianggap sudah sesuai hi-fi sekarang (sekali setelah render penuh)
+        save_fingerprints(new, set(new))
+        print(f'  sidik {len(new)} frame dicatat tanpa render')
+        return
     only = next((a.split('=', 1)[1].split(',') for a in sys.argv if a.startswith('--only=')), None)
-    if only:  # render ulang PNG frame tertentu saja; spec + rects tetap dari semua frame
-        flows = [dict(f, frames=[x for x in f['frames'] if x['id'] in only]) for f in flows]
-    if '--no-png' not in sys.argv:
-        render_pngs(s, flows)
+    todo = set(new) if '--all' in sys.argv else set(only) if only else set(changed)
+    # Pengaman: frame yang tata letaknya bergeser di rects.json tapi tidak ikut dirender = PNG basi.
+    rects = json.load(open(rects_path))
+    moved = sorted(i for i in rects if rects[i] != old_rects.get(i) and i not in todo)
+    if moved:
+        print('  PERINGATAN: posisi berubah di rects.json tapi PNG tidak dirender ulang:', ', '.join(moved))
+    if '--no-png' in sys.argv:
+        print(f'  {len(changed)} frame berubah sejak render terakhir:', ', '.join(changed) or '-')
+        return
+    flows = [dict(f, frames=[x for x in f['frames'] if x['id'] in todo]) for f in flows]
+    print(f'  render {len(todo)} dari {len(new)} frame')
+    render_pngs(s, flows)
+    save_fingerprints(new, todo)
+    gone = sorted(set(os.path.splitext(p)[0] for p in os.listdir(os.path.join(DESIGN, 'frames')) if p.endswith('.png'))
+                  - set(new))
+    if gone:
+        print('  PNG tanpa frame di hi-fi (hapus kalau memang dibuang):', ', '.join(gone))
 
 
 if __name__ == '__main__':
