@@ -10,9 +10,11 @@ import '../../core/widgets/mabar_group.dart';
 import '../../core/widgets/mabar_layers.dart';
 import '../../models/models.dart';
 import '../../services/ranking/club_score.dart';
+import '../../services/schedule/knockout_bracket.dart';
 import '../schedule/mixed/resume_tournament_sheet.dart';
 import '../schedule/sparing_providers.dart';
 import '../schedule/tournament_controller.dart';
+import '../share/share_content.dart';
 import 'app_install.dart';
 import 'ios_install_sheet.dart';
 import 'widgets/court_banner.dart';
@@ -41,7 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Nama turnamen, atau "Padel · Mixed · 8 pemain" (jumlah pemain aktif sekarang) kalau tanpa nama.
   static String _summary(ActiveTournament t) =>
-      t.config.name ?? '${t.config.sport.label} · ${t.config.mode.label} · ${t.activePlayers.length} pemain';
+      t.config.name ?? '${t.config.sport.label} · ${shareModeLabel(t.config)} · ${t.activePlayers.length} pemain';
 
   static String _lastSubtitle(ActiveTournament t) => 'Selesai di R${t.roundCount} · tambah jam untuk lanjut';
 
@@ -73,11 +75,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// Untuk dialog 01h/14y: "PB Garuda vs Matcha Club" (sparing tanpa nama), nama turnamen, atau "Padel · Mixed".
+  /// Untuk dialog 01h/14y: "PB Garuda vs Matcha Club" (sparing tanpa nama), nama turnamen, atau "Padel · Mixed"
+  /// ("Padel · Group - Playoff" di Grup + Gugur, 22u). Judul banner dan dialog = nama babak (22t, 22u).
   static String _label(ActiveTournament t) {
     final clubs = t.config.clubs;
     if (t.config.name == null && clubs != null && clubs.length == 2) return '${clubs[0].name} vs ${clubs[1].name}';
-    return t.config.name ?? '${t.config.sport.label} · ${t.config.mode.label}';
+    return t.config.name ?? '${t.config.sport.label} · ${shareModeLabel(t.config)}';
   }
 
   /// Slot turnamen aktif cuma satu, jadi memulai turnamen baru membuang yang sedang berjalan; dialog 01h
@@ -89,8 +92,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: 'Mulai turnamen baru?',
         message:
             'Turnamen yang berjalan akan dihapus:\n'
-            '${_label(active)}, '
-            'Round ${active.currentRound}',
+            '${_label(active)}, ${KnockoutBracket.roundTitle(active, active.currentRound)}',
         confirmLabel: 'Hapus & mulai baru',
         destructive: true,
       );
@@ -150,7 +152,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       club2: clubScore.second.club.name,
                       score2: clubScore.second.winsLabel,
                     ),
-              title: 'Round ${active.currentRound}',
+              title: KnockoutBracket.roundTitle(active, active.currentRound),
               progress: active.matches.isEmpty ? 0 : active.playedMatchCount / active.matches.length,
               matches: '${active.playedMatchCount} dari ${active.matches.length} match',
               // Config dioper apa adanya supaya `startIfNeeded` mengenalinya sebagai turnamen yang sama
