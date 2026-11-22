@@ -80,6 +80,10 @@ full test sekali di KS-8. Semua MINOR; tanpa dependensi baru; tanpa naik versi.
 - **Branch tidak boleh ke `main` sebelum RP-3b + RP-3c**: Klasemen Americano kini terbuka di Point % tanpa tab;
   kolom/poster/caption masih Total Point/Win %.
 
+**Update 2026-11-22 (sesi keempat):** RP-3b (`1307ed0`) dan RP-3c (`8837d5d`) digabung, test Klasemen/Detail/Bagikan
+lulus; koreksi spec butir 4 selesai (`99ac61d`). Branch kini boleh ke `main` dari sisi RP (tetap tunggu KS-8/KS-9).
+Berikutnya: KS-7e + GL kode (satu engineer), lalu RP-3d.
+
 **Urutan berikutnya** (playbook tim-proyek; maks 3 agen paralel, worktree dengan base = HEAD `fitur-3-9-0`):
 1. **RP-3b** Klasemen + Detail dan **RP-3c** Bagikan + caption, paralel (baris tabel jalur RP di bawah; berkas tidak
    bersinggungan). Catatan untuk brief: (a) `hifiScreen` memaksa Total Point (`test/hifi/screens/screen_harness.dart:12`)
