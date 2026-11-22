@@ -94,7 +94,8 @@ Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point)
 3.3.2 (PATCH) = temuan security #1/#4 (simpanan tak terbaca dilewati, batas `roundNumber`); 3.4.0 (MINOR) = Mexicano +
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
 sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini"; 3.7.1 (PATCH) = lantai poster
-lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed); 3.8.1 (PATCH) = review UX hi-fi (kontras, area ketuk 48 + Semantics, teks).
+lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed); 3.8.1 (PATCH) = review UX hi-fi (kontras, area ketuk 48 + Semantics, teks); 3.9.0 (MINOR) = Kosongkan skor / Hapus
+WO + Point % + "Group - Playoff".
 
 ## Status
 
@@ -132,12 +133,11 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - PATCH 3.8.1 review UX hi-fi (keputusan 110–112): temuan di `design/review/`, task UX-0…UX-6 di `docs/tasks.md`,
   branch `ux-patch-3-8-1`; UX-0…UX-5 selesai (audit PRD ↔ hi-fi 2026-11-18), versi 3.8.1+25 di `main` lokal (a7b506a),
   hi-fi v97 terbit. Sisa: push (deploy) — ditahan host.
-- 3.9.0 (MINOR, rencana) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame:
-  PRD §17 selesai (keputusan 113–121, 2026-11-18), branch `fitur-3-9-0`, task KS-0…KS-9 di `docs/tasks.md`: KS-0…KS-4
-  (hi-fi v99) + KS-5…KS-7d selesai; ikut 3.9.0: jalur RP Point % (PRD §18, keputusan 122–126, 129–131; RP-2 spec
-  `logic.md` §20 + RP-3a logika selesai, desain RP-1 disetujui hi-fi v103) dan GL "Group - Playoff" (keputusan 127).
-  Berikutnya RP-3b/3c, KS-7e + GL kode, RP-3d, KS-8, KS-9: serah terima 2026-11-22 di `docs/tasks.md`. Branch belum
-  boleh ke `main` sebelum RP-3b/3c. 3.10.0 = GU9 + A-15.
+- 3.9.0 (MINOR) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame + Point %
+  (PRD §17–18, keputusan 113–132, hi-fi v107) + label "Group - Playoff" (keputusan 127): kode selesai di branch
+  `fitur-3-9-0`, versi 3.9.0+26 (KS-9 lokal), full test lulus 2026-11-22. Sisa: cek web KS-8 (unduh 2 PNG Chrome/Safari,
+  share sheet ditutup, back di Atur pasangan) oleh host, merge ke `main` + push (deploy) setelah host bilang — urutan
+  dengan 3.8.1 tanya host. 3.10.0 = GU9 + A-15.
 
 ## Area docs
 
