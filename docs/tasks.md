@@ -1,3 +1,26 @@
+# Task — 3.10.0 Group - Playoff fleksibel + batas 32 + GU9 (MINOR) — FASE BERIKUTNYA: spec & task
+
+Pemilik: main session. Branch `grup-playoff-3-10` (dari `main` 02dd45f; commit dokumen 2601de5). Produk: PRD §16 (G2,
+G7a, G8, G9, G14–G16, 16.4, 16.6, 16.8, contoh 16G–16H, AC-G21–G30), §8.1 (batas 32: B1–B3, AC-B1–B10), §5.9 (nama
+pasangan poster satu baris), keputusan 135–154. Hi-fi v109 (artifact `H9ZVDUfYvEBXsoBqih4iov`): 19*, 20*, 21* (bagan
+baru, warna alur), 22*, 23a–23w, 09m (Klasemen nama panjang), 11s/13x (poster 32), poster 11*/13*/18*/22l–22r.
+
+Status per 2026-11-23: PRD + hi-fi disetujui host, belum ada spec/kode. Langkah berikut (sesi baru):
+1. `tool/hifi_extract.py` gagal di `write_poster_data` (±baris 369) karena markup poster satu baris `.pname`; juga
+   `tool/hifi_poster_fit.py` salah ukur `.pname` terpotong. Perbaiki dulu, lalu regenerate `design/spec/` penuh
+   (sekarang setengah basi; screens/23-… baru) dan `test/hifi/components/share_poster_data.dart`.
+2. `tech-lead` (opus/high): spec `design/spec/logic.md` (§18 Grup + Gugur: wildcard, bagan 3/4 grup + tukar, metode
+   Playoff, babak awal, GU9 kunci per babak, label Juara 1–3, slot placeholder, kode QF) + logic.md baris ±1031, 1284,
+   1295, 1374, 1545 masih "nama ditumpuk"; pemotongan nama per lebar (poster + Klasemen `--pn` 16→14); task list.
+3. `dba` + `security`: data lama 3.8.x–3.9.x (2/4 grup, grup 3 pasangan, kode PF) tetap terbaca, slot wildcard di
+   simpanan, `schemaVersion` tetap 2; app 3.9.x/PWA penonton membuka 31–32 pemain (AC-B8), ukuran payload relay 32
+   pemain (AC-B9).
+4. Golden yang akan gagal: 19x–23x, poster 11*/13*/18*, Klasemen 09c/09g/09k/13n–p/14p/14s–u/20*, 02d; 23a–23w,
+   09m, 11s, 13x belum punya test.
+Sisa frame: 15z3 (Kelola pemain Mixed sparing) masih "Maksimal 30" — gambar ulang 16 + 16 dari generator.
+
+---
+
 # Task — 3.9.0 Kosongkan skor + perilaku kecil + visual/frame (MINOR)
 
 Pemilik: main session. Branch `fitur-3-9-0` (dari `main` 9b2d902, 3.8.1+25 yang belum di-push). Produk: PRD §17 (aturan

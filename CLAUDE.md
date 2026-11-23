@@ -1,6 +1,6 @@
 # Match Addict (dulu Mabar) — konteks proyek
 
-App Flutter untuk host turnamen mabar tennis/padel (klub, 4–30 pemain, 1 device host, offline).
+App Flutter untuk host turnamen mabar tennis/padel (klub, 4–32 pemain sejak 3.10.0, 1 device host, offline).
 
 **Nama app = Match Addict** sejak 3.0.0 (keputusan host 2026-11-02): wordmark "Match Addict" (bukan huruf kecil), label
 ikon, judul web, repo `asepsugi/match-addict`, web `asepsugi.github.io/match-addict/`, bundle id `id.matchaddict.app`,
@@ -15,10 +15,11 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t; §16 Grup + Gugur
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r; §17 Kosongkan skor / Hapus WO + perilaku kecil (keputusan 113–121,
   2026-11-18; keputusan 127–128 2026-11-20; task KS-n di `docs/tasks.md`); §18 Point % (keputusan 122–126, 129,
-  2026-11-20; hi-fi belum, task RP-n); keputusan 133–134 (2026-11-23, PATCH 3.9.1).
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 375 frame layar 390×844 dan
-  lembar gambar (per 2026-11-23) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,7 MB (per
-  2026-11-22; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**; baca frame dengan `tool/hifi_frame.py <id>…` (markup + catatan + CSS yang mengenainya).
+  2026-11-20; hi-fi belum, task RP-n); keputusan 133–134 (2026-11-23, PATCH 3.9.1); 3.10.0 Group - Playoff fleksibel + batas 32 (keputusan
+  135–154, 2026-11-23), hi-fi 23a–23w + bagan 21* baru.
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, ±400 frame layar 390×844 dan
+  lembar gambar (per 2026-11-23) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,9 MB (per
+  2026-11-23; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**; baca frame dengan `tool/hifi_frame.py <id>…` (markup + catatan + CSS yang mengenainya).
   Desainer dan engineer hanya membaca, merender, dan menguji frame yang berubah (`--changed-since=<base> --tests`,
   render inkremental `tool/hifi_extract.py`) — `docs/ui-v2.md`.
 - `design/spec/` — paket implementasi v2. **Mulai dari `design/spec/README.md`** (urutan kerja, aturan golden), lalu
@@ -137,6 +138,9 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
   (PRD §17–18, keputusan 113–132, hi-fi v107) + label "Group - Playoff" (keputusan 127): kode selesai di branch
   `fitur-3-9-0`; rilis 3.9.0+26 live 2026-11-22 (c8671c9, bersama 3.8.1). Sisa: uji Bagikan di Safari (host). 3.10.0 = GU9 + A-15.
 - PATCH 3.9.1 (keputusan 133–134): label "Playoff", caption Bagikan dipendekkan + hi-fi 11r (v108); rilis 3.9.1+27 live 2026-11-23 (5d2c06e). Sisa: uji caption panjang di WhatsApp (host).
+- 3.10.0 (MINOR) Group - Playoff fleksibel (2/3/4 grup, wildcard, babak awal otomatis, GU9) + batas 32 pemain + nama
+  pasangan satu baris (poster, Klasemen) + bagan baru + tab QF/SF: PRD + hi-fi v109 disetujui (keputusan 135–154),
+  branch `grup-playoff-3-10` (2601de5). Berikutnya: perbaiki `hifi_extract.py`, spec + task — `docs/tasks.md` atas.
 
 ## Area docs
 
