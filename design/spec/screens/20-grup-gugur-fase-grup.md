@@ -144,6 +144,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 - Grup 3 pasangan: 2–3, 1–3, 1–2 (circle method, satu bye tiap putaran, tanpa baris Istirahat). R1: Citra · Dewi 6–4 Eko · Fajar, Indra · Joko 6–2 Kiki · Lina. R2: Rudi · Sari 6–3 Oki · Putri, Qori · Yuni 4–6 Vina · Wawan. R3: Andi · Budi 6–1 Eko · Fajar, Gita · Hadi 6–4 Kiki · Lina. R4 Court 1: Maya · Nanda 6–3 Oki · Putri.
 - Hitung mundur 02:00 = 3 jam − 3 round × 20 mnt. 2 grup di 1 court tampil sama: satu baris per round, A dan B bergantian.
 - 12 match grup (4 grup × 3), 7 terisi → "Buat bagan · tunggu 5 match" (20b).
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 20n · Klasemen grup · 4 grup · Sementara
 
@@ -153,6 +154,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Data 20m (7 dari 12 match). Empat tabel berurutan A–D; halaman digulir, app bar dan action bar tetap. Frame di posisi gulir paling atas; Grup C dan D berlanjut di bawah action bar.
 - Grup C: Maya · Nanda dan Rudi · Sari sama-sama 100% +3 → nomor 1, 1. Grup D: Tono · Umi belum main (R4 Court 2 belum diisi) → baris "Belum main" seperti 09c.
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 20o · Dialog · buat bagan · 4 grup
 
@@ -163,6 +165,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 - Latar = Jadwal 16B R6 semua terisi (pola 20e). Sisa skor: R4 Tono · Umi 6–2 Vina · Wawan; R5 Andi · Budi 6–4 Citra · Dewi, Gita · Hadi 3–6 Indra · Joko; R6 Maya · Nanda 6–4 Rudi · Sari, Tono · Umi 6–3 Qori · Yuni. Hitung mundur 01:00 = 3 jam − 6 × 20 mnt.
 - Akhir grup (Win %, selisih): A Andi · Budi 100 +7, Citra · Dewi 50 0, Eko · Fajar 0 −7 · B Indra · Joko 100 +7, Gita · Hadi 50 −1, Kiki · Lina 0 −6 · C Maya · Nanda 100 +5, Rudi · Sari 50 +1, Oki · Putri 0 −6 · D Tono · Umi 100 +7, Vina · Wawan 50 −2, Qori · Yuni 0 −5.
 - Perempat final (G9): PF1 A1–B2, PF2 C1–D2, PF3 B1–A2, PF4 D1–C2; A1, B2, C1, D2 di paruh atas. Round gugur sesudahnya: R7 PF1 + PF2, R8 PF3 + PF4, R9 SF1 + SF2, R10 Final + Perebutan juara 3 (16B).
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 20p · Jadwal fase grup · court lebih banyak dari grup
 

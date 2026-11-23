@@ -205,6 +205,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 - Tiga babak tidak muat di 390 dengan nama terbaca (tiga kolom = ±112 pt, nama terpotong). Jadi bagan digeser horizontal per kolom: kolom 153, jarak 14, dua babak terlihat penuh, babak ketiga mengintip 24 pt sebagai tanda bisa digeser (C-7, keputusan 120). Bagan terpotong di tepi body (358), tidak sampai tepi layar; label kolom menjorok 12 pt, jadi kolom yang mengintip di kanan memperlihatkan tepi kartu, garis, dan awal nama babaknya ("Fi…").
 - Posisi geser awal: kolom babak pertama yang masih ada match kosong rata kiri, dibatasi ujung kanan (21x). Geser berhenti per kolom.
 - Round gugur: R7 PF1 + PF2, R8 PF3 + PF4, R9 SF1 + SF2, R10 Final + Juara 3 → 10 round × 20 mnt = 200 mnt, lewat booking 00:20 (AC-G4).
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 21v · PF1–2 · belum ada skor
 
@@ -214,6 +215,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Perempat final tersebar di dua round (2 court) → tab "PF1–2" dan "PF3–4"; judul tetap "Perempat final". Hitung mundur 00:58 = 3 jam − 122 mnt.
 - Tab yang dipilih selalu terlihat: strip digeser secukupnya, kedua tepi yang menyembunyikan tab dipudarkan (`.strip.gg-fade-lr`, tambahan untuk .tabs). Tab Bagan di ujung kanan; terlihat penuh saat strip di ujung (21u).
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 21w · Bagan · 4 grup · perempat final berjalan
 
@@ -223,6 +225,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - PF1 6–3, PF2 4–6, PF3 6–5 terisi; PF4 di R8 masih jalan. Pemenang langsung di slot SF; SF1 lengkap tapi belum bisa diisi karena R9 terkunci (tanpa titik bola).
 - Selama perempat final belum selesai, geseran awal = kolom Perempat final rata kiri.
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 21x · Bagan · 4 grup · digeser ke Semifinal–Final
 
@@ -232,6 +235,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Perempat final selesai → geseran awal = ujung kanan (Semifinal + Final). Kolom Perempat final tinggal 24 pt di kiri (ujung kartu dengan skornya, ujung kepala kartu dan label kolom, garis); geser ke kanan untuk melihatnya lagi.
 - SF1 6–4 terisi: Andi · Budi ke Final, Vina · Wawan ke Juara 3. SF2 di R9 masih jalan.
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 21y · Bagan · 4 grup · selesai
 
@@ -241,6 +245,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Final 9–6: Andi · Budi juara; Juara 3 4–3: Vina · Wawan. Peringkat akhir: #1 Andi · Budi, #2 Tono · Umi, #3 Vina · Wawan, #4 Indra · Joko, #5 Gita · Hadi, Maya · Nanda, Citra · Dewi, Rudi · Sari (kalah perempat final, satu nomor), lalu posisi grup 3.
 - Semua match terisi → geseran awal tetap ujung kanan (babak terakhir).
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 21z · Dialog · akhiri turnamen sebelum Final
 
