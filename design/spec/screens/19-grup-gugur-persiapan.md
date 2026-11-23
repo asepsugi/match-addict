@@ -96,7 +96,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `ModePicker`
 
-- Contoh 16G (AC-G23): Padel, 15 mnt, 2 court × 3 jam, 24 pemain = 12 pasangan, 3 grup × 4. A → Court 1, B → Court 2, C → Court 1 (seri 6 vs 6 → court terkecil); Court 1 A/C bergantian R1–R12, Court 2 hanya Grup B R1–R6 lalu kosong R7–R12 (keputusan 146). Playoff R13 PF1 + PF2, R14 PF3 + PF4, R15 SF1 + SF2, R16 Final + Perebutan juara 3 → 16 round × 15 = 240 menit, lewat booking 01:00.
+- Contoh 16G (AC-G23): Padel, 15 mnt, 2 court × 3 jam, 24 pemain = 12 pasangan, 3 grup × 4. A → Court 1, B → Court 2, C → Court 1 (seri 6 vs 6 → court terkecil); Court 1 A/C bergantian R1–R12, Court 2 hanya Grup B R1–R6 lalu kosong R7–R12 (keputusan 146). Playoff R13 QF1 + QF2, R14 QF3 + QF4, R15 SF1 + SF2, R16 Final + Perebutan juara 3 → 16 round × 15 = 240 menit, lewat booking 01:00.
 - Lewat booking tidak mematikan tombol (pola 14f). Jumlah match (18 + 4 + 2 + 1 + 1 = 26) tidak ditulis.
 - Format babak 16G: Perempat final Race to 4, Semifinal Race to 5, Perebutan juara 3 Race to 5, Final Race to 6 → baris "Race to 4–6". Varian 3 court: 10 round = 150 menit, tidak lewat booking.
 

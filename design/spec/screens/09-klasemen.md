@@ -33,7 +33,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
-- Fixed: satu baris per pasangan (dua nama ditumpuk), posisinya mengikuti anggota terbaik. Ketuk → Detail pasangan (10b).
+- Fixed: satu baris per pasangan, "Andi P · Budi S" satu baris (keputusan 151; dulu dua nama ditumpuk), posisinya mengikuti anggota terbaik. Ketuk → Detail pasangan (10b).
 - Judul ikon piala dan progress bar dihapus. "Final" kalau sudah diakhiri atau semua match selesai.
 - Pemain sisa (jumlah ganjil) tampil sendiri di grup "Belum main".
 - Race to 6 tidak pernah seri, jadi kolomnya W–L tanpa D.
@@ -78,7 +78,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
 - Data 04f–04h: R1–R14 round-robin, lalu R15–R16 dengan Andi P + Rizky H; Budi S pulang setelah R14.
-- Pasangan yang selalu main bersama tetap satu baris (dua nama ditumpuk). Pemain yang pasangannya berubah, pemain yang tidak ikut lagi, dan pemain pengganti tampil sendiri dengan angkanya masing-masing (keputusan host 2026-11-03). Semua baris memakai nilai per pemain yang sama, jadi urutannya tetap sebanding.
+- Pasangan yang selalu main bersama tetap satu baris ("Indra W · Joko S", keputusan 151). Pemain yang pasangannya berubah, pemain yang tidak ikut lagi, dan pemain pengganti tampil sendiri dengan angkanya masing-masing (keputusan host 2026-11-03). Semua baris memakai nilai per pemain yang sama, jadi urutannya tetap sebanding.
 - Budi S main 7 (tertinggal satu match) dan Rizky H baru 1: Total Point mereka tertinggal, Win % lebih adil. Itu konsekuensi yang sudah diterima host.
 - Sama di Detail (10d), poster Bagikan (pasangan tetap satu baris; kalau barisnya campuran "Semua n" di catatan Lengkap dan baris fakta podium tanpa hitungan pasangan/pemain, 18l), caption, dan halaman live.
 
@@ -144,3 +144,14 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Data 09d (fixture `ranking_fixture.dart` set2), tab Point % = tab saat dibuka. WO dihitung sebagai skor "nilai WO – 0" (keputusan 125): Budi menang WO dengan nilai 14 → 42/62 → 68, #1 tanpa kalah; Joko nilai 13 → 30/61 → 49.
 - Dewant dan Gina yang kalah WO: didapat 0, kalah 14 (rata-rata nilai WO Budi dan Joko, 13,5 → 14) → Dewant 25/62 → 40, Gina 23/62 → 37. Selisih tidak berubah oleh WO, jadi Dewant tetap +2 tapi di #9.
 - Lainnya (Americano 24, tiap match total 24): Eko 43/72 → 60 · Andi 41/72 → 57 · Indra 25/48 → 52 · Fajar 34/72 → 47 · Hana 21/48 → 44 · Citra 31/72 → 43. Tidak ada angka kembar, jadi tidak ada nomor sama.
+
+## 09m · Fixed · nama pasangan panjang
+
+![09m](../../frames/09m.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
+
+- Angka, urutan, dan WO = 09c; hanya nama yang diganti untuk contoh pemotongan.
+- Nama pasangan satu baris (keputusan 151), pola sama dengan poster `.pname` (keputusan 148): jatah tiap nama = (lebar kolom nama − " · ") ÷ 2. Nama yang lebih pendek dari jatahnya utuh dan sisanya dipakai nama lain (Iga · Sagittal…, Citra … · Dewi); yang lebih lebar dari jatahnya dipotong "…" sendiri (Ant… · Chri…, Indr… · Jok…). Pemisah tidak terpotong.
+- Huruf nama pasangan: semua baris di layar dikecilkan bersama per 0,5 dari 16 ke ukuran terbesar yang membuat semua nama muat, paling kecil 14 (host 2026-11-23, seperti poster keputusan 150); di 14 masih tidak muat → elipsis per nama. Frame ini 14. Berat 600 tetap. Tinggi baris 44 seperti baris pemain; area ketuk 48 (3.8.1).
+- Nama lengkap di Detail pasangan (10b).

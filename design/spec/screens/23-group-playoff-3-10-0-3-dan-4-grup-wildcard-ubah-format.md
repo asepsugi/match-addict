@@ -11,7 +11,7 @@ PRD §16 3.10.0 (keputusan 135–149): jumlah grup 2 / 3 / 4, minimal 4 pasangan
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `showMabarSheet`, `ModePicker`
 
 - 32 pemain = 16 pasangan: ketiga pilihan sah (AC-G21). 4 grup hanya 4 + 4 + 4 + 4 (keputusan 142); tanpa wildcard.
-- Latar = layar dengan 4 grup terpilih: label "Playoff · Perempat final", estimasi 16.4: A → Court 1, B → Court 2, C → Court 1, D → Court 2, fase grup R1–R12, R13 PF1 + PF2, R14 PF3 + PF4, R15 SF1 + SF2, R16 Final + Perebutan juara 3 → 16 round × 15 = 240 menit, lewat booking 01:00 (match 24 + 4 + 2 + 1 + 1 = 32, tidak ditulis).
+- Latar = layar dengan 4 grup terpilih: label "Playoff · Perempat final", estimasi 16.4: A → Court 1, B → Court 2, C → Court 1, D → Court 2, fase grup R1–R12, R13 QF1 + QF2, R14 QF3 + QF4, R15 SF1 + SF2, R16 Final + Perebutan juara 3 → 16 round × 15 = 240 menit, lewat booking 01:00 (match 24 + 4 + 2 + 1 + 1 = 32, tidak ditulis).
 - Varian: 3 grup 1 court = 43 round; 2 grup 1 court = 60 round (terpanjang, §8). Pemain 32 → 30 → pilihan jadi 3 grup (GP9).
 
 ## 23b · Jadwal fase grup · 3 grup · R12 · Court 2 kosong · Buat bagan
@@ -41,7 +41,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`, `showMabarConfirm`
 
-- Bagan 3 grup G15 (keputusan 138, 147): PF1 J1–WC1, PF2 R(J2)–R(J3), PF3 J2–WC2, PF4 J3–R(J1). WC1 Eko · Fajar segrup dengan J1 Andi · Budi → WC1 dan WC2 bertukar: PF1 Andi · Budi vs Kiki · Lina (WC2 · B3), PF3 Qori · Rina vs Eko · Fajar (WC1 · A3). Tidak ada Perempat final segrup.
+- Bagan 3 grup G15 (keputusan 138, 147): QF1 J1–WC1, QF2 R(J2)–R(J3), QF3 J2–WC2, QF4 J3–R(J1). WC1 Eko · Fajar segrup dengan J1 Andi · Budi → WC1 dan WC2 bertukar: QF1 Andi · Budi vs Kiki · Lina (WC2 · B3), QF3 Qori · Rina vs Eko · Fajar (WC1 · A3). Tidak ada Perempat final segrup.
 - Slot wildcard ditulis dengan asalnya "WC2 · B3" (GP5); kolom slot dialog melebar ke 58 pt hanya di bagan dengan wildcard (.bracket.wc). Latar = Jadwal 23b (sheet tertutup saat dialog muncul, pola 20k).
 - "Buat bagan" mengunci yang lolos, slot, WC1/WC2, J1–J3, dan skor fase grup; round R13–R16 ditambahkan dan Jadwal terbuka di tab Bagan (23h).
 
@@ -69,7 +69,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`, `showMabarConfirm`
 
-- 16G-iii, Umar · Vina dipilih: WC1 Eko · Fajar segrup J1 → tukar: PF1 Andi · Budi vs Umar · Vina (WC2 · C3), PF3 Qori · Rina vs Eko · Fajar (WC1 · A3). Kiki · Lina tidak lolos ("Grup B · 3"). Slot hasil pilihan host tidak dibedakan (20k).
+- 16G-iii, Umar · Vina dipilih: WC1 Eko · Fajar segrup J1 → tukar: QF1 Andi · Budi vs Umar · Vina (WC2 · C3), QF3 Qori · Rina vs Eko · Fajar (WC1 · A3). Kiki · Lina tidak lolos ("Grup B · 3"). Slot hasil pilihan host tidak dibedakan (20k).
 
 ## 23h · Bagan · 3 grup · baru dibuat
 
@@ -77,8 +77,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
 
-- Data 16G, bagan = tabel 16G setelah tukar. Wildcard di kolom slot dua baris "WC2 / B3" (GP5 "WC2 · B3" dalam kolom 26 pt); semua slot bagan dengan wildcard memakai lebar 26 pt supaya nama sejajar (.bagan.wc).
-- Round R13 PF1 + PF2, R14 PF3 + PF4, R15 SF1 + SF2, R16 Final (Court 1) + Juara 3 (Court 2). Format kolom 16G: Race to 4 / 5 / 6, Juara 3 Race to 5. Geser, posisi awal, dan tab sama dengan 21u.
+- Data 16G, bagan = tabel 16G setelah tukar. Slot wildcard satu baris "WC2 · B3" (GP5) di kolom slot 56 pt; semua baris bagan dengan wildcard memakai lebar itu supaya nama sejajar (.bagan.wc).
+- Round R13 QF1 + QF2, R14 QF3 + QF4, R15 SF1 + SF2, R16 Final (Court 1) + Juara 3 (Court 2). Format kolom 16G: Race to 4 / 5 / 6, Juara 3 Race to 5. Geser, warna, dan tab sama dengan 21u.
 - Ketuk label babak ("Perempat final · Race to 4") → sheet format babak (23o, G16, keputusan 120); tampilan label tidak berubah.
 
 ## 23i · Bagan · 4 grup × 4 · baru dibuat
@@ -87,7 +87,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
 
-- 32 pemain, 4 grup × 4 (keputusan 142), 2 court, 15 mnt: fase grup R1–R12; R13 PF1 + PF2, R14 PF3 + PF4, R15 SF1 + SF2, R16 Final + Perebutan juara 3 (16.4). Bagan silang G9 tanpa wildcard: PF1 A1–B2, PF2 C1–D2, PF3 B1–A2, PF4 D1–C2.
+- 32 pemain, 4 grup × 4 (keputusan 142), 2 court, 15 mnt: fase grup R1–R12; R13 QF1 + QF2, R14 QF3 + QF4, R15 SF1 + SF2, R16 Final + Perebutan juara 3 (16.4). Bagan silang G9 tanpa wildcard: QF1 A1–B2, QF2 C1–D2, QF3 B1–A2, QF4 D1–C2.
 - Lolos (data contoh): A1 Andi · Budi, A2 Kiki · Lina, B1 Citra · Dewant, B2 Maya · Nanda, C1 Eko · Fajar, C2 Vina · Wulan, D1 Indra · Joko, D2 Gina · Hana. Semua babak Race to 6 (default = format grup). Komponen sama dengan 21u.
 
 ## 23j · Klasemen · Fase grup · 3 grup · WC1 WC2
@@ -144,14 +144,15 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Ketuk label kolom di Bagan (23h) → sheet babak itu (keputusan 120). Isi = 19f. Perempat final belum ada skor → bisa diubah; contoh 16H: Race to 4 → 5, label kolom dan baris match ikut berubah.
 - Best of / Americano hanya N ganjil (GU9, 19h). Live: penonton melihat format baru di kiriman berikutnya.
 
-## 23p · Sheet Perempat final · terkunci · PF1 ada skor
+## 23p · Sheet Perempat final · terkunci · QF1 ada skor
 
 ![23p](../../frames/23p.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `RoundTabs`, `showMabarSheet`
 
-- Contoh 16H: Perempat final Race to 5, PF1 Andi · Budi 5–2 Kiki · Lina tersimpan → format babak terkunci (G16). Sheet tetap terbuka saat label diketuk; segmented dan stepper mati, alasannya di subjudul.
-- Kosongkan skor PF1 (boleh, SF1 masih Belum, keputusan 114) → babak tanpa skor lagi → bisa diubah lagi (23o). Semifinal, Juara 3, dan Final masih bisa diubah.
+- Contoh 16H: Perempat final Race to 5, QF1 Andi · Budi 5–2 Kiki · Lina tersimpan → format babak terkunci (G16). Sheet tetap terbuka saat label diketuk; segmented dan stepper mati, alasannya di subjudul.
+- Kosongkan skor QF1 (boleh, SF1 masih Belum, keputusan 114) → babak tanpa skor lagi → bisa diubah lagi (23o). Semifinal, Juara 3, dan Final masih bisa diubah.
+- Latar: QF1 5–2 → Andi · Budi di slot SF1 atas dengan merah QF1; QF2 di R13 masih jalan.
 
 ## 23q · Sheet Playoff · dari Jadwal · Final berskor
 
@@ -159,7 +160,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`
 
-- 16G-akhir sebelum Juara 3 diisi: R16 Final 6–4 tersimpan, Perebutan juara 3 Belum. Babak yang ada skor menulis alasannya di baris ("PF1–4 ada skor", pola "<match> ada skor" sama dengan 23p) dengan ikon kunci, tanpa chevron; ketuk tetap membuka sheet babak terkunci (23p).
+- 16G-akhir sebelum Juara 3 diisi: R16 Final 6–4 tersimpan, Perebutan juara 3 Belum. Babak yang ada skor menulis alasannya di baris ("QF1–4 ada skor", pola "<match> ada skor" sama dengan 23p) dengan ikon kunci, tanpa chevron; ketuk tetap membuka sheet babak terkunci (23p).
 - Perebutan juara 3 masih bisa diubah formatnya; Ada / Tidak ada terkunci karena Final ada skor (23r).
 
 ## 23r · Sheet Perebutan juara 3 · Ada terkunci · Final ada skor
@@ -170,3 +171,53 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Juara 3 bisa dinyalakan/dimatikan hanya selama Final dan Perebutan juara 3 sama-sama Belum (G16). Di sini Final ada skor: segmented Ada / Tidak ada mati, format Race to 5 masih bisa diubah.
 - Sebelum Final ada skor: Tidak ada → match Juara 3 hilang (2 court: R16 hanya Final; 1 court: Final naik satu round); Ada lagi → kembali sesuai GU10. Tanpa dialog, bisa dibalik. Peringkat ikut 16.8 (22c).
+
+## 23s · Bagan · 2 grup · fase grup · slot kode
+
+![23s](../../frames/23s.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
+
+- Data 20b (16A, R3 berjalan, 5 dari 12 match grup terisi). Tab Bagan ada sejak jadwal dibuat, paling kanan setelah round grup terakhir; round playoff (R7, R8) baru jadi tab setelah Buat bagan (keputusan 153).
+- Slot: SF1 A1–B2, SF2 B1–A2 (G9); Final "Pemenang SF1" / "Pemenang SF2" sudah berwarna, Juara 3 "Kalah SF1" / "Kalah SF2". Kepala kartu menulis round · court dari estimasi (GU10). Ujung tab = 0/4.
+- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (rekomendasi, menunggu konfirmasi host). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
+- Action bar = Jadwal fase grup di saat itu (20b): "Buat bagan · tunggu 7 match"; semua terisi → "Buat bagan" aktif, konfirmasi mengisi slot dengan pasangan yang lolos (21a).
+
+## 23t · Bagan · 3 grup · fase grup · semua terisi · slot kode
+
+![23t](../../frames/23t.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
+
+- Data 16G pada 23b (semua 18 match grup terisi). Slot 3 grup (G15): QF1 J1–WC1, QF2 #2 grup J2 – #2 grup J3, QF3 J2–WC2, QF4 J3 – #2 grup J1. J1–J3 = urutan juara grup di sheet Buat bagan (23c); huruf grupnya baru pasti setelah dikunci, jadi tidak ditulis. Tukar WC1/WC2 kalau segrup dengan J1 terjadi saat Buat bagan.
+- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (rekomendasi, menunggu konfirmasi host). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
+- "Buat bagan" → sheet 23c → dialog 23d → Jadwal terbuka di tab Bagan berisi nama (23h). Kolom slot tetap 28 pt sampai ada wildcard bernama ("WC2 · B3", 23h).
+
+## 23u · Bagan · 4 grup × 4 · fase grup · baru dibuat
+
+![23u](../../frames/23u.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
+
+- 32 pemain, 4 grup × 4, 2 court, 15 mnt (23a/23i): jadwal baru dibuat, R1 berjalan, 0 dari 24 match grup. Slot silang G9: QF1 A1–B2, QF2 C1–D2, QF3 B1–A2, QF4 D1–C2.
+- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (rekomendasi, menunggu konfirmasi host). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
+- Tab strip menempel di ujung kanan (Bagan dipilih), tepi kiri dipudarkan; round grup terkunci bergembok seperti 20a.
+
+## 23v · Bagan · 3 grup · Semifinal berjalan · digeser ke Semifinal
+
+![23v](../../frames/23v.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
+
+- 16G-akhir sampai R15 Court 1: QF1 Andi · Budi 4–2 Kiki · Lina, QF2 Sari · Tono 3–4 Maya · Nanda, QF3 Qori · Rina 4–1 Eko · Fajar, QF4 Indra · Joko 3–4 Citra · Dewi; SF1 Andi · Budi 5–3 Maya · Nanda. SF2 di R15 masih jalan.
+- Alur: merah QF1 → SF1 atas → menang SF1 → garis merah ke Final atas; ungu QF2 berhenti di SF1 (kalah, ke Juara 3 tanpa warna). Biru QF3 dan merah muda QF4 bertemu di SF2; garis SF2 → Final abu-abu.
+- Perempat final selesai dan SF2 kosong → geseran awal = kolom Semifinal di tengah. Ujung tab 5/8.
+
+## 23w · Bagan · 3 grup · selesai · Juara 1
+
+![23w](../../frames/23w.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
+
+- 16G-akhir: SF2 Qori · Rina 5–4 Citra · Dewi; Final Andi · Budi 6–4 Qori · Rina (merah QF1 lawan biru QF3); Perebutan juara 3 Maya · Nanda 5–2 Citra · Dewi. Peringkat akhir = 23k: Juara 1 Andi · Budi, Juara 2 Qori · Rina, Juara 3 Maya · Nanda.
+- Semua match terisi → kolom terakhir rata kanan, Semifinal mengintip 76 pt. Juara tanpa label tambahan (21j).

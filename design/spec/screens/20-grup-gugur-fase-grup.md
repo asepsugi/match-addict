@@ -17,6 +17,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 - Urutan match di tiap grup = circle method generator round-robin (3.3): pasangan 1–4, 2–3, 1–3, 4–2, 1–2, 3–4. R1: Andi · Budi – Gita · Hadi, Indra · Joko – Oki · Putri.
 - Menu ⋯ sama dengan 06d (Live score, Akhiri turnamen).
 - 12 match grup Belum → "Buat bagan · tunggu 12 match" (20b).
+- Tab "Bagan" ada sejak jadwal dibuat, paling kanan setelah R6 (keputusan 153); di sini tersembunyi di balik tepi kanan yang dipudarkan, terlihat setelah strip digeser (23s).
 
 ## 20b · Jadwal fase grup · sebagian terisi
 
@@ -164,7 +165,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 
 - Latar = Jadwal 16B R6 semua terisi (pola 20e). Sisa skor: R4 Tono · Umi 6–2 Vina · Wawan; R5 Andi · Budi 6–4 Citra · Dewi, Gita · Hadi 3–6 Indra · Joko; R6 Maya · Nanda 6–4 Rudi · Sari, Tono · Umi 6–3 Qori · Yuni. Hitung mundur 01:00 = 3 jam − 6 × 20 mnt.
 - Akhir grup (Win %, selisih): A Andi · Budi 100 +7, Citra · Dewi 50 0, Eko · Fajar 0 −7 · B Indra · Joko 100 +7, Gita · Hadi 50 −1, Kiki · Lina 0 −6 · C Maya · Nanda 100 +5, Rudi · Sari 50 +1, Oki · Putri 0 −6 · D Tono · Umi 100 +7, Vina · Wawan 50 −2, Qori · Yuni 0 −5.
-- Perempat final (G9): PF1 A1–B2, PF2 C1–D2, PF3 B1–A2, PF4 D1–C2; A1, B2, C1, D2 di paruh atas. Round gugur sesudahnya: R7 PF1 + PF2, R8 PF3 + PF4, R9 SF1 + SF2, R10 Final + Perebutan juara 3 (16B).
+- Perempat final (G9): QF1 A1–B2, QF2 C1–D2, QF3 B1–A2, QF4 D1–C2; A1, B2, C1, D2 di paruh atas. Round gugur sesudahnya: R7 QF1 + QF2, R8 QF3 + QF4, R9 SF1 + SF2, R10 Final + Perebutan juara 3 (16B).
 - Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 20p · Jadwal fase grup · court lebih banyak dari grup

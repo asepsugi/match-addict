@@ -84,7 +84,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
-- Data 21y (16B): PF1 Andi · Budi 6–3 Gita · Hadi, PF2 Maya · Nanda 4–6 Vina · Wawan, PF3 Indra · Joko 6–5 Citra · Dewi, PF4 Tono · Umi 6–2 Rudi · Sari; SF1 Andi · Budi 6–4 Vina · Wawan, SF2 Indra · Joko 3–6 Tono · Umi; Final 9–6, Juara 3 Vina · Wawan 4–3 Indra · Joko.
+- Data 21y (16B): QF1 Andi · Budi 6–3 Gita · Hadi, QF2 Maya · Nanda 4–6 Vina · Wawan, QF3 Indra · Joko 6–5 Citra · Dewi, QF4 Tono · Umi 6–2 Rudi · Sari; SF1 Andi · Budi 6–4 Vina · Wawan, SF2 Indra · Joko 3–6 Tono · Umi; Final 9–6, Juara 3 Vina · Wawan 4–3 Indra · Joko.
 - Empat yang kalah Perempat final satu nomor (#5), urut nama. 12 match grup + 8 gugur = 20 match, R1–R10.
 - Halaman digulir; app bar, tab, dan action bar tetap. Bawah daftar: 22i.
 - Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.

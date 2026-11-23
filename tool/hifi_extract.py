@@ -365,8 +365,9 @@ def write_poster_data(flows):
                 continue
             out.append(f"  ('{f['id']}', {i}): [")
             for pos, mid, value, unit, diff in rows:
-                names = re.findall(r'<span>([^<]*)</span>', mid) if 'nm2' in mid else \
-                    re.search(r'<span class="nm">([^<]*)</span>', mid).group(1).split(' + ')
+                # Nama per <span> (.nm2 lama, .pname satu baris keputusan 150); tanpa itu satu teks "A + B".
+                names = re.findall(r'<span>([^<]*)</span>', mid) or \
+                    re.search(r'<span class="nm[^"]*">([^<]*)</span>', mid).group(1).split(' + ')
                 args = [f'position: {pos}', 'names: [' + ', '.join(q(n) for n in names) + ']', f'value: {q(value)}']
                 if unit:
                     args.append(f'detail: {q(unit)}')

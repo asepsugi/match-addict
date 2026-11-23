@@ -33,6 +33,8 @@ FEED2_MAX_ROW = 40
 MEASURE = r"""
 <style>*{zoom:1!important}</style><pre id="fit"></pre><script>
 document.fonts.ready.then(() => {
+  // .pname (keputusan 148): yang diukur tiap nama di dalamnya, bukan pembungkus flex-nya.
+  const each = l => [...l].flatMap(e => e.classList.contains('pname') ? [...e.children].filter(c => c.tagName === 'SPAN') : [e]);
   const W = n => { const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width; };
   const B = e => e.getBoundingClientRect().width;
   const up = v => Math.ceil(v * 100 - 1e-6) / 100;
@@ -42,7 +44,8 @@ document.fonts.ready.then(() => {
     let vw = 0, rw = 0, n = 0;
     for (const v of root.querySelectorAll(lk ? '.prow .pt' : '.prank .val')) {
       n++;
-      vw = Math.max(vw, W(lk ? v.firstChild : v.querySelector('b')));
+      // Babak (.val.gg-bk, "Juara 1") tanpa <b>: teksnya sendiri yang jadi kolom nilai (sama dengan stageRows di kode).
+      vw = Math.max(vw, W(lk ? v.firstChild : v.querySelector('b') || v));
       const sm = v.querySelector('small');
       if (sm && sm.textContent.trim()) rw = Math.max(rw, W(sm));
     }
@@ -52,14 +55,14 @@ document.fonts.ready.then(() => {
       if (!rw) root.style.setProperty('--vg', '0px');
     }
     if (lk) {
-      const panel = root.querySelector('.lpanel'), names = [...root.querySelectorAll('.prow .nm, .prow .nm2 span')];
+      const panel = root.querySelector('.lpanel'), names = each(root.querySelectorAll('.prow .nm, .prow .nm2 span'));
       const fits = () => names.every(e => W(e) <= B(e) + 0.01);
       let p = 100;
       panel.style.setProperty('--kn', '1');
       while (p > 82 && !fits()) { p -= 2; panel.style.setProperty('--kn', String(p / 100)); }
       r.kn = p / 100;
     } else {
-      const names = [...root.querySelectorAll('.who, .who2 span')], base = story ? 15 : 12.5;
+      const names = each(root.querySelectorAll('.who, .who2 span, .pname')), base = story ? 15 : 12.5;
       const fits = () => names.every(e => W(e) <= B(e) + 0.01);
       let s = base;
       root.style.setProperty('--nm', s + 'px');
