@@ -136,7 +136,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - 3.9.0 (MINOR) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame + Point %
   (PRD §17–18, keputusan 113–132, hi-fi v107) + label "Group - Playoff" (keputusan 127): kode selesai di branch
   `fitur-3-9-0`; rilis 3.9.0+26 live 2026-11-22 (c8671c9, bersama 3.8.1). Sisa: uji Bagikan di Safari (host). 3.10.0 = GU9 + A-15.
-- PATCH 3.9.1 (keputusan 133–134): label "Playoff", caption Bagikan dipendekkan + hi-fi 11r; branch `patch-3-9-1`.
+- PATCH 3.9.1 (keputusan 133–134): label "Playoff", caption Bagikan dipendekkan + hi-fi 11r (v108); rilis 3.9.1+27 live 2026-11-23 (5d2c06e). Sisa: uji caption panjang di WhatsApp (host).
 
 ## Area docs
 
