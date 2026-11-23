@@ -16,7 +16,7 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r; §17 Kosongkan skor / Hapus WO + perilaku kecil (keputusan 113–121,
   2026-11-18; keputusan 127–128 2026-11-20; task KS-n di `docs/tasks.md`); §18 Point % (keputusan 122–126, 129,
   2026-11-20; hi-fi belum, task RP-n); keputusan 133–134 (2026-11-23, PATCH 3.9.1); 3.10.0 Group - Playoff fleksibel + batas 32 (keputusan
-  135–154, 2026-11-23), hi-fi 23a–23w + bagan 21* baru.
+  135–156, 2026-11-23), hi-fi 23a–23w + bagan 21* baru.
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, ±400 frame layar 390×844 dan
   lembar gambar (per 2026-11-23) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,9 MB (per
   2026-11-23; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**; baca frame dengan `tool/hifi_frame.py <id>…` (markup + catatan + CSS yang mengenainya).
@@ -140,7 +140,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - PATCH 3.9.1 (keputusan 133–134): label "Playoff", caption Bagikan dipendekkan + hi-fi 11r (v108); rilis 3.9.1+27 live 2026-11-23 (5d2c06e). Sisa: uji caption panjang di WhatsApp (host).
 - 3.10.0 (MINOR) Group - Playoff fleksibel (2/3/4 grup, wildcard, babak awal otomatis, GU9) + batas 32 pemain + nama
   pasangan satu baris (poster, Klasemen) + bagan baru + tab QF/SF: PRD + hi-fi v109 disetujui (keputusan 135–154),
-  branch `grup-playoff-3-10` (2601de5). Berikutnya: perbaiki `hifi_extract.py`, spec + task — `docs/tasks.md` atas.
+  branch `grup-playoff-3-10`; spec + task GP-n + gelombang 0 selesai (8f06416, keputusan 155–156, hi-fi v110).
+  Berikutnya: gelombang 1 (GP-1 ‖ GP-6 ‖ GP-13) — `docs/tasks.md` atas.
 
 ## Area docs
 
