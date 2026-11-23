@@ -2801,7 +2801,7 @@ Satu helper murni + satu widget, dipakai poster **dan** Klasemen (jangan dua sal
 13. Jalur round-robin/Mixed/Mexicano/Sparing tidak berubah selain batas 32 dan nama satu baris; golden yang gagal hanya
     yang tercatat di `docs/tasks.md`.
 
-### 21.13 Pertanyaan terbuka (asumsi berjalan; rekomendasi)
+### 21.13 Pertanyaan terbuka — dijawab host 2026-11-23: no. 1–3 disetujui (keputusan 155), no. 4 selesai di D-1
 
 1. **Tabel PRD 16F dan 16G-akhir masih "Juara"/"Final"**, caption 16.9 "1. Citra + Dewi — Juara"; keputusan 149 dan
    frame 23k menulis "Juara 1"/"Juara 2". Spec mengikuti 149 (21.8). Rekomendasi: product-manager menyelaraskan tabel

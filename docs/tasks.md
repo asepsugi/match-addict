@@ -63,9 +63,13 @@ Usulan qa untuk A15-2/A15-3: tinggi tetap hanya untuk kontrol non-teks (kartu ba
 baris saat sempit, alasan tidak dipotong; header Klasemen `maxLines: 1` + `FittedBox(scaleDown)`; subjudul sheet WO
 mendahulukan "sisa mm:ss"; tab aktif digulir ke tampak. Frame uji A15-2: 06f, 03a + usul 21a, 09a.
 
-**Pertanyaan terbuka (logic.md §21.13):** tabel PRD 16F/16G-akhir masih "Juara"/"Final" (spec ikut keputusan 149); seri
-wildcard tiga kandidat + pilihan grup dan wildcard satu sheet tanpa frame (asumsi 21.5); teks kunci babak sebagian
-berskor (asumsi "QF1–2, QF4 ada skor").
+**Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
+
+**GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari
+relay di `lib/features/live/live_host_controller.dart` ditangani seperti `UnreadableTournamentError`: tanpa timer coba
+ulang, tidak set status menunggu ("Menunggu internet"), kirim lagi hanya saat ada perubahan; `start()` yang kena 413 tidak
+lagi bertoast "Tidak ada internet" bila teksnya tidak cocok → laporkan ke main session (teks baru butuh hi-fi, jangan
+mengarang). Test di `test/services/live/` atau test controller yang ada; tanpa deploy relay.
 
 ---
 

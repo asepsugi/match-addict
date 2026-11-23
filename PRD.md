@@ -1134,6 +1134,17 @@ Pertanyaan terbuka:
      garis babak pertama berwarna sejak awal, garis setelahnya abu sampai pemenang diketahui; palet alur 4 warna dari
      palet court (indeks 1, 4, 2, 6; angka putih ≥ 4,5:1); label kolom babak di Bagan bisa diketuk ke sheet babak juga
      di fase grup; tab Bagan di fase grup boleh baru terlihat setelah strip digeser. Hi-fi 09m, 21*, 23s–23w.
+
+155. **Asumsi spec 3.10.0 disetujui** (2026-11-23, host: "setuju", logic.md §21.13): (1) tabel 16F, 16G-akhir, contoh
+     caption 16.9 ikut keputusan 149 ("Juara 1"/"Juara 2"), bukan keputusan baru; (2) kandidat wildcard seri: host
+     memilih sebanyak slot dari kandidat seri, urutan terpilih = huruf grup; di sheet yang sama bagian wildcard muncul
+     setelah pilihan grup lengkap (tanpa frame baru); (3) alasan kunci babak sebagian berskor ditulis sebagai rentang
+     kode, mis. "QF1–2, QF4 ada skor".
+
+156. **Live yang melewati batas relay** (2026-11-23, host: "setuju", temuan security #5): jawaban 413 dari relay tidak
+     lagi diperlakukan sebagai "Menunggu internet": tanpa coba ulang berkala, kirim lagi hanya saat turnamen berubah,
+     tanpa teks UI baru (teks khusus hanya lewat hi-fi kalau host minta). Batas relay (`MAX_BYTES` 256 KB) tidak
+     dinaikkan di 3.10.0.
 ---
 
 ## 11. Jawaban User (Dasar Keputusan)
@@ -2601,8 +2612,8 @@ Putri 6–4 → B1 Indra · Joko 3–0, B2 Maya · Nanda 2–1, Kiki · Lina 1�
 
 | # | Pasangan | Babak |
 |---|----------|-------|
-| 1 | Citra · Dewi | Juara |
-| 2 | Andi · Budi | Final |
+| 1 | Citra · Dewi | Juara 1 |
+| 2 | Andi · Budi | Juara 2 |
 | 3 | Maya · Nanda | Juara 3 |
 | 4 | Indra · Joko | Semifinal |
 | 5 | Eko · Fajar, Kiki · Lina | Grup A · 3, Grup B · 3 |
@@ -2621,8 +2632,8 @@ Rina 5–4 Citra · Dewi; R16 Final Andi · Budi 6–4 Qori · Rina, Perebutan j
 
 | # | Pasangan | Babak |
 |---|----------|-------|
-| 1 | Andi · Budi | Juara |
-| 2 | Qori · Rina | Final |
+| 1 | Andi · Budi | Juara 1 |
+| 2 | Qori · Rina | Juara 2 |
 | 3 | Maya · Nanda | Juara 3 |
 | 4 | Citra · Dewi | Semifinal |
 | 5 | Kiki · Lina, Sari · Tono, Eko · Fajar, Indra · Joko | Perempat final |
@@ -2646,7 +2657,7 @@ Rina 5–4 Citra · Dewi; R16 Final Andi · Budi 6–4 Qori · Rina, Perebutan j
 | Klasemen toggle (4.2) | Tidak ada di Grup + Gugur (GU8, Q1). Kolom nilai tabel grup = metode default format grup; sejak 3.9.0 Americano → Point % (U-RP6). Sejak 3.10.0 = metode Playoff (G7a), dipakai juga untuk wildcard (keputusan 140). |
 | Detail Pemain (5.8) | Subjudul "Peringkat n · babak · olahraga · Grup + Gugur" (mis. "Peringkat 1 · Juara · Padel · Grup + Gugur"), tanpa metode dan format skor: metode tetap (GU8) dan format beda per babak (22j). Baris statistik = fase grup saja (format bisa beda per babak, poin dan game tidak dijumlah); riwayat semua match dengan nama babak (GU13). |
 | Live score (5.11) | Penonton melihat match gugur sebagai daftar round dengan nama babak, tanpa bagan (keputusan 101); Klasemen grup + peringkat akhir seperti host. Relay tidak berubah. |
-| Bagikan (5.9) | Podium dan Lengkap dari peringkat akhir; aturan podium 64–65, 68–69 tetap. Kolom kanan poster dan baris caption menulis babak, bukan nilai · selisih (GU16, hi-fi 22l–22r, keputusan 103), mis. caption "1. Citra + Dewi — Juara", "5. Eko + Fajar — Grup A · 3". Bagan di poster belum sekarang. |
+| Bagikan (5.9) | Podium dan Lengkap dari peringkat akhir; aturan podium 64–65, 68–69 tetap. Kolom kanan poster dan baris caption menulis babak, bukan nilai · selisih (GU16, hi-fi 22l–22r, keputusan 103), mis. caption "1. Citra + Dewi — Juara 1", "5. Eko + Fajar — Grup A · 3". Bagan di poster belum sekarang. |
 | Kelola court | Tidak ada (sama seperti Fixed). |
 
 **Dialog Akhiri per fase (PATCH 3.8.1, frame 20r dan 21z).** Judul "Akhiri turnamen?", tombol "Batal" / "Akhiri"; isinya:
@@ -2857,7 +2868,7 @@ Keputusan host 2026-11-23: 135–146 di §10 (3.10.0). GU9 tidak lagi ditunda: m
   sebelum menekan Buat bagan (GU6).
 - **Q3.** Juara 1–4 jelas dari bagan; yang belum jelas pasangan sisanya dan apa yang ditulis di barisnya. Rekomendasi:
   kalah perempat final satu nomor bersama, yang tidak lolos dikelompokkan per posisi grup (semua peringkat 3 grup satu
-  nomor, dst.), dan tiap baris menulis babaknya ("Juara", "Semifinal", "Grup A · 3"), bukan poin (GU12, GU16).
+  nomor, dst.), dan tiap baris menulis babaknya ("Juara 1", "Semifinal", "Grup A · 3"), bukan poin (GU12, GU16).
 - **Q4.** Kalau court lebih banyak dari grup (mis. 2 grup, 4 court), aturan "satu grup satu court" membuat court sisa
   menganggur. Rekomendasi: court sisa diberikan ke grup yang paling lama selesai, sehingga satu grup bisa memakai dua
   court tetap miliknya; kalau tidak mempercepat, court itu kosong di fase grup (GU3, 16C).
