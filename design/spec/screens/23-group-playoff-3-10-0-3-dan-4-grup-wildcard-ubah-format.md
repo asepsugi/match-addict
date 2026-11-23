@@ -180,7 +180,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 - Data 20b (16A, R3 berjalan, 5 dari 12 match grup terisi). Tab Bagan ada sejak jadwal dibuat, paling kanan setelah round grup terakhir; round playoff (R7, R8) baru jadi tab setelah Buat bagan (keputusan 153).
 - Slot: SF1 A1–B2, SF2 B1–A2 (G9); Final "Pemenang SF1" / "Pemenang SF2" sudah berwarna, Juara 3 "Kalah SF1" / "Kalah SF2". Kepala kartu menulis round · court dari estimasi (GU10). Ujung tab = 0/4.
-- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (rekomendasi, menunggu konfirmasi host). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
+- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (disetujui host, keputusan 154). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
 - Action bar = Jadwal fase grup di saat itu (20b): "Buat bagan · tunggu 7 match"; semua terisi → "Buat bagan" aktif, konfirmasi mengisi slot dengan pasangan yang lolos (21a).
 
 ## 23t · Bagan · 3 grup · fase grup · semua terisi · slot kode
@@ -189,8 +189,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
 
-- Data 16G pada 23b (semua 18 match grup terisi). Slot 3 grup (G15): QF1 J1–WC1, QF2 #2 grup J2 – #2 grup J3, QF3 J2–WC2, QF4 J3 – #2 grup J1. J1–J3 = urutan juara grup di sheet Buat bagan (23c); huruf grupnya baru pasti setelah dikunci, jadi tidak ditulis. Tukar WC1/WC2 kalau segrup dengan J1 terjadi saat Buat bagan.
-- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (rekomendasi, menunggu konfirmasi host). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
+- Data 16G pada 23b (semua 18 match grup terisi). Slot 3 grup (G15): QF1 J1–WC1, QF2 #2 grup J2 – #2 grup J3, QF3 J2–WC2, QF4 J3 – #2 grup J1. J1–J3 = urutan juara grup di sheet Buat bagan (23c); huruf grupnya baru pasti setelah dikunci, jadi tidak ditulis. Tukar WC1/WC2 kalau WC1 segrup dengan J1 atau WC2 segrup dengan J2 terjadi saat Buat bagan.
+- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (disetujui host, keputusan 154). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
 - "Buat bagan" → sheet 23c → dialog 23d → Jadwal terbuka di tab Bagan berisi nama (23h). Kolom slot tetap 28 pt sampai ada wildcard bernama ("WC2 · B3", 23h).
 
 ## 23u · Bagan · 4 grup × 4 · fase grup · baru dibuat
@@ -200,7 +200,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ro
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `RoundTabs`
 
 - 32 pemain, 4 grup × 4, 2 court, 15 mnt (23a/23i): jadwal baru dibuat, R1 berjalan, 0 dari 24 match grup. Slot silang G9: QF1 A1–B2, QF2 C1–D2, QF3 B1–A2, QF4 D1–C2.
-- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (rekomendasi, menunggu konfirmasi host). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
+- Sebelum Buat bagan slot hanya berisi kode, tanpa nama dari Klasemen sementara (disetujui host, keputusan 154). Kartu tidak bisa diketuk; label kolom tetap membuka sheet format babak (23o).
 - Tab strip menempel di ujung kanan (Bagan dipilih), tepi kiri dipudarkan; round grup terkunci bergembok seperti 20a.
 
 ## 23v · Bagan · 3 grup · Semifinal berjalan · digeser ke Semifinal

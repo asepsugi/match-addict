@@ -42,6 +42,27 @@ fixture bersama hanya dibaca, `bagan_view.dart` hanya GP-9, `standing_table.dart
 23h, 23i, 23s–23w (GP-9), 23j–23l (GP-11). Test lama yang memang berubah (AC-G29, AC-B8): batas 6/12 pasangan di
 Konfigurasi dan batas 30/31 pemain — diganti, bukan dilonggarkan. Selain itu semua test/golden 3.9.x harus tetap lolos.
 
+**Syarat dari GP-0 (security, `docs/security.md` W2–W4):** GP-2 mengekspor fungsi murni topologi QF 3 grup yang
+dipakai `build` *dan* validator GR19 GP-4 (jangan dua salinan aturan tukar); GP-4 menambah `decodableGroupCounts(P > 16)
+= []` + test P = 17 dan test properti `canEncode`/round-trip 36 kombinasi × `WildcardPick` × ubah format (GP-5).
+
+**Hasil A15-1 (2026-11-23, qa; 1,0 tanpa exception di semua frame; viewport 390×844, overflow di dalam scroll tidak
+tertangkap; 23b belum punya test):**
+
+| Layar | Elemen | 1,15 | 1,3 | Sumber |
+|---|---|---|---|---|
+| 21a/21d Bagan | kartu match `height: 46`, nama dua baris | aman | **overflow 1 px** (4× 21a, 6× 21d), nama keluar kartu; "Pemenang …" elipsis | `bagan_view.dart:450,489` — kartu dirombak GP-9 (satu baris), ukur ulang di sana |
+| 06f/06h/06u, 20b | tombol tunggu "Buat R… · tunggu N match" (meta `Flexible` + elipsis) | "· tunggu 1 …" | angka match hilang | `mabar_controls.dart:94-105`, `schedule_mixed_screen.dart:222`, `schedule_fixed_screen.dart:266` |
+| 09a/09h Klasemen | header "Main"/"Point %" pecah dua baris; nama dua baris (12 → 19 nama) | pecah | pecah + kolom rapat | `standing_table.dart:84-87` (GP-6 menyentuh berkas ini) |
+| 07j sheet WO | subjudul "Round 3 · Americano 21 · sisa 01:20" | aman | "sisa 01…" | `score_input_screen.dart:159` |
+| 07j sheet WO | chip alasan | aman | "Lainnya" turun baris (wajar) | `walkover_sheet.dart` |
+| 06a, 21a | strip tab: tab ujung terpotong ("emifinal", R5 tinggal ikon) | aman | terpotong | `round_tabs.dart` (tinggi tab ikut tumbuh 39 → 45, aman) |
+| 03a, 07a, MatchScoreRow | — | aman | aman | — |
+
+Usulan qa untuk A15-2/A15-3: tinggi tetap hanya untuk kontrol non-teks (kartu bagan `minHeight`); tombol tunggu dua
+baris saat sempit, alasan tidak dipotong; header Klasemen `maxLines: 1` + `FittedBox(scaleDown)`; subjudul sheet WO
+mendahulukan "sisa mm:ss"; tab aktif digulir ke tampak. Frame uji A15-2: 06f, 03a + usul 21a, 09a.
+
 **Pertanyaan terbuka (logic.md §21.13):** tabel PRD 16F/16G-akhir masih "Juara"/"Final" (spec ikut keputusan 149); seri
 wildcard tiga kandidat + pilihan grup dan wildcard satu sheet tanpa frame (asumsi 21.5); teks kunci babak sebagian
 berskor (asumsi "QF1–2, QF4 ada skor").
