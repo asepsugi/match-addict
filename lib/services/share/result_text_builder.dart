@@ -14,8 +14,36 @@ extension ShareFormatX on ShareFormat {
   };
 }
 
+/// Caption yang ikut gambar + teks lengkap. [shortened] = caption dipendekkan, jadi teks lengkap disalin
+/// terpisah (keputusan 134).
+typedef ShareCaption = ({String attached, String full, bool shortened});
+
 /// Menyusun teks hasil turnamen untuk dibagikan ke WhatsApp/Telegram/clipboard.
 class ResultTextBuilder {
+  /// WhatsApp memotong caption gambar di 1024 karakter (terukur 2026-11-23: teks Lengkap terpotong tepat di situ).
+  static const mediaCaptionLimit = 1024;
+
+  /// Caption untuk share sheet bersama gambar (keputusan 134): teks [format] apa adanya kalau muat
+  /// [mediaCaptionLimit]; kalau tidak, teks tanpa "Hasil per Round"; kalau masih tidak muat, kepala (baris 🏆 +
+  /// tanggal) + baris ringkasan. Teks lengkap tetap [ShareCaption.full] untuk clipboard.
+  static ShareCaption forShare({
+    required ActiveTournament active,
+    required List<StandingEntry> standings,
+    required ShareFormat format,
+    required DateTime now,
+    required RankingMethod method,
+    List<ClubStandings> clubStandings = const [],
+  }) {
+    String text(ShareFormat f) =>
+        build(active: active, standings: standings, format: f, now: now, method: method, clubStandings: clubStandings);
+    final full = text(format);
+    if (full.length <= mediaCaptionLimit) return (attached: full, full: full, shortened: false);
+    final standingsOnly = format == ShareFormat.lengkap ? text(ShareFormat.ringkas) : full;
+    if (standingsOnly.length <= mediaCaptionLimit) return (attached: standingsOnly, full: full, shortened: true);
+    final head = full.substring(0, full.indexOf('\n\n'));
+    return (attached: '$head\n\n${summaryLine(active)}', full: full, shortened: true);
+  }
+
   /// [standings] = `standingEntriesProvider`, jadi nomornya sama dengan Klasemen (seri di semua tie-break →
   /// nomor sama; yang belum main tanpa nomor).
   ///

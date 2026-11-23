@@ -424,6 +424,11 @@ Frame di hi-fi adalah kriteria selesai. Ringkasannya:
   keputusan 117, mengganti aturan 2026-10-22 "caption disalin + toast Hasil disalin"): kedua PNG diunduh, caption
   disalin, toast "Gambar diunduh · hasil disalin"; tanpa tombol baru. Share sheet ditutup tanpa memilih → tidak ada
   apa-apa; gambar gagal dibuat → hanya caption + "Hasil disalin" (17.10).
+- Caption lebih dari 1024 karakter (sejak 3.9.1, keputusan 134, hi-fi 11r): WhatsApp memotong caption gambar di 1024.
+  Gambar dikirim dengan caption yang muat: tanpa "Hasil per Round"; kalau Klasemen saja masih lebih dari 1024, hanya
+  baris 🏆 + tanggal + baris ringkasan. Teks lengkap disalin ke clipboard sebelum share sheet dibuka; setelah share sheet
+  kembali, toast "Hasil lengkap disalin". Caption yang muat tidak berubah, tanpa toast. Gagal share / gambar gagal dibuat
+  tetap menyalin teks lengkap.
 - Kepala poster (Ringkas dan Lengkap): tanpa nama → judul "Klasemen akhir|sementara" + baris kecil "olahraga · mode ·
   tanggal"; bernama → judul = nama (maks dua baris) + baris kecil "Klasemen akhir|sementara · tanggal", olahraga pindah
   ke depan baris fakta. Caption dibuka "🏆 {nama} · Padel" (tanpa nama "🏆 Match Addict · Padel").
@@ -900,7 +905,7 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
      menjadi "Group - Playoff""): pilihan format turnamen di Konfigurasi (`.seg` Round-robin / Group - Playoff, 19a).
      Dikonfirmasi host 2026-11-20 ("setuju"): (a) nama format di semua tempat yang menampilkannya ikut (subjudul Detail,
      judul/subjudul Klasemen, label mode di poster/caption, Beranda/dialog C-4 22s–22u); (b) label baris "Fase grup"/
-     "Gugur" dan nama babak tidak berubah; (c) ditulis persis "Group - Playoff" (strip biasa berspasi), dicatat di aturan
+     "Gugur" dan nama babak tidak berubah (label "Gugur" diganti keputusan 133); (c) ditulis persis "Group - Playoff" (strip biasa berspasi), dicatat di aturan
      pemisah B-22. Nama fitur di dokumen internal (§16, GU-n, nama kelas) tetap "Grup + Gugur". Teks saja, perilaku
      tetap (level 0, ikut 3.9.0, jalur GL).
 128. **Frame P4 KS-4 disetujui, 9 rekomendasi** (2026-11-20, host: "setuju"): (1) B-7 nama Mixed panjang dua baris
@@ -933,6 +938,16 @@ pemainnya tidak ada, 10c). Input Skor (match tidak ada) dan Jadwal Mixed (belum 
      otomatis 10 detik tetap jalan; frame baru **12r** saat mencoba lagi (tombol mati + bola berputar, paling sedikit 1
      detik, gagal → 12p tanpa toast); 17s/17t pratinjau + Diganti tetap, hanya kandidat digulir, Batal/Tukar di footer
      menempel; **17d** (6 kandidat, muat tanpa gulir) tidak digambar ulang.
+133. **Label "Gugur" → "Playoff"** (2026-11-23, host: "menyisakan label "gugur" di halaman konfigurasi", rekomendasi
+     "Playoff" disetujui: "setuju"): **mengubah 127(b)**. Konfigurasi: baris "Playoff" di bawah "Fase grup" dan judul
+     sheet "Playoff" (19b–19l); subjudul Klasemen selama babak gugur "Padel · Playoff · Sementara · R7 · …" (22d, 22e).
+     "Fase grup" dan nama babak (Semifinal, Perebutan juara 3, Final, Juara 3) tetap. Nama fitur di dokumen internal
+     tetap "Grup + Gugur". Teks saja (level 0), PATCH 3.9.1.
+134. **Caption Bagikan lebih dari 1024 karakter** (2026-11-23, host: "periksa juga detail share nya sepertinya ada yang
+     terpotong", rekomendasi disetujui: "setuju"): teks yang sampai di WhatsApp terpotong tepat di 1024 karakter (batas
+     caption gambar WhatsApp; teks yang disusun app utuh). Aturan 5.9: caption yang dilampirkan dipendekkan (tanpa "Hasil
+     per Round", lalu kepala + ringkasan), teks lengkap disalin + toast "Hasil lengkap disalin" (hi-fi 11r). Level 2,
+     PATCH 3.9.1.
 
 ---
 

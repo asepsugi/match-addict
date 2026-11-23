@@ -186,6 +186,17 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Toast 19 pt di atas action bar dua tombol (bawah 180 pt), sama dengan 11c.
 - Android/iOS app yang tidak bisa menyimpan gambar tanpa izin atau dependensi baru: share sheet gagal → frame ini juga.
 
+## 11r · Caption lebih dari 1024 karakter · hasil lengkap disalin
+
+![11r](../../frames/11r.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarToast`, `SharePoster`
+
+- Share sheet berhasil dibuka, tapi caption lebih dari 1024 karakter: WhatsApp memotong caption gambar tepat di situ (keputusan 134, PRD 5.9). Gambar dikirim dengan caption yang muat: tanpa "Hasil per Round"; kalau Klasemen saja masih lebih dari 1024, hanya baris 🏆 + tanggal + baris ringkasan. Teks lengkap disalin ke clipboard sebelum share sheet dibuka, untuk ditempel sebagai pesan kedua.
+- Setelah share sheet kembali: toast "Hasil lengkap disalin" 19 pt di atas action bar dua tombol (bawah 180 pt), sama dengan 11c. Caption yang muat 1024 → tidak berubah, tanpa toast.
+- Latar = 11b persis (Lengkap Fixed 10 pasangan, 45 match); hanya toast yang beda. Ringkas yang lebih dari 1024 (Klasemen panjang) memakai toast yang sama.
+- Gagal share (11c) dan gambar gagal dibuat (11n) tetap menyalin teks lengkap dengan toast-nya masing-masing.
+
 ## 11o · Gambar Ringkas · Point % · Feed dan Story (skala 1:3) · data 18A
 
 ![11o](../../frames/11o.png)

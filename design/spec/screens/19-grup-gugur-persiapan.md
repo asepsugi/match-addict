@@ -20,9 +20,9 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `ModePicker`
 
-- Grup + Gugur mengganti label "Skor" dengan dua baris nilai: **Fase grup** (jumlah grup · format grup · durasi) dan **Gugur** (format babak gugur). Ketuk → sheet 19c/19d dan 19e/19j. Layar tetap muat tanpa digulir (keputusan 33).
-- Jumlah grup default 2. Format babak gugur default = format grup (GU9); selama host belum mengubah satu babak, babak itu ikut format grup (asumsi). Perebutan juara 3 default ada (keputusan 100), jadi baris Gugur tidak menulisnya; hanya kalau dimatikan baris menulis "tanpa Juara 3" (19g).
-- Baris Gugur meringkas semua babak: sama semua → "Race to 6"; format sama, N beda → rentang "Race to 4–9" (pola "1–2 jam" di 03h); format beda → "Race to / Best of".
+- Grup + Gugur mengganti label "Skor" dengan dua baris nilai: **Fase grup** (jumlah grup · format grup · durasi) dan **Playoff** (format babak gugur). Ketuk → sheet 19c/19d dan 19e/19j. Layar tetap muat tanpa digulir (keputusan 33).
+- Jumlah grup default 2. Format babak gugur default = format grup (GU9); selama host belum mengubah satu babak, babak itu ikut format grup (asumsi). Perebutan juara 3 default ada (keputusan 100), jadi baris Playoff tidak menulisnya; hanya kalau dimatikan baris menulis "tanpa Juara 3" (19g).
+- Baris Playoff meringkas semua babak: sama semua → "Race to 6"; format sama, N beda → rentang "Race to 4–9" (pola "1–2 jam" di 03h); format beda → "Race to / Best of".
 - Estimasi pasti (keputusan 19, PRD 16.2), tanpa "±": contoh 16A, 16 pemain = 8 pasangan → Grup A dan B masing-masing 4 pasangan, 6 match di Court 1 dan Court 2 → R1–R6; R7 SF1 + SF2; R8 Final + Perebutan juara 3. 8 round × 15 menit = 120 menit = booking, tidak lewat. Match: 6 + 6 + 2 + 1 + 1 = 16.
 - Lanjut → Pasangan dibuka Manual (19m).
 
@@ -47,23 +47,23 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Contoh 16B (Tennis, 20 menit, 2 court × 3 jam): 4 grup × 3 pasangan → Court 1 A/C bergantian, Court 2 B/D → R1–R6; R7–R8 Perempat final; R9 Semifinal; R10 Final + Perebutan juara 3. 10 × 20 = 200 menit > 180 → "lewat booking 00:20" (format 14f: round + kelebihan, tanpa jumlah match).
 - Kembali ke 2 grup → 6 + 6 pasangan, estimasi ikut berubah.
 
-## 19e · Sheet Gugur · 2 grup · format per babak
+## 19e · Sheet Playoff · 2 grup · format per babak
 
 ![19e](../../frames/19e.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `showMabarSheet`, `ModePicker`
 
 - Satu baris per babak, urut main: (Perempat final), Semifinal, Perebutan juara 3, Final (keputusan 99, GU1). 2 grup → tiga baris; 4 grup → empat (19j). Ketuk baris → sheet babak di atasnya (19f, 19g).
-- Contoh 16A: Semifinal Race to 6, Perebutan juara 3 Race to 4, Final Race to 9 → baris Gugur di layar "Race to 4–9".
+- Contoh 16A: Semifinal Race to 6, Perebutan juara 3 Race to 4, Final Race to 9 → baris Playoff di layar "Race to 4–9".
 - Sheet jenis kelola, tanpa footer. Format babak dan Perebutan juara 3 hanya diatur di sini; mengubahnya setelah jadwal dibuat ditunda ke 3.10.0 (keputusan 104, 120).
 
-## 19f · Sheet Final · di atas sheet Gugur
+## 19f · Sheet Final · di atas sheet Playoff
 
 ![19f](../../frames/19f.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `showMabarSheet`, `ModePicker`
 
-- Sheet babak = isi sheet Skor 03d tanpa durasi: segmented Race to / Best of / Americano + angka. Ditumpuk di atas sheet Gugur dengan scrim kedua, seperti sheet warna 03k. Tutup → kembali ke sheet Gugur dengan baris yang sudah berubah.
+- Sheet babak = isi sheet Skor 03d tanpa durasi: segmented Race to / Best of / Americano + angka. Ditumpuk di atas sheet Playoff dengan scrim kedua, seperti sheet warna 03k. Tutup → kembali ke sheet Playoff dengan baris yang sudah berubah.
 - Race to 9 = batas atas Race to (2–9), jadi + mati. Race to selalu menghasilkan pemenang, jadi semua N boleh.
 
 ## 19g · Sheet Perebutan juara 3 · Tidak ada
@@ -73,7 +73,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `showMabarSheet`, `ModePicker`
 
 - Sheet Perebutan juara 3 punya satu baris tambahan di atas: segmented "Ada / Tidak ada" (keputusan 100, default Ada). Tidak ada → format babak disembunyikan; Ada lagi → format terakhirnya (Race to 4) kembali.
-- Baris di sheet Gugur menulis "Tidak ada"; baris Gugur di layar menulis "Race to 6–9 · tanpa Juara 3" (rentang hanya dari babak yang dimainkan).
+- Baris di sheet Playoff menulis "Tidak ada"; baris Playoff di layar menulis "Race to 6–9 · tanpa Juara 3" (rentang hanya dari babak yang dimainkan).
 - Estimasi: R7 SF1 + SF2, R8 Final saja → tetap 8 round, match 16 → 15. Dengan 1 court juara 3 menghemat satu round (16 → 15).
 - Akibat di podium (tanpa juara 3 = dua pasangan #3, AC-G18) tidak ditulis di sini; terlihat di Klasemen dan Bagikan.
 
@@ -97,7 +97,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Lewat booking tidak mematikan tombol, sama dengan Fixed sparing 14f: host menghentikan lewat Akhiri. Tombol menulis round + kelebihan saja; jumlah match (12 + 4 + 2 + 1 + 1 = 20) tidak ditulis.
 - 22 pemain (11 pasangan) → sheet Fase grup tanpa pilihan 4 grup (19c); turnamen terakhir 4 grup lalu pemain turun di bawah 24 → terisi 2 grup (asumsi).
 
-## 19j · Sheet Gugur · 4 grup
+## 19j · Sheet Playoff · 4 grup
 
 ![19j](../../frames/19j.png)
 

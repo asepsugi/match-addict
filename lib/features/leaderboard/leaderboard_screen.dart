@@ -24,13 +24,13 @@ String rankingStatus(ActiveTournament active, DateTime now) => active.isFinal(no
     ? 'Final · ${active.playedRoundCount} round · ${active.playedMatchCount} match'
     : 'Sementara · R${active.currentRound} · ${active.playedMatchCount} dari ${active.matches.length} match';
 
-/// Mode di subjudul Klasemen. Grup + Gugur menulis fase yang berjalan selama Sementara ("Fase grup", "Gugur") dan
+/// Mode di subjudul Klasemen. Grup + Gugur menulis fase yang berjalan selama Sementara ("Fase grup", "Playoff" keputusan 133) dan
 /// "Grup + Gugur" setelah Final (20d, 22a, 22d); mode lain tetap `mode.label`.
 String rankingModeLabel(ActiveTournament active, DateTime now) {
   final config = active.config;
   if (!config.isGroupKnockout) return config.mode.label;
   if (active.isFinal(now)) return 'Group - Playoff';
-  return active.hasBracket ? 'Gugur' : 'Fase grup';
+  return active.hasBracket ? 'Playoff' : 'Fase grup';
 }
 
 /// Tab Klasemen Grup + Gugur setelah bagan dibuat atau turnamen diakhiri (22a, 22b, 22g).

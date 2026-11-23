@@ -44,7 +44,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
 - Tepat setelah Buat bagan (20g → 21a): keempat pasangan masih di Semifinal tanpa hasil → satu tingkat di atas yang kalah Semifinal, bernomor sama #1 (16.8), urut nama. Posisi grup 3 dan 4 di bawahnya.
-- Subjudul pola 20d dengan fase "Gugur"; jumlah match = semua match di Jadwal (12 grup + 4 gugur yang ditambahkan Buat bagan).
+- Subjudul pola 20d dengan fase "Playoff"; jumlah match = semua match di Jadwal (12 grup + 4 gugur yang ditambahkan Buat bagan).
 - Klasemen dibuka dari tombol ikon Klasemen di Jadwal; tab Peringkat terbuka pertama.
 
 ## 22e · Klasemen · Peringkat · SF1 terisi · Sementara

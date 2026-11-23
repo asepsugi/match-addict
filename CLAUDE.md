@@ -15,9 +15,9 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   2026-11-12), hi-fi 17a–17r; §5.9 Poster podium Bagikan (keputusan 60–74, 2026-11-12…13), hi-fi 18a–18t; §16 Grup + Gugur
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r; §17 Kosongkan skor / Hapus WO + perilaku kecil (keputusan 113–121,
   2026-11-18; keputusan 127–128 2026-11-20; task KS-n di `docs/tasks.md`); §18 Point % (keputusan 122–126, 129,
-  2026-11-20; hi-fi belum, task RP-n).
-- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 374 frame layar 390×844 dan
-  lembar gambar (per 2026-11-22) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,7 MB (per
+  2026-11-20; hi-fi belum, task RP-n); keputusan 133–134 (2026-11-23, PATCH 3.9.1).
+- `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, 375 frame layar 390×844 dan
+  lembar gambar (per 2026-11-23) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,7 MB (per
   2026-11-22; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**; baca frame dengan `tool/hifi_frame.py <id>…` (markup + catatan + CSS yang mengenainya).
   Desainer dan engineer hanya membaca, merender, dan menguji frame yang berubah (`--changed-since=<base> --tests`,
   render inkremental `tool/hifi_extract.py`) — `docs/ui-v2.md`.
@@ -95,7 +95,7 @@ Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point)
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
 sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini"; 3.7.1 (PATCH) = lantai poster
 lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed); 3.8.1 (PATCH) = review UX hi-fi (kontras, area ketuk 48 + Semantics, teks); 3.9.0 (MINOR) = Kosongkan skor / Hapus
-WO + Point % + "Group - Playoff".
+WO + Point % + "Group - Playoff". 3.9.1 (PATCH) = label "Gugur" → "Playoff" + caption Bagikan > 1024 dipendekkan (keputusan 133–134).
 
 ## Status
 
@@ -136,6 +136,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - 3.9.0 (MINOR) Kosongkan skor / Hapus WO (P7) + P5 (A-8, A-9, B-10, B-21) + C-17 + P6 visual + P4 frame + Point %
   (PRD §17–18, keputusan 113–132, hi-fi v107) + label "Group - Playoff" (keputusan 127): kode selesai di branch
   `fitur-3-9-0`; rilis 3.9.0+26 live 2026-11-22 (c8671c9, bersama 3.8.1). Sisa: uji Bagikan di Safari (host). 3.10.0 = GU9 + A-15.
+- PATCH 3.9.1 (keputusan 133–134): label "Playoff", caption Bagikan dipendekkan + hi-fi 11r; branch `patch-3-9-1`.
 
 ## Area docs
 

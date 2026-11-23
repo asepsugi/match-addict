@@ -24,7 +24,8 @@ import 'share_theme.dart';
 import 'widgets/podium_poster.dart';
 import 'widgets/share_poster.dart';
 
-/// Hasil [runShare]: [done] = share sheet menangani (sukses, ditutup, atau `unavailable` di web) → tanpa toast;
+/// Hasil [runShare]: [done] = share sheet menangani (sukses, ditutup, atau `unavailable` di web) → tanpa toast, kecuali
+/// caption dipendekkan ("Hasil lengkap disalin", 11r);
 /// [downloaded] = gambar diunduh; [captionOnly] = hanya caption yang disalin.
 enum ShareOutcome { done, downloaded, captionOnly }
 
@@ -57,7 +58,10 @@ class ShareHooks {
   final Future<XFile> Function(ShareImage image)? render;
   final Future<bool> Function(List<XFile> files)? download;
 
-  const ShareHooks({this.render, this.download});
+  /// Share sheet palsu (11r): menerima gambar + caption yang dilampirkan.
+  final Future<Object?> Function(List<XFile> files, String caption)? share;
+
+  const ShareHooks({this.render, this.download, this.share});
 }
 
 /// Screen 11 · Bagikan — kartu pratinjau, tema, Ringkas/Lengkap; dua gambar (Feed 1:1, Story 9:16)
@@ -95,7 +99,7 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
   Future<void> _share(ActiveTournament active, List<ShareImage> images) async {
     if (_sharing) return;
     setState(() => _sharing = true);
-    final caption = ResultTextBuilder.build(
+    final caption = ResultTextBuilder.forShare(
       active: active,
       standings: ref.read(standingEntriesProvider),
       format: _format,
@@ -105,25 +109,28 @@ class _ShareResultScreenState extends ConsumerState<ShareResultScreen> {
     );
     final outcome = await runShare(
       render: () async => [for (final image in images) await (widget.hooks.render ?? _render)(image)],
-      share: (files) {
+      share: (files) async {
+        // Caption dipendekkan (keputusan 134): teks lengkap disalin sebelum share sheet dibuka, supaya sudah siap
+        // ditempel sebagai pesan kedua begitu sampai di WhatsApp.
+        if (caption.shortened) await Clipboard.setData(ClipboardData(text: caption.full));
+        if (widget.hooks.share case final share?) return share(files, caption.attached);
         // Tanpa ini share_plus web mengunduh sendiri lalu diam-diam "berhasil" tanpa caption (jebakan PM #6).
         Share.downloadFallbackEnabled = false;
-        return Share.shareXFiles(files, text: caption);
+        return Share.shareXFiles(files, text: caption.attached);
       },
       download: widget.hooks.download ?? downloadShareFiles,
     );
     try {
-      if (outcome != ShareOutcome.done) {
-        await Clipboard.setData(ClipboardData(text: caption));
-        if (mounted) {
-          // Action bar Bagikan dua tombol: toast tetap 19 pt di atasnya, tidak menutupi "Bagikan hasil".
-          final bar = _actionBar.currentContext?.size?.height;
-          showMabarToast(
-            context,
-            outcome == ShareOutcome.downloaded ? 'Gambar diunduh · hasil disalin' : 'Hasil disalin',
-            bottom: bar == null ? null : bar + 19,
-          );
-        }
+      final toast = switch (outcome) {
+        ShareOutcome.done => caption.shortened ? 'Hasil lengkap disalin' : null,
+        ShareOutcome.downloaded => 'Gambar diunduh · hasil disalin',
+        ShareOutcome.captionOnly => 'Hasil disalin',
+      };
+      if (outcome != ShareOutcome.done) await Clipboard.setData(ClipboardData(text: caption.full));
+      if (toast != null && mounted) {
+        // Action bar Bagikan dua tombol: toast tetap 19 pt di atasnya, tidak menutupi "Bagikan hasil".
+        final bar = _actionBar.currentContext?.size?.height;
+        showMabarToast(context, toast, bottom: bar == null ? null : bar + 19);
       }
     } finally {
       if (mounted) setState(() => _sharing = false);

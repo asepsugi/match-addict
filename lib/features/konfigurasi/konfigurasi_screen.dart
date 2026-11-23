@@ -556,7 +556,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                       const SizedBox(height: 12),
                       MabarSection(
                         bodyGap: 12,
-                        header: const MabarGroupLabel('Gugur'),
+                        header: const MabarGroupLabel('Playoff'),
                         child: _summaryRow(
                           Text(
                             ConfigSummary.knockout({
@@ -566,7 +566,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          () => _openSheet('Gugur', _knockoutGroup, showNote: false),
+                          () => _openSheet('Playoff', _knockoutGroup, showNote: false),
                         ),
                       ),
                     ],

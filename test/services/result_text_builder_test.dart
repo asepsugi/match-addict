@@ -144,6 +144,72 @@ void main() {
     });
   });
 
+  // Keputusan 134: WhatsApp memotong caption gambar di 1024 karakter.
+  group('ResultTextBuilder.forShare', () {
+    final now = DateTime(2026, 9, 14, 1);
+    final many = [
+      for (var r = 1; r <= 40; r++) _match(status: MatchStatus.done, sets: const [SetScore(side1: 6, side2: 4)], round: r),
+    ];
+    final active = ActiveTournament(tournament: _tournament(many));
+    final standings = standingEntries(
+      standings: RankingCalculator.rank(
+        players: _players,
+        matches: many,
+        method: RankingMethod.winPercent,
+        format: active.config.format,
+      ),
+      method: RankingMethod.winPercent,
+    );
+    ShareCaption of(ShareFormat format, [List<StandingEntry>? rows]) => ResultTextBuilder.forShare(
+      active: active,
+      standings: rows ?? standings,
+      format: format,
+      now: now,
+      method: RankingMethod.winPercent,
+    );
+    String build(ShareFormat format) => ResultTextBuilder.build(
+      active: active,
+      standings: standings,
+      format: format,
+      now: now,
+      method: RankingMethod.winPercent,
+    );
+
+    test('muat 1024: caption apa adanya, tidak dipendekkan', () {
+      final c = of(ShareFormat.ringkas);
+      expect(c.shortened, isFalse);
+      expect(c.attached, c.full);
+      expect(c.full, build(ShareFormat.ringkas));
+    });
+
+    test('Lengkap > 1024: lampiran tanpa Hasil per Round, teks lengkap tetap utuh', () {
+      final c = of(ShareFormat.lengkap);
+      expect(c.full, build(ShareFormat.lengkap));
+      expect(c.full.length, greaterThan(ResultTextBuilder.mediaCaptionLimit));
+      expect(c.shortened, isTrue);
+      expect(c.attached, build(ShareFormat.ringkas));
+      expect(c.attached, isNot(contains('Hasil per Round')));
+    });
+
+    test('Klasemen saja > 1024: kepala + ringkasan', () {
+      final rows = [
+        for (var i = 0; i < 30; i++)
+          () {
+            final p = Player(id: 'x$i', name: 'Pemain Bernama Sangat Panjang $i');
+            return StandingEntry(
+              players: [p],
+              standing: PlayerStanding(player: p, wins: 1, gamesWon: 10, gamesLost: 5),
+              position: i + 1,
+            );
+          }(),
+      ];
+      final c = of(ShareFormat.ringkas, rows);
+      expect(c.full.length, greaterThan(ResultTextBuilder.mediaCaptionLimit));
+      expect(c.shortened, isTrue);
+      expect(c.attached, '🏆 Match Addict · Padel\n14 September 2026\n\n40 round · 40 match · 14 Sep 2026');
+    });
+  });
+
   // Grup + Gugur (PRD 16E/16F): baris Hasil per Round berlabel babak; sisi belum diketahui = sumbernya (keputusan 106).
   group('Grup + Gugur', () {
     setUpAll(() => initializeDateFormatting('id'));

@@ -549,6 +549,39 @@ void main() {
     await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
   });
 
+  testWidgets('11r caption Lengkap > 1024: lampiran tanpa Hasil per Round, teks lengkap disalin (K134)', (tester) async {
+    await precacheHifiAssets(tester, [SportType.tennis.assetPath]);
+    String? copied, attached;
+    mockClipboard(tester, (text) => copied = text);
+    await expectMatchesHifi(
+      tester,
+      screen(
+        fixed20(),
+        hooks: ShareHooks(
+          share: (files, caption) async {
+            attached = caption;
+            return null;
+          },
+        ),
+      ),
+      '11r',
+      act: (tester) async {
+        await tester.tap(find.bySemanticsLabel('Tema ${ShareTheme.peach.name}'));
+        await tester.pump();
+        await lengkap(tester);
+        await tester.pump();
+        await tester.tap(find.text('Bagikan hasil').last);
+        await tester.pump();
+        await untilCopied(tester, 'Hasil lengkap disalin');
+      },
+    );
+    expect(attached, isNot(contains('Hasil per Round')));
+    expect(attached!.length, lessThanOrEqualTo(1024));
+    expect(copied, contains('Hasil per Round'));
+    expect(copied, contains(attached!.split('\n\n').first));
+    await tester.pump(const Duration(seconds: 3));
+  });
+
   testWidgets('11n gambar gagal dibuat: caption disalin + "Hasil disalin", tanpa unduhan', (tester) async {
     await precacheHifiAssets(tester, [SportType.padel.assetPath]);
     var downloads = 0;

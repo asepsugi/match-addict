@@ -120,7 +120,7 @@ void main() {
       expect(row('4 grup · Race to 6 · 20 menit'), findsOneWidget);
     });
 
-    testWidgets('19e sheet Gugur · 2 grup · format per babak', (tester) async {
+    testWidgets('19e sheet Playoff · 2 grup · format per babak', (tester) async {
       await expectMatchesHifi(
         tester,
         screen(SportType.padel, 16),
@@ -214,7 +214,7 @@ void main() {
       expect(button(tester).onPressed, isNotNull);
     });
 
-    testWidgets('19j sheet Gugur · 4 grup', (tester) async {
+    testWidgets('19j sheet Playoff · 4 grup', (tester) async {
       await expectMatchesHifi(
         tester,
         screen(SportType.tennis, 24),

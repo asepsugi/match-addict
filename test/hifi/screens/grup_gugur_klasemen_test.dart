@@ -129,7 +129,7 @@ void main() {
 
   testWidgets('22d bagan baru dibuat: empat Semifinal #1', (tester) async {
     await expectMatchesHifi(tester, screen(gg21a(), at21b), '22d');
-    expect(find.text('Padel · Gugur · Sementara · R7 · 12 dari 16 match'), findsOneWidget);
+    expect(find.text('Padel · Playoff · Sementara · R7 · 12 dari 16 match'), findsOneWidget);
     expect([for (final r in rows(tester)) r.$1], [1, 1, 1, 1, 2, 2, 3, 3]);
   });
 

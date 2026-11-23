@@ -410,6 +410,18 @@ const posterRows = <(String, int), List<SharePosterRow>>{
     SharePosterRow(position: 2, names: ['Sari Dewi'], value: '9', diff: '−3'),
     SharePosterRow(position: 2, names: ['Dewant Rahman'], value: '9', diff: '−3'),
   ],
+  ('11r', 0): [
+    SharePosterRow(position: 1, names: ['Indra Wijaya', 'Joko Susilo'], value: '52', detail: 'game', diff: '+18'),
+    SharePosterRow(position: 2, names: ['Kiki Amalia', 'Lina Marlina'], value: '49', detail: 'game', diff: '+16'),
+    SharePosterRow(position: 3, names: ['Oki Setiawan', 'Putri Anggraini'], value: '46', detail: 'game', diff: '+10'),
+    SharePosterRow(position: 4, names: ['Andi Pratama', 'Budi Santoso'], value: '45', detail: 'game', diff: '+9'),
+    SharePosterRow(position: 5, names: ['Eko Mulyadi', 'Fajar Kurnia'], value: '43', detail: 'game', diff: '+7'),
+    SharePosterRow(position: 6, names: ['Citra Lestari', 'Dewant Rahman'], value: '41', detail: 'game', diff: '+3'),
+    SharePosterRow(position: 7, names: ['Maya Putri', 'Nanda Rizki'], value: '34', detail: 'game', diff: '−9'),
+    SharePosterRow(position: 8, names: ['Rizky Hidayat', 'Sari Dewi'], value: '34', detail: 'game', diff: '−10'),
+    SharePosterRow(position: 9, names: ['Tono Basuki', 'Umar Faruq'], value: '33', detail: 'game', diff: '−14'),
+    SharePosterRow(position: 10, names: ['Gina Rosalia', 'Hana Taslim'], value: '24', detail: 'game', diff: '−30'),
+  ],
   ('11p', 0): [
     SharePosterRow(position: 1, names: ['Budi'], value: '57%', detail: 'poin', diff: '+9'),
     SharePosterRow(position: 2, names: ['Dewi'], value: '52%', detail: 'poin', diff: '+3'),
