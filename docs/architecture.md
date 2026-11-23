@@ -184,9 +184,12 @@ juara 3 **setelah** jadwal dibuat (GU9) ditunda ke 3.8.x: tidak ada kodenya.
   match bersisi tbd tidak bisa diisi dan hanya boleh pending/cancelled, jadi ranking/`PlayerProfile` (hanya done/WO) aman;
   (3) gugur selalu punya pemenang (skor seri ditolak); (4) ganti pemenang gugur: `flipCheck` **sebelum** mutasi
   (`FlipBlocked` kalau babak berikutnya sudah ada hasil, `FlipAllowed(preview)` untuk dialog 21k), lalu `resolve` di `state =`
-  yang sama — WO lewat jalur yang sama (`markWalkover`); (5) dua pasangan satu grup paling cepat bertemu di Final (AC-G8);
+  yang sama — WO lewat jalur yang sama (`markWalkover`); (5) 2/4 grup: dua pasangan satu grup paling cepat bertemu di Final (AC-G8); 3 grup (3.10.0, `logic.md` §21.6): tidak ada
+  QF segrup dan slot 1/2 tiap grup di paruh berbeda (AC-G26), wildcard bisa bertemu pasangan segrupnya di SF;
   (6) round gugur selalu sesudah round grup terakhir, court dari `config.courts` (bukan court kunci grup); (7) nomor
-  peringkat akhir dari `finalEntries.position` (peringkat rapat dari kunci tingkat; tingkat kosong tidak memakan nomor).
+  peringkat akhir dari `finalEntries.position` (peringkat rapat dari kunci tingkat; tingkat kosong tidak memakan nomor);
+  (8) 3.10.0: bagan sebelum Buat bagan hanya pratinjau turunan (`preview`), bukan match tersimpan; satu metode Playoff
+  (`playoffMethod`) untuk tabel grup, lolos, juara, dan wildcard (AC-G30).
 - **Selesai/diakhiri:** `isFinal` = diakhiri, atau `hasBracket` dan tidak ada match pending (sebelum bagan selalu Sementara).
   `finishNow` apa adanya: match gugur pending (termasuk sisi tbd) → cancelled; peringkat akhir: cancelled di Juara 3 berlabel
   "Semifinal", match yang tidak dimainkan bukan babak yang dicapai (`logic.md` §18.9).

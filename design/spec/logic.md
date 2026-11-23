@@ -8,7 +8,8 @@ saling menguatkan.
 Konfigurasi diringkas = 3.4.0, task MX-n / KF-n di riwayat git `docs/tasks.md`). **§15 Tukar pemain (3.5.0) sudah
 diimplementasi** (task TP-n di riwayat git `docs/tasks.md`). **§16 Poster podium (3.6.0) sudah diimplementasi**
 (task PP-n di `docs/tasks.md`). **§18 Grup + Gugur (3.8.0) sudah diimplementasi** (task GG-n di riwayat git
-`docs/tasks.md`). **§19 Kosongkan skor / Hapus WO + P5 + C-17 (3.9.0) = rencana**, task KS-7a…KS-7e di `docs/tasks.md`.
+`docs/tasks.md`). **§19–§20 (3.9.0) sudah diimplementasi.** **§21 Group - Playoff fleksibel + batas 32 + nama satu baris (3.10.0) =
+rencana**, task GP-n di `docs/tasks.md`.
 Layar tinggal memakainya; jangan menulis ulang aturannya di widget. Lokasi implementasi ditulis di tiap bagian.
 
 ## 1. Format skor
@@ -1028,8 +1029,9 @@ Invariant (wajib di test):
 Baris panel urut Klasemen (baris atas = baris pertama), bukan urutan slot.
 - Lencana: "#n" ("#" warna teks kedua); #1 lencana emas (`#E3B341`, tinta, "#" tinta 75%), nama lebih tebal. Sparing:
   skor klub tanpa "#" (`ClubTally.winsLabel`), emas untuk klub level 1.
-- Nama: Mixed satu nama; pasangan dua nama bertumpuk (`.who2`); pemain tunggal di poster campuran satu nama di tengah
-  baris berukuran pasangan (18l). Sparing: nama klub.
+- Nama: Mixed satu nama; pasangan **satu baris** "A · B" (`.pname`, sejak 3.10.0 keputusan 148, menggantikan `.who2`
+  bertumpuk; pemotongan §21.11); pemain tunggal di poster campuran satu nama di baris berukuran pasangan (18l). Sparing:
+  nama klub.
 - Nilai = nilai metode + selisih, **dengan satuan di Feed dan Story** (63): Total Point `80` + "poin · +34" (satuan dari
   `format.unit`); Win % `100%` + "· +19" (`winPercent.round()`, sama dengan `sharePosterData`). Sparing:
   `ClubTally.totalPoint` + "game · 0" = `ClubResult.detailLabel` (selalu Total Point klub, tidak ikut metode Klasemen).
@@ -1281,7 +1283,7 @@ mini tidak menulis nama.
 
 | Kasus | Kartu / Feed | Story |
 |---|---|---|
-| Fixed (semua pasangan, Fixed campuran, Sparing Fixed) | 1 kolom | 1 kolom; baris pasangan ditumpuk (`.prow.duo`) |
+| Fixed (semua pasangan, Fixed campuran, Sparing Fixed) | 1 kolom | 1 kolom; pasangan satu baris (3.10.0, §21.11; dulu `.prow.duo` ditumpuk) |
 | Mixed / Mexicano, n baris | n > 10 → 2 kolom rata | n > 20 → 2 kolom rata |
 | Sparing Mixed, n1 + n2 baris | selalu 2 kolom per klub | n1 + n2 > 20 → 2 kolom per klub; selain itu 1 kolom |
 
@@ -1291,9 +1293,9 @@ mini tidak menulis nama.
 - **2 kolom per klub** (86): kiri klub pertama, kanan klub kedua, tiap kolom diawali kepala klubnya; k = 2 + max(n1,
   n2); klub yang lebih kecil menyisakan slot kosong di bawah (13u dua slot). Satu kolom tidak pernah berisi dua klub.
 - **1 kolom**: urut Klasemen; Sparing = kepala klub pertama, barisnya, kepala klub kedua, barisnya.
-- **Satuan** (dipakai kepadatan) = tinggi kolom terpanjang dalam tinggi baris: baris biasa 1; kepala klub 2; Story
-  Fixed: **semua** baris 2 kalau ada baris dua nama (seperti `.duo` Ringkas 18l dan Lengkap lama; nama ditumpuk hanya
-  di baris yang memang dua nama — asumsi 17.13 #2). Dua kolom rata = k; dua kolom per klub = k; Kosong = 0.
+- **Satuan** (dipakai kepadatan) = tinggi kolom terpanjang dalam tinggi baris: baris biasa 1 (sejak 3.10.0 juga Story
+  Fixed: nama pasangan satu baris, §21.11; sampai 3.9.x semua baris 2 kalau ada baris dua nama, asumsi 17.13 #2); kepala
+  klub 2. Dua kolom rata = k; dua kolom per klub = k; Kosong = 0.
 - **Susunan ukuran** (kunci `posterLengkap.density`): `feed1` (kartu/Feed 1 kolom), `feed2` (kartu/Feed 2 kolom),
   `story1`, `story2`.
 
@@ -1371,8 +1373,8 @@ Invariant (wajib di test):
   (duo dan kepala klub 2 ×).
 - Nomor w72 800, "#" warna teks kedua; #1 lencana emas = lencana podium (`#E3B341`, tinta, "#" tinta 75%, padding
   0,08 / 0,3 em, digantung −0,3 em, radius 0,35 em) dengan ukuran nomor × s. Satu widget lencana untuk kedua poster.
-- Nama 600 w88 (#1 800), line-height 1,2; kartu/Feed pasangan "A + B" satu baris; Story pasangan ditumpuk
-  (line-height 1,16).
+- Nama 600 w88 (#1 800), line-height 1,2; pasangan "A · B" satu baris di kartu, Feed, dan Story
+  (3.10.0, keputusan 148; pemotongan per nama §21.11; sampai 3.9.x Story ditumpuk).
 - Nilai w72 + sisa 600 warna teks kedua, jarak 3 × s: feed1 "52" + "game · +18" (Win %: "80%" + "· +8"); feed2,
   story1, story2 "89" + "· +31". **Nilai tidak pernah dipotong.**
 - **Nama dikecilkan bersama** (kn) per poster/target (kartu, Feed, Story dihitung sendiri): dari 1 turun 0,02 sampai
@@ -1543,9 +1545,12 @@ Pemetaan isi (`sharePosterData`, fixture yang sudah ada: data set 1 `bagikan_tes
    match pertama judul melebar ke 108 / 114. Rekomendasi: setujui (tanpa kasus khusus Sparing).
 2. **Story Fixed campuran** (pasangan diatur ulang, ada pemain tunggal; 09g): tidak ada frame Lengkap. Asumsi: semua
    baris setinggi pasangan (2 satuan), nama ditumpuk hanya di baris dua nama — sama dengan `.duo` Ringkas 18l dan
-   perilaku Lengkap lama. Rekomendasi: setujui.
+   perilaku Lengkap lama. Rekomendasi: setujui. *Diganti 3.10.0 (keputusan 148): nama satu baris, satu satuan, §21.11.*
 
 ## 18. Grup + Gugur (rencana 3.8.0, MINOR)
+
+> **3.10.0:** 3 grup, wildcard, min 4 pasangan, label QF/Juara 1–3, ubah format babak (GU9, §18.13 #1 terjawab) dan
+> bagan sejak jadwal dibuat diperluas di **§21**; bagian di bawah tetap berlaku kecuali yang ditulis ulang di sana.
 
 Keputusan host 93–103 (PRD §16, usulan GU1–GU16 dan Q1–Q4 disetujui 2026-11-17); frame 19a–19y (persiapan), 20a–20q
 (fase grup), 21a–21y (gugur + Bagan), 22a–22r (peringkat akhir, Detail, Bagikan). Hanya Fixed turnamen biasa:
@@ -2485,3 +2490,327 @@ Format kolom: didapat / dimainkan → Point % · selisih · Total Point · W–L
    kalimat 18.3 ("Race to: satu angka; selain itu rata-rata kedua pemenang").
 4. Detail menampilkan 5 angka (Total Point, Point %, Win, W–L, Selisih) di 390: letak dan label ("Point" bersebelahan
    "Poin") menunggu frame RP-1; kode layar tidak mulai sebelum frame.
+
+## 21. Group - Playoff fleksibel + batas 32 + nama satu baris (rencana 3.10.0, MINOR)
+
+Keputusan host 135–154 (PRD §16 G2, G7a, G8, G9, G14–G16, 16.4–16.8, 16.10, contoh 16G–16H, AC-G21–G30; §8.1 B1–B3,
+AC-B1–B10; §5.9 nama pasangan satu baris), hi-fi v109: 19b–19l, 19v–19x, 20*, 21* (bagan baru), 22*, 23a–23w, 09m, 11s,
+13x. **§18 tetap berlaku**; bagian ini hanya menulis yang berubah atau baru, dengan nomor §18 yang diubahnya. ID test =
+ID PRD (`AC-G24 16G …`, `16G-iii …`, `AC-B3 …`) + id frame kalau angkanya dari frame (`23c …`). Angka 16G/16G-pp/16H
+dan 16.4 dicek tech-lead 2026-11-23 dengan hitung tangan terhadap aturan di bawah. Task GP-n: `docs/tasks.md`.
+`schemaVersion` tetap 2 (21.9); kalau dba menemukan alasan menaikkannya → berhenti, MAJOR, kembali ke host.
+
+### 21.1 Model (`lib/models/models.dart`) — mengubah §18.1
+
+- `TournamentConfig.maxPlayers` = **32** (B1). Satu-satunya konstanta batas: layar Pemain, Sparing (`ClubRoster`),
+  Kelola pemain Mixed/Mixed sparing (`tournament_controller.dart` `limit`), `PairDraft`, `PlayerNameParser` sudah
+  membacanya. Tidak ada `30` lain yang berarti batas pemain (dicek `grep`, 2026-11-23); komentar `pair_draft.dart:75`
+  ikut diganti. Decoder simpanan/payload **tidak** memeriksa jumlah pemain (sekarang pun tidak), jadi tidak ada batas
+  kedua yang harus diselaraskan (21.9).
+- `GroupKnockout.groupCount` 2, 3, atau 4. `formats` punya `quarterfinal` kalau `groupCount >= 3` (dulu `== 4`); helper
+  `rounds` ikut. Baru: `List<String> wildcards` (default `const []`): `[WC1, WC2]` id pasangan, hanya 3 grup **setelah**
+  Buat bagan; kosong di 2/4 grup dan sebelum bagan. `copyWith` membawa semua bidang (jebakan 21.11 #1).
+- `@immutable class Seeding { List<List<String>> groupSlots; List<int> champions; List<String> wildcards; }` = hasil
+  Buat bagan yang dikonsumsi `KnockoutBracket.build`: `groupSlots[g] = [slot1, slot2]` id pasangan; 3 grup:
+  `champions` = indeks grup J1, J2, J3 dan `wildcards` = [WC1, WC2] (sebelum tukar); 2/4 grup keduanya kosong. Ditaruh di
+  model supaya GP-2 (bagan) dan GP-3 (peringkat) bisa jalan paralel tanpa saling meng-import.
+- `KnockoutRound`: teks UI berganti, **kode simpanan tidak** (keputusan 152, 21.9):
+  - `codePrefix` (UI) quarterfinal = **"QF"** (dulu "PF"); `KnockoutPhase.code` (simpanan) tetap **"PF1".."PF4"** —
+    `MatchPhase.code` sekarang dibangun dari `codePrefix` (`models.dart:294`), jadi pisahkan: kode simpanan punya switch
+    sendiri. Kunci `formats` simpanan dan pengaturan terakhir tetap `"PF"`.
+  - Baru `tabLabel`: "QF", "SF", "Juara 3", "Final" (tab round, keputusan 152). `label` tetap nama lengkap (judul layar,
+    sheet format, peringkat). `shortLabel` tetap dipakai baris match ("Juara 3 · Race to 4").
+- `StandingEntry.stage` tetap; teks berubah di 21.6.
+
+### 21.2 Ukuran grup, ketersediaan, estimasi — `GroupStage` (mengubah §18.2, §18.5)
+
+- `sizes(P, G)` tidak berubah (⌊P ÷ G⌋, sisa ke huruf awal). 13/3 → [5, 4, 4]; 14/3 → [5, 5, 4]; 16/3 → [6, 5, 5];
+  16/4 → [4, 4, 4, 4]; 9/2 → [5, 4].
+- `groupCountsFor(P)` (turnamen **baru**, min 4 per grup, G2, keputusan 135, 142–143): P < 8 → []; 8–11 → [2];
+  12–15 → [2, 3]; 16 → [2, 3, 4]. Konfigurasi P = ⌊pemain ÷ 2⌋ seperti dulu. AC-G21: 14 pemain → [] (Round-robin saja);
+  16–22 → [2]; 24–30 → [2, 3]; 32 → [2, 3, 4].
+- `unavailableReason(G, P)` untuk pilihan mati di sheet Fase grup (19c, GP9): 3 grup → "Mulai 24 pemain"; 4 grup → "Tepat
+  32 pemain". Teks dari frame 19c/19d.
+- `fallbackGroupCount(P, previous)` (GP9, 19d): pilihan lama tidak sah lagi → G terbesar di `groupCountsFor(P)` yang ≤
+  `previous`; daftar kosong → null (format kembali Round-robin, perilaku 19a). 3 grup 24 → 20 pemain = 2; 4 grup 32 →
+  30 = 3; 4 grup 32 → 22 = 2. Dipakai Konfigurasi **dan** `last_settings` (satu fungsi).
+- `decodableGroupCounts(P)` (hanya decoder, 21.9): `groupCountsFor(P)` ∪ aturan 3.8.x–3.9.x (P 6–11 → [2]; P ≥ 12 →
+  [2, 4]). Hasil: 6–11 → [2]; 12–15 → [2, 3, 4]; 16 → [2, 3, 4]. Grup 3 pasangan hanya mungkin dari data lama.
+- `estimate` (§18.5): round playoff = (G ≥ 3 ? ⌈4 ÷ C⌉ : 0) + ⌈2 ÷ C⌉ + (thirdPlace dan C = 1 ? 2 : 1); match playoff
+  = (G ≥ 3 ? 4 : 0) + 2 + 1 + (thirdPlace ? 1 : 0). Court fase grup (`courtsOfGroups`) dan jadwal (`schedule`) **tidak
+  berubah** untuk 3 grup (GU3/GU4 umum, keputusan 146).
+
+| Data | Court per grup | Round grup | Total round | Match | Tombol |
+|---|---|---|---|---|---|
+| AC-G23 16G 12 pas./3 grup, 2 court 3 jam, 15 mnt (19i) | A [C1], B [C2], C [C1] | 12 | 16 | 26 | "· 16 round · lewat booking 01:00" |
+| AC-G23 16G varian 3 court | A [C1], B [C2], C [C3] | 6 | 10 | 26 | tidak lewat booking |
+| AC-G21a 23a 32 pemain 4 grup 2 court 3 jam | A [C1], B [C2], C [C1], D [C2] | 12 | 16 | 32 | "· 16 round · lewat booking 01:00" |
+| AC-G21a 32/4 grup 1 court | semua C1 | 24 | 32 | 32 | |
+| AC-G21a 32/4 grup 4 court | satu grup satu court | 6 | 9 | 32 | |
+| 16.4 32/3 grup 1 court [6, 5, 5] | semua C1 | 35 (B, C habis R30) | 43 | 43 | |
+| AC-G21a 32/2 grup 1 court [8, 8] | semua C1 | 56 | 60 | 60 | |
+| 16.4 30/3 grup 1 court [5, 5, 5] | semua C1 | 30 | 38 | 38 | |
+
+Data jadwal 16G (AC-G23): Court 1 = A di R1, R3, …, R11 dan C di R2, R4, …, R12; Court 2 = B R1–R6, tanpa baris
+R7–R12 (20p); match R12 = Umar · Vina – Wawan · Yuni (23b). Test properti `group_stage_property_test.dart` diperluas:
+P 8–16 × G ∈ `groupCountsFor(P)` × C 1–10 (I1–I6 §18.4 tetap) **ditambah** P 6–15 × G ∈ aturan lama (data 3.8.x–3.9.x
+tetap dijadwalkan sama, AC-G29).
+
+### 21.3 Metode Playoff (G7a, keputusan 140–141, AC-G30) — `GroupKnockoutRanking` (mengubah §18.6)
+
+- `static RankingMethod playoffMethod(TournamentConfig c) => RankingCalculator.defaultMethod(c.format)` — **satu**
+  parameter: Race to / Best of → Win %, Americano → Point %. Semua fungsi 21.3–21.5 menerima `{RankingMethod? method}`
+  (default `playoffMethod`) hanya supaya test bisa menjalankan 16G-pp; layar tidak pernah mengopernya.
+- Tabel grup (`groupTables`), siapa lolos (`qualifierPlan`), peringkat 3 kandidat, urutan juara, urutan wildcard: semua
+  dari `method` yang sama. Klasemen grup tetap tanpa tab metode (GU8).
+- **Pembanding lintas grup** `comparePlayoffSeed(a, b, method)` (juara J1–J3 dan wildcard, G14, GP3–GP4):
+  1. nilai metode persis seperti `RankingCalculator.compare` (Win % nilai persis; Point % angka bulat yang tampil);
+  2. **selisih per match** = selisih ÷ match Selesai/WO pasangan itu di fase grup, dibandingkan tanpa pembagian:
+     `a.diff × b.played` vs `b.diff × a.played` (besar di atas);
+  3. masih sama → "seri" (21.5 memutuskan: huruf grup atau pilihan host).
+- Teks "+3,67" / "−1,67" (23c, keputusan 150) = pecahan dibulatkan 2 desimal, koma, tanda minus "−". Fungsi format murni
+  di service (bukan widget), test: +11 ÷ 3 → "+3,67", −5 ÷ 3 → "−1,67", +6 ÷ 3 → "+2,00", 0 → "0,00".
+
+### 21.4 Siapa lolos per grup (G8, GP1) — `qualifierPlan` (mengubah §18.7)
+
+- Slot per grup: 2 (2/4 grup) atau **3** (3 grup: slot 3 = kandidat wildcard). Algoritma §18.7 sama, digeneralisasi ke
+  n slot: tingkat yang muat utuh di slot tersisa lolos; tingkat yang melewati batas atau berukuran ≥ 2 di slot yang perlu
+  urutan → himpunan seri S → head-to-head satu kali di S → sisa = `OpenPick`. **Satu grup bisa punya dua `OpenPick`**
+  (mis. T1 {X, Y} untuk slot 1–2 dan T2 {Z, W} untuk slot 3).
+- `withPicks` mengembalikan per grup 2 atau 3 id berurutan. Grup 4 pasangan di 3 grup: posisi 4 tidak pernah jadi
+  kandidat (G14).
+- Data: 16G → A [Andi, Citra, Eko], B [Indra, Maya, Kiki], C [Qori, Sari, Umar], tanpa pilihan (`AC-G24`). 16G-pp
+  (`method: pointPercent`) → B [Maya, Indra, Kiki], C [Qori, Sari, Wawan]. Seri 2 vs 3 di 3 grup (data 16D-i dipakai
+  sebagai Grup A sebuah 3 grup): T2 {Citra, Eko} h Citra 1 → A2 Citra, A3 Eko, tanpa pilihan. 16D-iii sebagai Grup A
+  3 grup: T2 {Citra, Eko, Gita} h 1, 1, 1 → `OpenPick(A, [2, 3], 3 kandidat)`, dua ketukan (pola 20l).
+
+### 21.5 Juara, wildcard, dan `Seeding` (G9, G14, G15, GP3–GP4) — `GroupKnockoutRanking.seedingPlan`
+
+`seedingPlan(active, List<List<String>> perGroup, {method})` → `SeedingPlan { List<SeedRow> champions; List<SeedRow>
+candidates; WildcardPick? pick; Seeding withWildcardPick(List<String> chosen) }`; `SeedRow {pairId, group, value
+(teks kolom metode), perMatch (teks), qualified}` = isi sheet 23c/23e. 2 dan 4 grup: `champions`/`candidates` kosong,
+`Seeding(groupSlots: perGroup)` langsung.
+
+3 grup:
+- **J1–J3** = slot 1 tiap grup diurut `comparePlayoffSeed`; seri → huruf grup. Tanpa pilihan host (GP4).
+- **Kandidat** = slot 3 tiap grup, urut `comparePlayoffSeed`. Seri (langkah 3) diputuskan per himpunan seri S:
+  - S seluruhnya di posisi 1–2 (semua lolos) → urut huruf grup (16G-ii);
+  - S memotong batas 2 | 3 → `WildcardPick(need: k, candidates: S urut huruf)`, k = slot lolos yang tersisa untuk S
+    (1 untuk seri dua di batas WC2, 16G-iii; 2 untuk seri tiga di posisi 1–3). Pilihan host hanya menentukan **siapa**
+    lolos; urutan yang terpilih = huruf grup (GP3). Tanpa pilihan → `seeding` null, tombol mati (AC-G25).
+  - Seri di posisi 3 saja (dua di bawah batas) → huruf grup, tanpa pilihan.
+- `Seeding(groupSlots: [[slot1, slot2]…], champions: [gJ1, gJ2, gJ3], wildcards: [WC1, WC2])`. `perGroup` hasil
+  `withPicks` sudah memuat slot 3, jadi pilihan grup (`OpenPick`) diselesaikan **sebelum** `seedingPlan` dipanggil;
+  sheet satu-layar 23e memanggil `seedingPlan` ulang setiap pilihan grup berubah (bagian wildcard baru muncul setelah
+  semua pilihan grup lengkap — asumsi, 21.12 #2).
+
+| Data | J1, J2, J3 | Kandidat (urut) | Pilihan | WC1, WC2 |
+|---|---|---|---|---|
+| AC-G24 16G (Win %) | Andi (A) +3,67 · Qori (C) +3,33 · Indra (B) +2,00 | Eko 33% −1,67 · Kiki 33% −2,00 · Umar 33% −2,67 | – | Eko, Kiki; Umar tidak lolos |
+| AC-G24 16G-pp (Point %) | Andi 72% · Qori 69% · Maya 65% | Eko 41% · Wawan 40% · Kiki 39% | – | Eko, Wawan |
+| AC-G25 16G-ii (Maya–Kiki 6–2) | sama 16G | Eko −1,67, Kiki −1,67 (41%/41%), Umar | – (keduanya lolos → huruf) | Eko (A), Kiki |
+| AC-G25 16G-iii (Qori–Umar 6–3) | Andi +3,67 · Qori +2,67 · Indra +2,00 | Eko −1,67 · {Kiki, Umar} −2,00 | `WildcardPick(1, [Kiki, Umar])` | pilih Umar → Eko, Umar |
+| seri tiga kandidat (semua 33%, selisih per match sama) | – | {A3, B3, C3} | `WildcardPick(2, [A3, B3, C3])` | dua terpilih, urut huruf |
+
+### 21.6 Bagan (G9, G15, keputusan 152–154) — `KnockoutBracket` (mengubah §18.8)
+
+**Topologi.** 2 grup dan 4 grup tidak berubah (§18.8). `phases(groupCount ≥ 3)` memuat QF1–QF4. 3 grup:
+- `sources` babak pertama (sebelum tukar): **QF1 = J1 vs WC1 · QF2 = R(J2) vs R(J3) · QF3 = J2 vs WC2 · QF4 = J3 vs
+  R(J1)**; SF1 = W(QF1) vs W(QF2), SF2 = W(QF3) vs W(QF4) (= 4 grup); Final/Juara 3 = §18.8. R(J) = slot 2 grup juara J.
+  Bentuk sumber 3 grup (juara ke-j, runner-up juara ke-j, wildcard ke-k) bebas, asal labelnya 21.7.
+- `build(active, Seeding)` (menggantikan `build(active, qualifiers)`): **tukar** iff `group(WC1) == J1` atau
+  `group(WC2) == J2` → QF1 = J1 vs WC2, QF3 = J2 vs WC1. Satu tukar selalu cukup (PRD G15). Simpan `wildcards` =
+  `Seeding.wildcards` (urutan WC1, WC2, **bukan** urutan sesudah tukar) ke `config.groupKnockout` di `state =` yang sama.
+- **Layout** (`layout`) tidak berubah; 3 grup = 4 grup (QF per C court, lalu SF, lalu Final + Juara 3). 16G 2 court: R13
+  QF1 + QF2, R14 QF3 + QF4, R15 SF1 + SF2, R16 Final C1 + Juara 3 C2. 3 court: R7 QF1–QF3, R8 QF4, R9 SF, R10 F + J3.
+- **Pratinjau sebelum Buat bagan** (keputusan 153–154) `preview(active)` → daftar slot (`phase`, round, court dari
+  `layout` dengan `firstRound` = round grup terakhir + 1, dua `SideSource`). Tidak menyimpan match: bagan sebelum dikunci
+  adalah turunan; `hasBracket` tetap = "ada match `KnockoutPhase`" (skor grup belum terkunci, §18.1). Juara 3 nyala/mati
+  sebelum bagan mengubah pratinjau saja.
+- `progress(active)` → (terisi, semua) untuk ujung tab Bagan: 23s "0/4" (2 grup, juara 3 nyala), 23v "5/8"; sebelum
+  bagan `semua` = jumlah `phases`.
+- `firstOpenColumn(active)` = babak pertama (urut main) yang punya match tanpa hasil; semua terisi → babak terakhir
+  (posisi geser awal 21j, 23v, 23w).
+- **Warna alur** `flowIndex(active, phase, side)` → indeks match babak pertama (0..3) atau null (abu): sisi yang
+  sumbernya match babak pertama → indeks match itu (selalu, juga sebelum ada pemenang: 23s, 21u); sisi yang sumbernya
+  match lanjutan → indeks asal pemenangnya kalau sudah ada, selain itu null; Juara 3 selalu null. Palet (UI) = warna
+  court indeks 1, 4, 2, 6 (keputusan 154). Data 23v: SF1 atas = 0 (QF1), SF1 bawah = 1 (QF2), Final atas = 0 (Andi
+  menang SF1), Final bawah = null (SF2 belum).
+- **Properti AC-G26** (`knockout_bracket_property_test.dart`): untuk 36 kombinasi (permutasi juara 3! × grup asal
+  WC1/WC2 berbeda 3 × 2; WC tidak boleh slot 1/2 grupnya) → tidak ada QF antar pasangan segrup; slot 1 dan 2 tiap grup
+  di paruh berbeda (QF1–QF2 vs QF3–QF4); J1 tidak bertemu juara lain sebelum Final. Invariant I7–I12 §18.8 untuk G ∈
+  {2, 3, 4} × C 1–4 × thirdPlace × hasil acak berseed.
+- Data 16G (AC-G24): QF1 Andi (A1) vs Kiki (WC2 · B3), QF2 Sari (C2) vs Maya (B2), QF3 Qori (C1) vs Eko (WC1 · A3), QF4
+  Indra (B1) vs Citra (A2) (tukar). 16G-iii pilih Umar: QF1 Andi vs Umar (WC2 · C3), QF3 Qori vs Eko (tukar). 16G-pp:
+  QF1 Andi vs Wawan, QF2 Sari vs Indra, QF3 Qori vs Eko, QF4 Maya vs Citra. 16G-akhir (23v–23w): QF1 4–2, QF2 3–4, QF3
+  4–1, QF4 3–4 → SF1 Andi vs Maya, SF2 Qori vs Citra; SF1 5–3, SF2 5–4 → Final Andi vs Qori 6–4, Juara 3 Maya vs Citra
+  5–2.
+
+### 21.7 Label slot, tab, babak (keputusan 147, 152, 154)
+
+| Tempat | Sebelum Buat bagan | Sesudah |
+|---|---|---|
+| Sisi babak pertama 2/4 grup (bagan, 23s/23u) | "A1", "B2" | kode + nama ("A1 · Andi · Budi" di kartu: kolom kode "A1") |
+| Sisi babak pertama 3 grup (23t) | "J1", "WC1", "#2 grup J2" | "A1", "C2", "WC2 · B3" (`seedLabel`, 23d/23h) |
+| Sisi babak lanjutan | "Pemenang QF1", "Kalah SF1" | sama sampai pemenangnya ada |
+| Klasemen Fase grup kanan nama (22b, 23j) | – | "A1", "A2", "WC1", "WC2" (`seedCode`; tanpa asal) |
+| Tab round playoff (`roundTab`) | – (round playoff belum ada) | "QF", "SF", "Final", "Juara 3"; terpecah "QF1–2", "QF3–4", "QF1–3", "QF4", "SF1", "SF2" |
+| Judul layar, sheet format | – | "Perempat final", "Semifinal", "Perebutan juara 3", "Final" |
+| Baris match | – | "QF1 · Race to 4", "Juara 3 · Race to 5" |
+
+- WC di `seedLabel` = indeks di `gk.wildcards` + huruf grup + "3" (posisi kandidat). Data lama tanpa `wildcards` tidak
+  punya WC (2/4 grup).
+- Kalimat dialog/teks yang menyebut kode match ("Pemenang QF1", "QF1 ada skor", dialog Akhiri) memakai `codePrefix`
+  "QF"; tidak ada "PF" yang tersisa di UI.
+
+### 21.8 Peringkat akhir (16.8, keputusan 149, GP7) — `finalEntries` (mengubah §18.9)
+
+- Teks `stage` berubah, kunci tingkat tidak: menang Final **"Juara 1"** (dulu "Juara"); kalah Final **"Juara 2"**
+  (dulu "Final"); menang Juara 3 **"Juara 3"**; lainnya tetap (di Final belum ada hasil / cancelled "Final"; kalah Juara
+  3 "Semifinal"; kalah QF "Perempat final", termasuk wildcard). Berlaku juga untuk data 3.8.x–3.9.x yang dibuka 3.10.0
+  (teks turunan, bukan simpanan).
+- Posisi grup tidak lolos (GP7) = (jumlah pasangan lolos dari grupnya, **termasuk wildcard**) + 1 + jumlah pasangan
+  tidak lolos di grupnya dengan nomor tabel lebih kecil. Tanpa wildcard sama dengan rumus §18.9 "3 + …".
+
+| Data | Harus |
+|---|---|
+| AC-G27 16G-akhir / 23k–23l | #1 Andi "Juara 1" · #2 Qori "Juara 2" · #3 Maya "Juara 3" · #4 Citra "Semifinal" · #5 Eko, Indra, Kiki, Sari "Perempat final" (urut nama) · #6 Umar "Grup C · 3" · #7 Gita, Oki, Wawan "Grup A · 4", "Grup B · 4", "Grup C · 4" |
+| AC-G13 16F / 22a (label baru) | #1 Citra "Juara 1" · #2 Andi "Juara 2" · #3 Maya "Juara 3" · #4 Indra "Semifinal" · #5 · #6 seperti §18.9 |
+| 22c tanpa juara 3 | #3 Indra, Maya "Semifinal" (tidak ada "Juara 3") |
+
+`isFinal`, cancelled, dan pasangan belum main: §18.9 apa adanya.
+
+### 21.9 Data (draf untuk dba, GP-0 — dba memutuskan bentuk; security mencatat aturan baca)
+
+Bentuk §18.11 / `docs/data.md` GR1–GR17 tetap. Yang berubah atau baru (semua opsional, `schemaVersion` tetap 2):
+1. **`groups.length == 3`** sah di config. GR5 → G ∈ `GroupStage.decodableGroupCounts(P)` (21.2) dan ukuran =
+   `sizes(P, G)`; G = 3 hanya dengan ukuran ≥ 4 (otomatis dari P ≥ 12). Data lama 2 × 3 / 4 × 3 tetap lolos (AC-G29).
+2. **`formats.PF` ada iff G ≥ 3** (GR8; dulu iff G = 4). Kode simpanan tetap "PF"/"PF1".."PF4" (usulan tech-lead: jangan
+   ganti ke "QF" — app 3.9.x tetap membaca 2/4 grup baru, tidak perlu dua kode di decoder).
+3. **Kunci baru `groupKnockout.wildcards`**: `[idWC1, idWC2]`, ada iff G = 3 **dan** sudah ada match gugur. Aturan baca
+   usulan (GR18): dua id berbeda, dari dua grup berbeda, sama dengan himpunan {QF1.pair2, QF3.pair2}, bukan slot 1/2
+   grupnya; urutan cocok dengan aturan tukar (tanpa tukar: WC1 = QF1.pair2 dan tidak segrup J1 = QF1.pair1, WC2 tidak
+   segrup J2 = QF3.pair1; dengan tukar: WC1 = QF3.pair2 dan (WC1 segrup J1 atau WC2 segrup J2)). Bisa juga diturunkan
+   ulang dari skor grup yang terkunci (urutan WC deterministik setelah siapa lolos diketahui), tapi PRD 16.10 meminta
+   tersimpan supaya bagan/label tidak dihitung ulang saat dibuka — **dba memutuskan**.
+4. **GR14 untuk 3 grup**: J1 = QF1.pair1, J2 = QF3.pair1, J3 = QF4.pair1 dari tiga grup berbeda; QF4.pair2 segrup J1,
+   QF2.pair1 segrup J2, QF2.pair2 segrup J3 (runner-up); tidak ada QF antar segrup. Decoder tidak menghitung ulang
+   siapa yang seharusnya lolos (sama dengan 3.8.0).
+5. **Juara 3 mati/nyala setelah bagan (G16)**: hanya `thirdPlace` + ada/tidaknya match J3 + round Final; GR12/GR13 sudah
+   menuntut keduanya cocok. Format babak yang diubah = isi `formats` (GR8 `isValidKnockout`). Tidak ada kunci baru.
+6. **Pengaturan terakhir** (`last_settings.dart`, `v` tetap 1): `groupCount` 3 sah; turunan baca memakai
+   `fallbackGroupCount` (21.2) — dulu "4 grup dan P < 12 → 2". Kunci `formats.PF` disimpan kalau G ≥ 3.
+7. **App 3.9.x / PWA penonton lama (AC-B8, AC-G29)** — hasil baca kode 3.9.x (`tournament_codec.dart`, `group_stage.dart`):
+   - Simpanan/payload 31–32 pemain round-robin, Mixed, Mexicano, Sparing: decoder tidak memeriksa jumlah pemain →
+     **dimuat dan ditampilkan** (penonton bisa melihat; host 3.9.x tidak akan membuat ini). Kelola pemain 3.9.x dengan
+     32 aktif: Tambah mati (`limit` 30 < 32), tidak crash.
+   - 3 grup: GR5 3.9.x (`groupCountsFor` → [2, 4]) → **ditolak** (null), tanpa crash, sesuai 16.10.
+   - 2 grup 8 + 8 dan 4 grup 4 × 4 (16 pasangan) baru: 3.9.x menerimanya (`groupCountsFor(16)` = [2, 4], `PF` tetap) dan
+     menampilkannya dengan label lama ("PF1", "Juara"). Ubah format/juara 3 dari host 3.10.0 terbaca biasa.
+   - dba/security memastikan dengan test lintas versi (pola `docs/data.md` → Penanda GU15: jalankan decoder dari tag
+     `v3.9.1`) dan memutuskan apakah 2/4 grup baru perlu ditolak juga (rekomendasi: tidak; tampil benar).
+8. **Ukuran payload live 32 pemain (AC-B9)** — batas relay `MAX_BYTES` 256 KB (`relay/src/index.js:14`). Satu match ±600
+   byte (id pemain UUID, id pasangan "pair-uuid-uuid"), pemain ±75 byte. Perkiraan: Fixed 16 pasangan round-robin penuh
+   120 match ±75 KB; Group - Playoff 2 grup × 8 (60 match) ±40 KB; Mixed 32/8 court 16 round (128 match) ±80 KB;
+   Mixed 32/1 court 30 round (+ daftar istirahat 28 id/round) ±55 KB. Batas tercapai baru di ±400 match (Mixed 32/8
+   ±50 round). Relay tidak perlu diubah (komentar "30 pemain" boleh diperbarui tanpa deploy). **Wajib diukur** di GP-4:
+   test encode kasus di atas, `utf8.encode(payload).length < 128 * 1024` (separuh batas).
+
+### 21.10 Ubah format babak setelah jadwal dibuat (G16, 16H, keputusan 139, 150) — `services/schedule/playoff_format.dart` (baru)
+
+- `formatLock(active, round)` → null (boleh) atau alasan: turnamen diakhiri → terkunci (menu dan sheet tidak tersedia);
+  ada match `KnockoutPhase` babak itu yang `done`/`wo` → alasan = kode match berhasil, rentang berurutan digabung "–",
+  dipisah ", ": "QF1 ada skor" (23p), "QF1–4 ada skor" (23q), "SF2 ada skor", "QF1–2, QF4 ada skor" (asumsi pola),
+  Final/Juara 3 → "Final ada skor" / "Juara 3 ada skor". Sebelum bagan selalu null.
+- `thirdPlaceLock(active)` → null atau alasan: Final atau Juara 3 `done`/`wo` → "Final ada skor" (23r) / "Juara 3 ada
+  skor" (Final didahulukan). Diakhiri → terkunci.
+- Turunan dari match tersimpan (seperti RP9): Kosongkan skor / Hapus WO yang mengosongkan babak membuka kunci lagi
+  (16H). Skor yang ada tidak divalidasi ulang.
+- Mutasi (controller, satu `state =` masing-masing, tanpa dialog):
+  - `setPlayoffFormat(round, format)`: tolak kalau `formatLock` ≠ null atau `!format.isValidKnockout`; ganti
+    `config.groupKnockout.formats[round]` lewat `copyWith`. Match tidak berubah; `formatFor(m)` langsung memakai yang baru.
+  - `setThirdPlace(bool)`: tolak kalau `thirdPlaceLock` ≠ null. Sebelum bagan: config saja (pratinjau ikut). Sesudah
+    bagan: `KnockoutBracket.relayout(active, thirdPlace)` → posisi semua match gugur dihitung ulang dari `layout`
+    (match ber-hasil tidak pernah berpindah, karena kunci menjamin hanya Final/J3 yang bisa bergeser); J3 baru = pending,
+    sisi dari `resolve`; J3 dihapus kalau mati; id `m-r{round}-{n}` mengikuti posisi baru; lalu `resolve`.
+- Data 16H (AC-G28, setelah Buat bagan 16G, R13–R16 Belum): QF Race to 4 → 5 boleh; QF1 5–2 → `formatLock(QF)` = "QF1 ada
+  skor", SF/J3/F masih null; Kosongkan QF1 → null lagi. Juara 3 mati (2 court) → R16 hanya Final C1, total 16 round,
+  match 25. Varian 1 court (16G 1 court: grup R1–R18, R19–R22 QF, R23–R24 SF, R25 J3, R26 F) → J3 hilang, Final R25,
+  total 25; nyala lagi → R25 J3, R26 F. Final berskor → `thirdPlaceLock` "Final ada skor", format J3 masih boleh. Best of 4
+  ditolak (`isValidKnockout`); stepper menawarkan 5. Diakhiri → semua terkunci.
+- Estimasi Konfigurasi tidak dipakai setelah jadwal dibuat; jumlah round terbaca dari tab (23n).
+
+### 21.11 Nama pasangan satu baris (keputusan 148, 150, 151, 154) — layout, bukan logika domain
+
+Satu helper murni + satu widget, dipakai poster **dan** Klasemen (jangan dua salinan):
+- `PairNameFit.split(a, b, sep, avail)` (Dart murni, `lib/core/widgets/pair_name.dart`; lebar terukur dalam px pada
+  ukuran huruf yang sama) = perilaku CSS `.pname` (span `flex: 1 1 0; max-width: max-content`, pemisah `flex: none`):
+  a + sep + b ≤ avail → (a, b) utuh; selain itu jatah h = (avail − sep) ÷ 2: a ≤ h → (a, avail − sep − a); b ≤ h →
+  (avail − sep − b, b); selain itu (h, h). Nama yang dapat lebar < ukurannya dipotong sendiri dengan "…"; pemisah " · "
+  tidak pernah terpotong.
+- `PairName` widget: dua `Text` `maxLines: 1, overflow: ellipsis, softWrap: false` di lebar hasil `split`, ukur dengan
+  `TextPainter` gaya yang sama (font Archivo dimuat di golden).
+- "Muat" untuk loop pengecil = **seluruh baris** muat (a + sep + b ≤ avail), sama dengan `fits()` di
+  `tool/hifi_poster_fit.py` (`each(.pname)` mengukur tiap span terhadap kotaknya; semua span utuh ⇔ seluruh baris muat).
+  Celah < 1 huruf sebelum " · " diterima (keputusan 150).
+- **Klasemen** (`StandingTable`, 09m, keputusan 151, 154): baris pasangan di Peringkat dan Fase grup (Fixed, Group -
+  Playoff, Sparing Fixed). Satu ukuran per tabel/tab: 16 → turun 0,5 sampai **semua** baris pasangan tab itu muat
+  (termasuk yang di luar layar, supaya ukuran tidak berubah saat digulir — asumsi), paling kecil 14; di 14 masih tidak
+  muat → elipsis per nama. Kolom nama = lebar sisa setelah nomor, slot ("A1"/"WC1"), dan kolom angka. Berat 600, tinggi
+  baris 44. Mixed (satu nama) tidak berubah.
+- **Poster Ringkas** (`podium_poster.dart`): `.who2` (dua nama ditumpuk) diganti `.pname` satu baris; tinggi baris tetap
+  36/54 (keputusan 150). `--nm` loop yang ada (Feed 12,5 / Story 15 → per 0,5 → 11,5) memakai kriteria "seluruh baris
+  muat", lalu elipsis per nama.
+- **Poster Lengkap** (`share_poster.dart`, `services/share/lengkap.dart`): Story Fixed tidak lagi ditumpuk → **satu
+  satuan per pasangan** (mengubah §17.3: satuan baris biasa 1 di semua kasus; kasus `.duo`/campuran hilang). kn 1 → per
+  0,02 → 0,82 dengan kriteria yang sama, lalu elipsis per nama. Kolom babak `.gg-bk` (Group - Playoff) = teks babak
+  terlebar jadi kolom nilai (sudah `stageRows`; "Juara 1" mengganti "Juara").
+- Data (golden + unit `split`): 11s Story ×0,82 (nama 12,3), kolom nama 176, jatah 84 → #1 "Antonia Ban… · Christiano
+  R…", #5 "Iga · Sagittalia Permatasari" utuh; 11s Feed semua utuh di ×1 (kolom 238). 09m: ukuran 14, "Iga · Sagittal…",
+  "Citra … · Dewi", "Ant… · Chri…", "Indr… · Jok…". Unit `split`: (40, 120, 10, 100) → (40, 50); (80, 90, 10, 100) →
+  (45, 45); (30, 40, 10, 100) → (30, 40).
+
+### 21.12 Jebakan untuk engineer dan reviewer
+
+1. `MatchGame.copyWith`/`_with`/`withScore`/`asWalkover` membawa `phase`; `TournamentConfig.copyWith` membawa
+   `groupKnockout`; **`GroupKnockout.copyWith` membawa `wildcards`, `formats`, `thirdPlace`**. Ubah format (21.10) dan
+   Buat bagan (21.6) mengganti config: lupa satu bidang = wildcard/format hilang diam-diam. Test: `setPlayoffFormat`
+   mempertahankan `wildcards`; `createBracket` 3 grup menulis `wildcards`.
+2. Kode simpanan "PF" ≠ teks UI "QF" (21.1). Test codec: simpanan 3.9.x berkode "PF1" terbaca; encode 3.10.0 tetap "PF1";
+   tidak ada "PF" di teks UI (grep test di `gk_labels`).
+3. Mutasi skor/WO gugur: `flipCheck` **sebelum** mutasi, lalu `KnockoutBracket.resolve` di `state =` yang sama (CLAUDE.md
+   Pitfall). `setThirdPlace` sesudah bagan juga diakhiri `resolve` di `state =` yang sama. Jangan `saveActive`/kirim live
+   manual.
+4. Nomor peringkat dari `standingEntriesProvider` / `StandingEntry.position`, bukan indeks; WC1/WC2 dari
+   `gk.wildcards`, bukan dari urutan sisi sesudah tukar.
+5. Test yang menyentuh `canGenerateNextRound`/`isFinal`/hitung mundur meng-override `clockProvider`.
+6. `startIfNeeded` membandingkan config dengan `identical`. Ubah format/juara 3 dan Buat bagan 3 grup mengganti
+   `state.config`; `_startedFrom` menutup sesi yang memulai turnamen, tapi setelah **resume** `_startedFrom` null. Test
+   wajib: resume → ubah format → buka Jadwal lagi (layar memanggil `startIfNeeded(widget.config)`) → match tidak
+   diregenerate. Kalau gagal, perbaiki di controller (bandingkan id turnamen), bukan di layar.
+7. Satu metode Playoff (AC-G30): jangan memanggil `RankingCalculator.defaultMethod` langsung di layar/sheet; jangan
+   `rankingMethodProvider`/`standingsProvider` di Group - Playoff.
+8. Selisih per match dibandingkan perkalian silang bilangan bulat, bukan `double` (−5 ÷ 3 vs −10 ÷ 6 harus seri).
+9. Pratinjau bagan bukan match: jangan menyimpan match `KnockoutPhase` sebelum Buat bagan (skor grup akan terkunci,
+   `hasBracket` true, decoder lama berubah arti).
+10. Batas 32: `maxPlayers` satu-satunya; test lama yang menguji 30/31 diganti 32/33 (AC-B8), bukan dilonggarkan.
+11. `groupCountsFor` (baru) vs `decodableGroupCounts` (decoder): jangan memakai yang pertama di decoder (data 2 × 3 /
+    4 × 3 hilang) atau yang kedua di Konfigurasi (6 pasangan muncul lagi).
+12. Nama satu baris: satu helper `PairNameFit`; poster dan Klasemen tidak menghitung sendiri-sendiri. Poster memakai
+    `TextScaler.noScaling` (sudah); Klasemen ikut `MediaQuery.textScalerOf` (A-15).
+13. Jalur round-robin/Mixed/Mexicano/Sparing tidak berubah selain batas 32 dan nama satu baris; golden yang gagal hanya
+    yang tercatat di `docs/tasks.md`.
+
+### 21.13 Pertanyaan terbuka (asumsi berjalan; rekomendasi)
+
+1. **Tabel PRD 16F dan 16G-akhir masih "Juara"/"Final"**, caption 16.9 "1. Citra + Dewi — Juara"; keputusan 149 dan
+   frame 23k menulis "Juara 1"/"Juara 2". Spec mengikuti 149 (21.8). Rekomendasi: product-manager menyelaraskan tabel
+   dan contoh caption (bukan keputusan baru).
+2. **Seri wildcard tiga kandidat dan pilihan grup + wildcard dalam satu sheet**: tanpa frame. Asumsi: host memilih k dari
+   S (21.5), urutan terpilih = huruf grup; bagian wildcard muncul setelah pilihan grup lengkap. Rekomendasi: setujui;
+   designer menggambar satu varian kalau host ingin melihatnya.
+3. **Teks alasan kunci untuk babak sebagian berskor** ("QF1–2, QF4 ada skor"): frame hanya "QF1" dan "QF1–4".
+   Rekomendasi: setujui pola rentang.
+4. Catatan 23s–23u masih "rekomendasi, menunggu konfirmasi host" padahal keputusan 154 sudah mengonfirmasi; catatan 23t
+   menyebut tukar hanya "segrup dengan J1" (G15: juga WC2 segrup J2). Bukan pertentangan perilaku; designer merapikan
+   catatan saat render berikutnya.
