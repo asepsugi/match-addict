@@ -157,8 +157,8 @@ di-merge 5b20869, hi-fi v115 (v113/v114 terbit tanpa A15-2). A15-3 (eaad62d, dip
 app, `MabarButton` tinggi minimum + dua baris `.btn.two` saat meta tidak muat, kartu mode/header Klasemen FittedBox,
 subjudul sheet WO `subtitleTail`, golden 06fts/03ats + uji tanpa overflow 1,3 untuk 20b, 07j, 21a, 21d. Belum diuji
 1,3: 06h, 06u, 14f; golden 1,3 untuk 09a/07j/21a belum digambar. GP-12: 3.10.0+28 + `appVersion`, architecture.md,
-logic.md §21.5/§21.10 (5941406). `flutter analyze` 6 info lama; run penuh 2452 lolos, 0 gagal. Sisa rilis: build web +
-PWA (tech-infra), merge ke `main` + push (deploy) setelah host bilang go.
+logic.md §21.5/§21.10 (5941406). `flutter analyze` 6 info lama; run penuh 2452 lolos, 0 gagal. Build web lokal lolos; host
+bilang go → merge ke `main` + push, rilis 3.10.0+28 live 2026-11-24 (9b619f4). Sisa: uji HP (host).
 
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
