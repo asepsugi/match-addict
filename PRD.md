@@ -2649,12 +2649,13 @@ Rina 5–4 Citra · Dewi; R16 Final Andi · Budi 6–4 Qori · Rina, Perebutan j
 | 2 | Qori · Rina | Juara 2 |
 | 3 | Maya · Nanda | Juara 3 |
 | 4 | Citra · Dewi | Semifinal |
-| 5 | Kiki · Lina, Sari · Tono, Eko · Fajar, Indra · Joko | Perempat final |
+| 5 | Eko · Fajar, Indra · Joko, Kiki · Lina, Sari · Tono | Perempat final |
 | 6 | Umar · Vina | Grup C · 3 |
 | 7 | Gita · Hadi, Oki · Putri, Wawan · Yuni | Grup A · 4, Grup B · 4, Grup C · 4 |
 
 - Wildcard yang kalah di Perempat final menulis "Perempat final", sama dengan pasangan lain di babak itu (caption
-  "5. Kiki + Lina — Perempat final").
+  "5. Kiki + Lina — Perempat final"). Pasangan bernomor sama diurutkan menurut nama (aturan sejak 3.8.0, sama dengan
+  23k/23l).
 
 ### 16.9 Interaksi dengan fitur yang ada
 
