@@ -75,12 +75,12 @@ void main() {
     expect(c.roster1.duplicates, ['andi']);
   });
 
-  test('AC-S1 total 16 + 14 = 30 aktif, 16 + 15 = 31 mati dengan catatan clay "Maksimal 30 pemain"', () {
+  test('AC-B8 AC-S1 total 16 + 16 = 32 aktif, 16 + 17 = 33 mati dengan catatan clay "Maksimal 32 pemain"', () {
     String names(String p, int n) => [for (var i = 0; i < n; i++) '$p$i'].join('\n');
-    expect(check('A', 'B', names('A', 16), names('B', 14)).canContinue, isTrue);
-    final over = check('A', 'B', names('A', 16), names('B', 15));
+    expect(check('A', 'B', names('A', 16), names('B', 16)).canContinue, isTrue);
+    final over = check('A', 'B', names('A', 16), names('B', 17));
     expect(over.canContinue, isFalse);
-    expect(over.listNotes2, [const ClubNote('Maksimal 30 pemain', error: true)]);
+    expect(over.listNotes2, [const ClubNote('Maksimal 32 pemain', error: true)]);
   });
 
   test('duplikat per klub disebut abu-abu setelah catatan jumlah, urutan Minimal, Maksimal, Duplikat', () {

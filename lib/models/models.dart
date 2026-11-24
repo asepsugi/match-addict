@@ -199,18 +199,43 @@ extension KnockoutRoundX on KnockoutRound {
   /// Label pendek (GU1): hanya Perebutan juara 3 yang dipendekkan.
   String get shortLabel => this == KnockoutRound.thirdPlace ? 'Juara 3' : label;
 
-  /// Kode baris match ("PF1", "SF2"); Final dan Juara 3 hanya satu match, jadi tanpa kode (21a).
+  /// Kode baris match di UI ("QF1", "SF2"); Final dan Juara 3 hanya satu match, jadi tanpa kode (21a). Bukan kode
+  /// simpanan: itu [KnockoutPhase.code] ("PF1", logic.md §21.1).
   String? get codePrefix => switch (this) {
-    KnockoutRound.quarterfinal => 'PF',
+    KnockoutRound.quarterfinal => 'QF',
     KnockoutRound.semifinal => 'SF',
     KnockoutRound.thirdPlace || KnockoutRound.finalRound => null,
   };
+
+  /// Teks tab round (keputusan 152): "QF", "SF", "Juara 3", "Final".
+  String get tabLabel => switch (this) {
+    KnockoutRound.quarterfinal => 'QF',
+    KnockoutRound.semifinal => 'SF',
+    KnockoutRound.thirdPlace => 'Juara 3',
+    KnockoutRound.finalRound => 'Final',
+  };
+}
+
+/// Hasil Buat bagan (logic.md §21.1, 21.5) yang dikonsumsi `KnockoutBracket.build`. Di model, bukan di services, supaya
+/// bagan dan peringkat tidak saling meng-import.
+@immutable
+class Seeding {
+  /// Per grup `[slot1, slot2]` id pasangan, indeks 0 = Grup A.
+  final List<List<String>> groupSlots;
+
+  /// 3 grup: indeks grup J1, J2, J3. Kosong di 2/4 grup.
+  final List<int> champions;
+
+  /// 3 grup: `[WC1, WC2]` id pasangan, sebelum tukar. Kosong di 2/4 grup.
+  final List<String> wildcards;
+
+  const Seeding({required this.groupSlots, this.champions = const [], this.wildcards = const []});
 }
 
 /// Grup + Gugur (PRD §16): pembagian grup dan format tiap babak gugur. Format fase grup = `config.format`.
 @immutable
 class GroupKnockout {
-  /// 2 atau 4.
+  /// 2, 3, atau 4.
   final int groupCount;
 
   /// Id pasangan per grup, indeks 0..3 = Grup A..D. Urutan di dalam grup = urutan round-robin (urutan masuk di layar
@@ -223,21 +248,31 @@ class GroupKnockout {
 
   final bool thirdPlace;
 
+  /// `[WC1, WC2]` id pasangan: hanya 3 grup **setelah** Buat bagan; kosong di 2/4 grup dan sebelum bagan (§21.1).
+  final List<String> wildcards;
+
   const GroupKnockout({
     required this.groupCount,
     this.groups = const [],
     required this.formats,
     required this.thirdPlace,
+    this.wildcards = const [],
   });
 
-  /// Konfigurasi/layar Grup mengganti isi; [groupCount] ikut apa adanya.
-  GroupKnockout copyWith({List<List<String>>? groups, Map<KnockoutRound, ScoreFormat>? formats, bool? thirdPlace}) =>
-      GroupKnockout(
-        groupCount: groupCount,
-        groups: groups ?? this.groups,
-        formats: formats ?? this.formats,
-        thirdPlace: thirdPlace ?? this.thirdPlace,
-      );
+  /// Konfigurasi/layar Grup/Buat bagan/ubah format mengganti isi; [groupCount] ikut apa adanya. Semua bidang lain wajib
+  /// terbawa (jebakan §21.12 #1: lupa satu = wildcard/format hilang diam-diam).
+  GroupKnockout copyWith({
+    List<List<String>>? groups,
+    Map<KnockoutRound, ScoreFormat>? formats,
+    bool? thirdPlace,
+    List<String>? wildcards,
+  }) => GroupKnockout(
+    groupCount: groupCount,
+    groups: groups ?? this.groups,
+    formats: formats ?? this.formats,
+    thirdPlace: thirdPlace ?? this.thirdPlace,
+    wildcards: wildcards ?? this.wildcards,
+  );
 
   /// 'A'..'D'.
   static String letter(int group) => String.fromCharCode(0x41 + group);
@@ -252,7 +287,7 @@ class GroupKnockout {
 
   /// Babak yang dimainkan, urut main = urutan baris sheet Gugur (19e).
   List<KnockoutRound> get rounds => [
-    if (groupCount == 4) KnockoutRound.quarterfinal,
+    if (groupCount >= 3) KnockoutRound.quarterfinal,
     KnockoutRound.semifinal,
     if (thirdPlace) KnockoutRound.thirdPlace,
     KnockoutRound.finalRound,
@@ -263,7 +298,7 @@ class GroupKnockout {
 sealed class MatchPhase {
   const MatchPhase();
 
-  /// Kode internal: 'A'..'D' / 'PF1' / 'SF2' / 'F' / 'J3'. Teks UI dari label babak, bukan dari sini.
+  /// Kode simpanan: 'A'..'D' / 'PF1' / 'SF2' / 'F' / 'J3'. Teks UI dari label babak, bukan dari sini.
   String get code;
 }
 
@@ -285,13 +320,15 @@ final class GroupPhase extends MatchPhase {
 final class KnockoutPhase extends MatchPhase {
   final KnockoutRound round;
 
-  /// 1-basis: PF1..PF4, SF1..SF2; Final dan Juara 3 = 1.
+  /// 1-basis: QF1..QF4, SF1..SF2; Final dan Juara 3 = 1.
   final int slot;
   const KnockoutPhase(this.round, this.slot);
 
+  /// Tetap "PF" walau UI menulis "QF" (keputusan 152): app 3.9.x dan decoder membaca simpanan 2/4 grup tanpa kode kedua.
   @override
   String get code => switch (round) {
-    KnockoutRound.quarterfinal || KnockoutRound.semifinal => '${round.codePrefix}$slot',
+    KnockoutRound.quarterfinal => 'PF$slot',
+    KnockoutRound.semifinal => 'SF$slot',
     KnockoutRound.thirdPlace => 'J3',
     KnockoutRound.finalRound => 'F',
   };
@@ -555,7 +592,7 @@ class TournamentConfig {
 
   /// Batas pemain (aktif, untuk Mixed) di layar Pemain dan Kelola pemain, sama untuk Fixed dan Mixed.
   static const minPlayers = 4;
-  static const maxPlayers = 30;
+  static const maxPlayers = 32;
 
   /// Langkah stepper durasi; durasi selalu kelipatannya.
   static const durationStep = 5;

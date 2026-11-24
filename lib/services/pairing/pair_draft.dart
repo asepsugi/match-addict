@@ -72,7 +72,7 @@ class PairDraft {
       if (p != null) p,
   ];
 
-  /// Yang dipasangkan + yang belum berpasangan; batas 30 pemain berlaku untuk mereka.
+  /// Yang dipasangkan + yang belum berpasangan; batas `TournamentConfig.maxPlayers` berlaku untuk mereka.
   int get playerCount => pairs.length * 2 + unpaired.length;
 
   String nameOf(String playerId) => [...roster, ...added].firstWhere((p) => p.id == playerId).name;

@@ -29,6 +29,13 @@ const _g16B = [
   ['Tono', 'Qori', 'Vina'],
 ];
 
+/// 16G (PRD §16, 3.10.0): 24 pemain, 3 grup × 4; id = nama pemain pertama.
+const _g16G = [
+  ['Andi', 'Citra', 'Eko', 'Gita'],
+  ['Indra', 'Kiki', 'Maya', 'Oki'],
+  ['Qori', 'Sari', 'Umar', 'Wawan'],
+];
+
 const _g16C = [
   ['Andi', 'Citra', 'Eko', 'Gita', 'Indra', 'Kiki', 'Maya', 'Oki'],
   ['Qori', 'Sari', 'Umar', 'Wawan', 'Zaki', 'Bayu', 'Dodi'],
@@ -51,13 +58,63 @@ void main() {
       expect(GroupStage.sizes(12, 4), [3, 3, 3, 3]);
     });
 
-    test('AC-G1 groupCountsFor: 10 pemain tidak ada, 22 pemain hanya 2 grup, 24 pemain 2/4', () {
-      expect(GroupStage.groupCountsFor(5), isEmpty);
-      expect(GroupStage.groupCountsFor(6), [2]);
-      expect(GroupStage.groupCountsFor(11), [2]);
-      expect(GroupStage.groupCountsFor(12), [2, 4]);
-      expect(GroupStage.groupCountsFor(15), [2, 4]);
-      expect(GroupStage.groupCountsFor(17 ~/ 2), [2]); // 19q: 17 pemain → 8 pasangan
+    test('21.2 sizes 3 grup: 13 → [5, 4, 4], 14 → [5, 5, 4], 16 → [6, 5, 5]; 16/4 → [4, 4, 4, 4]; 9/2 → [5, 4]', () {
+      expect(GroupStage.sizes(13, 3), [5, 4, 4]);
+      expect(GroupStage.sizes(14, 3), [5, 5, 4]);
+      expect(GroupStage.sizes(16, 3), [6, 5, 5]);
+      expect(GroupStage.sizes(16, 4), [4, 4, 4, 4]);
+      expect(GroupStage.sizes(9, 2), [5, 4]);
+    });
+
+    // Menggantikan AC-G1 3.8.x (min 3 pasangan per grup, 2/4 grup): min 4 per grup (AC-G29: diganti, bukan dilonggarkan).
+    test('AC-G21 groupCountsFor: 14 pemain tidak ada, 16–22 [2], 24–30 [2, 3], 32 [2, 3, 4]', () {
+      List<int> forPlayers(int players) => GroupStage.groupCountsFor(players ~/ 2);
+      expect(forPlayers(14), isEmpty);
+      expect(GroupStage.groupCountsFor(0), isEmpty);
+      for (final n in [16, 17, 18, 20, 22, 23]) {
+        expect(forPlayers(n), [2], reason: '$n pemain');
+      }
+      for (final n in [24, 25, 26, 28, 30, 31]) {
+        expect(forPlayers(n), [2, 3], reason: '$n pemain');
+      }
+      expect(forPlayers(32), [2, 3, 4]);
+      expect(GroupStage.groupCountsFor(17), isEmpty, reason: 'P > 16 tidak mungkin');
+    });
+
+    test('AC-G21 19c unavailableReason: 3 grup "Mulai 24 pemain", 4 grup "Tepat 32 pemain", yang tersedia null', () {
+      expect(GroupStage.unavailableReason(3, 11), 'Mulai 24 pemain');
+      expect(GroupStage.unavailableReason(4, 15), 'Tepat 32 pemain');
+      expect(GroupStage.unavailableReason(4, 12), 'Tepat 32 pemain');
+      expect(GroupStage.unavailableReason(2, 8), isNull);
+      expect(GroupStage.unavailableReason(3, 12), isNull);
+      expect(GroupStage.unavailableReason(3, 16), isNull);
+      expect(GroupStage.unavailableReason(4, 16), isNull);
+    });
+
+    test('AC-G21 GP9 19d fallbackGroupCount: 3 grup 24 → 20 = 2; 4 grup 32 → 30 = 3, → 22 = 2; < 16 pemain null', () {
+      expect(GroupStage.fallbackGroupCount(20 ~/ 2, 3), 2);
+      expect(GroupStage.fallbackGroupCount(30 ~/ 2, 4), 3);
+      expect(GroupStage.fallbackGroupCount(22 ~/ 2, 4), 2);
+      expect(GroupStage.fallbackGroupCount(14 ~/ 2, 2), isNull);
+      expect(GroupStage.fallbackGroupCount(32 ~/ 2, 4), 4);
+      expect(GroupStage.fallbackGroupCount(26 ~/ 2, 2), 2);
+    });
+
+    test('21.9 decodableGroupCounts: 6–11 [2], 12–16 [2, 3, 4], di luar itu [] (W4: P = 17 ditolak)', () {
+      for (var p = 0; p < 6; p++) {
+        expect(GroupStage.decodableGroupCounts(p), isEmpty, reason: 'P $p');
+      }
+      for (var p = 6; p <= 11; p++) {
+        expect(GroupStage.decodableGroupCounts(p), [2], reason: 'P $p');
+      }
+      for (var p = 12; p <= 16; p++) {
+        expect(GroupStage.decodableGroupCounts(p), [2, 3, 4], reason: 'P $p');
+      }
+      expect(GroupStage.decodableGroupCounts(17), isEmpty);
+      // Superset groupCountsFor: semua yang bisa dibuat app baru juga terbaca.
+      for (var p = 0; p <= 17; p++) {
+        expect(GroupStage.decodableGroupCounts(p), containsAll(GroupStage.groupCountsFor(p)), reason: 'P $p');
+      }
     });
   });
 
@@ -257,6 +314,40 @@ void main() {
       expect(matches.last.roundNumber, 14);
     });
 
+    test('AC-G23 16G 2 court: Court 1 A di R ganjil, C di R genap R1–R12; Court 2 hanya B R1–R6 (20p, 23b)', () {
+      final matches = GroupStage.schedule(groups: _groups(_g16G), courts: _courts(2, hours: 3));
+      expect(
+        [for (final m in matches.where((m) => m.courtId == 'c1')) '${m.roundNumber}${m.phase!.code}'],
+        [for (var r = 1; r <= 12; r++) '$r${r.isOdd ? 'A' : 'C'}'],
+      );
+      final court2 = matches.where((m) => m.courtId == 'c2');
+      expect([for (final m in court2) m.roundNumber], [1, 2, 3, 4, 5, 6]);
+      expect(court2.every((m) => m.phase == const GroupPhase(1)), isTrue);
+      final r12 = matches.where((m) => m.roundNumber == 12).single;
+      expect('${r12.pair1.id}–${r12.pair2.id}', 'Umar–Wawan');
+      expect(matches.last.roundNumber, 12);
+    });
+
+    test('AC-G23 16G varian 3 court: A C1, B C2, C C3, R1–R6', () {
+      final matches = GroupStage.schedule(groups: _groups(_g16G), courts: _courts(3, hours: 3));
+      for (final (g, court) in [(0, 'c1'), (1, 'c2'), (2, 'c3')]) {
+        expect(matches.where((m) => m.phase == GroupPhase(g)).every((m) => m.courtId == court), isTrue);
+      }
+      expect(matches.last.roundNumber, 6);
+    });
+
+    // PRD 16.4 "B dan C habis di R30": bergantian A, B, C (GU4) → B match ke-10 di R29, C di R30; A lanjut R31–R35.
+    test('16.4 32 pemain 3 grup 1 court [6, 5, 5]: B dan C habis R29/R30, A R31–R35, fase grup 35 round', () {
+      final groups = [
+        for (final (g, n) in GroupStage.sizes(16, 3).indexed) [for (var i = 0; i < n; i++) '${'ABC'[g]}$i'],
+      ];
+      final matches = GroupStage.schedule(groups: _groups(groups), courts: _courts(1));
+      expect(matches.lastWhere((m) => m.phase == const GroupPhase(1)).roundNumber, 29);
+      expect(matches.lastWhere((m) => m.phase == const GroupPhase(2)).roundNumber, 30);
+      expect([for (final m in matches.where((m) => m.roundNumber >= 31)) m.phase!.code], List.filled(5, 'A'));
+      expect(matches.last.roundNumber, 35);
+    });
+
     test('16.4 30 pemain 2 grup 1 court: B habis R42, A R43–R49', () {
       final matches = GroupStage.schedule(groups: _groups(_g16C), courts: _courts(1));
       expect(matches.lastWhere((m) => m.phase == const GroupPhase(1)).roundNumber, 42);
@@ -272,12 +363,19 @@ void main() {
       ('19g 16A tanpa juara 3', 16, 2, 2, 2, 15, false, 8, 15, 0),
       ('19k 16A 1 court', 16, 2, 1, 2, 15, true, 16, 16, 120),
       ('19g 16A 1 court tanpa juara 3', 16, 2, 1, 2, 15, false, 15, 15, 105),
-      ('AC-G4 19i 16B 24 pemain 4 grup 2 court 3 jam 20 mnt', 24, 4, 2, 3, 20, true, 10, 20, 20),
-      ('AC-G4 16B varian 26 pemain 4 grup 3 court', 26, 4, 3, 3, 20, true, 10, 23, 20),
       ('AC-G5 16C 30 pemain 2 grup 4 court 4 jam', 30, 2, 4, 4, 15, true, 16, 53, 0),
-      ('AC-G5 12 pemain 2 grup 3 court 2 jam', 12, 2, 3, 2, 15, true, 5, 10, 0),
       ('16.4 30 pemain 2 grup 1 court', 30, 2, 1, 2, 15, true, 53, 53, 45 * 15),
-      ('16.4 30 pemain 4 grup 1 court', 30, 4, 1, 2, 15, true, 29, 29, 21 * 15),
+      // 3.10.0 (logic.md §21.2): 3 grup + Perempat final; 4 grup hanya 32 pemain. Kasus 3.8.x 4 grup × 3 pasangan
+      // (24/26/30 pemain) dan 12 pemain 2 grup tidak ditawarkan lagi (AC-G21), diganti baris tabel 21.2.
+      ('AC-G23 19i 16G 24 pemain 3 grup 2 court 3 jam', 24, 3, 2, 3, 15, true, 16, 26, 60),
+      ('AC-G23 16G varian 3 court', 24, 3, 3, 3, 15, true, 10, 26, 0),
+      ('AC-G21a 23a 32 pemain 4 grup 2 court 3 jam', 32, 4, 2, 3, 15, true, 16, 32, 60),
+      ('AC-G21a 32 pemain 4 grup 1 court', 32, 4, 1, 3, 15, true, 32, 32, 20 * 15),
+      ('AC-G21a 32 pemain 4 grup 4 court', 32, 4, 4, 3, 15, true, 9, 32, 0),
+      ('16.4 32 pemain 3 grup 1 court [6, 5, 5]', 32, 3, 1, 3, 15, true, 43, 43, 31 * 15),
+      ('AC-G21a 32 pemain 2 grup 1 court [8, 8]', 32, 2, 1, 3, 15, true, 60, 60, 48 * 15),
+      ('16.4 30 pemain 3 grup 1 court [5, 5, 5]', 30, 3, 1, 3, 15, true, 38, 38, 26 * 15),
+      ('16G 3 grup tanpa juara 3, 2 court', 24, 3, 2, 3, 15, false, 16, 25, 60),
     ];
     for (final (name, players, groups, courts, hours, duration, third, rounds, matches, over) in cases) {
       test(name, () {
@@ -303,6 +401,9 @@ void main() {
       expect(est(17, 2), est(16, 2));
       expect(est(22, 4), (rounds: 0, matches: 0, overMinutes: 0));
       expect(est(10, 2), (rounds: 0, matches: 0, overMinutes: 0));
+      expect(est(24, 4), (rounds: 0, matches: 0, overMinutes: 0), reason: '4 grup hanya 32 pemain (AC-G21)');
+      expect(est(22, 3), (rounds: 0, matches: 0, overMinutes: 0));
+      expect(est(14, 2), (rounds: 0, matches: 0, overMinutes: 0));
     });
 
     test('booking terpendek yang menentukan lewat booking', () {
@@ -399,6 +500,61 @@ void main() {
       expect(gk.rounds, [KnockoutRound.semifinal, KnockoutRound.thirdPlace, KnockoutRound.finalRound]);
       const four = GroupKnockout(groupCount: 4, formats: {}, thirdPlace: false);
       expect(four.rounds, [KnockoutRound.quarterfinal, KnockoutRound.semifinal, KnockoutRound.finalRound]);
+      const three = GroupKnockout(groupCount: 3, formats: {}, thirdPlace: true);
+      expect(three.rounds, [
+        KnockoutRound.quarterfinal,
+        KnockoutRound.semifinal,
+        KnockoutRound.thirdPlace,
+        KnockoutRound.finalRound,
+      ]);
+      expect(three.wildcards, isEmpty);
+    });
+
+    test('jebakan 21.12 #1: GroupKnockout.copyWith membawa wildcards, formats, thirdPlace, groups', () {
+      final three = GroupKnockout(
+        groupCount: 3,
+        groups: const [
+          ['Andi', 'Citra', 'Eko', 'Gita'],
+          ['Indra', 'Kiki', 'Maya', 'Oki'],
+          ['Qori', 'Sari', 'Umar', 'Wawan'],
+        ],
+        formats: {...gk.formats, KnockoutRound.quarterfinal: const ScoreFormat(ScoringMethod.raceTo, 4)},
+        thirdPlace: false,
+      ).copyWith(wildcards: const ['Eko', 'Kiki']);
+      expect(three.wildcards, ['Eko', 'Kiki']);
+      final formatChanged = three.copyWith(formats: gk.formats);
+      expect(formatChanged.wildcards, ['Eko', 'Kiki']);
+      expect(formatChanged.thirdPlace, isFalse);
+      expect(formatChanged.groupCount, 3);
+      final thirdOn = three.copyWith(thirdPlace: true);
+      expect(thirdOn.wildcards, ['Eko', 'Kiki']);
+      expect(thirdOn.formats, three.formats);
+      expect(thirdOn.groups, three.groups);
+      expect(three.copyWith(groups: three.groups).wildcards, ['Eko', 'Kiki']);
+      expect(three.copyWith(wildcards: const []).wildcards, isEmpty);
+    });
+
+    test('21.1 Seeding: 2/4 grup tanpa juara/wildcard; 3 grup membawa J1–J3 dan WC1, WC2', () {
+      const two = Seeding(
+        groupSlots: [
+          ['Andi', 'Eko'],
+          ['Indra', 'Kiki'],
+        ],
+      );
+      expect(two.champions, isEmpty);
+      expect(two.wildcards, isEmpty);
+      const three = Seeding(
+        groupSlots: [
+          ['Andi', 'Citra'],
+          ['Indra', 'Maya'],
+          ['Qori', 'Sari'],
+        ],
+        champions: [0, 2, 1],
+        wildcards: ['Eko', 'Kiki'],
+      );
+      expect(three.champions, [0, 2, 1]);
+      expect(three.wildcards, ['Eko', 'Kiki']);
+      expect(three.groupSlots[2], ['Qori', 'Sari']);
     });
 
     test('GroupKnockout.copyWith(groups: …) mempertahankan thirdPlace false dan formats', () {
@@ -415,14 +571,15 @@ void main() {
       expect(regrouped.groups.first, ['Andi', 'Eko', 'Citra', 'Gita']);
     });
 
-    test('KnockoutRound label, shortLabel, codePrefix; MatchPhase code dan ==', () {
+    test('21.1 KnockoutRound label, shortLabel, codePrefix UI "QF" vs kode simpanan "PF", tabLabel; MatchPhase ==', () {
       expect(
         [for (final r in KnockoutRound.values) r.label],
         ['Perempat final', 'Semifinal', 'Perebutan juara 3', 'Final'],
       );
       expect(KnockoutRound.thirdPlace.shortLabel, 'Juara 3');
       expect(KnockoutRound.finalRound.shortLabel, 'Final');
-      expect([for (final r in KnockoutRound.values) r.codePrefix], ['PF', 'SF', null, null]);
+      expect([for (final r in KnockoutRound.values) r.codePrefix], ['QF', 'SF', null, null]);
+      expect([for (final r in KnockoutRound.values) r.tabLabel], ['QF', 'SF', 'Juara 3', 'Final']);
       expect(
         [
           const GroupPhase(3).code,
@@ -432,6 +589,11 @@ void main() {
           const KnockoutPhase(KnockoutRound.thirdPlace, 1).code,
         ],
         ['D', 'PF1', 'SF2', 'F', 'J3'],
+        reason: 'kode simpanan tetap "PF" (keputusan 152, §21.9)',
+      );
+      expect(
+        [for (var s = 1; s <= 4; s++) KnockoutPhase(KnockoutRound.quarterfinal, s).code],
+        ['PF1', 'PF2', 'PF3', 'PF4'],
       );
       // ignore: prefer_const_constructors — sengaja instance berbeda untuk menguji kesamaan nilai.
       expect(KnockoutPhase(KnockoutRound.semifinal, 1), const KnockoutPhase(KnockoutRound.semifinal, 1));
