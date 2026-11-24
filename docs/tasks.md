@@ -105,6 +105,15 @@ milik task berikut: 21a/d/j/p/r/t/u/w/x/y (GP-9); 22i, 22j, 22l ×2, 22p, 22r, A
   catat `playoff_seeding.dart` (GP-12).
 - Berikutnya gelombang 3: GP-4 ‖ GP-8 ‖ A15-2.
 
+**Gelombang 3 (2026-11-24):** A15-2 (edc4f9f, hi-fi), GP-4 (ec29a81 + review 6b5e04e/0f11724, tech-lead Approve) dan
+GP-8 (742e7d3 + c44ac61) di-merge ke `grup-playoff-3-10` (1db9a20). Run penuh: 2314 lolos, 21 gagal:
+- milik task berikut (18): 21a/d/j/p/r/t/u/w/x/y (GP-9); 22i, 22j, 22l ×2, 22p, 22r, AC-G18 (GP-11); flow 16A (GP-5).
+- **19f, 19g, 19h (2,7% beda)**: kode GP-8 benar mengikuti 19e (sheet Playoff bersubjudul babak awal "Semifinal",
+  keputusan 136), tapi di 19f/19g/19h sheet Playoff di bawah sheet babak tanpa subjudul → frame saling bertentangan,
+  ditanyakan ke host (usul: tambah `<p>Semifinal</p>` di 19f/19g/19h, golden lalu lolos tanpa ubah kode).
+- Berikutnya gelombang 4: **GP-5 sendirian** (engineer opus, review tech-lead fresh), di sesi baru. Catatan GP-5 di
+  gelombang 2 tetap berlaku (`createBracket` 3 grup, `withPicks`, test flow 16A "Juara 1"/"Juara 2").
+
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
 **GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari
