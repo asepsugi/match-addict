@@ -120,7 +120,8 @@ class MatchScoreRow extends StatelessWidget {
   static const _clockFill = Color(0x380F1E2C);
 
   Widget _clock(String text) => Container(
-    height: 26,
+    // `.court.timed .cd { min-height: 26 }`: kotak jam tumbuh kalau teksnya membesar.
+    constraints: const BoxConstraints(minHeight: 26),
     color: _clockFill,
     alignment: Alignment.center,
     child: Text(
@@ -185,7 +186,7 @@ class MatchScoreRow extends StatelessWidget {
                       )
                     else if (label != null) ...[
                       SizedBox(
-                        height: 14,
+                        height: MediaQuery.textScalerOf(context).scale(14),
                         child: Text(
                           label!,
                           maxLines: 1,
@@ -200,9 +201,9 @@ class MatchScoreRow extends StatelessWidget {
                       ),
                       SizedBox(height: 8 - labelOverlap),
                     ],
-                    _line(top),
+                    _line(context, top),
                     const SizedBox(height: 8),
-                    _line(bottom),
+                    _line(context, bottom),
                   ],
                 ),
               ),
@@ -244,10 +245,11 @@ class MatchScoreRow extends StatelessWidget {
 
   /// Satu baris tim setinggi baris CSS (16 × 1,4 = 22,4). Mesin teks membulatkan tinggi baris ke 22, dan di
   /// riwayat Detail (tanpa tinggi minimal) selisihnya menumpuk 0,8 pt per baris.
-  Widget _line(MatchScoreSide side) => SizedBox(
-    height: 16 * 1.4,
+  /// Tinggi baris dan lebar kolom skor ikut skala teks (`.ts13`: 28,6 dan 26); tinggi tetap hanya untuk kontrol tanpa teks.
+  Widget _line(BuildContext context, MatchScoreSide side) => SizedBox(
+    height: MediaQuery.textScalerOf(context).scale(16) * 1.4,
     // Satu label per tim; status menang dibaca, tidak hanya terlihat dari tebal dan titik bola.
-    child: Semantics(label: _teamLabel(side), excludeSemantics: true, child: _team(side)),
+    child: Semantics(label: _teamLabel(side), excludeSemantics: true, child: _team(context, side)),
   );
 
   String _teamLabel(MatchScoreSide side) => [
@@ -257,7 +259,7 @@ class MatchScoreRow extends StatelessWidget {
     if (side.tag != null) side.tag!,
   ].join(', ');
 
-  Widget _team(MatchScoreSide side) {
+  Widget _team(BuildContext context, MatchScoreSide side) {
     final name = MabarType.body.copyWith(
       color: cancelled ? MabarColors.faint : (side.win ? MabarColors.ink : MabarColors.ink2),
       fontWeight: side.win && !cancelled ? FontWeight.w700 : (side.tbd ? FontWeight.w500 : FontWeight.w400),
@@ -306,7 +308,7 @@ class MatchScoreRow extends StatelessWidget {
             for (var i = 0; i < side.scores.length; i++) ...[
               if (i > 0) const SizedBox(width: 12),
               SizedBox(
-                width: 20,
+                width: MediaQuery.textScalerOf(context).scale(20),
                 child: Text(
                   side.scores[i],
                   textAlign: TextAlign.right,

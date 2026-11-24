@@ -92,7 +92,7 @@ void main() {
       expect((button(tester).label, button(tester).meta), ('Lanjut', '· 8 round · 16 match'));
     });
 
-    testWidgets('19c sheet Fase grup · 8 pasangan · hanya 2 grup', (tester) async {
+    testWidgets('19c sheet Fase grup · 8 pasangan · 3 dan 4 grup mati', (tester) async {
       await expectMatchesHifi(
         tester,
         screen(SportType.padel, 16),
@@ -102,11 +102,17 @@ void main() {
           await tapText(tester, '2 grup · Race to 6 · 15 menit');
         },
       );
-      expect(find.text('2 grup'), findsOneWidget); // subjudul sheet
-      expect(find.text('4 grup'), findsNothing);
+      expect(find.text('8 pasangan'), findsOneWidget); // subjudul sheet
+      expect(find.text('4 + 4 · Semifinal'), findsOneWidget);
+      expect(find.text('Mulai 24 pemain'), findsOneWidget);
+      expect(find.text('Tepat 32 pemain'), findsOneWidget);
+      // Pilihan mati tidak bisa diketuk (GP9).
+      await tester.tap(find.text('3 grup'));
+      await tester.pumpAndSettle();
+      expect(row('2 grup · Race to 6 · 15 menit'), findsOneWidget);
     });
 
-    testWidgets('19d sheet Fase grup · 12 pasangan · 4 grup', (tester) async {
+    testWidgets('19d sheet Fase grup · 12 pasangan · 3 grup · 4 grup mati', (tester) async {
       await expectMatchesHifi(
         tester,
         screen(SportType.tennis, 24),
@@ -114,10 +120,37 @@ void main() {
         act: (tester) async {
           await groupKnockout(tester);
           await tapText(tester, '2 grup · Race to 6 · 20 menit');
+          await tapText(tester, '3 grup');
+        },
+      );
+      expect(row('3 grup · Race to 6 · 20 menit'), findsOneWidget);
+      expect(row('Playoff · Perempat final · 2 wildcard'), findsOneWidget);
+      expect(find.text('4 + 4 + 4 · Perempat final · 2 wildcard'), findsOneWidget);
+      expect(find.text('Tepat 32 pemain'), findsOneWidget);
+    });
+
+    testWidgets('23a sheet Fase grup · 32 pemain · 4 grup', (tester) async {
+      await expectMatchesHifi(
+        tester,
+        screen(SportType.padel, 32),
+        '23a',
+        act: (tester) async {
+          await groupKnockout(tester);
+          await tapText(tester, '2 court · 2 jam');
+          await tapStep(tester, 1, 'Tambah');
+          await tapStep(tester, 2, 'Tambah');
+          await closeSheet(tester);
+          await tapText(tester, '2 grup · Race to 6 · 15 menit');
           await tapText(tester, '4 grup');
         },
       );
-      expect(row('4 grup · Race to 6 · 20 menit'), findsOneWidget);
+      expect(row('4 grup · Race to 6 · 15 menit'), findsOneWidget);
+      expect(row('Playoff · Perempat final'), findsOneWidget);
+      expect(find.text('16 pasangan'), findsOneWidget);
+      expect(find.text('8 + 8 · Semifinal'), findsOneWidget);
+      expect(find.text('6 + 5 + 5 · Perempat final · 2 wildcard'), findsOneWidget);
+      expect(find.text('4 + 4 + 4 + 4 · Perempat final'), findsOneWidget);
+      expect((button(tester).label, button(tester).meta), ('Lanjut', '· 16 round · lewat booking 01:00'));
     });
 
     testWidgets('19e sheet Playoff · 2 grup · format per babak', (tester) async {
@@ -181,7 +214,8 @@ void main() {
           await tapStep(tester, 0, 'Tambah');
           await closeSheet(tester);
           await tapText(tester, 'Best of 7');
-          await tapText(tester, 'Semifinal');
+          await tester.tap(find.byKey(const ValueKey(KnockoutRound.semifinal)));
+          await tester.pumpAndSettle();
         },
       );
       expect(row('2 grup · Best of 6 · 15 menit'), findsOneWidget);
@@ -193,48 +227,55 @@ void main() {
       expect(tester.widget<MabarStepper>(stepper(0)).value, 9);
     });
 
-    testWidgets('19i 4 grup · 24 pemain · lewat booking', (tester) async {
+    /// Keadaan 19i: 24 pemain, 3 grup, 2 court × 3 jam, Playoff 16G (Perempat final Race to 4, Semifinal dan Perebutan
+    /// juara 3 Race to 5, Final Race to 6).
+    Future<void> example16G(WidgetTester tester) async {
+      await groupKnockout(tester);
+      await tapText(tester, '2 grup · Race to 6 · 15 menit');
+      await tapText(tester, '3 grup');
+      await closeSheet(tester);
+      await tapText(tester, '2 court · 2 jam');
+      await tapStep(tester, 1, 'Tambah');
+      await tapStep(tester, 2, 'Tambah');
+      await closeSheet(tester);
+      await tapText(tester, 'Race to 6');
+      await inRound(tester, 'Perempat final', () => tapStep(tester, 0, 'Kurangi', times: 2));
+      await inRound(tester, 'Semifinal', () => tapStep(tester, 0, 'Kurangi'));
+      await inRound(tester, 'Perebutan juara 3', () => tapStep(tester, 0, 'Kurangi'));
+    }
+
+    testWidgets('19i 3 grup · 24 pemain · lewat booking', (tester) async {
       await expectMatchesHifi(
         tester,
-        screen(SportType.tennis, 24),
+        screen(SportType.padel, 24),
         '19i',
         act: (tester) async {
-          await groupKnockout(tester);
-          await tapText(tester, '2 grup · Race to 6 · 20 menit');
-          await tapText(tester, '4 grup');
-          await closeSheet(tester);
-          await tapText(tester, '2 court · 2 jam');
-          await tapStep(tester, 1, 'Tambah');
-          await tapStep(tester, 2, 'Tambah');
+          await example16G(tester);
           await closeSheet(tester);
         },
       );
+      expect(row('3 grup · Race to 6 · 15 menit'), findsOneWidget);
+      expect(row('Playoff · Perempat final · 2 wildcard'), findsOneWidget);
+      expect(row('Race to 4–6'), findsOneWidget);
       expect(row('2 court · 3 jam'), findsOneWidget);
-      expect((button(tester).label, button(tester).meta), ('Lanjut', '· 10 round · lewat booking 00:20'));
+      expect((button(tester).label, button(tester).meta), ('Lanjut', '· 16 round · lewat booking 01:00'));
       expect(button(tester).onPressed, isNotNull);
     });
 
-    testWidgets('19j sheet Playoff · 4 grup', (tester) async {
-      await expectMatchesHifi(
-        tester,
-        screen(SportType.tennis, 24),
-        '19j',
-        act: (tester) async {
-          await groupKnockout(tester);
-          await tapText(tester, '2 grup · Race to 6 · 20 menit');
-          await tapText(tester, '4 grup');
-          await closeSheet(tester);
-          await tapText(tester, 'Race to 6');
-        },
-      );
-      expect(find.text('Perempat final'), findsOneWidget);
+    testWidgets('19j sheet Playoff · 3 grup', (tester) async {
+      await expectMatchesHifi(tester, screen(SportType.padel, 24), '19j', act: example16G);
+      expect(find.text('Perempat final · 2 wildcard'), findsOneWidget); // subjudul sheet
+      expect(row('Race to 4'), findsOneWidget);
+      expect(row('Race to 5'), findsNWidgets(2));
+      expect(row('Race to 6'), findsOneWidget);
       // Kembali ke 2 grup: baris Perempat final hilang, format babak lain tetap.
       await closeSheet(tester);
-      await tapText(tester, '4 grup · Race to 6 · 20 menit');
+      await tapText(tester, '3 grup · Race to 6 · 15 menit');
       await tapText(tester, '2 grup');
       await closeSheet(tester);
-      await tapText(tester, 'Race to 6');
+      await tapText(tester, 'Race to 5–6');
       expect(find.text('Perempat final'), findsNothing);
+      expect(row('Race to 5'), findsNWidgets(2));
     });
 
     testWidgets('19k 1 court · lewat booking 02:00', (tester) async {
@@ -276,8 +317,16 @@ void main() {
   });
 
   group('perilaku', () {
-    testWidgets('AC-G1: segmented hanya Fixed biasa dengan 6+ pasangan', (tester) async {
-      for (final (players, offered) in [(10, false), (12, true), (22, true), (24, true)]) {
+    testWidgets('AC-G1: segmented hanya Fixed biasa dengan 8+ pasangan (16+ pemain, keputusan 143)', (tester) async {
+      for (final (players, offered) in [
+        (10, false),
+        (12, false),
+        (14, false),
+        (16, true),
+        (22, true),
+        (24, true),
+        (32, true),
+      ]) {
         await pumpScreen(tester, SportType.padel, players);
         expect(find.text('Group - Playoff'), offered ? findsOneWidget : findsNothing, reason: '$players pemain');
       }
@@ -398,7 +447,7 @@ void main() {
           groupCount: groups,
           thirdPlace: third,
           formats: {
-            if (groups == 4) KnockoutRound.quarterfinal: const ScoreFormat(ScoringMethod.raceTo, 5),
+            if (groups >= 3) KnockoutRound.quarterfinal: const ScoreFormat(ScoringMethod.raceTo, 5),
             KnockoutRound.semifinal: format.forKnockout,
             KnockoutRound.thirdPlace: const ScoreFormat(ScoringMethod.raceTo, 4),
             KnockoutRound.finalRound: const ScoreFormat(ScoringMethod.raceTo, 9),
@@ -410,18 +459,40 @@ void main() {
         tournamentStoreProvider.overrideWithValue(TournamentStore.memory()..saveLastSettings(SportType.padel, s)),
       ];
 
-      testWidgets('4 grup terakhir dipulihkan di 24 pemain', (tester) async {
+      testWidgets('4 grup terakhir di 24 pemain → 3 grup (GP9, AC-G21), format Perempat final tetap', (tester) async {
         await pumpScreen(tester, SportType.padel, 24, overrides: withStore(last(4, third: false)));
-        expect(row('4 grup · Race to 6 · 15 menit'), findsOneWidget);
+        expect(row('3 grup · Race to 6 · 15 menit'), findsOneWidget);
         expect(row('Race to 5–9 · tanpa Juara 3'), findsOneWidget);
       });
 
-      testWidgets('4 grup terakhir lalu 22 pemain (< 12 pasangan) → 2 grup, Perempat final dibuang (19i)', (
-        tester,
-      ) async {
-        await pumpScreen(tester, SportType.padel, 22, overrides: withStore(last(4)));
+      testWidgets('4 grup terakhir dipulihkan di 32 pemain', (tester) async {
+        await pumpScreen(tester, SportType.padel, 32, overrides: withStore(last(4)));
+        expect(row('4 grup · Race to 6 · 15 menit'), findsOneWidget);
+        expect(row('Playoff · Perempat final'), findsOneWidget);
+      });
+
+      testWidgets('3 grup terakhir dipulihkan di 24 pemain', (tester) async {
+        await pumpScreen(tester, SportType.padel, 24, overrides: withStore(last(3)));
+        expect(row('3 grup · Race to 6 · 15 menit'), findsOneWidget);
+        expect(row('Playoff · Perempat final · 2 wildcard'), findsOneWidget);
+      });
+
+      testWidgets('3 grup terakhir lalu 20 pemain → 2 grup (19d)', (tester) async {
+        await pumpScreen(tester, SportType.padel, 20, overrides: withStore(last(3)));
         expect(row('2 grup · Race to 6 · 15 menit'), findsOneWidget);
-        expect(row('Race to 4–9'), findsOneWidget);
+      });
+
+      for (final (previous, players, expected) in [(4, 30, 3), (4, 22, 2)]) {
+        testWidgets('$previous grup terakhir lalu $players pemain → $expected grup (19d)', (tester) async {
+          await pumpScreen(tester, SportType.padel, players, overrides: withStore(last(previous)));
+          expect(row('$expected grup · Race to 6 · 15 menit'), findsOneWidget);
+        });
+      }
+
+      testWidgets('simpanan 2 grup di 12 pemain (6 pasangan) → round-robin biasa (keputusan 143)', (tester) async {
+        await pumpScreen(tester, SportType.padel, 12, overrides: withStore(last(2)));
+        expect(find.text('Group - Playoff'), findsNothing);
+        expect(find.text('Skor'), findsOneWidget);
       });
 
       testWidgets('turunan tidak mengubah simpanan; Sparing membuang Grup + Gugur', (tester) async {

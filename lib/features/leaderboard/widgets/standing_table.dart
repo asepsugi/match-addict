@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/mabar_theme.dart';
 import '../../../core/widgets/mabar_controls.dart';
+import '../../../core/widgets/pair_name.dart';
 
-/// Satu baris [StandingTable]. [names] satu nama (Mixed) atau dua nama ditumpuk (pasangan Fixed).
+/// Satu baris [StandingTable]. [names] satu nama (Mixed) atau dua nama pasangan Fixed (satu baris "A · B", 09m).
 class StandingTableRow {
   final int position;
   final List<String> names;
@@ -24,7 +25,7 @@ class StandingTableRow {
   /// Fase grup Grup + Gugur: slot lolos ("A1") di kanan nama (22b). Null = tanpa tanda.
   final String? tag;
 
-  /// Peringkat akhir Grup + Gugur: babak yang dicapai ("Juara", "Grup A · 3"), mengganti kolom Main sampai nilai
+  /// Peringkat akhir Grup + Gugur: babak yang dicapai ("Juara 1", "Grup A · 3"), mengganti kolom Main sampai nilai
   /// (GU16). Non-null hanya kalau tabelnya memakai [StandingTable.stageLabel].
   final String? stage;
 
@@ -70,36 +71,82 @@ class StandingTable extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, box) => _table(_pairSize(context, box.maxWidth)));
+
+  /// Ukuran huruf nama pasangan satu tabel (09m, keputusan 151): 16 turun 0,5 sampai **semua** baris pasangan muat
+  /// satu baris (termasuk yang di luar layar, supaya ukuran tidak berubah saat digulir), paling kecil 14; sesudah itu
+  /// elipsis per nama ([PairName]). Skala teks sistem ikut diukur (A-15).
+  double _pairSize(BuildContext context, double width) {
+    final pairs = [
+      for (final r in rows)
+        if (r.names.length > 1) (r.names, r.tag),
+      for (final names in idleNames)
+        if (names.length > 1) (names, null),
+    ];
+    if (pairs.isEmpty || !width.isFinite) return _pairMax;
+    final scaler = MediaQuery.textScalerOf(context);
+    final widths = stageLabel == null ? _widths : _stageWidths;
+    final fixed = widths.fold<double>(0, (sum, w) => sum + (w ?? 0));
+    final column = width - 2 * 14 - fixed - 6 * (widths.length - 1);
+    final tagWidths = {
+      for (final (_, tag) in pairs)
+        if (tag != null) tag: _textWidth(tag, _tagStyle, scaler),
+    };
+    bool fits(double size) => pairs.every((p) {
+      final (names, tag) = p;
+      final avail = column - (tag == null ? 0 : tagWidths[tag]!);
+      return PairName.fits(names.first, names.last, _nameStyle.copyWith(fontSize: size), avail, scaler: scaler);
+    });
+    var size = _pairMax;
+    while (size > _pairMin && !fits(size)) {
+      size -= 0.5;
+    }
+    return size;
+  }
+
+  static double _textWidth(String text, TextStyle style, TextScaler scaler) {
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    final w = tp.width;
+    tp.dispose();
+    return w;
+  }
+
+  Widget _table(double pairSize) {
     final children = <Widget>[
       _row(
         minHeight: 34,
         afterLine: false,
         cells: [
-          Text('#', style: _head, textAlign: TextAlign.left),
-          Text(subjectLabel, style: _head),
+          _headCell('#', left: true),
+          _headCell(subjectLabel, left: true),
           if (stageLabel case final label?)
-            Text(label, style: _head, textAlign: TextAlign.right)
+            _headCell(label)
           else ...[
-            Text('Main', style: _head, textAlign: TextAlign.right),
-            Text(recordLabel, style: _head, textAlign: TextAlign.right),
-            Text('+/−', style: _head, textAlign: TextAlign.right),
-            Text(valueLabel, style: _head, textAlign: TextAlign.right),
+            _headCell('Main'),
+            _headCell(recordLabel),
+            _headCell('+/−'),
+            _headCell(valueLabel),
           ],
         ],
       ),
-      for (final r in rows) _ranked(r),
+      for (final r in rows) _ranked(r, pairSize),
       if (idleNames.isNotEmpty) ...[
         _row(
           minHeight: 32,
           color: _subBackground,
           cells: [
             const SizedBox(),
-            Text('Belum main', style: _head),
+            _headCell('Belum main', left: true),
             for (var i = 0; i < _columns - 2; i++) const SizedBox(),
           ],
         ),
-        for (final names in idleNames) _idle(names),
+        for (final names in idleNames) _idle(names, pairSize),
       ],
     ];
     return ClipRRect(
@@ -127,6 +174,18 @@ class StandingTable extends StatelessWidget {
   }
 
   static final _head = MabarType.label.copyWith(fontSize: 12);
+
+  /// Judul kolom: satu baris di kolom tetap, mengecil secukupnya kalau skala teks membuatnya tidak muat (`.ts13`).
+  static Widget _headCell(String text, {bool left = false}) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: left ? Alignment.centerLeft : Alignment.centerRight,
+    child: Text(text, style: _head, maxLines: 1, softWrap: false),
+  );
+  static final _nameStyle = MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink);
+  static final _tagStyle = MabarType.label.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: MabarColors.ink3);
+
+  /// `.rrow .pname` `--pn`: 16 → 14 (keputusan 151).
+  static const _pairMax = 16.0, _pairMin = 14.0;
   static const _subBackground = Color(0xFFF5F7F9);
   static const _idleNumber = Color(0xFFA3AEB8);
 
@@ -192,7 +251,7 @@ class StandingTable extends StatelessWidget {
         'selisih ${r.diff}, ${r.value} $unit';
   }
 
-  Widget _ranked(StandingTableRow r) {
+  Widget _ranked(StandingTableRow r, double pairSize) {
     final lead = r.position == 1;
     final number = lead
         ? Align(
@@ -214,13 +273,12 @@ class StandingTable extends StatelessWidget {
             textAlign: TextAlign.center,
             style: MabarType.numM.copyWith(fontSize: 20, color: MabarColors.ink2),
           );
-    final nameStyle = MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink);
     final names = r.names.length > 1
-        ? Text(r.names.join('\n'), maxLines: r.names.length, overflow: TextOverflow.ellipsis, style: nameStyle)
-        : _singleName(r.names.single, nameStyle);
+        ? _pair(r.names, _nameStyle.copyWith(fontSize: pairSize))
+        : _singleName(r.names.single, _nameStyle);
     return _row(
-      // Pasangan Fixed: dua nama ditumpuk, baris 62 (09c).
-      minHeight: r.names.length > 1 ? 62 : MabarSize.rankRow,
+      // Pasangan Fixed satu baris setinggi baris pemain (09c, keputusan 151).
+      minHeight: MabarSize.rankRow,
       onTap: r.onTap,
       label: _rowLabel(r),
       cells: [
@@ -229,10 +287,7 @@ class StandingTable extends StatelessWidget {
           Row(
             children: [
               Expanded(child: names),
-              Text(
-                tag,
-                style: MabarType.label.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: MabarColors.ink3),
-              ),
+              Text(tag, style: _tagStyle),
             ],
           )
         else
@@ -257,7 +312,7 @@ class StandingTable extends StatelessWidget {
   }
 
   /// `.rrow.two` (09h): satu nama Mixed yang muat tetap satu baris (tinggi 44); yang lebih lebar dari kolom turun ke
-  /// baris kedua di batas kata dan barisnya setinggi 62 seperti baris pasangan Fixed. Lebih dari dua baris →
+  /// baris kedua di batas kata dan barisnya setinggi 62. Lebih dari dua baris →
   /// elipsis. Tinggi 62 dipaksa lewat sel setinggi 61 (baris setelah garis atas 1 pt, lihat [_row]).
   Widget _singleName(String name, TextStyle style) => LayoutBuilder(
     builder: (context, box) {
@@ -270,30 +325,41 @@ class StandingTable extends StatelessWidget {
       final two = painter.computeLineMetrics().length > 1;
       painter.dispose();
       final text = Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: style);
-      return two ? SizedBox(height: 61, child: Align(alignment: Alignment.centerLeft, child: text)) : text;
+      return two
+          ? SizedBox(
+              height: 61,
+              child: Align(alignment: Alignment.centerLeft, child: text),
+            )
+          : text;
     },
   );
 
-  /// Kolom Babak (22a): "Juara" tinta tebal, babak gugur tinta kedua, posisi grup ("Grup A · 3") abu.
+  /// `.pname`: rata kiri, tengah vertikal di sel nama.
+  Widget _pair(List<String> names, TextStyle style) => Align(
+    alignment: Alignment.centerLeft,
+    child: PairName(first: names.first, second: names.last, style: style),
+  );
+
+  /// Kolom Babak (22a): "Juara 1" tinta tebal, babak gugur tinta kedua, posisi grup ("Grup A · 3") abu.
   Widget _stage(String stage) {
     final (color, weight) = switch (stage) {
-      'Juara' => (MabarColors.ink, FontWeight.w800),
+      'Juara 1' => (MabarColors.ink, FontWeight.w800),
       final s when s.startsWith('Grup ') => (MabarColors.ink3, FontWeight.w500),
-      _ => (MabarColors.ink2, FontWeight.w700),
+      _ => (MabarColors.ink2, FontWeight.w600),
     };
     return Text(
       stage,
       textAlign: TextAlign.right,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: MabarType.body.copyWith(fontSize: 18, fontWeight: weight, color: color),
+      style: MabarType.body.copyWith(fontSize: 16, fontWeight: weight, color: color),
     );
   }
 
-  Widget _idle(List<String> names) {
+  Widget _idle(List<String> names, double pairSize) {
     final dash = MabarType.body.copyWith(color: _idleNumber);
     return _row(
-      minHeight: names.length > 1 ? 62 : MabarSize.rankRow,
+      minHeight: MabarSize.rankRow,
       cells: [
         Text(
           '–',
@@ -301,12 +367,7 @@ class StandingTable extends StatelessWidget {
           style: MabarType.numM.copyWith(fontSize: 20, color: _idleNumber),
         ),
         if (names.length > 1)
-          Text(
-            names.join('\n'),
-            maxLines: names.length,
-            overflow: TextOverflow.ellipsis,
-            style: MabarType.body.copyWith(color: MabarColors.ink3),
-          )
+          _pair(names, MabarType.body.copyWith(fontSize: pairSize, color: MabarColors.ink3))
         else
           _singleName(names.single, MabarType.body.copyWith(color: MabarColors.ink3)),
         for (var i = 0; i < _columns - 2; i++) Text('–', textAlign: TextAlign.right, style: dash),

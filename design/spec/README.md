@@ -60,6 +60,11 @@ Kalau hi-fi berubah: jalankan `python3 tool/hifi_extract.py` (butuh Google Chrom
    `mexicano_test.dart`. Golden Konfigurasi lama (03a–03e, 13h–13j, 14f–14g, komponen `config_test.dart`) merah di
    branch `mexicano` sejak frame-nya digambar ulang (ec1943c) — KF-1 yang menghijaukannya; golden lain harus tetap
    lolos tanpa diubah.
+8. **Group - Playoff fleksibel + batas 32 + nama satu baris 3.10.0** — PRD §16 (3.10.0), §8.1, §5.9, keputusan 135–154,
+   `logic.md` §21, frame 19*, 20*, 21*, 22*, 23a–23w, 09m, 11s, 13x. Urutan: data (dba) → model + ukuran grup + batas 32
+   (fondasi) dan nama satu baris (komponen) → bagan + peringkat (paralel) → codec → controller + fixture → layar
+   (bagan, Jadwal, Klasemen/Bagikan paralel). Task GP-n di `docs/tasks.md`. Verifikasi: data §21 di
+   `test/services/group_*`/`knockout_*` (termasuk properti AC-G26 dan batas 32), golden per frame.
 
 Langkah 1–4 paling berisiko (logika + terjemahan CSS→Flutter) dan sebaiknya dikerjakan model yang lebih kuat.
 Langkah 5 bisa dikerjakan model yang lebih murah karena tinggal merakit komponen jadi dan dicek golden.

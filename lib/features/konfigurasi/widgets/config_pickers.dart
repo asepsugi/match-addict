@@ -50,8 +50,9 @@ class ModePicker extends StatelessWidget {
     return Semantics(
       button: true,
       selected: on,
-      child: SizedBox(
-        height: 86,
+      // Tinggi minimum 86: pada skala teks 1,3 kartu tumbuh ke 93 (`.ts13 .mode`).
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 86),
         child: Material(
           color: MabarColors.card,
           shape: RoundedRectangleBorder(
@@ -61,28 +62,38 @@ class ModePicker extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: () => onChanged(mode),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 32,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(MabarIcons.user, size: 30, color: art),
-                      const SizedBox(width: 2),
-                      Icon(_link(mode), size: 16, color: art),
-                      const SizedBox(width: 2),
-                      Icon(MabarIcons.user, size: 30, color: art),
-                    ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 32,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MabarIcons.user, size: 30, color: art),
+                        const SizedBox(width: 2),
+                        Icon(_link(mode), size: 16, color: art),
+                        const SizedBox(width: 2),
+                        Icon(MabarIcons.user, size: 30, color: art),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  mode.label,
-                  style: MabarType.body.copyWith(fontSize: 17, fontWeight: FontWeight.w700, color: MabarColors.ink),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  // Nama mode satu baris, tidak dielipsis: mengecil secukupnya kalau tidak muat (`.mode b.fit`).
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      mode.label,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: MabarType.body.copyWith(fontSize: 17, fontWeight: FontWeight.w700, color: MabarColors.ink),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

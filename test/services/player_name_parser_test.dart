@@ -54,12 +54,12 @@ Eko M
       expect(r.validationError, isNull);
     });
 
-    test('validation: 30 valid, > 30 invalid', () {
+    test('AC-B8 validation: 32 valid, > 32 invalid', () {
       String input(int n) => List.generate(n, (i) => 'P${i + 1}').join('\n');
-      expect(PlayerNameParser.parse(input(30)).isValid, isTrue);
-      final r = PlayerNameParser.parse(input(31));
+      expect(PlayerNameParser.parse(input(32)).isValid, isTrue);
+      final r = PlayerNameParser.parse(input(33));
       expect(r.isValid, isFalse);
-      expect(r.validationError, contains('Maksimal 30'));
+      expect(r.validationError, contains('Maksimal 32'));
     });
   });
 }

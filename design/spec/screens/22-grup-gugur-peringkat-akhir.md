@@ -12,10 +12,11 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Data 16E/16F: SF1 Andi · Budi 6–4 Maya · Nanda, SF2 Indra · Joko 4–6 Citra · Dewi, Final Andi · Budi 7–9 Citra · Dewi, Perebutan juara 3 Maya · Nanda 4–2 Indra · Joko. 12 match grup + 4 gugur = 16 match, R1–R8.
 - Setelah bagan dibuat Klasemen punya dua tab: Peringkat (peringkat akhir, terbuka pertama) dan Fase grup (22b). Sebelum bagan dan belum diakhiri hanya tabel grup tanpa tab (20d, 20f); diakhiri di fase grup → dua tab (22g).
-- Nomor dari tingkat babak (16.8): Juara, Final, Juara 3, Semifinal, lalu yang tidak lolos per posisi grup. Posisi grup sama = nomor sama (#5 Eko · Fajar dan Kiki · Lina, posisi 3); nomor rapat. Yang senomor urut nama.
+- Nomor dari tingkat babak (16.8): Juara 1, Juara 2, Juara 3, Semifinal, lalu yang tidak lolos per posisi grup. Posisi grup sama = nomor sama (#5 Eko · Fajar dan Kiki · Lina, posisi 3); nomor rapat. Yang senomor urut nama.
 - Kolom Babak menggantikan Main, W–L, +/−, dan nilai (GU16): angka fase grup tidak menentukan nomor, jadi tidak ditampilkan di sini. Pasangan yang tidak lolos menulis grup · posisi grup ("Grup A · 3").
-- Juara 4 menulis "Semifinal" (16F): kalah di Semifinal lalu kalah Perebutan juara 3. #1 diberi bola seperti Klasemen lain. Ketuk baris → Detail pasangan (22j).
+- Kalah Perebutan juara 3 menulis "Semifinal" (keputusan 149, ralat host 2026-11-23: tidak ada "Juara 4"): kalah di Semifinal lalu kalah Perebutan juara 3. #1 diberi bola seperti Klasemen lain. Ketuk baris → Detail pasangan (22j).
 - Status Final setelah Final dan Perebutan juara 3 terisi; subjudul pola 09c dengan nama format "Group - Playoff" di tempat mode (keputusan 127). Bagikan memakai urutan tab Peringkat.
+- 3.10.0 (keputusan 149): "Juara 1" dan "Juara 2" dari Final, "Juara 3" dari Perebutan juara 3; label lain = babak yang dicapai. Sama di Klasemen, poster, dan caption.
 
 ## 22b · Klasemen · Fase grup · setelah bagan · Final
 
@@ -36,6 +37,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Juara 3 dimatikan (19g, keputusan 100): kedua yang kalah Semifinal satu tingkat → #3 Indra · Joko dan Maya · Nanda, keduanya "Semifinal". Nomor berikutnya rapat: posisi grup 3 di #4, posisi 4 di #5.
 - 15 match (12 grup + SF1, SF2, Final); R8 hanya Final (21q, 21r). Poster: empat anak tangga #1 #2 #3 #3 (22n).
+- Label juara (keputusan 149): Juara 1, Juara 2; tanpa Perebutan juara 3 tidak ada "Juara 3", kedua yang kalah Semifinal tetap "Semifinal".
 
 ## 22d · Klasemen · Peringkat · bagan baru dibuat · Sementara
 
@@ -54,7 +56,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
 - Keadaan 21c/21d: SF1 Andi · Budi 6–4 Maya · Nanda, SF2 belum. Andi · Budi sudah di Final (belum ada hasil) → di atas tingkat kalah Final; Citra · Dewi dan Indra · Joko masih di Semifinal → #2 bersama; Maya · Nanda sudah kalah Semifinal dan menunggu Perebutan juara 3 → #3.
-- Babak untuk pasangan yang match-nya belum ada hasil = babak yang sedang dijalani ("Final", "Semifinal", "Perebutan juara 3", nama lengkap GU1). Setelah hasil: Juara/Final, Juara 3/Semifinal.
+- Babak untuk pasangan yang match-nya belum ada hasil = babak yang sedang dijalani ("Final", "Semifinal", "Perebutan juara 3", nama lengkap GU1). Setelah hasil: Juara 1 / Juara 2, Juara 3 / Semifinal (keputusan 149).
 - Status Sementara tertulis di subjudul; tidak ada tanda lain di baris.
 
 ## 22f · Klasemen · Peringkat · diakhiri setelah Semifinal
@@ -82,11 +84,12 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
-- Data 21y (16B): PF1 Andi · Budi 6–3 Gita · Hadi, PF2 Maya · Nanda 4–6 Vina · Wawan, PF3 Indra · Joko 6–5 Citra · Dewi, PF4 Tono · Umi 6–2 Rudi · Sari; SF1 Andi · Budi 6–4 Vina · Wawan, SF2 Indra · Joko 3–6 Tono · Umi; Final 9–6, Juara 3 Vina · Wawan 4–3 Indra · Joko.
+- Data 21y (16B): QF1 Andi · Budi 6–3 Gita · Hadi, QF2 Maya · Nanda 4–6 Vina · Wawan, QF3 Indra · Joko 6–5 Citra · Dewi, QF4 Tono · Umi 6–2 Rudi · Sari; SF1 Andi · Budi 6–4 Vina · Wawan, SF2 Indra · Joko 3–6 Tono · Umi; Final 9–6, Juara 3 Vina · Wawan 4–3 Indra · Joko.
 - Empat yang kalah Perempat final satu nomor (#5), urut nama. 12 match grup + 8 gugur = 20 match, R1–R10.
 - Halaman digulir; app bar, tab, dan action bar tetap. Bawah daftar: 22i.
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
-## 22i · Klasemen · Peringkat · 4 grup · digulir ke bawah
+## 22i · Klasemen · Peringkat · 4 grup · Final
 
 ![22i](../../frames/22i.png)
 
@@ -94,6 +97,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Posisi grup 3 dari keempat grup berbagi #6 (16.8). Grup 3 pasangan → tidak ada posisi 4.
 - Nama posisi 3 (Eko · Fajar, Kiki · Lina, Oki · Putri, Qori · Yuni) ditetapkan di sini; 21u–21y hanya menulis yang lolos.
+- Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
 ## 22j · Detail · pasangan juara
 
@@ -105,6 +109,7 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 - Baris angka = fase grup saja (GU13): 6 + 6 + 4 = 16 game, Point % 16 ÷ 29 = 55%, Win 67%, 2–1, 16 − 13 = +3 — sama dengan baris tabel Grup A (22b). Statline lima angka seperti 10b (sejak 3.9.0, keputusan 130); Point % tampil walau tabel grup Race to memakai Win %. Label "Grup A · Race to 6" di atasnya = grup dan format fase grup.
 - "Beda lawan" tidak ditampilkan: di fase grup selalu semua pasangan grup sendiri. Kalah WO = fase grup.
 - Riwayat semua match, terbaru di atas, dengan nama babak di atas nama (komponen .gg-babak dari Jadwal 21): match gugur "Final · Race to 9", "Semifinal · Race to 6"; match grup "Grup A". Hasil gugur tidak masuk angka di atas.
+- Subjudul memakai label babak peringkat akhir (keputusan 149): "Juara 1".
 
 ## 22k · Detail · pasangan tidak lolos
 
@@ -122,10 +127,10 @@ Komponen: `MabarAppBar`, `MabarIconButton`, `MabarGroup / MabarRow`, `MatchScore
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Podium dan lantai tetap (keputusan 60–92): tiga baris teratas peringkat akhir naik, pasangan = dua bola per blok dan dua nama bertumpuk (18a, 18e). Hanya isi kolom kanan panel yang berubah: babak, bukan "nilai · selisih" (GU16).
+- Podium dan lantai tetap (keputusan 60–92): tiga baris teratas peringkat akhir naik, pasangan = dua bola per blok dan nama pasangan satu baris (18a, 18e; keputusan 148). Label juara (keputusan 149): Juara 1 dan Juara 2 dari Final, Juara 3 = pemenang Perebutan juara 3; yang kalah di Perebutan juara 3 dan kedua yang kalah di Semifinal tanpa Perebutan juara 3 "Semifinal"; tidak ada "Juara 4". Hanya isi kolom kanan panel yang berubah: babak, bukan "nilai · selisih" (GU16).
 - Babak di panel: Archivo 13,5 tebal 800 lebar 88%, warna teks panel (Story 17). Satu teks, tanpa satuan; baris emas tetap lencana #1.
 - Fakta Final "Padel · 8 pasangan · 8 round · 16 match" (pola 11a bernama). Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "Padel · Group - Playoff · tanggal".
-- Caption (Ringkas) — baris peringkat menulis babak, tanpa poin dan Win %: `🏆 Garuda Open 2026 · Padel` `17 November 2026` `Klasemen Akhir` `1. Citra + Dewi — Juara` `2. Andi + Budi — Final` `3. Maya + Nanda — Juara 3` `4. Indra + Joko — Semifinal` `5. Eko + Fajar — Grup A · 3` `5. Kiki + Lina — Grup B · 3` `6. Gita + Hadi — Grup A · 4` `6. Oki + Putri — Grup B · 4` `8 round · 16 match · 17 Nov 2026`
+- Caption (Ringkas) — baris peringkat menulis babak, tanpa poin dan Win %: `🏆 Garuda Open 2026 · Padel` `17 November 2026` `Klasemen Akhir` `1. Citra + Dewi — Juara 1` `2. Andi + Budi — Juara 2` `3. Maya + Nanda — Juara 3` `4. Indra + Joko — Semifinal` `5. Eko + Fajar — Grup A · 3` `5. Kiki + Lina — Grup B · 3` `6. Gita + Hadi — Grup A · 4` `6. Oki + Putri — Grup B · 4` `8 round · 16 match · 17 Nov 2026`
 
 ## 22m · Gambar Ringkas · Feed dan Story · Final · bernama
 
@@ -171,8 +176,8 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `SharePoster`
 
-- Feed 226 ÷ 8 = 28,25 → skala 1,04. Story pasangan bertumpuk = 16 satuan: 336 ÷ 16 = 21 → skala 1,235; nama dan babak di batas 15.
-- Babak rata kanan di tengah baris dua nama (Story).
+- Feed 226 ÷ 8 = 28,25 → skala 1,04. Story nama pasangan satu baris (keputusan 148) = 8 satuan: 336 ÷ 8 = 42 (batas baris) → batas skala 1,33; nama dan babak di batas 15.
+- Babak rata kanan, satu baris dengan nama pasangan (Feed dan Story).
 
 ## 22r · Gambar Lengkap · 4 grup · 12 pasangan · Feed, Story dan pratinjau
 
@@ -180,8 +185,9 @@ Komponen: `SharePoster`
 
 Komponen: `SharePoster`
 
-- Data 22h. Pasangan selalu satu kolom (keputusan 81). Kepadatan: Feed 226 ÷ 12 = 18,83 → skala 0,856; Story 336 ÷ 24 = 14 → 0,823; pratinjau 238 ÷ 12 = 19,83 → 0,901.
+- Data 22h. Pasangan selalu satu kolom (keputusan 81). Kepadatan: Feed 226 ÷ 12 = 18,83 → skala 0,856; Story satu baris per pasangan (keputusan 148) subjudul turun ke 12 (12,5 tidak muat di 212), ruang 340 ÷ 12 = 28,33 → batas skala 1,33 (keputusan 162); pratinjau 238 ÷ 12 = 19,83 → 0,901.
 - Babak terlebar "Perempat final" menentukan lebar kolom kanan; nama pasangan tetap utuh. Tema lapangan tennis (lantai court).
+- Simpanan 3.8.x–3.9.x (4 grup × 3, 12 pasangan): tetap dimuat dan dibagikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142); poster Fixed 16 pasangan = 11s.
 
 ## 22s · Beranda · Grup + Gugur berjalan · fase grup
 

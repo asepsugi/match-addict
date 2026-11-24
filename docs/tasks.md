@@ -1,3 +1,175 @@
+# Task — 3.10.0 Group - Playoff fleksibel + batas 32 + GU9 + nama satu baris (MINOR) — FASE KODE
+
+Pemilik: main session. Branch `grup-playoff-3-10` (dari `main` 02dd45f; dokumen 2601de5, generator 4075832). Produk:
+PRD §16 (G2, G7a, G8, G9, G14–G16, 16.4–16.10, contoh 16G–16H, AC-G21–G30), §8.1 (B1–B3, AC-B1–B10), §5.9, keputusan
+135–154. Hi-fi v109. **Spec: `design/spec/logic.md` §21** (memperluas §18; data test, invariant, jebakan 21.12, draf data
+21.9). Status 2026-11-23: spec + task selesai (tech-lead), belum ada kode. `schemaVersion` tetap 2; kalau dba harus
+menaikkannya → berhenti, MAJOR, kembali ke host.
+
+Aturan semua task: test dulu dengan data §21 (nama test = ID PRD + id frame); `dart format` hanya hunk/berkas sendiri;
+tanpa dependensi baru; semua mutasi berakhir di `state =` (tanpa `saveActive`/kirim live manual); golden
+`expectMatchesHifi` hanya frame task itu (`python3 -I tool/hifi_frame.py <id>… --tests`); `clockProvider` di-override.
+Versi 3.10.0+28 + `appVersion` hanya di GP-12. **Maks 3 agen paralel (worktree), agen berhenti ~150k konteks,
+fixture bersama hanya diubah pemiliknya (GP-5).**
+
+| Task | Isi (spec) | Siapa · model | Berkas yang disentuh | Frame / golden | Butuh | Gelombang |
+|---|---|---|---|---|---|---|
+| GP-0 | Bentuk data 21.9: GR5/GR8/GR14 3 grup, kunci `wildcards` (GR18) atau turunan, kode "PF" tetap, `last_settings` G = 3, uji lintas versi decoder `v3.9.1` (AC-B8, AC-G29), ukuran payload (AC-B9). Security mencatat aturan baca + keputusan tolak/tampil 2/4 grup 16 pasangan di 3.9.x | dba (+ security) | `docs/data.md`, `docs/security.md` (lewat main session) | – | – | 0 |
+| D-1 | 15z3 "Maksimal 30" → 32 (16 + 16, generator); rapikan catatan 23s–23u ("menunggu konfirmasi" → keputusan 154) dan 23t (tukar juga WC2 segrup J2); render + publish | ui-ux-designer | `design/hifi.html`, artifact | 15z3, 23s–23u | – | 0 |
+| A15-1 | Ukur skala teks 1,15 / 1,3 (keputusan 120): render layar kunci (03a, 06f, 05*, 07*, 09*, 20b, 21a, 23b) dengan `textScaler`, daftar overflow/elipsis; berkas uji coba dihapus | qa · sonnet | (scratch, tidak di-commit) | – | – | 0 |
+| GP-1 | 21.1 + 21.2: `maxPlayers` 32; `GroupKnockout` 2/3/4 + `wildcards` + `copyWith`; `Seeding`; `codePrefix` "QF" vs kode simpanan "PF"; `tabLabel`; `groupCountsFor`, `unavailableReason`, `fallbackGroupCount`, `decodableGroupCounts`, `estimate` 3 grup; unit test lama 30/31 → 32/33 | engineer · **opus** | `lib/models/models.dart`, `lib/services/schedule/group_stage.dart`, `lib/services/pairing/pair_draft.dart` (komentar), `test/services/group_stage_test.dart`, `group_stage_property_test.dart`, test parser/roster/draft yang menguji batas | – (unit: tabel 21.2, AC-G21, AC-G23, AC-G21a) | – | 1 |
+| GP-6 | 21.11 nama satu baris: `PairNameFit.split` + `PairName`; Klasemen 16 → 14; poster Ringkas `.who2` → `.pname`; Lengkap Story satu satuan; kn/nm dengan kriteria baris utuh | engineer · **opus** | `lib/core/widgets/pair_name.dart` (baru), `lib/features/leaderboard/widgets/standing_table.dart`, `lib/features/share/widgets/podium_poster.dart`, `share_poster.dart`, `lib/services/share/lengkap.dart`, `test/hifi/components/{standings,podium_poster,share_poster,club_score}_test.dart`, `share_poster_data.dart`, `test/hifi/screens/{peringkat,sparing_klasemen,sparing_bagikan,bagikan}_test.dart` | 09c 09g 09k **09m** · 13n 13o 13p 14p 14s 14t 14u · 11b 11g 11k 11r **11s** 13s 13t **13x** · 18a 18e 18j 18l 18m 18q (+ `test/services/sparing_fixed_flow_test.dart`) | – | 1 |
+| GP-2 | 21.6 + 21.7 (bagan): `phases` G ≥ 3, sumber 3 grup, `build(active, Seeding)` + tukar + tulis `wildcards`, `preview`, `progress`, `firstOpenColumn`, `flowIndex`, `seedCode`/`seedLabel`, `roundTab` QF/SF; properti AC-G26 + I7–I12 G ∈ {2,3,4} | engineer · **opus** | `lib/services/schedule/knockout_bracket.dart`, `test/services/knockout_bracket_test.dart`, `knockout_bracket_property_test.dart` | – (unit: 16G, 16G-iii, 16G-pp, 16G-akhir, 23s/23v) | GP-1 | 2 |
+| GP-3 | 21.3–21.5 + 21.8: `playoffMethod` (satu parameter), `comparePlayoffSeed`, teks selisih per match, `qualifierPlan` 3 slot, `seedingPlan` + `WildcardPick`, label Juara 1–3, posisi grup GP7 | engineer · **opus** | `lib/services/ranking/group_knockout_ranking.dart` (+ `playoff_seeding.dart` baru kalau > 400 baris), `test/services/group_knockout_ranking_test.dart` | – (unit: AC-G24, AC-G25, AC-G27, AC-G30 16G ↔ 16G-pp, 16F label baru) | GP-1 | 2 |
+| GP-7 | Batas 32 (8.1): test properti AC-B3 (Mixed/Mexicano 32/1, 2, 7, 8, 10 × 30 round), AC-B4 (Fixed 16 pasangan, 120 match, 2 court 60 round), AC-B5 (Sparing 8/8 4 court, 15/1 2 court, Mixed 16/16, 30/2), AC-B1/B2 layar | engineer · sonnet | `test/services/limit_32_property_test.dart` (baru), `test/hifi/components/lists_test.dart`, `test/hifi/screens/{pemain,sparing_pemain,sparing_kelola_pemain}_test.dart` | 02d · 15z3 | GP-1, D-1 | 2 |
+| GP-4 | 21.9: decoder G = 3 + `decodableGroupCounts` + "PF" + aturan dba (GR18); `canEncode`; `last_settings` G = 3 lewat `fallbackGroupCount`; test lintas versi 3.9.x; test ukuran payload 32 pemain < 128 KB | engineer · sonnet | `lib/services/storage/tournament_codec.dart`, `last_settings.dart`, `test/services/group_knockout_codec_test.dart`, `last_settings_group_knockout_test.dart`, `test/services/live_payload_size_test.dart` (baru) | – | GP-0, GP-2 | 3 |
+| GP-8 | Konfigurasi + Grup: sheet Fase grup 2/3/4 + alasan pilihan mati + GP9, sheet Playoff baris QF, estimasi 3 grup; layar Grup 3/4 grup | engineer · sonnet | `lib/features/konfigurasi/**`, `lib/features/groups/**`, `test/hifi/screens/grup_gugur_{konfigurasi,grup}_test.dart` | 19b–19l, 19m, 19v, 19w, 19x, **23a** | GP-1 (GP-4 untuk pengaturan terakhir 3 grup) | 3 |
+| A15-2 | Aturan Fondasi skala teks ≤ 1,3 + frame uji 06f/03a pada 1,3 dari hasil A15-1 (rekomendasi A-15 sudah disetujui, keputusan 120); render + publish | ui-ux-designer | `design/hifi.html`, artifact | 06f@1,3, 03a@1,3 (baru) | A15-1 | 3 |
+| GP-5 | 21.10 + controller: `playoff_format.dart` (`formatLock`, `thirdPlaceLock`), `relayout`; `createBracket(picks, wildcardPick)`, `setPlayoffFormat`, `setThirdPlace` (satu `state =`, `resolve`); provider pratinjau/kunci/seeding; fixture bersama 16G, 16G-iii, 16G-akhir, 16H, 32 × 4 grup, simpanan 3.9.x 2 × 3 / 4 × 3; test resume (21.12 #6) dan flow AC-G28/AC-G29 | engineer · **opus** | `lib/services/schedule/playoff_format.dart` (baru), `lib/features/schedule/tournament_controller.dart` (mutator + provider baru di samping `groupTablesProvider`), `test/services/group_knockout_flow_test.dart`, `group_knockout_fixture.dart`, `test/hifi/screens/grup_gugur_fixture.dart` (+ `group_playoff_fixture.dart` baru) | – | GP-2, GP-3, GP-4 | 4 |
+| GP-9 | Bagan baru (keputusan 153–154): kolom 270 + intip 76, geser per kolom, warna alur (`flowIndex`), kartu satu baris (`PairName`), slot kode sebelum bagan, label kolom → callback sheet babak | engineer · **opus** | `lib/features/schedule/group_knockout/bagan_view.dart` (+ widget baru di folder itu, bukan sheet/provider), `test/hifi/screens/grup_gugur_bagan_test.dart` | 21a 21d 21j 21p 21r 21t 21u 21w 21x 21y · **23h 23i 23s 23t 23u 23v 23w** | GP-5, GP-6 | 5 |
+| GP-10 | Jadwal + Buat bagan + format: tab Bagan sejak jadwal dibuat (paling kanan), tab QF/SF/Final, sheet Buat bagan 3 grup (23c/23e/23f) + dialog, menu ⋯ "Format playoff" + sheet 23n–23r (kontrol mati + alasan), teks "QF" di dialog/Input Skor/WO | engineer · sonnet | `lib/features/schedule/schedule_fixed_screen.dart`, `lib/features/schedule/group_knockout/{create_bracket_flow,gk_labels}.dart` + sheet baru di folder itu (bukan `bagan_view.dart`), `lib/features/score_input/knockout_text.dart`, `test/hifi/screens/grup_gugur_{jadwal,input_skor}_test.dart`, `kosongkan_skor_test.dart` | 20a 20b 20c 20e 20g 20i–20m 20o–20r 21b 21c 21e 21f 21i 21o 21q 21v 21z 07v **07y** · **23b–23g 23m–23r** | GP-5 | 5 |
+| GP-11 | Klasemen + Detail + Bagikan Group - Playoff: slot WC1/WC2 (`seedCode`), label Juara 1–3, posisi GP7, caption, poster `.gg-bk`; live penonton membaca label yang sama | engineer · sonnet | `lib/features/leaderboard/**` kecuali `standing_table.dart` internal nama, `lib/features/detail_player/**`, `lib/features/share/share_result_screen.dart`, `test/hifi/screens/grup_gugur_{klasemen,bagikan}_test.dart`, `detail_test.dart` | 20d 20f 20h 20n 20s · 22a–22j 22l–22r · **23j 23k 23l** | GP-5, GP-6 | 5 |
+| A15-3 | Kode skala teks sesuai A15-2 (elipsis nama dulu, tombol tunggu dua baris) + golden 06f/03a @1,3 | engineer · sonnet | sesuai temuan A15-1 (action bar, tab, baris match) | frame A15-2 | A15-2, GP-9–GP-11 | 6 |
+| GP-12 | Rilis: 3.10.0+28 + `appVersion`; `flutter test` + `flutter analyze` penuh; `docs/architecture.md` (GU9 tidak lagi "ditunda", 3 grup), `docs/data.md`, `CLAUDE.md` status; build web + PWA (tech-infra) | main session + tech-lead review | `pubspec.yaml`, `lib/core/app_version.dart`, docs | semua di atas | semua | 6 |
+
+**Paralel aman (berkas tidak bersinggungan):** gelombang 0 (GP-0 ‖ D-1 ‖ A15-1), 1 (GP-1 ‖ GP-6), 2 (GP-2 ‖ GP-3 ‖ GP-7;
+`Seeding` ada di model GP-1 supaya GP-2/GP-3 tidak saling meng-import), 3 (GP-4 ‖ GP-8 ‖ A15-2), 5 (GP-9 ‖ GP-10 ‖ GP-11;
+fixture bersama hanya dibaca, `bagan_view.dart` hanya GP-9, `standing_table.dart` hanya GP-6). GP-5 sendirian (controller
++ fixture bersama). Review tech-lead per task sebelum gelombang berikutnya.
+
+**Golden yang akan gagal sampai task-nya selesai** (`--changed-since=02dd45f`, 96 berubah + 26 baru): lihat kolom Frame;
+`--tests` memetakan berkasnya. **Belum punya test:** 09m, 11s, 13x (GP-6), 23a (GP-8), 23b–23g, 23m–23r, 07y (GP-10),
+23h, 23i, 23s–23w (GP-9), 23j–23l (GP-11). Test lama yang memang berubah (AC-G29, AC-B8): batas 6/12 pasangan di
+Konfigurasi dan batas 30/31 pemain — diganti, bukan dilonggarkan. Selain itu semua test/golden 3.9.x harus tetap lolos.
+
+**Syarat dari GP-0 (security, `docs/security.md` W2–W4):** GP-2 mengekspor fungsi murni topologi QF 3 grup yang
+dipakai `build` *dan* validator GR19 GP-4 (jangan dua salinan aturan tukar); GP-4 menambah `decodableGroupCounts(P > 16)
+= []` + test P = 17 dan test properti `canEncode`/round-trip 36 kombinasi × `WildcardPick` × ubah format (GP-5).
+
+**Hasil A15-1 (2026-11-23, qa; 1,0 tanpa exception di semua frame; viewport 390×844, overflow di dalam scroll tidak
+tertangkap; 23b belum punya test):**
+
+| Layar | Elemen | 1,15 | 1,3 | Sumber |
+|---|---|---|---|---|
+| 21a/21d Bagan | kartu match `height: 46`, nama dua baris | aman | **overflow 1 px** (4× 21a, 6× 21d), nama keluar kartu; "Pemenang …" elipsis | `bagan_view.dart:450,489` — kartu dirombak GP-9 (satu baris), ukur ulang di sana |
+| 06f/06h/06u, 20b | tombol tunggu "Buat R… · tunggu N match" (meta `Flexible` + elipsis) | "· tunggu 1 …" | angka match hilang | `mabar_controls.dart:94-105`, `schedule_mixed_screen.dart:222`, `schedule_fixed_screen.dart:266` |
+| 09a/09h Klasemen | header "Main"/"Point %" pecah dua baris; nama dua baris (12 → 19 nama) | pecah | pecah + kolom rapat | `standing_table.dart:84-87` (GP-6 menyentuh berkas ini) |
+| 07j sheet WO | subjudul "Round 3 · Americano 21 · sisa 01:20" | aman | "sisa 01…" | `score_input_screen.dart:159` |
+| 07j sheet WO | chip alasan | aman | "Lainnya" turun baris (wajar) | `walkover_sheet.dart` |
+| 06a, 21a | strip tab: tab ujung terpotong ("emifinal", R5 tinggal ikon) | aman | terpotong | `round_tabs.dart` (tinggi tab ikut tumbuh 39 → 45, aman) |
+| 03a, 07a, MatchScoreRow | — | aman | aman | — |
+
+Usulan qa untuk A15-2/A15-3: tinggi tetap hanya untuk kontrol non-teks (kartu bagan `minHeight`); tombol tunggu dua
+baris saat sempit, alasan tidak dipotong; header Klasemen `maxLines: 1` + `FittedBox(scaleDown)`; subjudul sheet WO
+mendahulukan "sisa mm:ss"; tab aktif digulir ke tampak. Frame uji A15-2: 06f, 03a + usul 21a, 09a.
+
+**Gelombang 1 (2026-11-24):** GP-1 (6f760f6 + perbaikan review d939b34, review tech-lead Approve setelah perbaikan) dan
+GP-13 (1bd24a5) di-merge ke `grup-playoff-3-10` (7db7937). Catatan untuk task berikutnya:
+- **3 grup belum boleh diuji tangan / di-merge ke `main`** sampai GP-2, GP-4, GP-8 selesai: Konfigurasi sudah menawarkan
+  3 grup, tapi codec masih menolaknya (assert `canEncode` gagal di debug; di rilis simpanan + live dilewati).
+- GP-4: hapus penjaga sementara `groupCount == 3` di `tournament_codec.dart:184` saat GR18/GR19 masuk; test codec 2×3 dan
+  4×3 (fixture GP-5). GR5 sudah memakai `decodableGroupCounts` (diubah GP-1 supaya simpanan 2×3 tetap terbaca).
+- GP-8: `konfigurasi_screen.dart:79-83` (komentar usang, pakai `fallbackGroupCount`) dan `:168` (QF hanya untuk 4 grup →
+  juga 3 grup). Pengaturan terakhir "4 grup" di 24–30 pemain sementara turun ke 2.
+- GP-2: komentar "PF2"/"PF1–2" di `knockout_bracket.dart:102,336` → "QF"; `roundTab` babak penuh masih "Semifinal" sampai
+  `tabLabel` dipakai.
+- GP-7: `sparing_kelola_pemain_test` 15z3 masih batas 30 (gagal sampai GP-7).
+- PRD 16.4 redaksi diperbaiki (keputusan 160, 2026-11-24). Kode sudah benar.
+- Run penuh setelah merge gelombang 1 (5280ced, GP-6 di-merge): 2109 test, 24 gagal vs base 51; gagal baru hanya 4 dan
+  semuanya milik task berikut: 15z3 batas 30 (GP-7); golden 19i 4 grup 24 pemain, AC-G1 segmented 6+ pasangan, GG-0
+  pengaturan terakhir 4 grup di 24 pemain (GP-8, akibat `groupCountsFor` baru — ganti sesuai AC-G21, jangan dilonggarkan).
+- GP-6: 13o bertentangan dengan catatannya (isi muat, frame masih rata bawah + app bar `scrolled`) dan contoh 09m
+  "Indra W · Joko S" ternyata utuh di 14 pt — dijawab host (keputusan 158–159, D-2). `PairNameFit` ada di `lib/services/layout/`.
+- GP-13b (keputusan 157, engineer · sonnet/low; frame 12s disetujui host 2026-11-24, hi-fi v112 — siap, ikut gelombang 2): `start()` kena 413 → toast "Data terlalu besar · live
+  belum dimulai"; bedakan hasil `start()` (413 vs tanpa internet) di `live_score.dart:41`; golden frame baru.
+- D-2 selesai (7c2c75e + afbf32e, hi-fi v112): 12s baru, 13o, 09m. Golden 13o (`act: scrollDown` + test "tidak bergeser saat
+  digulir" dibuang) dan 09m (data 'Indra W'/'Joko S' → 'Wicaksono Adi'/'Setiawati Putri', peringkat_test.dart:71,153)
+  diperbarui di GP-13b atau task gelombang 2 pertama yang menyentuh test/hifi.
+
+**Gelombang 2 (2026-11-24):** GP-2 (9deab53, review tech-lead Approve), GP-3 (23a5f50, Approve), GP-7 + GP-13b + golden
+13o/09m (diperiksa main session) di-merge ke `grup-playoff-3-10` (c5d136b). Run penuh: 2205 lolos, 26 gagal, semuanya
+milik task berikut: 21a/d/j/p/r/t/u/w/x/y (GP-9); 22i, 22j, 22l ×2, 22p, 22r, AC-G18 (GP-11; label "Juara 1/2" dari GP-3);
+19c, 19d, 19e, 19i, 19j, 19x, AC-G1, GG-0 (GP-8); flow 16A label "Juara 1" (GP-5). Catatan untuk task berikutnya:
+- GP-4: GR19 wajib memanggil `KnockoutBracket.threeGroupQuarterfinals` (W2, jangan salin aturan tukar); decoder masih
+  menolak QF untuk `groupCount != 4` (`tournament_codec.dart:237`); `groupOf` lokal di `threeGroupQuarterfinals` boleh
+  dijadikan helper bersama bila GP-4 butuh.
+- GP-5: `createBracket` 3 grup sementara mengembalikan false (GP-2) — sambungkan `seedingPlan` → `Seeding` → `build`;
+  `withPicks` 3 grup kini 3 id per grup. Test flow 16A ganti ke "Juara 1"/"Juara 2".
+- GP-9: `firstOpenColumn` bisa `thirdPlace` (juga saat Final belum ada hasil) → petakan ke kolom Final (21t); `flowIndex`
+  `side` 1|2 (assert).
+- GP-10: `gk_labels.gkBracketPreview` masih menganggap QF hanya di 4 grup.
+- GP-11: `standing_table.dart:334` menebalkan teks persis 'Juara' → "Juara 1" tidak tebal lagi (23k); nama test
+  `grup_gugur_klasemen_test.dart:116` masih menyebut `seedOf`.
+- Kandidat PATCH di luar 3.10.0: `start()` live yang kena `UnreadableTournamentError` jatuh ke toast "Tidak ada internet".
+- Tech-lead: `logic.md` §21.5 baris "Seri di posisi 3 saja → huruf grup" tidak mungkin terjadi; `docs/architecture.md`
+  catat `playoff_seeding.dart` (GP-12).
+- Berikutnya gelombang 3: GP-4 ‖ GP-8 ‖ A15-2.
+
+**Gelombang 3 (2026-11-24):** A15-2 (edc4f9f, hi-fi), GP-4 (ec29a81 + review 6b5e04e/0f11724, tech-lead Approve) dan
+GP-8 (742e7d3 + c44ac61) di-merge ke `grup-playoff-3-10` (1db9a20). Run penuh: 2314 lolos, 21 gagal:
+- milik task berikut (18): 21a/d/j/p/r/t/u/w/x/y (GP-9); 22i, 22j, 22l ×2, 22p, 22r, AC-G18 (GP-11); flow 16A (GP-5).
+- **19f, 19g, 19h (2,7% beda)**: kode GP-8 benar mengikuti 19e (sheet Playoff bersubjudul babak awal "Semifinal",
+  keputusan 136), tapi di 19f/19g/19h sheet Playoff di bawah sheet babak tanpa subjudul → frame saling bertentangan,
+  ditanyakan ke host (usul: tambah `<p>Semifinal</p>` di 19f/19g/19h, golden lalu lolos tanpa ubah kode).
+  **Dijawab host 2026-11-24 (keputusan 161):** frame diselaraskan (d6aba34, hi-fi v113), golden 19f–19h lolos.
+- Berikutnya gelombang 4: **GP-5 sendirian** (engineer opus, review tech-lead fresh), di sesi baru. Catatan GP-5 di
+  gelombang 2 tetap berlaku (`createBracket` 3 grup, `withPicks`, test flow 16A "Juara 1"/"Juara 2").
+
+**Gelombang 4 (2026-11-24):** GP-5 (9b157fb + perbaikan review 10f29a7; tech-lead fresh: Request changes →
+`bracketSeeding` pindah ke services, diperiksa main session) di-merge (e24130d). Run penuh: 2392 lolos, 17 gagal = persis
+milik GP-9 (21a/d/j/p/r/t/u/w/x/y) dan GP-11 (22i, 22j, 22l ×2, 22p, 22r, AC-G18); flow 16A dan 19f–19h kini lolos.
+API untuk gelombang 5 (`tournament_controller.dart` + services):
+- Mutator: `createBracket([picks, wildcardPick])` (menurunkan `Seeding` sendiri lewat
+  `GroupKnockoutRanking.bracketSeeding`), `setPlayoffFormat(KnockoutRound, ScoreFormat)` → bool, `setThirdPlace(bool)`
+  → bool (format sama = tanpa `state =`).
+- Provider: `qualifierPlanProvider`, `seedingPlanProvider(BracketPicks)` (autoDispose; sheet 23e/23f),
+  `bracketPreviewProvider` (slot kode 23s–23u), `playoffLocksProvider` (alasan kunci per babak + Juara 3, 23n–23r).
+- Services: `PlayoffFormat.formatLock/thirdPlaceLock/locks/withFormat/withThirdPlace/relayout`;
+  `KnockoutBracket.lastGroupRound/slots/matchAt`; `GroupKnockoutRanking.seedingPlanFor/bracketSeeding`.
+- Fixture: `test/services/group_knockout_fixture.dart` (g16G, t16G, seeding16G/16GIII, bracket16G, semis16G 23v,
+  final16G 23q, akhir16G 23w, g32/t32, legacy2x3/legacy4x3, `withBracket`), `test/hifi/screens/group_playoff_fixture.dart`
+  (gp23b/e/h/p/v/q/w/u/i), `ggStaged` publik. Hanya dibaca di gelombang 5.
+- GP-10: `gk_labels.gkBracketPreview` → pakai `bracketPreviewProvider`; tombol 23e/23f pakai `seedingPlanProvider`, jangan
+  menurunkan seeding di widget.
+- `startIfNeeded` kini menolak config lama milik turnamen yang sama (Expando id pemilik, §21.12 #6).
+- GP-12: spec §21.10/§21.6 + baris GP-5 masih menulis `createBracket(Seeding)` dan `KnockoutBracket.relayout` → ubah ke
+  `createBracket(picks)` + `PlayoffFormat.relayout`. PRD 16G-akhir #5 sudah urut nama (36e7727).
+- Berikutnya gelombang 5: GP-9 ‖ GP-10 ‖ GP-11 (maks 3 paralel, worktree), di sesi baru.
+
+**Gelombang 5 (2026-11-24):** GP-9 (338cf73, tech-lead fresh Approve), GP-10 (55a3716, diperiksa main session) dan
+GP-11 (8a0d3ab, diperiksa main session) di-merge; `onOpenRound` → `showRoundFormatSheet` disambung di merge. Run penuh:
+2443 lolos, 3 gagal — semuanya frame yang ditanyakan ke host (bukan kode):
+- 22i (4,5%): frame `margin-top:-216px`, tapi 12 baris muat tepat sejak nama satu baris (keputusan 148) → tak bisa digulir.
+- 23l (4,5%): bayangan "scrolled" tapi kartu 4 px lebih turun dari 23k — tidak mungkin dari scroll nyata.
+- 22r Story (4,4%): panel Story frame 4 px lebih rendah + subjudul "15 Nov 2…" terpotong; geometri `podium_poster.dart`.
+- `.gg-bk` 23k/23l 16 px/600 (Juara 1 800) vs 22a/22i 18 px/700 (kode) — perlu satu gaya.
+Catatan: GP-10 menambah `enabled` di `MabarSegmented` (core, aditif); `gkBracketPreview(active, Seeding, nameOf)` menyusun
+lewat `KnockoutBracket.build`; `gkBaganSubtitle` 3 grup = 8 pasangan lolos. Saran review GP-9 (opsional): komentar
+konstanta `firstStep` 116/172; `_scroll ??=` tidak dihitung ulang saat pratinjau → bagan. Berikutnya gelombang 6 (A15-3 +
+GP-12) di sesi baru.
+**Dijawab host 2026-11-24 (keputusan 162):** 22i/23l tanpa gulir, kolom Babak app 16 px/600 (sesuai CSS hi-fi; laporan
+"22a 18/700" keliru — itu kode), 22r Story frame yang salah (§17.5: subjudul 12, baris 28,33). 3ba2dc3 + 57e53fa, hi-fi
+v114. Run penuh: 2446 lolos, 0 gagal. Sisa kecil: id gradien dobel (hx9 …) sudah ada di hifi.html; `hifi_court_floor.py`
+menomori ulang id di ±36 frame (render sia-sia) — rapikan terpisah; `hifi_extract.py` crash `_frame.html` saat 0 frame dirender.
+
+**Gelombang 6 (2026-11-24):** A15-2 (edc4f9f) ternyata belum pernah di-merge di gelombang 3 (hanya di branch worktree) →
+di-merge 5b20869, hi-fi v115 (v113/v114 terbit tanpa A15-2). A15-3 (eaad62d, diperiksa main session): batas 1,3 di akar
+app, `MabarButton` tinggi minimum + dua baris `.btn.two` saat meta tidak muat, kartu mode/header Klasemen FittedBox,
+subjudul sheet WO `subtitleTail`, golden 06fts/03ats + uji tanpa overflow 1,3 untuk 20b, 07j, 21a, 21d. Belum diuji
+1,3: 06h, 06u, 14f; golden 1,3 untuk 09a/07j/21a belum digambar. GP-12: 3.10.0+28 + `appVersion`, architecture.md,
+logic.md §21.5/§21.10 (5941406). `flutter analyze` 6 info lama; run penuh 2452 lolos, 0 gagal. Sisa rilis: build web +
+PWA (tech-infra), merge ke `main` + push (deploy) setelah host bilang go.
+
+**Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
+
+**GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari
+relay di `lib/features/live/live_host_controller.dart` ditangani seperti `UnreadableTournamentError`: tanpa timer coba
+ulang, tidak set status menunggu ("Menunggu internet"), kirim lagi hanya saat ada perubahan; `start()` yang kena 413 tidak
+lagi bertoast "Tidak ada internet" bila teksnya tidak cocok → laporkan ke main session (teks baru butuh hi-fi, jangan
+mengarang). Test di `test/services/live/` atau test controller yang ada; tanpa deploy relay.
+
+---
+
 # Task — 3.9.0 Kosongkan skor + perilaku kecil + visual/frame (MINOR)
 
 Pemilik: main session. Branch `fitur-3-9-0` (dari `main` 9b2d902, 3.8.1+25 yang belum di-push). Produk: PRD §17 (aturan

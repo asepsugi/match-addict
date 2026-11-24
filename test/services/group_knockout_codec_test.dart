@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/core/app_version.dart';
 import 'package:match_addict/models/models.dart';
+import 'package:match_addict/services/ranking/group_knockout_ranking.dart';
+import 'package:match_addict/services/schedule/group_stage.dart';
+import 'package:match_addict/services/schedule/knockout_bracket.dart';
 import 'package:match_addict/services/storage/tournament_codec.dart';
 
 import 'group_knockout_fixture.dart';
@@ -457,6 +460,409 @@ void main() {
     });
     test('turnamen non-Grup + Gugur terbaca decoder 3.7.1', () {
       expect(_decoder371ReadsBye(_stamped(_lit('fixed', '{"1":"A"}', '{}', '[]', 0))), isTrue);
+    });
+  });
+
+  threeGroupTests();
+}
+
+// --- 3 grup (GP-4): GR4/GR5/GR8/GR10/GR12/GR18/GR19, AC-G29, AC-B8, W4 ----------------------------------------------
+
+const _extraNames = ['Zed', 'Yan', 'Xia', 'Wim'];
+
+/// 3 grup dari [pairs] pasangan (12..16), id = nama: P = 12 → A Andi–Gita, B Indra–Oki, C Rudi–Vina.
+List<List<String>> _groups3(int pairs) {
+  final names = [...partners.keys, ..._extraNames];
+  var at = 0;
+  return [
+    for (final size in GroupStage.sizes(pairs, 3)) [for (var i = 0; i < size; i++) names[at++]],
+  ];
+}
+
+/// J1–J3 = juara grup [champions] (default A, B, C), runner-up slot 2, WC1/WC2 = peringkat 3 grup [wc1]/[wc2].
+Seeding _seeding3(List<List<String>> g, {List<int> champions = const [0, 1, 2], required int wc1, required int wc2}) =>
+    Seeding(
+      groupSlots: [
+        for (final x in g) [x[0], x[1]],
+      ],
+      champions: champions,
+      wildcards: [g[wc1][2], g[wc2][2]],
+    );
+
+/// Bagan 3 grup lewat `KnockoutBracket.build` (config ikut membawa `wildcards`).
+ActiveTournament _bracket3(ActiveTournament a, Seeding seeding) {
+  final built = KnockoutBracket.build(a, seeding);
+  return ActiveTournament(
+    tournament: a.tournament.copyWith(config: built.config, matches: [...a.matches, ...built.matches]),
+  );
+}
+
+ActiveTournament _tournament3(int pairs, {bool thirdPlace = true, int courts = 2}) =>
+    gkTournament(groups: _groups3(pairs), courts: courts, thirdPlace: thirdPlace);
+
+// Empat bentuk aturan tukar (G15) pada 16G: (wc1, wc2) = grup asal WC1/WC2; J1 = grup A, J2 = grup B.
+const _noSwap = (wc1: 1, wc2: 2), _swapJ1 = (wc1: 0, wc2: 2), _swapJ2 = (wc1: 2, wc2: 1), _swapBoth = (wc1: 0, wc2: 1);
+
+ActiveTournament _b3({({int wc1, int wc2}) wc = _noSwap, int pairs = 12, bool thirdPlace = true}) =>
+    _bracket3(_tournament3(pairs, thirdPlace: thirdPlace), _seeding3(_groups3(pairs), wc1: wc.wc1, wc2: wc.wc2));
+
+List<String> _wildcards(Json j) => [for (final id in _gk(j)['wildcards'] as List) id as String];
+
+Json _pairJson(Json j, String id) =>
+    ((_config(j)['fixedPairs'] as List).firstWhere((p) => (p as Json)['id'] == id) as Json);
+
+void threeGroupTests() {
+  group('3 grup: GR4/GR5 P 12–16 terbaca sebelum dan sesudah bagan', () {
+    for (final p in [12, 13, 14, 15, 16]) {
+      _roundTrips('P = $p, sebelum bagan', _tournament3(p));
+      test('P = $p, sesudah bagan: wildcards ditulis dan terbaca', () {
+        final a = _b3(pairs: p);
+        final back = TournamentCodec.decode(TournamentCodec.encode(a))!;
+        expect(back.config.groupKnockout!.wildcards, a.config.groupKnockout!.wildcards);
+        expect(back.config.groupKnockout!.groupCount, 3);
+      });
+    }
+  });
+
+  group('GR18 round trip encode(decode(x)) == x', () {
+    final allPf = ['PF1', 'PF2', 'PF3', 'PF4'];
+    ActiveTournament played(ActiveTournament a, List<String> codes) {
+      for (final (i, c) in codes.indexed) {
+        a = a.ko(c, 6, i % 5);
+      }
+      return a;
+    }
+
+    _roundTrips('16G tanpa tukar', _b3());
+    _roundTrips('tukar: WC1 segrup J1', _b3(wc: _swapJ1));
+    _roundTrips('tukar: WC2 segrup J2', _b3(wc: _swapJ2));
+    _roundTrips('tukar keduanya', _b3(wc: _swapBoth));
+    _roundTrips('juara 3 mati', _b3(thirdPlace: false));
+    _roundTrips('PF1 selesai (di tengah gugur)', played(_b3(), ['PF1']));
+    _roundTrips('semua PF selesai, SF terisi', played(_b3(wc: _swapBoth), allPf));
+    _roundTrips('WO di PF2', _b3(wc: _swapBoth).koWo('PF2', 'Kiki'));
+    _roundTrips('sampai Final selesai', played(_b3(), [...allPf, 'SF1', 'SF2', 'F', 'J3']));
+    _roundTrips('diakhiri, match gugur cancelled bersisi null', played(_b3(), ['PF1']).finish());
+    _roundTrips(
+      '16G-iii: urutan juara [C, A, B] (pilihan host)',
+      _bracket3(_tournament3(12), _seeding3(_groups3(12), champions: const [2, 0, 1], wc1: 1, wc2: 2)),
+    );
+
+    test('premis fixture: susunan QF memang berbeda per bentuk tukar', () {
+      expect([for (final c in allPf) _b3().sides(c)], ['Andi–Maya', 'Kiki–Tono', 'Indra–Qori', 'Rudi–Citra']);
+      expect(_b3(wc: _swapJ1).sides('PF1'), 'Andi–Qori');
+      expect(_b3(wc: _swapJ1).sides('PF3'), 'Indra–Eko');
+    });
+
+    test('16G lewat qualifierPlan → seedingPlan → build', () {
+      var a = _tournament3(12);
+      for (final (g, ids) in a.config.groupKnockout!.groups.indexed) {
+        for (var i = 0; i < ids.length; i++) {
+          for (var j = i + 1; j < ids.length; j++) {
+            a = a.play(ids[i], ids[j], 6, (i + j + g) % 5);
+          }
+        }
+      }
+      final qualifiers = GroupKnockoutRanking.qualifierPlan(a);
+      expect(qualifiers.picks, isEmpty);
+      final plan = GroupKnockoutRanking.seedingPlan(a, [
+        for (final row in qualifiers.slots) [for (final id in row) id!],
+      ]);
+      final seeding = plan.seeding;
+      expect(seeding, isNotNull, reason: 'tanpa seri, tanpa pilihan host');
+      final withBracket = _bracket3(a, seeding!);
+      expect(TournamentCodec.canEncode(withBracket), isTrue);
+      final raw = TournamentCodec.encode(withBracket);
+      expect(TournamentCodec.encode(TournamentCodec.decode(raw)!), raw);
+    });
+  });
+
+  group('encode 3 grup: bentuk', () {
+    test('wildcards setelah thirdPlace, PF1..PF4, kunci formats PF, tanpa teks "QF"', () {
+      final raw = TournamentCodec.encode(_b3());
+      final j = jsonDecode(raw) as Json;
+      expect(_gk(j).keys.toList(), ['groups', 'formats', 'thirdPlace', 'wildcards']);
+      expect(_wildcards(j), ['Maya', 'Qori']);
+      expect(_formats(j).keys.toList(), ['PF', 'SF', 'J3', 'F']);
+      final codes = {for (final m in _matches(j)) '${m['phase']}'};
+      expect(codes.where((c) => c.startsWith('PF')), {'PF1', 'PF2', 'PF3', 'PF4'});
+      expect(raw, isNot(contains('QF')));
+      expect((j['bye'] as Json)['gg'], '1');
+    });
+
+    test('3 grup sebelum bagan, 2 grup, dan 4 grup tidak memuat wildcards (byte-sama 3.9.x)', () {
+      for (final a in [_tournament3(12), groups16E().bracket(q16E), groups20o().bracket(q20o)]) {
+        final raw = TournamentCodec.encode(a);
+        expect(raw, isNot(contains('wildcards')));
+        expect(raw, isNot(contains('QF')));
+      }
+    });
+  });
+
+  group('GR4/GR5/GR8/GR10/GR12 untuk 3 grup', () {
+    final pre = _tournament3(12);
+    final bracket = _b3();
+
+    void rejects(String name, ActiveTournament a, void Function(Json j) change) {
+      test(name, () {
+        expect(TournamentCodec.decode(TournamentCodec.encode(a)), isNotNull, reason: 'kontrol');
+        expect(_decodeMutated(a, change), isNull);
+      });
+    }
+
+    test('GR5 P = 11 dengan 3 grup (ukuran 4, 4, 3) tidak bisa ditulis', () {
+      final a = _tournament3(11);
+      expect(TournamentCodec.canEncode(a), isFalse);
+      expect(() => TournamentCodec.encode(a), throwsA(isA<UnreadableTournamentError>()));
+    });
+
+    test('GR5 P = 17 (batas 32 pemain terlampaui, W4) ditolak untuk 2, 3, dan 4 grup', () {
+      final names = [for (var i = 0; i < 17; i++) 'P${i.toString().padLeft(2, '0')}'];
+      for (final groups in [2, 3, 4]) {
+        var at = 0;
+        final a = gkTournament(
+          groups: [
+            for (final size in GroupStage.sizes(17, groups)) [for (var i = 0; i < size; i++) names[at++]],
+          ],
+        );
+        expect(TournamentCodec.canEncode(a), isFalse, reason: '$groups grup');
+      }
+      expect(GroupStage.decodableGroupCounts(17), isEmpty);
+      expect(GroupStage.decodableGroupCounts(16), [2, 3, 4]);
+    });
+
+    rejects('GR8 3 grup tanpa PF (sebelum bagan)', pre, (j) => _formats(j).remove('PF'));
+    rejects('GR8 3 grup tanpa PF (sesudah bagan)', bracket, (j) => _formats(j).remove('PF'));
+    rejects(
+      'GR8 PF salah (Race to 10 bukan format gugur)',
+      bracket,
+      (j) => _formats(j)['PF'] = {'scoring': 'raceTo', 'target': 10},
+    );
+    rejects('GR8 kunci QF menggantikan PF', bracket, (j) => _formats(j)['QF'] = _formats(j).remove('PF'));
+    rejects(
+      'GR10 huruf grup "D" di 3 grup',
+      pre,
+      (j) => _matches(j).firstWhere((m) => m['phase'] == 'A')['phase'] = 'D',
+    );
+    rejects('GR10 phase QF1 (bukan kode simpanan)', bracket, (j) => _match(j, 'PF1')['phase'] = 'QF1');
+    rejects('GR12 PF4 hilang', bracket, (j) {
+      ((j['tournament'] as Json)['matches'] as List).removeWhere((m) => (m as Json)['phase'] == 'PF4');
+    });
+    rejects('GR12 PF3 ganda', bracket, (j) => _match(j, 'PF4')['phase'] = 'PF3');
+    rejects('GR12 hanya PF yang ada (SF dan Final hilang)', bracket, (j) {
+      ((j['tournament'] as Json)['matches'] as List).removeWhere(
+        (m) => ['SF1', 'SF2', 'F', 'J3'].contains((m as Json)['phase']),
+      );
+    });
+  });
+
+  group('GR18 wildcards: satu kalimat aturan, satu test ditolak', () {
+    final bracket = _b3();
+    final pre = _tournament3(12);
+    final two = groups16E().bracket(q16E);
+    final four = groups20o().bracket(q20o);
+
+    void rejects(String name, ActiveTournament a, void Function(Json j) change) {
+      test(name, () {
+        expect(TournamentCodec.decode(TournamentCodec.encode(a)), isNotNull, reason: 'kontrol');
+        expect(() => _decodeMutated(a, change), returnsNormally);
+        expect(_decodeMutated(a, change), isNull);
+      });
+    }
+
+    rejects('di 2 grup', two, (j) => _gk(j)['wildcards'] = ['Andi', 'Indra']);
+    rejects('di 4 grup', four, (j) => _gk(j)['wildcards'] = ['Andi', 'Indra']);
+    rejects('[] di 2 grup', two, (j) => _gk(j)['wildcards'] = []);
+    rejects('[] di 3 grup dengan bagan', bracket, (j) => _gk(j)['wildcards'] = []);
+    rejects('3 grup dengan bagan tanpa kunci', bracket, (j) => _gk(j).remove('wildcards'));
+    rejects('3 grup tanpa bagan dengan kunci', pre, (j) => _gk(j)['wildcards'] = ['Maya', 'Qori']);
+    rejects('3 grup tanpa bagan dengan []', pre, (j) => _gk(j)['wildcards'] = []);
+    rejects('satu id', bracket, (j) => _gk(j)['wildcards'] = ['Maya']);
+    rejects('tiga id', bracket, (j) => _gk(j)['wildcards'] = ['Maya', 'Qori', 'Eko']);
+    rejects('dua id sama', bracket, (j) => _gk(j)['wildcards'] = ['Maya', 'Maya']);
+    rejects('id bukan anggota grup', bracket, (j) => _gk(j)['wildcards'] = ['Maya', 'Nobody']);
+    rejects('dua WC satu grup', bracket, (j) => _gk(j)['wildcards'] = ['Maya', 'Oki']);
+    rejects('WC = runner-up (bukan slot 3)', bracket, (j) {
+      _gk(j)['wildcards'] = ['Citra', 'Qori'];
+      _match(j, 'PF1')['pair2'] = _pairJson(j, 'Citra');
+    });
+    rejects('wildcards bertipe string', bracket, (j) => _gk(j)['wildcards'] = 'Maya');
+    rejects('wildcards berisi angka', bracket, (j) => _gk(j)['wildcards'] = [1, 2]);
+    rejects('wildcards null', bracket, (j) => _gk(j)['wildcards'] = null);
+    rejects('wildcards map', bracket, (j) => _gk(j)['wildcards'] = {'a': 'b'});
+    test(
+      'urutan WC terbalik tetap sah: dua urutan menghasilkan QF yang sama (urutan hanya bisa dibaca dari kunci)',
+      () {
+        final j = _json(bracket);
+        _gk(j)['wildcards'] = ['Qori', 'Maya'];
+        final back = TournamentCodec.decode(jsonEncode(j));
+        expect(back, isNotNull);
+        expect(back!.config.groupKnockout!.wildcards, ['Qori', 'Maya']);
+        // QF tetap sama; yang berubah hanya label WC1/WC2.
+        expect([for (final m in back.matches) '${m.pair1.id}|${m.pair2.id}'],
+            [for (final m in bracket.matches) '${m.pair1.id}|${m.pair2.id}']);
+        expect(KnockoutBracket.seedCode(back, 'Qori'), 'WC1');
+      },
+    );
+  });
+
+  group('GR19 bagan 3 grup: satu kalimat aturan, satu test ditolak', () {
+    final noSwap = _b3();
+    final swapped = _b3(wc: _swapJ1);
+
+    void rejects(String name, ActiveTournament a, void Function(Json j) change) {
+      test(name, () {
+        expect(TournamentCodec.decode(TournamentCodec.encode(a)), isNotNull, reason: 'kontrol');
+        expect(() => _decodeMutated(a, change), returnsNormally);
+        expect(_decodeMutated(a, change), isNull);
+      });
+    }
+
+    void swapSides(Json j, String a, String b) {
+      final ma = _match(j, a), mb = _match(j, b);
+      final tmp = ma['pair2'];
+      ma['pair2'] = mb['pair2'];
+      mb['pair2'] = tmp;
+    }
+
+    void set(Json j, String code, String side, String? id) =>
+        _match(j, code)[side] = id == null ? null : _pairJson(j, id);
+
+    rejects('J1 dan J2 satu grup', noSwap, (j) => set(j, 'PF3', 'pair1', 'Citra'));
+    rejects('J3 dan J1 satu grup', noSwap, (j) => set(j, 'PF4', 'pair1', 'Citra'));
+    rejects('runner-up J1 (PF4.pair2) tidak segrup J1', noSwap, (j) => set(j, 'PF4', 'pair2', 'Oki'));
+    rejects('runner-up J2 (PF2.pair1) tidak segrup J2', noSwap, (j) => set(j, 'PF2', 'pair1', 'Vina'));
+    rejects('runner-up J3 (PF2.pair2) tidak segrup J3', noSwap, (j) => set(j, 'PF2', 'pair2', 'Gita'));
+    rejects('pasangan ganda di QF1–QF4 (runner-up J3 = J3)', noSwap, (j) => set(j, 'PF2', 'pair2', 'Rudi'));
+    rejects('WC sama dengan juara (WC bukan J atau R)', noSwap, (j) {
+      _gk(j)['wildcards'] = ['Andi', 'Qori'];
+      set(j, 'PF1', 'pair2', 'Andi');
+    });
+    rejects('tanpa tukar, tapi WC1/WC2 tertukar di QF1/QF3', noSwap, (j) => swapSides(j, 'PF1', 'PF3'));
+    rejects('perlu tukar (WC1 segrup J1), tapi QF tidak tertukar', swapped, (j) => swapSides(j, 'PF1', 'PF3'));
+    rejects('QF1 mempertemukan dua pasangan segrup (A1–A3)', noSwap, (j) {
+      _gk(j)['wildcards'] = ['Eko', 'Qori'];
+      set(j, 'PF1', 'pair2', 'Eko');
+    });
+    rejects('perlu tukar (WC2 segrup J2), tapi QF tidak tertukar', _b3(wc: _swapJ2), (j) => swapSides(j, 'PF1', 'PF3'));
+    rejects('sisi QF1 null', noSwap, (j) => set(j, 'PF1', 'pair2', null));
+    rejects('sisi QF2 null', noSwap, (j) => set(j, 'PF2', 'pair2', null));
+    rejects('sisi QF4 pair1 null', noSwap, (j) => set(j, 'PF4', 'pair1', null));
+    rejects('SF yang sisinya bukan pemenang QF (GR15 tetap berlaku)', noSwap, (j) => set(j, 'SF1', 'pair1', 'Andi'));
+  });
+
+  group('canEncode 3 grup konsisten dengan decoder', () {
+    void unwritable(String name, ActiveTournament a) {
+      test(name, () {
+        expect(TournamentCodec.canEncode(a), isFalse);
+        expect(() => TournamentCodec.encode(a), throwsA(isA<UnreadableTournamentError>()));
+      });
+    }
+
+    ActiveTournament withGk(ActiveTournament a, GroupKnockout Function(GroupKnockout) f) => ActiveTournament(
+      tournament: a.tournament.copyWith(config: a.config.copyWith(groupKnockout: f(a.config.groupKnockout!))),
+    );
+
+    test('kontrol: bagan 3 grup bisa ditulis', () => expect(TournamentCodec.canEncode(_b3()), isTrue));
+    unwritable('3 grup dengan bagan tanpa wildcards', withGk(_b3(), (g) => g.copyWith(wildcards: const [])));
+    unwritable('wildcards satu id', withGk(_b3(), (g) => g.copyWith(wildcards: [g.wildcards.first])));
+    unwritable(
+      '3 grup tanpa bagan dengan wildcards',
+      withGk(_tournament3(12), (g) => g.copyWith(wildcards: ['Maya', 'Qori'])),
+    );
+    unwritable(
+      '2 grup dengan wildcards',
+      withGk(groups16E().bracket(q16E), (g) => g.copyWith(wildcards: ['Andi', 'Indra'])),
+    );
+    unwritable(
+      '4 grup dengan wildcards',
+      withGk(groups20o().bracket(q20o), (g) => g.copyWith(wildcards: ['Andi', 'Indra'])),
+    );
+    unwritable(
+      '3 grup tanpa PF di formats',
+      withGk(_b3(), (g) => g.copyWith(formats: {...g.formats}..remove(KnockoutRound.quarterfinal))),
+    );
+
+    test('ubah format babak (G16) mempertahankan wildcards dan tetap bisa ditulis', () {
+      final a = _b3(wc: _swapBoth);
+      const raceTo4 = ScoreFormat(ScoringMethod.raceTo, 4);
+      final changed = withGk(a, (g) => g.copyWith(formats: {...g.formats, KnockoutRound.quarterfinal: raceTo4}));
+      expect(changed.config.groupKnockout!.wildcards, a.config.groupKnockout!.wildcards);
+      final back = TournamentCodec.decode(TournamentCodec.encode(changed))!;
+      expect(back.config.groupKnockout!.formats[KnockoutRound.quarterfinal], raceTo4);
+      expect(back.config.groupKnockout!.wildcards, ['Eko', 'Maya']);
+    });
+  });
+
+  group('AC-G29 simpanan 3.9.x (2 × 3 dan 4 × 3 pasangan) tetap terbaca sampai Final', () {
+    void toFinal(String name, ActiveTournament start, List<String> codes) {
+      test(name, () {
+        var a = start;
+        for (final code in codes) {
+          a = a.ko(code, 6, 3);
+          final raw = TournamentCodec.encode(a);
+          expect(raw, isNot(contains('wildcards')));
+          expect(raw, isNot(contains('QF')));
+          final back = TournamentCodec.decode(raw);
+          expect(back, isNotNull, reason: code);
+          expect(TournamentCodec.encode(back!), raw);
+        }
+      });
+    }
+
+    final two =
+        gkTournament(
+          groups: const [
+            ['Andi', 'Citra', 'Eko'],
+            ['Gita', 'Indra', 'Kiki'],
+          ],
+        ).bracket(const [
+          ['Andi', 'Citra'],
+          ['Gita', 'Indra'],
+        ]);
+    toFinal('2 grup × 3 (P = 6)', two, ['SF1', 'SF2', 'J3', 'F']);
+    toFinal('4 grup × 3 (P = 12)', groups20o().bracket(q20o), ['PF1', 'PF2', 'PF3', 'PF4', 'SF1', 'SF2', 'J3', 'F']);
+    test('P = 6 dan P = 12 dibaca lewat decodableGroupCounts', () {
+      expect(GroupStage.decodableGroupCounts(6), [2]);
+      expect(GroupStage.decodableGroupCounts(12), [2, 3, 4]);
+      expect(GroupStage.groupCountsFor(6), isEmpty, reason: 'turnamen baru tidak menawarkannya');
+    });
+  });
+
+  group('AC-B8 pembaca 3.9.1 terhadap payload 3.10.0 (aturan 3.9.1 disalin di test)', () {
+    // `groupCountsFor` 3.9.1 (group_stage.dart): < 6 → [], < 12 → [2], selain itu [2, 4].
+    List<int> old391(int p) => p < 6 ? const [] : (p < 12 ? const [2] : const [2, 4]);
+    // `_readPhase` 3.9.1: A–D, PF1–PF4, SF1, SF2, F, J3.
+    final oldCodes = {'A', 'B', 'C', 'D', 'PF1', 'PF2', 'PF3', 'PF4', 'SF1', 'SF2', 'F', 'J3'};
+
+    bool oldReads(ActiveTournament a) {
+      final j = _json(a);
+      final groups = (_gk(j)['groups'] as List).length;
+      final pairs = (_config(j)['fixedPairs'] as List).length;
+      final codes = {for (final m in _matches(j)) m['phase'] as String};
+      return old391(pairs).contains(groups) && codes.every(oldCodes.contains);
+    }
+
+    test('3 grup (P 12–16) ditolak, sebelum dan sesudah bagan', () {
+      for (final p in [12, 13, 14, 15, 16]) {
+        expect(oldReads(_tournament3(p)), isFalse, reason: 'P = $p sebelum bagan');
+        expect(oldReads(_b3(pairs: p)), isFalse, reason: 'P = $p sesudah bagan');
+      }
+    });
+
+    test('2 × 8 dan 4 × 4 (16 pasangan) tetap terbaca dan tampil dengan kode lama', () {
+      final names = [for (var i = 0; i < 16; i++) 'P${i.toString().padLeft(2, '0')}'];
+      final two = gkTournament(groups: [names.sublist(0, 8), names.sublist(8)]).bracket([
+        [names[0], names[1]],
+        [names[8], names[9]],
+      ]);
+      final four = gkTournament(groups: [for (var g = 0; g < 4; g++) names.sublist(g * 4, g * 4 + 4)]).bracket([
+        for (var g = 0; g < 4; g++) [names[g * 4], names[g * 4 + 1]],
+      ]);
+      for (final a in [two, four]) {
+        expect(oldReads(a), isTrue);
+        expect(TournamentCodec.decode(TournamentCodec.encode(a)), isNotNull);
+      }
     });
   });
 }

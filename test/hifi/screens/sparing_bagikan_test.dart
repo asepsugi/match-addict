@@ -97,7 +97,9 @@ void main() {
     expect(find.text('Matcha Club'), findsOneWidget);
     expect(find.text('56 game · +13'), findsOneWidget);
     expect(find.text('49 game · −13'), findsOneWidget);
-    expect(find.text('Citra + Dewi'), findsOneWidget);
+    // `.pname`: pasangan satu baris, dua nama + pemisah " · " (keputusan 148).
+    expect(find.text('Citra'), findsOneWidget);
+    expect(find.text('Dewi'), findsOneWidget);
     expect(find.text('Semua 7 pasangan · gambar Feed 1:1 & Story 9:16'), findsOneWidget);
   });
 
@@ -135,7 +137,7 @@ void main() {
     expect(data.rows, isEmpty);
     expect(data.clubs, isNull);
     for (final story in [false, true]) {
-      final grid = lengkapGrid(story: story, endless: data.endless, rowCounts: data.rowCounts, pairs: false);
+      final grid = lengkapGrid(story: story, endless: data.endless, rowCounts: data.rowCounts);
       expect(grid.units, 0);
       expect(grid.columns.expand((c) => c).whereType<LengkapClubCell>(), isEmpty);
     }
@@ -226,14 +228,10 @@ void main() {
       // K83: skor klub hanya di blok, bukan di kepala klub; podium mini tanpa bola.
       expect(find.text('7'), findsNothing);
       expect(sceneOf(tester).balls, isEmpty);
-      if (target == PodiumPosterTarget.story) {
-        // `.prow.duo`: dua nama pasangan ditumpuk.
-        expect(find.text('Eko'), findsOneWidget);
-        expect(find.text('Fajar'), findsOneWidget);
-      } else {
-        expect(find.text('Eko + Fajar'), findsOneWidget);
-        expect(find.text('game · +11'), findsOneWidget);
-      }
+      // `.pname`: pasangan satu baris di Feed dan Story (keputusan 148).
+      expect(find.text('Eko'), findsOneWidget);
+      expect(find.text('Fajar'), findsOneWidget);
+      if (target == PodiumPosterTarget.feed) expect(find.text('game · +11'), findsOneWidget);
     });
   }
 
@@ -431,6 +429,57 @@ void main() {
       }
     });
   }
+
+  // 13x: batas 32 pemain (keputusan 147), Mixed sparing 30 + 2 Feed. Isi = teks frame (PRD 8.1, 15 round satu
+  // court): fixture turnamennya tidak dibangun, yang diuji tata letak dua kolom per klub sepadat 32 satuan.
+  SharePosterData sparing30v2() {
+    const garuda = [
+      ('Rizky', 1, '16', '+11'), ('Sari', 1, '16', '+11'), ('Andi', 2, '14', '+7'), ('Budi', 2, '14', '+7'), //
+      ('Citra', 3, '13', '+5'), ('Dewi', 3, '13', '+5'), ('Eko', 4, '12', '+3'), ('Fajar', 4, '12', '+3'),
+      ('Galih', 5, '11', '+1'), ('Gilang', 5, '11', '+1'), ('Gita', 5, '11', '+1'), ('Hadi', 5, '11', '+1'),
+      ('Hendra', 6, '10', '−1'), ('Iwan', 6, '10', '−1'), ('Jaka', 6, '10', '−1'), ('Kevin', 6, '10', '−1'),
+      ('Lukman', 7, '9', '−3'), ('Mira', 7, '9', '−3'), ('Nina', 8, '8', '−5'), ('Rudi', 8, '8', '−5'),
+      ('Tono', 8, '8', '−5'), ('Umar', 8, '8', '−5'), ('Vino', 9, '7', '−7'), ('Wawan', 9, '7', '−7'),
+      ('Yudi', 10, '6', '−9'), ('Zaki', 10, '6', '−9'), ('Agus', 11, '5', '−11'), ('Bayu', 11, '5', '−11'),
+      ('Dimas', 12, '4', '−13'), ('Feri', 12, '4', '−13'),
+    ];
+    const matcha = [('Maya', 1, '171', '+27'), ('Nanda', 1, '171', '+27')];
+    List<SharePosterRow> rows(List<(String, int, String, String)> list) => [
+      for (final (n, p, v, d) in list) SharePosterRow(position: p, names: [n], value: v, detail: 'poin', diff: d),
+    ];
+    return SharePosterData(
+      sport: SportType.padel,
+      title: 'Klasemen akhir',
+      subtitle: 'Padel · Mixed · 4 Nov 2026',
+      blocks: const [
+        PodiumBlockData(level: 2, face: '6'),
+        PodiumBlockData(level: 1, face: '9'),
+      ],
+      endless: true,
+      clubs: [
+        SharePosterClub(name: 'PB Garuda', detail: '144 poin · −27', rows: rows(garuda)),
+        SharePosterClub(name: 'Matcha Club', detail: '171 poin · +27', rows: rows(matcha)),
+      ],
+      facts: '32 pemain · 15 round · 15 match',
+    );
+  }
+
+  testWidgets('13x K147 gambar Lengkap Mixed sparing 30 + 2 feed: dua kolom per klub, 32 satuan', (tester) async {
+    final data = sparing30v2();
+    await lengkapImage(
+      tester,
+      frame: '13x',
+      data: data,
+      theme: PodiumTheme.gradient(ShareTheme.biru),
+      target: PodiumPosterTarget.feed,
+      at: feedAt,
+    );
+    final grid = lengkapGrid(story: false, endless: true, rowCounts: data.rowCounts);
+    expect((grid.columns.length, grid.units), (2, 32));
+    expect(find.text('144 poin · −27'), findsOneWidget);
+    expect(find.text('171 poin · +27'), findsOneWidget);
+    expect(find.text('32 pemain · 15 round · 15 match'), findsOneWidget);
+  });
 
   test('13u/13w K83 isi: detail kepala klub per frame, blok 10 – 6', () {
     final u = posterOf(mixed8v6, mixedEnd), w = posterOf(mixed16v14, mixedEnd);

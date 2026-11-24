@@ -27,7 +27,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`
 
 - Lengkap arah B "Podium mini" (keputusan 79): judul dan baris kecil di kiri, podium mini (angka di muka blok + bola, tanpa nama) berdiri di garis belakang di kanan judul, daftar semua baris di panel 86% di atas lantai. Rincian ukuran di Komponen → `.lk`.
-- Fixed 20 pemain = 10 pasangan, round-robin 45 match (5 court, 9 round), metode Total Point (game). Pasangan selalu satu kolom, nama kedua anggota dipisah "+". Feed satu kolom menulis satuan: "52 game · +18" (keputusan 77).
+- Fixed 20 pemain = 10 pasangan, round-robin 45 match (5 court, 9 round), metode Total Point (game). Pasangan selalu satu kolom, nama pasangan satu baris "Indra Wijaya · Joko Susilo" (keputusan 148, pemisah " · " sama dengan Jadwal dan Klasemen). Feed satu kolom menulis satuan: "52 game · +18" (keputusan 77).
 - Kepadatan (keputusan 80): tinggi baris = ruang panel ÷ jumlah baris; huruf baris mengikuti tinggi baris, dibatasi ukuran panel podium. Di pratinjau 10 baris × 23,8 → skala 1,04 (batas); nama 12,5 = baris kecil kepala (keputusan 92).
 - Podium mini pasangan: dua bola per blok (keputusan 61). Tanpa nama turnamen: judul "Klasemen akhir", baris kecil "Tennis · Fixed · 21 Okt 2026", fakta "10 pasangan · 9 round · 45 match".
 - Deret tema Lengkap = deret Ringkas (keputusan 76): lapangan (bawaan, lantai ikut olahraga) + 10 gradien, 11 lingkaran 27 pt. Gradien yang dipilih berlaku untuk kedua format; pilihan tidak disimpan. Peach: kepala, blok, dan panel memakai tinta tema; warna turunannya sama dengan poster podium.
@@ -96,8 +96,8 @@ Komponen: `SharePoster`
 Komponen: `SharePoster`
 
 - Feed = pratinjau 11b: satu kolom 10 baris dengan satuan, baris 22,6 → huruf ×1,03.
-- Story menumpuk dua nama pasangan; satu pasangan = dua satuan baris, jadi 10 pasangan = 20 satuan × 16,8 → huruf ×0,99. Tanpa satuan.
-- Pasangan Fixed tidak pernah dua kolom, juga di Story di atas 20 baris nama (keputusan 81; 15 pasangan di 11k).
+- Story: nama pasangan satu baris seperti Feed (keputusan 148, menggantikan dua nama ditumpuk), satu pasangan = satu satuan: 336 ÷ 10 = 33,6 → batas skala 1,33 (nama 15 = batas, nilai 20). Tanpa satuan. Semua nama utuh.
+- Pasangan Fixed tidak pernah dua kolom, juga Story 15 pasangan (11k) dan 16 pasangan (11s) (keputusan 81).
 - Tanpa nama turnamen: judul 27 muat satu baris di samping podium mini Story.
 
 ## 11h · Lengkap · Mixed 12 pemain · dua kolom 6–6 · tema biru
@@ -144,11 +144,23 @@ Komponen: `SharePoster`
 
 Komponen: `SharePoster`
 
-- Pasangan Fixed selalu satu kolom (keputusan 81). Feed dan pratinjau satu baris per pasangan "Nama + Nama"; Story menumpuk dua nama (`.prow.duo`), jadi 15 pasangan = 30 satuan baris.
-- Kepadatan (keputusan 80): Feed 226 ÷ 15 = 15,06 → skala 0,684; pratinjau 238 ÷ 15 = 15,86 → 0,72; Story 336 ÷ 30 = 11,2 → 0,658 (nama 8,9 pt = 27 px di gambar 1080). Wordmark, judul, baris kecil, dan fakta tidak ikut mengecil.
+- Pasangan Fixed selalu satu kolom (keputusan 81). Feed, Story, dan pratinjau satu baris per pasangan "Nama · Nama" (keputusan 148), jadi 15 pasangan = 15 satuan baris.
+- Kepadatan (keputusan 80): Feed 226 ÷ 15 = 15,06 → skala 0,684; pratinjau 238 ÷ 15 = 15,86 → 0,72; Story 336 ÷ 15 = 22,4 → 1,318; nama terpanjang tidak muat di kolom nama 167 → semua nama ×0,82 (12,3 pt = 37 px di gambar 1080, sampai 3.9.x 27 px), lalu elipsis per nama: "Hendra Guna… · Vina Oktaviani" (Vina utuh, Hendra memakai sisanya), "Bayu Nugroho · Dian Permatas…", "Fitri Handayani · Teguh Wicaks…". Wordmark, judul, baris kecil, dan fakta tidak ikut mengecil.
 - Tema lapangan tennis: lantai `court` `#1E6BB8`. Podium mini pasangan: dua bola per blok (8, Story 10).
-- Race to → Win % (keputusan 21); Feed tanpa kata satuan: "100% · +20". Nilai metode dulu: Dewant + Umar 80% · +9 (4 dari 5) di #3, di atas Citra + Eko 67% · +10. Andi + Kiki dan Wulan + Agus 60% · +4 sama-sama #5; empat pasangan 60% dipisah selisih.
+- Race to → Win % (keputusan 21); Feed tanpa kata satuan: "100% · +20". Nilai metode dulu: Dewant · Umar 80% · +9 (4 dari 5) di #3, di atas Citra · Eko 67% · +10. Andi · Kiki dan Wulan · Agus 60% · +4 sama-sama #5; empat pasangan 60% dipisah selisih.
 - Data: Tennis Race to 6, 4 court, diakhiri setelah 10 round = 40 match (round-robin penuh 105). 5 pasangan main 6 kali, 10 main 5 kali (80 = 5 × 6 + 10 × 5); total menang 40, jumlah selisih game 0.
+
+## 11s · Gambar Lengkap · Fixed 32 pemain (16 pasangan) · Feed dan Story (skala 1:3) · batas pemain
+
+![11s](../../frames/11s.png)
+
+Komponen: `SharePoster`
+
+- Batas 32 pemain (keputusan 142); dua frame ekstrem poster 32 (keputusan 147, Q-B1), pasangannya 13x. Aturan kolom tidak berubah: pasangan Fixed selalu satu kolom, juga Story 16 pasangan (keputusan 81).
+- Nama pasangan satu baris "A · B" (keputusan 148), satu satuan baris per pasangan juga di Story. Kepadatan (keputusan 80): Feed 226 ÷ 16 = 14,13 → skala 0,642 (nama 8,7 pt = 26 px di gambar 1080); Story 336 ÷ 16 = 21 → skala 1,235. Sampai 3.9.x Story menumpuk dua nama: 15 pasangan = 30 satuan, skala 0,658.
+- Tidak muat (keputusan 148): nama di satu poster dikecilkan bersama dulu (Lengkap sampai ×0,82, keputusan 92), sesudah itu tiap nama dipotong sendiri dengan elipsis "…" menurut lebar terukur. Jatah tiap nama = (lebar kolom nama − lebar " · ") ÷ 2; nama yang lebih pendek dari jatahnya utuh dan sisanya dipakai nama lain. Terukur: Feed semua nama utuh di ×1 (kolom nama 238). Story ×0,82 (nama 12,3), kolom nama 176, jatah 84 → #1 "Antonia Ban… · Christiano R…"; #5 "Iga · Sagittalia Permatasari" muat utuh: Iga jauh di bawah jatahnya, jadi Sagittalia memakai sisanya. Nilai tidak pernah terpotong.
+- Race to → Win % (keputusan 21); Lengkap Feed satu kolom tanpa kata satuan untuk Win %: "100% · +18" (seperti 11k). Gina · Hana dan Indra · Joko 60% · +3 sama-sama #6, Kiki · Lina #7.
+- Data: Tennis Race to 6, 4 court, diakhiri setelah 10 round = 40 match (round-robin penuh 120). 8 pasangan main dan 8 istirahat tiap round, semua main 5 kali (80 = 16 × 5); menang 5 + 5 + 4 + 4 + 3 × 4 + 2 × 4 + 1 + 1 + 0 + 0 = 40, jumlah selisih game 0. Tema lapangan tennis dan podium mini sama dengan 11k.
 
 ## 11l · Gambar Lengkap · Mixed 30 pemain · Feed, Story (skala 1:3) dan pratinjau
 

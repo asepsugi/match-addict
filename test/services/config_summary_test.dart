@@ -74,4 +74,35 @@ void main() {
       expect(ConfigSummary.groupKnockoutMeta(0, 0, 0), isNull);
     });
   });
+
+  group('babak awal dan pilihan Fase grup (19c, 19d, 23a)', () {
+    test('playoffOpening per jumlah grup', () {
+      expect(ConfigSummary.playoffOpening(2), 'Semifinal');
+      expect(ConfigSummary.playoffOpening(3), 'Perempat final · 2 wildcard');
+      expect(ConfigSummary.playoffOpening(4), 'Perempat final');
+    });
+
+    test('19c: 16 pemain = 8 pasangan, 3 dan 4 grup mati', () {
+      expect(ConfigSummary.groupOption(8, 2), '4 + 4 · Semifinal');
+      expect(ConfigSummary.groupOption(8, 3), 'Mulai 24 pemain');
+      expect(ConfigSummary.groupOption(8, 4), 'Tepat 32 pemain');
+    });
+
+    test('19c: 18 dan 22 pemain', () {
+      expect(ConfigSummary.groupOption(9, 2), '5 + 4 · Semifinal');
+      expect(ConfigSummary.groupOption(11, 2), '6 + 5 · Semifinal');
+    });
+
+    test('19d: 24 pemain = 12 pasangan, 4 grup mati', () {
+      expect(ConfigSummary.groupOption(12, 2), '6 + 6 · Semifinal');
+      expect(ConfigSummary.groupOption(12, 3), '4 + 4 + 4 · Perempat final · 2 wildcard');
+      expect(ConfigSummary.groupOption(12, 4), 'Tepat 32 pemain');
+    });
+
+    test('23a: 32 pemain = 16 pasangan, ketiganya sah', () {
+      expect(ConfigSummary.groupOption(16, 2), '8 + 8 · Semifinal');
+      expect(ConfigSummary.groupOption(16, 3), '6 + 5 + 5 · Perempat final · 2 wildcard');
+      expect(ConfigSummary.groupOption(16, 4), '4 + 4 + 4 + 4 · Perempat final');
+    });
+  });
 }

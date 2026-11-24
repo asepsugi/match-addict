@@ -17,6 +17,18 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Baris Skor = `format N · durasi menit`; "menit" ditulis penuh, tidak disingkat (keputusan host 37). Stepper di dalam sheet tetap "mnt". Baris Court = `n court · j jam`; booking berbeda → rentang terpendek–terpanjang ("6 court · 1–2 jam", 03h). Chevron = baris bisa dibuka. Teks terlalu panjang → elipsis (tidak terjadi dengan batas sekarang: "Americano 99 · 180 menit" 24 karakter).
 - Estimasi di tombol: `±round = booking terpendek ÷ durasi` = 120 ÷ 20 = 6, `match = round × court` = 12. Lanjut → Pasangan (04).
 
+## 03ats · Turnamen pertama di HP · skala teks 1,3
+
+![03ats](../../frames/03ats.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `ModePicker`
+
+- Keadaan dan data sama dengan 03a, skala teks HP 1,3 (batas atas, Fondasi → Skala teks HP). Hanya teks yang ×1,3; ikon, gambar kartu mode, dan kotak nama 48 tetap.
+- Layar tetap muat tanpa gulir (keputusan 33): baris Court berakhir di 492, action bar mulai di 745.
+- Kartu mode: nama satu baris, tidak dielipsis; "Mexicano" mengecil sampai muat di lebar kartu (21 dari 22,1), "Fixed" dan "Mixed" tetap 22,1. Tinggi kartu 86 → 93.
+- Baris Skor dan Court tetap satu baris, elipsis kalau tidak muat (aturan 03a).
+- Tombol Lanjut: estimasi muat satu baris. Kalau tidak muat (mis. "Lanjut · 14 round · lewat booking 01:30", 14f), estimasi pindah ke baris 2 tanpa "·", seperti tombol tunggu 06fts; tidak dielipsis.
+
 ## 03b · Mixed · Best of 5
 
 ![03b](../../frames/03b.png)

@@ -11,7 +11,7 @@ Poster Ringkas sejak keputusan host 60–67 (2026-11-12): sudut lapangan, podium
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
 - Tennis: lantai dan lingkaran tema lapangan biru `court`; lingkaran lapangan selalu mengikuti olahraga turnamen.
-- Fixed: satu anak tangga = satu pasangan, dua bola per blok dan dua nama bertumpuk di panel (keputusan 61). Baris panel jadi 36 dan blok memakai tinggi pasangan 78 / 56 / 38.
+- Fixed: satu anak tangga = satu pasangan, dua bola per blok (keputusan 61); nama pasangan satu baris "Indra Wijaya · Joko Susilo" di panel (keputusan 148). Baris panel tetap 36 dan blok tetap tinggi pasangan 78 / 56 / 38.
 - Race to 6 terbuka di Win % (keputusan 21): "100% · +19". Tanpa nama turnamen.
 
 ## 18b · Layar Bagikan · Ringkas · gradien nude dipilih
@@ -52,7 +52,7 @@ Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
 Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Dua bola per blok (Feed 19, Story 26, jarak 2); dua nama bertumpuk di panel dan tiap nama memakai lebar penuh.
+- Dua bola per blok (Feed 19, Story 26, jarak 2); nama pasangan satu baris (keputusan 148). Feed muat di 12,5; Story "Indra Wijaya · Joko Susilo" tidak muat di 15, jadi semua nama dikecilkan bersama ke 11,5 (batas bawah) dan tetap utuh.
 - Tinggi pasangan: Feed 78 / 56 / 38 dengan baris 36; Story 144 / 104 / 70 dengan baris 54.
 - Data: Tennis, Race to 6, 6 pasangan round-robin 15 match (3 court × 5 round). Win %: 5–0, 4–1, 3–2.
 
@@ -124,7 +124,7 @@ Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
 - Data 09g: #1 Indra + Joko, #2 Andi sendiri (pasangannya berubah), #3 Eko + Fajar. Blok pasangan dua bola, blok pemain tunggal satu bola.
-- Ada baris berisi dua nama → semua baris memakai tinggi pasangan (Feed 36, Story 54) dan blok memakai tinggi pasangan; nama tunggal di tengah barisnya dengan huruf pasangan.
+- Ada baris berisi dua nama → semua baris memakai tinggi pasangan (Feed 36, Story 54) dan blok memakai tinggi pasangan; nama tunggal di tengah barisnya dengan huruf pasangan. Nama pasangan satu baris (keputusan 148); Story dikecilkan bersama ke 13 supaya "Indra Wijaya · Joko Susilo" muat.
 - Baris campuran: fakta tanpa hitungan pasangan/pemain ("16 round · 32 match"), sama dengan aturan "Semua n" di 09g.
 - Digambar dari tab Total Point seperti 09g; Americano dibuka di Point % (keputusan 123), bentuk Point % di 11o–11q.
 
@@ -134,8 +134,8 @@ Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
 Komponen: `SharePoster`, `PodiumPoster (PodiumScenePainter)`
 
-- Feed: keenam nama utuh di ukuran awal 12,5 (= baris kecil kepala, keputusan 92), termasuk yang 26 karakter.
-- Story: nama 26 karakter tidak muat di 15, jadi semua nama di panel dikecilkan bersama ke 11,5 (batas bawah) dan tetap utuh. Lebih panjang lagi → elipsis per nama. Nilai tidak pernah terpotong.
+- Nama pasangan satu baris (keputusan 148): nama dikecilkan bersama ke 11,5 (batas bawah), lalu tiap nama dipotong sendiri dengan "…" di jatahnya = (lebar kolom nama − " · ") ÷ 2. Feed kolom 193, jatah ±92: "Maximilian H… · Christopher S…", "Anastasia Kus… · Bernadetta Si…", "Fransiskus Pa… · Yohanes Tamp…".
+- Story kolom 166, jatah ±79: "Maximilian … · Christophe…", "Anastasia K… · Bernadetta …", "Fransiskus … · Yohanes Ta…". Sampai 3.9.x nama ditumpuk dan tetap utuh. Nilai tidak pernah terpotong.
 - Nama turnamen 40 karakter (batasnya): dua baris, Feed 18,5 dan Story 23. Story: blok turun dari 144 / 104 / 70 ke 128 / 92 / 62.
 - Data: Padel Fixed, Americano 21, 4 pasangan round-robin 6 match; selisih = 2 × poin − 63 (43 → +23, 29 → −5, 28 → −7).
 - Digambar dari tab Total Point yang dipilih di Klasemen; Americano dibuka di Point % (keputusan 123), bentuk Point % di 11o–11q.

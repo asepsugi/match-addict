@@ -27,8 +27,9 @@ void main() {
   Override clock(ActiveTournament active) =>
       clockProvider.overrideWithValue(() => fixtureStart.add(Duration(minutes: active.roundCount == 2 ? 45 : 40)));
 
-  Widget screen(ActiveTournament active, String matchId) => hifiScreen(
+  Widget screen(ActiveTournament active, String matchId, {double textScale = 1.0}) => hifiScreen(
     ScoreInputScreen(matchId: matchId),
+    textScale: textScale,
     overrides: [tournamentProvider.overrideWith(() => LoadedTournament(active)), clock(active)],
   );
 
@@ -99,6 +100,19 @@ void main() {
         await tester.tap(find.text('Eko M · Budi S'));
         await tester.pump();
         await tester.tap(find.text('Absen'));
+      },
+    );
+  });
+
+  testWidgets('07j pada skala teks 1,3: tanpa overflow, "sisa 01:20" utuh', (tester) async {
+    await expectNoOverflowAtMaxTextScale(
+      tester,
+      screen(round3(const ScoreFormat(ScoringMethod.americano, 21)), 'r3c2', textScale: 1.3),
+      act: (tester) async {
+        expect(find.textContaining('sisa 01:20'), findsOneWidget);
+        await tester.tap(find.text('WO'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Eko M · Budi S'));
       },
     );
   });

@@ -40,6 +40,8 @@ tanpa migrasi. Fixture literal tiap bentuk ada di test (SP-1 menambahkan yang be
 | tukar pemain | 3.5.0 | tanpa kunci baru | `resting[n]` round terakhir bisa berubah oleh tukar dan boleh berisi pemain yang dikeluarkan; codec tidak berubah, 3.4.x membacanya apa adanya (`logic.md` §15.1) |
 | Grup + Gugur: `config.groupKnockout`, `matches[].phase`, sisi gugur belum diketahui = `null`, penanda `bye.gg` | 3.8.0 | opsional, satu paket | tanpa `config.groupKnockout` = round-robin (semua simpanan ≤ 3.7.x); satu paket utuh atau payload rusak (lihat "Grup + Gugur"); pembaca ≤ 3.7.x menolaknya (null) lewat `bye.gg` |
 | `settings.<olahraga>.groupKnockout` | 3.8.0 | kunci opsional di JSON `v` 1 | tanpa kunci = round-robin; ≤ 3.7.x mengabaikannya (membaca sebagai Fixed biasa) |
+| Group - Playoff fleksibel: `groups.length` 3, `formats.PF` iff G ≥ 3, `groupKnockout.wildcards`, batas 32 pemain | 3.10.0 | opsional (`wildcards`) + rentang nilai baru | 2 dan 4 grup byte-sama dengan 3.9.x; 3 grup = G ∈ `decodableGroupCounts` + `wildcards` (lihat "Group - Playoff fleksibel"); pembaca ≤ 3.9.x menolak 3 grup (null) lewat GR5 |
+| `settings.<olahraga>.groupKnockout.groupCount` 3 | 3.10.0 | nilai baru di JSON `v` 1 | `groupCount` 2, 3, 4; pembaca ≤ 3.9.x membuang seluruh entri (default) |
 
 ## Sparing (3.2.0, MINOR)
 
@@ -438,6 +440,164 @@ Tanpa kunci baru, `schemaVersion` tetap 2 (keputusan 126, 128 #9; spec `design/s
 bisa tersimpan sejak 3.9.0 tetap sah di aturan baca lama: round Fixed lama yang dikosongkan (match kembali `pending` di
 tengah turnamen) dan SF gugur yang dikosongkan/dihapus WO-nya (babak sesudahnya kembali `tbd`) lolos GR13–GR16, jadi app
 3.8.x membukanya. Metode Klasemen (Point %) tidak disimpan dan tidak ada di payload live.
+
+## Group - Playoff fleksibel (3.10.0, MINOR)
+
+**Final (dba, GP-0, 2026-11-23).** `schemaVersion` tetap 2 (keputusan 135–154; tidak ada bentuk yang memaksa naik, jadi tidak
+ada keputusan MAJOR untuk host). Semua tambahan opsional atau berupa rentang nilai baru; encode round-robin, Mixed, Mexicano,
+Sparing, serta Group - Playoff **2 dan 4 grup** byte-sama dengan 3.9.1 (selain `appVersion`). `bye.gg` tetap `"1"`. Aturan
+produk: PRD §16 (16.10), §8.1, `design/spec/logic.md` §21 (21.9 draf). Di sini hanya bentuk simpanan dan aturan baca.
+
+### Keputusan
+
+| Pokok | Keputusan | Alasan |
+|---|---|---|
+| `schemaVersion` | tetap 2, `bye.gg` tetap `"1"` | pembaca 3.9.1 menolak 3 grup sendiri lewat GR5 (null, tanpa crash); 2 dan 4 grup tetap bentuk lama. Penanda baru (`gg: "2"`) hanya akan membuat 3.10.0 menolak data yang 3.9.1 bisa tampilkan dengan benar |
+| Kode simpanan "PF" | tetap `PF1`..`PF4`, kunci `formats.PF`, kunci pengaturan terakhir `PF`; "QF" hanya teks UI | `_readPhase` 3.9.1 melempar untuk kode tak dikenal (`QF1` → seluruh turnamen 4 grup null); dua kode berarti dua jalur di decoder. `KnockoutPhase.code` punya switch sendiri, bukan `codePrefix` (GP-1) |
+| `wildcards` (GR18) | **disimpan**: `config.groupKnockout.wildcards` = `[idWC1, idWC2]` | lihat di bawah |
+| Pilihan host atas seri | tidak disimpan sebagai pilihan; hasilnya (siapa lolos, urutan WC) terbaca dari bagan + `wildcards` | sama dengan 3.8.0 (AC-G7) |
+| J1, J2, J3, grup asal WC | diturunkan dari `pair1` QF1, QF3, QF4 dan `groups`, tidak disimpan | satu sumber kebenaran (match); GR19 memeriksa kecocokannya |
+| Court per grup | tidak disimpan; `courtId` match sudah menentukan (16.10 terpenuhi) | sama dengan 3.8.0 |
+| `groups.length` 3 | sah; GR5 memakai `decodableGroupCounts(P)` | data 2 × 3 dan 4 × 3 (3.8.x–3.9.x) tetap terbaca (AC-G29) |
+| 2/4 grup 32 pemain (16 pasangan) di 3.9.x | **ditampilkan**, tidak ditolak | lihat "App 3.9.x" |
+| 3 grup di 3.9.x | **ditolak** (null) | lihat "App 3.9.x" |
+
+**Kenapa `wildcards` disimpan, bukan diturunkan.** (1) Urutan WC1/WC2 **tidak bisa dipulihkan dari match**: himpunan
+{QF1.pair2, QF3.pair2} sama untuk bagan tanpa tukar dan dengan tukar, dan kedua pembacaan bisa sama-sama lolos aturan tukar
+(mis. WC dari grup J2 dan J3: tanpa tukar WC1 = QF1.pair2; dengan tukar WC1 = QF3.pair2). Label "WC1/WC2" di Klasemen, Detail,
+dan poster butuh urutannya. (2) Menurunkannya dari skor grup memanggil mesin peringkat (Win %/Point %, selisih per match,
+huruf grup) dan membuat bacaan simpanan bergantung pada rumus yang boleh berubah di rilis berikutnya; prinsip 3.8.0 (court
+per grup tidak dihitung ulang) berlaku sama. (3) PRD 16.10 meminta bagan tidak dihitung ulang saat dibuka. Biaya: satu kunci
+opsional ±100 B, hanya di 3 grup setelah Buat bagan. Pembaca 3.9.x tidak pernah melihatnya (3 grup sudah ditolak).
+
+### Bentuk
+
+Hanya yang berubah dari "Grup + Gugur (3.8.0)":
+
+```json
+"groupKnockout": {
+  "groups": [ ["pair-1","pair-4","..."], ["pair-2","pair-5","..."], ["pair-3","pair-6","..."] ],
+  "formats": { "PF": {"scoring":"raceTo","target":5}, "SF": {"..":"."}, "J3": {"..":"."}, "F": {"..":"."} },
+  "thirdPlace": true,
+  "wildcards": ["pair-9", "pair-11"] }
+```
+
+- `groups`: 2, 3, atau 4 list; tiap list urut round-robin. `groupCount` tetap tidak disimpan (= `groups.length`).
+- `formats`: `{SF, J3, F}` plus `PF` **iff G ≥ 3** (dulu iff G = 4). Urutan tulis PF, SF, J3, F.
+- `wildcards` (kunci terakhir di `groupKnockout`, sesudah `thirdPlace`): `[WC1, WC2]` id pasangan **dalam urutan seeding
+  sebelum tukar** (bukan urutan sisi di bagan). Ditulis iff `wildcards` non-kosong di model; model mengisinya hanya di 3 grup
+  dan di `state =` yang sama dengan match bagan pertama (jebakan 21.12 #1: `copyWith` membawanya, ubah format/juara 3
+  mempertahankannya). Tidak ada kunci `wildcards: []`.
+- `matches[].phase`: `PF1`..`PF4` sah di G ≥ 3; huruf grup A..C di 3 grup. Match 3 grup memakai topologi logic.md §21.6:
+  QF1 = J1 vs WC (1), QF2 = R(J2) vs R(J3), QF3 = J2 vs WC (2), QF4 = J3 vs R(J1); SF1 = W(QF1) vs W(QF2), SF2 = W(QF3) vs W(QF4);
+  (1)/(2) = WC1/WC2 atau tertukar. Tidak ada kunci lain (juara 3 mati/nyala dan format babak yang diubah, G16, hanya mengubah
+  `thirdPlace`, ada/tidaknya match `J3` dan `formats`).
+
+### Aturan baca baru dan yang berubah (pelanggaran = `decode` null, bukan melempar; `canEncode` memakai fungsi yang sama)
+
+Tabel GR1–GR17 berlaku seperti di 3.8.0 kecuali baris berikut. Satu fungsi `_isValidGroupKnockout` untuk `decode` dan `canEncode`.
+
+| # | Perubahan / aturan | Contoh payload yang ditolak |
+|---|---|---|
+| GR4 | `groups` list 2, **3**, atau 4 list-of-String; `wildcards` (kalau ada) list berisi tepat 2 String | `groups` 5 list; `wildcards: ["a"]`, `wildcards: "a"` |
+| GR5 | `G` ∈ `GroupStage.decodableGroupCounts(P)` (P = `fixedPairs.length`), bukan `groupCountsFor`: P 6–11 → [2]; P 12–16 → [2, 3, 4]; P > 16 → [] (security W4). G = 3 sah hanya dari P ≥ 12 (ukuran ≥ 4); 2 × 3 dan 4 × 3 lama tetap lolos | 3 grup dengan 11 pasangan; 4 grup dengan 8 pasangan |
+| GR8 | `formats` persis `{SF, J3, F}` plus `PF` iff G ≥ 3 | `PF` di 2 grup; 3 grup tanpa `PF` |
+| GR10 | `PF*` sah iff G ≥ 3; huruf grup < G | `PF1` di 2 grup; `"D"` di 3 grup |
+| GR12 | himpunan kode gugur: 2 grup `{SF1, SF2, F}`; **3 dan 4 grup** `{PF1..PF4, SF1, SF2, F}`; plus `J3` iff `thirdPlace` | 3 grup tanpa PF4 |
+| GR14 | 2 dan 4 grup tetap (sisi seed anggota grup huruf itu). **3 grup memakai GR19** | – |
+| GR18 | `groupKnockout.wildcards`: ada iff G = 3 **dan** sudah ada match gugur; di 2/4 grup (termasuk `[]`) atau 3 grup tanpa bagan → ditolak; 3 grup dengan bagan tanpa `wildcards` → ditolak (label WC tak bisa dipulihkan). Dua id berbeda, anggota `groups`, dari dua grup berbeda | `wildcards` di 4 grup; WC1 = WC2; dua WC satu grup; id bukan anggota grup |
+| GR19 | Babak pertama 3 grup (QF1–QF4, semua sisi non-`null`): J1 = QF1.pair1, J2 = QF3.pair1, J3 = QF4.pair1 dari **tiga grup berbeda**; QF4.pair2 segrup J1, QF2.pair1 segrup J2, QF2.pair2 segrup J3 (runner-up); delapan pasangan di QF1–QF4 berbeda semua (jadi WC bukan J atau R); tukar = `group(WC1) = group(J1)` atau `group(WC2) = group(J2)`, dan {QF1.pair2, QF3.pair2} = (tanpa tukar) `[WC1, WC2]` / (tukar) `[WC2, WC1]`; tidak ada QF yang mempertemukan dua pasangan segrup | J1 dan J2 satu grup; QF1.pair2 = WC2 padahal tidak perlu tukar; QF2 mempertemukan dua pasangan segrup; WC = R(J1) |
+
+Total: `groupOfPair` dan helper lain tidak melempar untuk id tak dikenal (null → ditolak). GR19 diperiksa dengan `groups`, bukan
+`KnockoutBracket.sources` (bentuk sumber 3 grup bebas di GP-2); GR15/GR16 tetap lewat `KnockoutBracket.isResolved`/`resolve`.
+
+Yang **tidak** diperiksa (sama dengan 3.8.0, keadaan bukan bentuk): benarkah J1–J3 berurut menurut metode Playoff, benarkah dua WC
+adalah dua peringkat 3 terbaik, dan apakah pilihan host atas seri sah. Payload dengan lolos "salah" tetap sah. Jumlah pemain
+(maksimal 32) **tidak** diperiksa decoder (sekarang pun tidak): batasnya di layar dan `maxPlayers`.
+
+### App 3.9.x terhadap simpanan/payload 3.10.0 (AC-B8, AC-G29)
+
+Dasar: `lib/` di HEAD identik dengan commit rilis 3.9.1 (`5d2c06e`, `git diff 5d2c06e HEAD -- lib` kosong); di sana
+`GroupStage.groupCountsFor` = `< 6 → []`, `< 12 → [2]`, selain itu `[2, 4]` (tanpa batas atas), dipanggil di
+`tournament_codec.dart:183` (GR5), dan `_readPhase` hanya mengenal `A–D, PF1–PF4, SF1, SF2, F, J3`. Dibuktikan dengan membaca
+kode (versi lama tidak dijalankan di sini); GP-4 membuktikannya dengan test (di bawah).
+
+| Kasus di 3.10.0 | Decoder 3.9.1 | Keputusan |
+|---|---|---|
+| 3 grup (P 12–16), sebelum atau sesudah Buat bagan | `groupCountsFor(P)` = [2, 4] ∌ 3 → GR5 `return false` → **null** | tolak (tanpa perubahan; PRD 16.10 meminta ini) |
+| 2 grup 8 + 8 atau 4 grup 4 × 4 (16 pasangan, 32 pemain) | `groupCountsFor(16)` = [2, 4], ukuran = `sizes`, `PF` iff 4 grup → **terbaca**, label lama ("PF1", "Juara") | **tampil**: tidak ada alasan menolak data yang benar; menolak butuh penanda baru yang juga memutus 3.10.0 → 3.10.0 |
+| 2/4 grup ≤ 15 pasangan, ubah format/juara 3 (G16) | bentuk lama (`formats`, `thirdPlace`, ada/tidaknya `J3`) → terbaca | tampil |
+| Round-robin, Mixed, Mexicano, Sparing 31–32 pemain | decoder tidak memeriksa jumlah pemain → **terbaca**; Kelola pemain 3.9.x dengan 32 aktif: Tambah mati (`limit` 30), tidak crash | tampil |
+| Pengaturan terakhir `groupCount: 3` | `_readKnockout`: `count != 2 && count != 4` → melempar → `read` null | seluruh entri dibuang → default (court dan format ikut hilang sekali); tidak berbahaya, ditimpa saat turnamen berikutnya dimulai |
+
+Konsekuensi yang diterima (pola yang sama dengan Mexicano/GU15): penonton 3.9.x di tautan live 3 grup melihat "Live tidak
+bisa dibuka" (bukan data salah) sampai app diperbarui; host 3.9.x di box yang sama: `loadActive` null, listener auto-save
+mengabaikan state null, simpanan tidak ditimpa sampai host memulai turnamen baru di versi lama. Kunci `wildcards` tidak pernah
+sampai ke pembaca 3.9.x (hanya ada di 3 grup, sudah ditolak lebih dulu).
+
+### Pengaturan terakhir (`settings.<olahraga>.groupKnockout`, `v` tetap 1)
+
+- `groupCount` int 2, **3**, atau 4; `formats` persis `{SF, J3, F}` plus `PF` iff `groupCount` ≥ 3 (kunci tetap `PF`, tidak
+  `QF`). Kunci lain, `thirdPlace` bool, batas 16 KB, dan "satu pelanggaran = seluruh entri tak terbaca" tidak berubah. `v`
+  tidak naik: 3.9.x membuang entri 3 grup (default) tanpa crash, sedangkan menaikkan `v` membuang semua entri 3.10.0 di app
+  lama tanpa untung.
+- Turunan saat dibaca (bukan di `read`, yang tidak tahu P): Konfigurasi memanggil `GroupStage.fallbackGroupCount(P, groupCount)`
+  (satu fungsi yang sama dengan sheet Fase grup, GP9): pilihan yang tak sah untuk P turun ke G terbesar ≤ pilihan di
+  `groupCountsFor(P)` (3 grup 24 → 20 pemain = 2; 4 grup 32 → 30 = 3; 4 grup 32 → 22 = 2), daftar kosong → Round-robin.
+  Menggantikan aturan lama "4 grup dan P < 12 → 2". Format `PF` dibuang bila hasilnya 2 grup; simpanan tidak diubah.
+- Entri 3.9.x (`groupCount` 2/4) terbaca apa adanya dan ter-`toJson` byte-sama.
+
+### Ukuran payload live (AC-B9)
+
+Terukur 2026-11-24 (`test/services/live_payload_size_test.dart`, GP-4; angka dari review tech-lead): id UUID, semua match
+berskor, `utf8.encode(encode(active)).length`; ±610 B per match, Mixed 8 court ±4,9 KB per round.
+
+| Kasus (32 pemain) | Match | Ukuran |
+|---|---|---|
+| Group - Playoff 2 grup × 8 + bagan | 60 | 60 KB |
+| Group - Playoff 3 grup [6, 5, 5] + bagan / 4 × 4 + bagan | 43 / 32 | 47 / 38 KB |
+| Fixed 16 pasangan round-robin, 2 court | 120 | 81 KB |
+| Mixed 32/8 court, 16 round | 128 | 82 KB |
+| Mixed 32/1 court, 30 round + istirahat 28 id/round | 30 | 57 KB |
+| Fixed 16 pasangan + 1 / 2 putaran tambahan | 240 / 360 | 155 / 230 KB |
+| Mixed 32/8 court, 50 round | 400 | 248 KB |
+
+Batas relay `MAX_BYTES` = 256 KB (`relay/src/index.js:14`; relay tidak berubah). Kasus dasar semua di bawah 128 KB (separuh batas,
+margin untuk id/nama lebih panjang). Di atas 128 KB: Fixed 16 pasangan dengan ≥ 1 putaran tambahan (Tambah round tidak berbatas) dan
+Mixed 32/8 court > ±26 round; di atas 256 KB (Fixed ≥ 3 putaran tambahan ±305 KB, Mixed 32/8 court > ±52 round) `push` dijawab 413,
+ditangkap `LiveHostController._send` tanpa coba ulang (GP-13, keputusan 156; `start()` → toast 12s "Data terlalu besar · live belum
+dimulai", GP-13b): penonton berhenti melihat pembaruan, turnamen lokal tidak terganggu. Risiko yang sudah ada untuk ≤ 30 pemain dengan skala
+lebih kecil; tidak diperbaiki di 3.10.0 (lihat laporan: usulan menaikkan `MAX_BYTES` setelah memeriksa batas penyimpanan Durable
+Object, belum diverifikasi di sini). Komentar "30 pemain" di `relay/src/index.js:14` boleh diperbarui tanpa deploy.
+
+### Test wajib (GP-4, `test/services/group_knockout_codec_test.dart`, `last_settings_group_knockout_test.dart`, `live_payload_size_test.dart`; nama memakai id aturan/AC)
+
+- **AC-G29** fixture literal 3.9.x: 2 × 3 (P = 6) dan 4 × 3 (P = 12) terbaca, ter-encode byte-sama (selain `appVersion` bila ditulis
+  ulang), dilanjutkan sampai Final (bagan huruf); encode 2 dan 4 grup di 3.10.0 tidak memuat `wildcards` dan tidak memuat teks "QF"
+  (kode tetap `PF1`..`PF4`, `formats.PF`).
+- **GR4/GR5/GR8/GR10/GR12** untuk 3 grup: satu test ditolak per baris tabel (P = 11 dengan 3 grup, 3 grup tanpa/dengan `PF` salah,
+  `"D"` di 3 grup, `PF4` hilang); P = 12, 13, 14, 15, 16 dengan 3 grup terbaca (sebelum dan sesudah bagan); `canEncode` false untuk
+  model yang setara (`encode` melempar `UnreadableTournamentError`).
+- **GR18** `wildcards`: round trip 16G (tanpa tukar), 16G-iii (pilihan host), varian tukar WC1 segrup J1, tukar WC2 segrup J2, tukar
+  keduanya, 3 grup dengan juara 3 mati, di tengah gugur dan setelah diakhiri; `encode(decode(x)) == x`. Ditolak: di 2 grup, di 4
+  grup, `[]`, 3 grup dengan bagan tanpa kunci, 3 grup tanpa bagan dengan kunci, satu id, tiga id, id sama, id bukan anggota grup,
+  dua WC satu grup, bertipe salah.
+- **GR19** satu test ditolak per kalimat aturan (J dari grup sama, R(J) tak segrup, id ganda di QF1–QF4, QF1/QF3.pair2 tertukar,
+  QF segrup, sisi `null`). `wildcards` terbalik dengan QF yang sama diterima: bagan hanya ditentukan himpunan WC, urutan hanya
+  mengubah label WC1/WC2 (keadaan, bukan bentuk; review GP-4 2026-11-24).
+- Ubah format babak/juara 3 3 grup (G16) mempertahankan `wildcards` (21.12 #1); AC-G28 lewat decode ulang.
+- **AC-B8 lintas versi**: salinan aturan decoder 3.9.1 di test (`groupCountsFor` lama = `< 6 → [], < 12 → [2], [2, 4]`, `_readPhase`
+  lama) membaca payload 3.10.0: 3 grup → null; 2 × 8 dan 4 × 4 (16 pasangan) → terbaca; Mixed/round-robin 32 pemain → terbaca;
+  `last_settings` `groupCount: 3` → null di aturan lama (`count != 2 && count != 4`). Sekali sebelum merge, jalankan juga decoder asli:
+  `git archive 5d2c06e` ke folder sementara di dalam proyek, `flutter test` memanggil `TournamentCodec.decode` dengan fixture 3.10.0
+  (pola "Penanda GU15"), lalu hapus folder. **Dijalankan 2026-11-24 (review GP-4):** 3 grup → null tanpa melempar; 2 × 8, 4 × 4,
+  2 grup 15 pasangan, Mixed/round-robin 32 → terbaca dan ter-encode byte-sama; `last_settings` 3 grup → dibuang. Arah sebaliknya:
+  simpanan encoder 3.9.1 asli (2 × 3, 4 × 3 sebelum bagan dan di tengah gugur) terbaca 3.10.0, byte-sama selain `appVersion`.
+- `last_settings`: `groupCount: 3` round trip; `PF` wajib iff ≥ 3; `groupCount: 5` / `PF` di 2 grup → null; entri 3.9.x byte-sama;
+  `fallbackGroupCount` dipakai (3 grup 24 → 20 pemain = 2, 4 grup 32 → 22 = 2, daftar kosong → round-robin).
+- **AC-B9 ukuran**: encode tiap baris tabel ukuran kasus dasar `< 128 * 1024`; Fixed 16 pasangan + 2 putaran tambahan dan Mixed 32/8 court 50
+  round `< 256 * 1024`; tulis angka terukur di komentar test; semua `decode(encode(x)) != null`.
+- Properti: state acak `KnockoutBracket` 3 grup (skor/WO/ubah-skor/kosongkan) selalu lolos `canEncode` dan `decode(encode(x)) == x`.
 
 ## Auto-save & resume
 

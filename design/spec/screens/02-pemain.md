@@ -36,16 +36,16 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `NameListField`, `RosterPreview`
 
 - Daftar dan jumlahnya diperbarui tiap ketikan. Kurang dari 4 bukan error (host masih mengetik), jadi catatannya abu-abu, bukan clay.
-- Tombol mati sampai jumlahnya 4–30.
+- Tombol mati sampai jumlahnya 4–32.
 
-## 02d · Lebih dari 30 · halaman di-scroll
+## 02d · Lebih dari 32 · halaman di-scroll
 
 ![02d](../../frames/02d.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `NameListField`, `RosterPreview`
 
 - Mulai ±18 pemain daftarnya lebih panjang dari layar, jadi halaman di-scroll; app bar dan action bar tetap. Frame ini digulir sampai bawah. Daftar tetap menampilkan semua nama supaya host bisa memilih siapa yang dihapus dari kotak teks.
-- Catatan clay "Maksimal 30 pemain" menggantikan "Minimal 4", sama seperti pesan error di Konfigurasi. Daftarnya tidak ikut diwarnai. Tombol mati.
+- Catatan clay "Maksimal 32 pemain" (batas 32 sejak 3.10.0, keputusan 142) menggantikan "Minimal 4", sama seperti pesan error di Konfigurasi. Daftarnya tidak ikut diwarnai. Tombol mati.
 - Begitu konten ter-scroll ke bawah app bar, app bar mendapat garis tipis di bawahnya.
 - Nama panjang dipotong elipsis di kolomnya; nama lengkapnya tetap tersimpan.
 

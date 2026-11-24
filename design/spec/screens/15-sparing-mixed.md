@@ -262,13 +262,13 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 - Latar = 15l. Nama "Oki" sudah diketik, belum ada chip klub yang dipilih: tombol mati menulis alasannya, "Pilih klub" (C-10, aturan alasan di tombol). Memilih chip → kembali "Tambah" aktif (15l).
 - Nama masih kosong: "Tambah" mati tanpa alasan tambahan, seperti 15m, apa pun pilihan klubnya.
 
-## 15z3 · Kelola pemain sparing · 30 pemain aktif
+## 15z3 · Kelola pemain sparing · 32 pemain aktif
 
 ![15z3](../../frames/15z3.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `MabarField`, `MabarChip`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `showMabarSheet`, `ClubScore`
 
-- Latar = 15d (PB Garuda 16 + Matcha Club 14 = 30 aktif, R3). Batas 30 pemain aktif berlaku untuk kedua klub bersama. Tambah "Rudi" ke Matcha Club ditolak: "Maksimal 30 pemain aktif" (sama dengan 08b), tepi kotak clay. Kembalikan pemain yang keluar juga ditolak dengan pesan yang sama selama 30 aktif.
+- Latar = 15d ditambah Dimas dan Laras di Matcha Club (istirahat lagi di R4): PB Garuda 16 + Matcha Club 16 = 32 aktif, R3. Batas 32 pemain aktif (keputusan 142) berlaku untuk kedua klub bersama. Tambah "Rudi" ke Matcha Club ditolak: "Maksimal 32 pemain aktif" (sama dengan 08b), tepi kotak clay. Kembalikan pemain yang keluar juga ditolak dengan pesan yang sama selama 32 aktif.
 - Sheet setinggi batas 92%, daftar per klub digulir (15m); frame menampilkan baris pertama PB Garuda.
 
 ## 15z4 · Live · Jadwal Mixed sparing · skor klub

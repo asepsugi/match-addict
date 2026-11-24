@@ -59,7 +59,7 @@ void main() {
     await expectRegionMatchesHifi(tester, hifiStage(theme: theme, at: at, child: const RosterPreview(names: sample)), '02b', at, label: 'roster');
   });
 
-  testWidgets('RosterPreview 31 pemain: 16 kiri, 15 kanan (02d)', (tester) async {
+  testWidgets('RosterPreview 33 pemain: 17 kiri, 16 kanan (02d)', (tester) async {
     // 02d digulir sampai bawah: bagian atas daftar ada di bawah app bar, jadi yang dibandingkan yang terlihat saja.
     final at = hifiRect('02d', 'roster');
     final visible = Rect.fromLTRB(at.left, hifiRect('02d', 'appbar').bottom, at.right, at.bottom);
@@ -67,7 +67,7 @@ void main() {
       ...sample,
       'Indra W', 'Joko S', 'Kiki A', 'Lina M', 'Maya P', 'Nanda R', 'Oki S', 'Putri A', 'Rizky H', 'Sari D', 'Tono B',
       'Umar F', 'Vina K', 'Wulan S', 'Yoga P', 'Zaki M', 'Bayu S', 'Dimas A', 'Galih P', 'Rina K', 'Tari W', 'Hendra G',
-      'Iwan K',
+      'Iwan K', 'Agus T', 'Lukman H',
     ];
     await expectRegionMatchesHifi(tester, hifiStage(theme: theme, at: at, child: const RosterPreview(names: names)), '02d', visible, label: 'roster');
   });

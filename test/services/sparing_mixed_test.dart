@@ -453,12 +453,12 @@ void main() {
       },
     );
 
-    test('AC-S12 batas total: 30 aktif → tambah dan Kembalikan ditolak; minimal total 4 tetap berlaku', () {
-      controller.startIfNeeded(_config(sizedClub('g', _garuda, 16), sizedClub('m', _matcha, 14)));
-      expect(controller.addPlayer('Zaki', clubId: _matcha.id), 'Maksimal 30 pemain aktif');
+    test('AC-B8 AC-S12 batas total: 32 aktif → tambah dan Kembalikan ditolak; minimal total 4 tetap berlaku', () {
+      controller.startIfNeeded(_config(sizedClub('g', _garuda, 16), sizedClub('m', _matcha, 16)));
+      expect(controller.addPlayer('Zaki', clubId: _matcha.id), 'Maksimal 32 pemain aktif');
       expect(controller.withdrawPlayer('m01'), isTrue);
       expect(controller.addPlayer('Zaki', clubId: _matcha.id), isNull);
-      expect(controller.reinstatePlayer('m01'), 'Maksimal 30 pemain aktif');
+      expect(controller.reinstatePlayer('m01'), 'Maksimal 32 pemain aktif');
       _expectSaves(read());
 
       container.dispose();

@@ -162,13 +162,13 @@ void main() {
     expect(read().config.players, hasLength(6));
   });
 
-  test('maksimal 30 pemain aktif, juga saat Kembalikan', () {
-    controller.startIfNeeded(_mixedConfig(29));
+  test('AC-B8 maksimal 32 pemain aktif, juga saat Kembalikan', () {
+    controller.startIfNeeded(_mixedConfig(31));
     expect(controller.addPlayer('Zaki'), isNull);
-    expect(controller.addPlayer('Yoga'), 'Maksimal 30 pemain aktif');
+    expect(controller.addPlayer('Yoga'), 'Maksimal 32 pemain aktif');
     controller.withdrawPlayer('p0');
     expect(controller.addPlayer('Yoga'), isNull);
-    expect(controller.reinstatePlayer('p0'), 'Maksimal 30 pemain aktif');
+    expect(controller.reinstatePlayer('p0'), 'Maksimal 32 pemain aktif');
   });
 
   test('daftar keluar ikut tersimpan; payload lama (tanpa daftar, atau dengan kredit 2.6) tetap terbaca', () {

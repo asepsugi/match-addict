@@ -25,7 +25,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 - Garuda 8 + Matcha 6 = 14 pemain → Lanjut aktif (AC-S1). Jumlah ditulis sekali per klub di label daftarnya; tombol cukup "Lanjut" seperti Mabar.
 - Dua blok lebih panjang dari satu layar, jadi halaman di-scroll (app bar dan action bar tetap); bawahnya di 13c.
 - Daftar bernomor per klub (`.roster`, sama dengan 02b), urut ke bawah dulu, mulai 1 di tiap klub.
-- Syarat Lanjut: kedua nama klub terisi dan berbeda (tidak peka huruf besar), tiap klub minimal 2 pemain, total 4–30, tidak ada nama pemain di dua klub (K6, K8).
+- Syarat Lanjut: kedua nama klub terisi dan berbeda (tidak peka huruf besar), tiap klub minimal 2 pemain, total 4–32, tidak ada nama pemain di dua klub (K6, K8).
 
 ## 13c · Pemain · Sparing · digulir ke bawah
 
@@ -62,7 +62,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `NameListField`, `RosterPreview`
 
 - "PB Garuda" dan "pb garuda" dianggap sama (tidak peka huruf besar, spasi dipangkas) → Lanjut mati (AC-S2).
-- Ini salah isi, bukan sedang mengetik: tepi kotak dan catatannya clay, seperti "Maksimal 30 pemain" di 02d. Pesan selalu di kotak klub kedua, karena klub pertama yang diisi duluan.
+- Ini salah isi, bukan sedang mengetik: tepi kotak dan catatannya clay, seperti "Maksimal 32 pemain" di 02d. Pesan selalu di kotak klub kedua, karena klub pertama yang diisi duluan.
 
 ## 13g · Pemain · pemain di dua klub
 
@@ -152,14 +152,14 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Data 13C setelah R5 (10 dari 12 match): 6 – 4, Total Point 45 – 43, selisih +8 / −8 (AC-S14). Main Garuda 3·3·2·2, Matcha 4·3·3: Eko · Fajar 12 dari 2 match di atas Citra · Dewi 10 dari 3. Maya · Nanda 17 termasuk 6 nilai WO R3. "1 match WO" di bawah tabel terakhir.
 - Isinya lebih panjang dari layar: tabel Matcha berlanjut di bawah action bar (bagian bawahnya di 13o). Ketuk baris → Detail (14v, 14w).
 
-## 13o · Klasemen sparing · Fixed · Final · digulir ke bawah
+## 13o · Klasemen sparing · Fixed · Final
 
 ![13o](../../frames/13o.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `StandingTable`, `ClubScore`
 
 - Final: semua 12 match terisi (atau diakhiri), sama dengan 4.6. PB Garuda 7 – 5 Matcha Club, Total Point 56 – 49, selisih +13 / −13 (AC-S14).
-- Digulir sampai bawah; skor klub dan tab metode tetap di atas, tabel PB Garuda bergeser ke bawah app bar.
+- Isi muat satu layar, tidak digulir (keputusan 158).
 - PB Garuda: #1 Eko · Fajar 18 (+11) · #2 Andi · Budi 14 (+1) · #3 Gita · Hadi 14 (−2) · #4 Citra · Dewi 10 (+3). Matcha Club: #1 Maya · Nanda 23 (+4, 3 menang termasuk 1 WO) · #2 Kiki · Lina 16 (−3) · #3 Indra · Joko 10 (−14) (13.6, AC-S17).
 - Maya · Nanda 23 = 17 game + 6 nilai WO; WO tidak mengubah selisih. Catatan "1 match WO" di bawah tabel terakhir, seperti 09c.
 
@@ -217,7 +217,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `SharePoster`
 
 - Isi sama dengan 13s. Feed: 11 satuan, ruang 226 ÷ 11 = 20,5 → s 0,93 (nama 12,5 = batas baris kecil kepala, keputusan 92; nilai 14,9), satuan ditulis.
-- Story: nama pasangan ditumpuk (`.prow.duo`, 2 satuan): 7 × 2 + 2 kepala × 2 = 18 satuan; ruang 336 ÷ 18 = 18,7 → s 1,10 (nama 14,8, nilai 16,5), tanpa satuan ("18 · +11"). Podium mini Story lebar 36, tinggi 52 / 37, angka 34 / 24.
+- Story: nama pasangan satu baris (keputusan 148), 1 satuan per pasangan: 7 + 2 kepala × 2 = 11 satuan; ruang 336 ÷ 11 = 30,55 → batas skala 1,33 (nama 15 = batas, nilai 20), tanpa satuan ("18 · +11"). Podium mini Story lebar 36, tinggi 52 / 37, angka 34 / 24.
 - Kepala, podium, dan panel di luar zona aman Story 250 px (84 pt atas dan bawah).
 - File dan cara berbagi sama dengan 11d.
 
@@ -255,3 +255,16 @@ Komponen: `SharePoster`
 - Story: 30 pemain > 20 → dua kolom (keputusan 81), dibagi per klub seperti Feed, bukan ⌈n/2⌉. 336 ÷ 18 = 18,7 → batas skala Story dua kolom 1,0 (nama 12, nilai 13,5).
 - Poin dan selisih sama → nomor sama, nomor berikutnya melanjutkan: Rizky, Sari #2 · Citra, Gita #3 · Tari, Zaki #13.
 - Tema biru (gradien gelap): blok klub lain terang dengan angka warna awal gradien, panel tinta; warna sama dengan podium gradien gelap (18*).
+
+## 13x · Gambar Lengkap · Mixed sparing 30 + 2 pemain · Feed (skala 1:3) · batas pemain
+
+![13x](../../frames/13x.png)
+
+Komponen: `SharePoster`
+
+- Frame ekstrem poster 32 (keputusan 147, Q-B1; Fixed 16 pasangan di 11s). Aturan kolom tidak berubah: Mixed sparing di Feed selalu dua kolom per klub, satuan per kolom = kepala 2 + pemain klub terbesar.
+- Kepadatan (keputusan 80): 2 + 30 = 32 satuan; 226 ÷ 32 = 7,06 → skala 0,392 (nama 4,7 pt = 14 px di gambar 1080, nilai 5,3). Kolom Matcha Club berisi kepala + 2 baris, 28 slot kosong. Host mengecek keterbacaannya di HP (Q-B1).
+- Data (PRD 8.1, Sparing Mixed 30 / 2, 2 court): court aktif min(2, 15, 1) = 1, booking 4 jam, Americano 21, diakhiri setelah R15. Tiap round Maya · Nanda melawan dua pemain PB Garuda yang berbeda, jadi 30 pemain Garuda main tepat sekali dan Maya, Nanda 15 kali.
+- Skor PB Garuda per match: 16, 14, 13, 12, 11, 11, 10, 10, 9, 8, 8, 7, 6, 5, 4 (jumlah 144, lawan 171 = 15 × 21 − 144). Menang Garuda 6, Matcha 9 → skor klub 6 – 9, selisih −27 / +27. Matcha Club unggul: blok kanan emas setinggi #1, blok PB Garuda #2 di kiri (18n).
+- Dua pemain satu match punya poin dan selisih sama → nomor sama, urut nama: Rizky dan Sari 16 · +11 #1, empat pemain #5 (11 · +1), #6 (10 · −1), dan #8 (8 · −5). Jumlah selisih pemain 0.
+- Tema biru dan lapangan padel sama dengan 13w.

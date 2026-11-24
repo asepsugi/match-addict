@@ -81,33 +81,81 @@ class MabarButton extends StatelessWidget {
     final text = MabarType.button.copyWith(fontSize: small ? 14 : 16, color: fg);
 
     final fill = expand ?? !small;
-    final content = Row(
-      mainAxisSize: fill ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (leading != null) ...[leading!, const SizedBox(width: 8)] else if (icon != null) ...[Icon(icon, size: MabarSize.iconInButton, color: fg), const SizedBox(width: 8)],
-        // Label utuh; kalau sempit, yang dipotong meta-nya (keterangan, bukan aksinya).
-        Flexible(
-          flex: meta == null ? 1 : 0,
-          child: Text(label, style: text, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis),
-        ),
-        if (meta != null) ...[
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              meta!,
-              // `.btn-wait .meta { opacity: 1 }`: alasan menunggu harus terbaca (ink-3 penuh, 5,3:1).
-              style: text.copyWith(fontWeight: FontWeight.w500, color: variant == MabarButtonVariant.wait ? fg : fg.withValues(alpha: 0.62)),
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ],
+    final metaStyle = text.copyWith(
+      fontWeight: FontWeight.w500,
+      // `.btn-wait .meta { opacity: 1 }`: alasan menunggu harus terbaca (ink-3 penuh, 5,3:1).
+      color: variant == MabarButtonVariant.wait ? fg : fg.withValues(alpha: 0.62),
     );
+    final lead = [
+      if (leading != null) ...[
+        leading!,
+        const SizedBox(width: 8),
+      ] else if (icon != null) ...[
+        Icon(icon, size: MabarSize.iconInButton, color: fg),
+        const SizedBox(width: 8),
+      ],
+    ];
 
-    return Semantics(
+    Widget body(bool two) {
+      if (two) {
+        // `.btn.two`: aksi di baris 1, keterangan utuh di baris 2 tanpa "·" pembuka.
+        final second = meta!.replaceFirst(RegExp(r'^·\s*'), '');
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...lead,
+                Text(label, style: text.copyWith(height: 1.15)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(second, style: metaStyle.copyWith(height: 1.15), textAlign: TextAlign.center),
+          ],
+        );
+      }
+      return Row(
+        mainAxisSize: fill ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ...lead,
+          // Label utuh; kalau sempit, yang dipotong meta-nya (keterangan, bukan aksinya).
+          Flexible(
+            flex: meta == null ? 1 : 0,
+            child: Text(label, style: text, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis),
+          ),
+          if (meta != null) ...[
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(meta!, style: metaStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ],
+      );
+    }
+
+    // Satu baris kalau muat; kalau tidak (teks membesar, Fondasi → Skala teks HP) keterangan pindah ke baris 2.
+    // Tombol selebar isi tidak bisa diukur terhadap lebar sisa, jadi tetap satu baris.
+    bool needsTwoLines(double maxWidth) {
+      if (!maxWidth.isFinite) return false;
+      double width(String value, TextStyle style) {
+        final painter = TextPainter(
+          text: TextSpan(text: value, style: style),
+          textDirection: TextDirection.ltr,
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout();
+        final w = painter.width;
+        painter.dispose();
+        return w;
+      }
+
+      final iconWidth = (leading != null || icon != null) ? (leading == null ? MabarSize.iconInButton : 0) + 8 : 0;
+      final padding = small ? 28 : 40;
+      return width(label, text) + 8 + width(meta!, metaStyle) + iconWidth + padding > maxWidth;
+    }
+
+    Widget button(bool two) => Semantics(
       button: true,
       enabled: onPressed != null,
       child: Material(
@@ -125,18 +173,25 @@ class MabarButton extends StatelessWidget {
             foregroundPainter: variant == MabarButtonVariant.wait
                 ? _DashedBorderPainter(radius: radius, color: _waitBorder)
                 : null,
-            child: SizedBox(
-              height: height ?? (small ? MabarSize.smallButton : MabarSize.primaryButton),
-              width: fill ? double.infinity : null,
+            // Tinggi minimum, bukan tetap: teks yang membesar menumbuhkan tombol.
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: height ?? (small ? MabarSize.smallButton : MabarSize.primaryButton),
+                minWidth: fill ? double.infinity : 0,
+              ),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: small ? 14 : 20),
-                child: Center(widthFactor: 1, child: content),
+                padding: EdgeInsets.symmetric(horizontal: small ? 14 : 20, vertical: two ? 8 : 0),
+                child: Center(widthFactor: 1, heightFactor: 1, child: body(two)),
               ),
             ),
           ),
         ),
       ),
     );
+
+    // LayoutBuilder tidak mendukung ukuran intrinsik (IntrinsicHeight di baris match): hanya dipakai kalau perlu.
+    if (meta == null || !fill) return button(false);
+    return LayoutBuilder(builder: (context, constraints) => button(needsTwoLines(constraints.maxWidth)));
   }
 }
 
@@ -248,6 +303,10 @@ class MabarIconButton extends StatelessWidget {
     this.count,
   });
 
+  /// 0 pada skala teks 1,0 sampai 1 pada 1,3.
+  static double _crowding(BuildContext context) =>
+      ((MediaQuery.textScalerOf(context).scale(11) / 11 - 1) / 0.3).clamp(0.0, 1.0);
+
   @override
   Widget build(BuildContext context) {
     final size = solid ? MabarSize.iconButtonInActionBar : MabarSize.iconButton;
@@ -272,8 +331,10 @@ class MabarIconButton extends StatelessWidget {
                   Icon(icon, size: MabarSize.icon, color: onPressed == null ? MabarColors.off : MabarColors.ink2),
                   if (count != null)
                     Positioned(
-                      top: 5,
-                      right: 6,
+                      // `.actionbar.ts13 .icbtn .count`: pada 1,3 angka bergeser ke sudut (atas 2, kanan 3) supaya tidak
+                      // menimpa ikon; di antara 1,0 dan 1,3 bergeser sebanding.
+                      top: 5 - 3 * _crowding(context),
+                      right: 6 - 3 * _crowding(context),
                       // Jumlah sudah dibaca lewat label tombol.
                       child: ExcludeSemantics(
                         child: Text(
@@ -446,6 +507,9 @@ class MabarAppBar extends StatelessWidget {
 
   /// Bagian akhir subjudul yang ditulis clay ("sisa 00:12" di Input Skor), setelah " · ".
   final String? subtitleAlert;
+
+  /// Bagian akhir subjudul berwarna biasa yang tidak boleh terpotong ("sisa 01:20"), setelah " · ".
+  final String? subtitleTail;
   final VoidCallback? onBack;
   final List<Widget> actions;
   final bool scrolled;
@@ -456,6 +520,7 @@ class MabarAppBar extends StatelessWidget {
     this.subtitle,
     this.shorterSubtitle,
     this.subtitleAlert,
+    this.subtitleTail,
     this.onBack,
     this.actions = const [],
     this.scrolled = false,
@@ -497,21 +562,61 @@ class MabarAppBar extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: LayoutBuilder(
-                  builder: (context, box) => Text.rich(
-                    TextSpan(
-                      text: _fitted(context, box.maxWidth),
-                      children: [
-                        if (subtitleAlert != null)
-                          TextSpan(
-                            text: ' · $subtitleAlert',
-                            style: const TextStyle(color: MabarColors.clay),
+                  builder: (context, box) {
+                    final kept = [
+                      if (subtitleTail != null) (subtitleTail!, MabarColors.ink3),
+                      if (subtitleAlert != null) (subtitleAlert!, MabarColors.clay),
+                    ];
+                    final head = _fitted(context, box.maxWidth);
+                    if (kept.isEmpty) {
+                      return Text(head, style: MabarType.caption, maxLines: 1, overflow: TextOverflow.ellipsis);
+                    }
+                    final painter = TextPainter(
+                      text: TextSpan(
+                        text: head + [for (final (text, _) in kept) ' · $text'].join(),
+                        style: MabarType.caption,
+                      ),
+                      textDirection: TextDirection.ltr,
+                      textScaler: MediaQuery.textScalerOf(context),
+                      maxLines: 1,
+                    )..layout();
+                    final fits = painter.width <= box.maxWidth;
+                    painter.dispose();
+                    if (fits) {
+                      return Text.rich(
+                        TextSpan(
+                          text: head,
+                          children: [
+                            for (final (text, color) in kept)
+                              TextSpan(
+                                text: ' · $text',
+                                style: color == MabarColors.clay ? TextStyle(color: color) : null,
+                              ),
+                          ],
+                        ),
+                        style: MabarType.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    }
+                    // Tidak muat: bagian yang berubah ("sisa 01:20") tetap utuh, yang dielipsis meta di depannya (`.ts13`).
+                    return MergeSemantics(
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(head, style: MabarType.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
                           ),
-                      ],
-                    ),
-                    style: MabarType.caption,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                          for (final (text, color) in kept)
+                            Text(
+                              ' · $text',
+                              style: MabarType.caption.copyWith(color: color),
+                              maxLines: 1,
+                              softWrap: false,
+                            ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
           ],

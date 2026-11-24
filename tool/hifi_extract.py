@@ -233,6 +233,10 @@ def save_fingerprints(new, rendered):
         f.write('{\n' + ',\n'.join(f'  {json.dumps(k)}: {json.dumps(v)}' for k, v in merged.items()) + '\n}\n')
 
 
+# Frame layar: `.app` boleh membawa style sebaris (09c `--pn:14px`), jangan dicocokkan dengan '<div class="app">' saja.
+APP = re.compile(r'<div class="app"[ >]')
+
+
 def render_pngs(s, flows):
     head = s.split('<div class="doc">')[0].replace('<html>', '<html data-theme="light">', 1)
     reset = ('<style>html,body{margin:0!important;padding:0!important;background:transparent}'
@@ -241,7 +245,7 @@ def render_pngs(s, flows):
     for flow in flows:
         for f in flow['frames']:
             root = f['root']
-            if root.startswith('<div class="app">'):
+            if APP.match(root):
                 w, h = 390, 844
             else:  # kumpulan gambar kecil / poster: ukur dulu
                 open(tmp, 'w', encoding='utf-8').write(head + reset + '<div id="r" style="display:inline-block">' + root + '</div>'
@@ -267,7 +271,7 @@ def write_rects(s, flows):
              '.app{border-radius:0!important;box-shadow:none!important}</style>')
     classes = sorted({p[1:] for _, prefixes, _ in COMPONENTS for p in prefixes})
     apps = ''.join(f'<div class="fr" data-id="{f["id"]}">{f["root"]}</div>'
-                   for flow in flows for f in flow['frames'] if f['root'].startswith('<div class="app">'))
+                   for flow in flows for f in flow['frames'] if APP.match(f['root']))
     script = ('<pre id="rects"></pre><script>document.fonts.ready.then(()=>{const C=' + json.dumps(classes) + ';'
               'const q=v=>Math.round(v*100)/100,out={};'
               'for(const fr of document.querySelectorAll(".fr")){const app=fr.querySelector(".app"),a=app.getBoundingClientRect(),m={};'
@@ -365,8 +369,9 @@ def write_poster_data(flows):
                 continue
             out.append(f"  ('{f['id']}', {i}): [")
             for pos, mid, value, unit, diff in rows:
-                names = re.findall(r'<span>([^<]*)</span>', mid) if 'nm2' in mid else \
-                    re.search(r'<span class="nm">([^<]*)</span>', mid).group(1).split(' + ')
+                # Nama per <span> (.nm2 lama, .pname satu baris keputusan 150); tanpa itu satu teks "A + B".
+                names = re.findall(r'<span>([^<]*)</span>', mid) or \
+                    re.search(r'<span class="nm[^"]*">([^<]*)</span>', mid).group(1).split(' + ')
                 args = [f'position: {pos}', 'names: [' + ', '.join(q(n) for n in names) + ']', f'value: {q(value)}']
                 if unit:
                     args.append(f'detail: {q(unit)}')

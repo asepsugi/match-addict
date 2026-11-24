@@ -206,6 +206,9 @@ class MabarOption extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
+  /// `.opt.off` — pilihan mati: teks dan keterangan [MabarColors.ink3] penuh (alasannya di [sublabel]), radio garis tipis.
+  final bool enabled;
+
   /// `.opt .slot` — slot yang didapat pilihan ini ("A2"), bola di kanan baris terpilih (sheet Buat bagan, 20j).
   final String? slot;
 
@@ -215,6 +218,7 @@ class MabarOption extends StatelessWidget {
     this.sublabel,
     this.selected = false,
     this.onTap,
+    this.enabled = true,
     this.slot,
   });
 
@@ -222,16 +226,17 @@ class MabarOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = selected ? Colors.white : MabarColors.ink;
+    final fg = selected ? Colors.white : (enabled ? MabarColors.ink : MabarColors.ink3);
     return Semantics(
       button: true,
+      enabled: enabled,
       selected: selected,
       child: Material(
         color: selected ? MabarColors.ink : MabarColors.paper,
         borderRadius: BorderRadius.circular(MabarRadius.button),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: onTap,
+          onTap: enabled ? onTap : null,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 60),
             child: Padding(
@@ -245,7 +250,7 @@ class MabarOption extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: selected ? MabarColors.ball : _radioOff,
+                        color: selected ? MabarColors.ball : (enabled ? _radioOff : MabarColors.line),
                         width: selected ? 7 : 2,
                       ),
                     ),
@@ -269,7 +274,7 @@ class MabarOption extends StatelessWidget {
                             sublabel!,
                             style: MabarType.caption.copyWith(
                               fontWeight: FontWeight.w500,
-                              color: fg.withValues(alpha: 0.7),
+                              color: enabled ? fg.withValues(alpha: 0.7) : fg,
                             ),
                           ),
                       ],

@@ -25,7 +25,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarRowAction`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarField`, `RoundTabs`, `MatchScoreRow`, `showMabarSheet`
 
-- Pesan error lain: "Nama tidak boleh kosong" · "Eko M sudah ada — pakai "Kembalikan" di bawah" (nama pemain yang keluar) · "Maksimal 30 pemain aktif" (saat Tambah atau Kembalikan).
+- Pesan error lain: "Nama tidak boleh kosong" · "Eko M sudah ada — pakai "Kembalikan" di bawah" (nama pemain yang keluar) · "Maksimal 32 pemain aktif" (saat Tambah atau Kembalikan).
 - Aktif ≤ 4: semua "Keluarkan" mati.
 
 ## 08c · Sheet · tambah jam

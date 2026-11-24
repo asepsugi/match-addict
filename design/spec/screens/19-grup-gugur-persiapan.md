@@ -25,27 +25,29 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Baris Playoff meringkas semua babak: sama semua → "Race to 6"; format sama, N beda → rentang "Race to 4–9" (pola "1–2 jam" di 03h); format beda → "Race to / Best of".
 - Estimasi pasti (keputusan 19, PRD 16.2), tanpa "±": contoh 16A, 16 pemain = 8 pasangan → Grup A dan B masing-masing 4 pasangan, 6 match di Court 1 dan Court 2 → R1–R6; R7 SF1 + SF2; R8 Final + Perebutan juara 3. 8 round × 15 menit = 120 menit = booking, tidak lewat. Match: 6 + 6 + 2 + 1 + 1 = 16.
 - Lanjut → Pasangan dibuka Manual (19m).
+- 3.10.0 (keputusan 136): label grup "Playoff" menulis babak awal sebagai fakta, pola "Grup A · 2 dari 4": 2 grup → "Playoff · Semifinal", 3 grup → "Playoff · Perempat final · 2 wildcard" (19i), 4 grup → "Playoff · Perempat final" (23a). Group - Playoff hanya tampil mulai 16 pemain (keputusan 143).
 
-## 19c · Sheet Fase grup · 8 pasangan · hanya 2 grup
+## 19c · Sheet Fase grup · 16 pemain · 3 dan 4 grup mati
 
 ![19c](../../frames/19c.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `showMabarSheet`, `ModePicker`
 
-- Isi sheet = sheet Skor 03d apa adanya (format, angka, durasi) dengan judul "Fase grup". Jenis kelola: perubahan langsung berlaku di baris Fase grup dan estimasi.
-- 8 pasangan (< 12) hanya bisa 2 grup, jadi pilihan jumlah grup tidak ditampilkan; jumlahnya ditulis sebagai subjudul fakta "2 grup", seperti "Americano" di 03e. 22 pemain (11 pasangan) sama.
-- Durasi match satu untuk semua match, grup dan gugur (PRD 16.12: durasi per babak belum sekarang); karena itu durasi hanya ada di sheet ini dan di baris Fase grup.
+- Baris pertama sheet = pilihan jumlah grup 2 / 3 / 4 (G2, keputusan 135). Tiap pilihan menulis ukuran grup dan babak awal sebagai fakta (keputusan 136); pilihan yang tidak sah mati dan alasannya di pilihan itu (GP9): 3 grup "Mulai 24 pemain", 4 grup "Tepat 32 pemain".
+- 16–22 pemain (8–11 pasangan): hanya 2 grup. 18 pemain = "5 + 4 · Semifinal", 22 pemain = "6 + 5 · Semifinal".
+- Isi lain = sheet Skor 03d apa adanya (format, angka, durasi). Jenis kelola: perubahan langsung berlaku di baris Fase grup, label Playoff, dan estimasi.
+- Durasi match satu untuk semua match, grup dan playoff (PRD 16.12); karena itu durasi hanya ada di sheet ini dan di baris Fase grup.
 
-## 19d · Sheet Fase grup · 12 pasangan · 4 grup
+## 19d · Sheet Fase grup · 24 pemain · 3 grup · 4 grup mati
 
 ![19d](../../frames/19d.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarStepper`, `MabarField`, `showMabarSheet`, `ModePicker`
 
-- Mulai 12 pasangan (24 pemain) baris pertama sheet = segmented "2 grup / 4 grup" (G2, keputusan 94). Tidak ada pilihan 3 grup atau lainnya.
-- Ukuran grup ditetapkan app, tidak dipilih di sini: 12 / 4 = 3 + 3 + 3 + 3; 13 / 4 = 4 + 3 + 3 + 3; 15 / 4 = 4 + 4 + 4 + 3 (yang lebih besar huruf lebih awal, GU2). Terbaca di layar Grup (19r).
-- Contoh 16B (Tennis, 20 menit, 2 court × 3 jam): 4 grup × 3 pasangan → Court 1 A/C bergantian, Court 2 B/D → R1–R6; R7–R8 Perempat final; R9 Semifinal; R10 Final + Perebutan juara 3. 10 × 20 = 200 menit > 180 → "lewat booking 00:20" (format 14f: round + kelebihan, tanpa jumlah match).
-- Kembali ke 2 grup → 6 + 6 pasangan, estimasi ikut berubah.
+- Contoh 16G: 24 pemain = 12 pasangan. 24–30 pemain → 2 atau 3 grup; 4 grup hanya di 32 pemain (keputusan 142).
+- Ukuran grup ditetapkan app (G2, GU2: yang lebih besar huruf lebih awal): 13 / 3 = 5 + 4 + 4, 14 / 3 = 5 + 5 + 4, 15 / 3 = 5 + 5 + 5. Host mengisi anggotanya di layar Grup (19x).
+- Pindah ke 3 grup menambah baris Perempat final di sheet Playoff (19j) dengan format grup; pindah ke 2 grup menghilangkannya, format babak lain tetap.
+- Jumlah pemain berubah sehingga pilihan tidak sah lagi (GP9) → jumlah grup sah terbesar yang tidak melebihi pilihan lama: 3 grup, 24 → 20 pemain = 2 grup; 4 grup, 32 → 30 = 3 grup; 4 grup, 32 → 22 = 2 grup. Tanpa toast atau kalimat; label Playoff dan estimasi ikut berubah.
 
 ## 19e · Sheet Playoff · 2 grup · format per babak
 
@@ -53,9 +55,10 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `showMabarSheet`, `ModePicker`
 
-- Satu baris per babak, urut main: (Perempat final), Semifinal, Perebutan juara 3, Final (keputusan 99, GU1). 2 grup → tiga baris; 4 grup → empat (19j). Ketuk baris → sheet babak di atasnya (19f, 19g).
+- Satu baris per babak, urut main: (Perempat final), Semifinal, Perebutan juara 3, Final (keputusan 99, GU1). 2 grup → tiga baris; 3 dan 4 grup → empat (19j). Ketuk baris → sheet babak di atasnya (19f, 19g).
 - Contoh 16A: Semifinal Race to 6, Perebutan juara 3 Race to 4, Final Race to 9 → baris Playoff di layar "Race to 4–9".
-- Sheet jenis kelola, tanpa footer. Format babak dan Perebutan juara 3 hanya diatur di sini; mengubahnya setelah jadwal dibuat ditunda ke 3.10.0 (keputusan 104, 120).
+- Sheet jenis kelola, tanpa footer. Format babak dan Perebutan juara 3 hanya diatur di sini; sejak 3.10.0 juga bisa diubah setelah jadwal dibuat (G16, keputusan 139): menu ⋯ Jadwal → "Format playoff" (23m–23n) atau label babak di Bagan (23o).
+- Subjudul = babak awal, sama dengan label di layar (keputusan 136).
 
 ## 19f · Sheet Final · di atas sheet Playoff
 
@@ -87,24 +90,24 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Di sheet babak, stepper Best of dan Americano melompat 2 (Best of 1, 3, … 15; Americano 3, 5, … 99): 7 → 5 atau 9. Angka genap yang diketik dinaikkan ke ganjil berikutnya (Americano 98 → 99 adalah batas).
 - Race to tidak berubah (semua N boleh). Ganti segmented ke Best of / Americano dari Race to: N = default format (5 / 21), sudah ganjil.
 
-## 19i · 4 grup · 24 pemain · lewat booking
+## 19i · 3 grup · 24 pemain · lewat booking
 
 ![19i](../../frames/19i.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `ModePicker`
 
-- Contoh 16B (AC-G4): 24 pemain = 12 pasangan, 4 grup × 3. Fase grup R1–R6 (3 match per grup, dua grup bergantian per court), gugur R7–R10 → 10 round × 20 menit = 200 menit, booking terpendek 3 jam → lewat 00:20.
-- Lewat booking tidak mematikan tombol, sama dengan Fixed sparing 14f: host menghentikan lewat Akhiri. Tombol menulis round + kelebihan saja; jumlah match (12 + 4 + 2 + 1 + 1 = 20) tidak ditulis.
-- 22 pemain (11 pasangan) → sheet Fase grup tanpa pilihan 4 grup (19c); turnamen terakhir 4 grup lalu pemain turun di bawah 24 → terisi 2 grup (asumsi).
+- Contoh 16G (AC-G23): Padel, 15 mnt, 2 court × 3 jam, 24 pemain = 12 pasangan, 3 grup × 4. A → Court 1, B → Court 2, C → Court 1 (seri 6 vs 6 → court terkecil); Court 1 A/C bergantian R1–R12, Court 2 hanya Grup B R1–R6 lalu kosong R7–R12 (keputusan 146). Playoff R13 QF1 + QF2, R14 QF3 + QF4, R15 SF1 + SF2, R16 Final + Perebutan juara 3 → 16 round × 15 = 240 menit, lewat booking 01:00.
+- Lewat booking tidak mematikan tombol (pola 14f). Jumlah match (18 + 4 + 2 + 1 + 1 = 26) tidak ditulis.
+- Format babak 16G: Perempat final Race to 4, Semifinal Race to 5, Perebutan juara 3 Race to 5, Final Race to 6 → baris "Race to 4–6". Varian 3 court: 10 round = 150 menit, tidak lewat booking.
 
-## 19j · Sheet Playoff · 4 grup
+## 19j · Sheet Playoff · 3 grup
 
 ![19j](../../frames/19j.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `MabarField`, `showMabarSheet`, `ModePicker`
 
-- 4 grup menambah baris Perempat final di atas. Semua babak default = format grup (Race to 6).
-- Pindah 4 → 2 grup menghilangkan baris Perempat final; format yang sudah diatur untuk babak lain tetap.
+- Babak awal Perempat final (3 dan 4 grup) menambah baris Perempat final di atas; subjudul = babak awal (keputusan 136). Default babak = format grup; 16G mengatur Race to 4 / 5 / 5 / 6.
+- Pindah ke 2 grup menghilangkan baris Perempat final; format yang sudah diatur untuk babak lain tetap.
 
 ## 19k · 1 court · 16A · lewat booking 02:00
 
@@ -207,33 +210,34 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarTextButton`, `MabarIconButton`, `M
 - Acak opsional (GU2): semua pasangan langsung terbagi, ukuran ikut yang ditetapkan. "Acak ulang" di label jumlah, seperti 04a. Baris tanpa chip (tidak bisa diketuk), tinggi 40 pt.
 - Aturan pindah: ke Acak membuang hasil Manual dan kembali ke Manual mengosongkan semua grup, keduanya tanpa dialog (keputusan 103 dan 116; beda dengan Pasangan 04i).
 
-## 19v · Grup · 7 pasangan · 5 + 2 · tidak valid
+## 19v · Grup · 8 pasangan · 5 + 3 · tidak valid
 
 ![19v](../../frames/19v.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `PairList`, `MabarChip`
 
-- Kasus PRD 16.4 / AC-G2: 7 pasangan → ukuran 4 + 3 (yang lebih besar Grup A, GU2). Host menaruh 5 di A dan 2 di B: semua punya grup, tapi Buat jadwal tetap menunggu.
-- Angka grup yang kelebihan clay ("5 dari 4"); alasannya di tombol: "Grup A lebih 1 pasangan". Grup B "2 dari 3" tinta biasa (kurangnya akibat A kelebihan). Pindah satu pasangan dari A ke B → 4 + 3, tombol aktif.
-- Urutan alasan di tombol: ada grup kelebihan → "Grup X lebih n pasangan" (grup pertama urut huruf); kalau tidak → "n pasangan tanpa grup". 3 + 4 juga ditolak: "Grup B lebih 1 pasangan" (B ditetapkan 3).
+- Kasus PRD 16.4 / AC-G22: 8 pasangan → ukuran 4 + 4 (minimal 4 per grup, keputusan 135). Host menaruh 5 di A dan 3 di B: semua punya grup, tapi Buat jadwal tetap menunggu.
+- Angka grup yang kelebihan clay ("5 dari 4"); alasannya di tombol: "Grup A lebih 1 pasangan". Grup B "3 dari 4" tinta biasa (kurangnya akibat A kelebihan). Pindah satu pasangan dari A ke B → 4 + 4, tombol aktif.
+- Urutan alasan di tombol: ada grup kelebihan → "Grup X lebih n pasangan" (grup pertama urut huruf); kalau tidak → "n pasangan tanpa grup". 3 grup 5 + 5 + 3 (13 pasangan): "Grup B lebih 1 pasangan".
 
-## 19w · Grup · 4 grup · 15 pasangan · sebagian (terpadat)
+## 19w · Grup · 4 grup · 16 pasangan · sebagian (terpadat)
 
 ![19w](../../frames/19w.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `PairList`, `MabarChip`
 
-- Terpadat: 30 pemain = 15 pasangan, 4 grup → 4 + 4 + 4 + 3. Empat chip per baris (A–D); nama satu baris sisa ±150 pt, elipsis kalau lebih.
+- Terpadat: 32 pemain = 16 pasangan, 4 grup → 4 + 4 + 4 + 4 (keputusan 142; 4 grup hanya di 32 pemain). Empat chip per baris (A–D); nama satu baris sisa ±150 pt, elipsis kalau lebih.
 - Halaman digulir seperti 04e; app bar dan action bar tetap. Frame di posisi gulir paling atas.
 
-## 19x · Grup · 4 grup · 13 pasangan · lengkap · digulir ke bawah
+## 19x · Grup · 3 grup · 16 pasangan · 6 + 5 + 5 · lengkap · digulir ke bawah
 
 ![19x](../../frames/19x.png)
 
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarSegmented`, `PairList`, `MabarChip`
 
-- 13 pasangan / 4 grup = 4 + 3 + 3 + 3 (AC-G2: hanya ini yang diterima). Posisi gulir paling bawah; app bar bergaris seperti layar Pemain yang digulir.
-- Semua grup penuh → Buat jadwal aktif dengan ikon kunci → dialog 19y.
+- 16 pasangan / 3 grup = 6 + 5 + 5 (AC-G21a: hanya ini yang diterima; Grup A lebih besar, GU2). Tiga chip per baris (A–C). Posisi gulir paling bawah; app bar bergaris seperti layar Pemain yang digulir.
+- Semua grup penuh → Buat jadwal aktif dengan ikon kunci → dialog 19y. 6 + 6 + 4 ditolak: "Grup B lebih 1 pasangan" (pola 19v).
+- Fase grup 32 pemain, 1 court: 15 + 10 + 10 = 35 round grup, Playoff R36–R43 (16.4). Kandidat wildcard A3 main 5 match, B3/C3 4 match → dibandingkan per match (23c).
 
 ## 19y · Dialog · buat jadwal Grup + Gugur
 

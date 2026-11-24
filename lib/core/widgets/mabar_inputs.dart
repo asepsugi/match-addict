@@ -11,7 +11,16 @@ class MabarSegmented<T> extends StatelessWidget {
   final T selected;
   final ValueChanged<T> onChanged;
 
-  const MabarSegmented({super.key, required this.options, required this.selected, required this.onChanged});
+  /// `.seg.off` (23p, 23r): tidak bisa diketuk, opsi yang tidak terpilih memakai ink-3.
+  final bool enabled;
+
+  const MabarSegmented({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+    this.enabled = true,
+  });
 
   /// `0 1px 2px rgba(15,30,44,.16)`; blur CSS dikonversi seperti [MabarShadows].
   static const _onShadow = [BoxShadow(color: Color(0x290F1E2C), offset: Offset(0, 1), blurRadius: (2 / 2 - 0.5) / 0.57735)];
@@ -45,7 +54,7 @@ class MabarSegmented<T> extends StatelessWidget {
       selected: on,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onChanged(value),
+        onTap: enabled ? () => onChanged(value) : null,
         child: Container(
           height: 38,
           alignment: Alignment.center,
@@ -59,7 +68,7 @@ class MabarSegmented<T> extends StatelessWidget {
             style: MabarType.body.copyWith(
               fontSize: 15,
               fontWeight: on ? FontWeight.w700 : FontWeight.w600,
-              color: on ? MabarColors.ink : MabarColors.ink2,
+              color: on ? MabarColors.ink : (enabled ? MabarColors.ink2 : MabarColors.ink3),
             ),
           ),
         ),
@@ -330,9 +339,11 @@ class MabarField extends StatelessWidget {
   }) : inline = true,
        error = false;
 
+  /// Kotak tetap 48/40 pada skala teks berapa pun (`.ts13`: "kotak nama 48 tetap"); padding yang menyesuaikan.
   /// Tinggi baris teks 16/1,4 = 22,4, tapi mesin teks Flutter membulatkannya ke pt bulat (22); padding
   /// vertikal dihitung dari nilai bulat itu supaya kotak tepat 48/40.
-  static final _lineHeight = (16 * 1.4).roundToDouble();
+  static double _lineHeight(BuildContext context) =>
+      (MediaQuery.textScalerOf(context).scale(16) * 1.4).roundToDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +375,7 @@ class MabarField extends StatelessWidget {
         isDense: true,
         filled: true,
         fillColor: fillColor,
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: (height - _lineHeight) / 2),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: (height - _lineHeight(context)) / 2),
         border: rest,
         enabledBorder: rest,
         focusedBorder: focus,

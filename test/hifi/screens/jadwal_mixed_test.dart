@@ -53,6 +53,20 @@ void main() {
     await expectMatchesHifi(tester, screen(f, const Duration(minutes: 40)), '06f');
   });
 
+  testWidgets('06fts round berjalan, skala teks 1,3 (.ts13)', (tester) async {
+    final ts = hifiScreen(
+      ScheduleMixedScreen(config: f.config),
+      textScale: 1.3,
+      overrides: [
+        tournamentProvider.overrideWith(() => LoadedTournament(f)),
+        clockProvider.overrideWithValue(() => start.add(const Duration(minutes: 40))),
+      ],
+    );
+    await expectMatchesHifi(tester, ts, '06fts');
+    // Tombol tunggu dua baris tanpa "·": aksi di baris 1, alasan utuh di baris 2.
+    expect(find.text('tunggu 1 match'), findsOneWidget);
+  });
+
   testWidgets('06g round lengkap, WO beralasan', (tester) async {
     await expectMatchesHifi(tester, screen(g, const Duration(minutes: 52)), '06g');
   });

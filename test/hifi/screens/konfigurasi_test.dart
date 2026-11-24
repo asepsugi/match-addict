@@ -115,6 +115,14 @@ void main() {
 
   MabarButton button(WidgetTester tester) => tester.widget<MabarButton>(find.byType(MabarButton));
 
+  testWidgets('03ats Fixed · Race to 6, skala teks 1,3 (.ts13)', (tester) async {
+    await expectMatchesHifi(
+      tester,
+      hifiScreen(KonfigurasiScreen(sport: SportType.tennis, players: roster(8)), textScale: 1.3),
+      '03ats',
+    );
+  });
+
   testWidgets('03a Fixed · Race to 6 (turnamen pertama, Tennis)', (tester) async {
     await expectMatchesHifi(tester, screen(SportType.tennis), '03a');
     expect(row('Race to 6 · 20 menit'), findsOneWidget);
@@ -582,7 +590,12 @@ void main() {
     await pumpScreen(tester, SportType.tennis);
     expect(find.text('Pasangan tetap'), findsNothing);
     expect(find.text('Pasangan berganti'), findsNothing);
-    final fixedCard = find.ancestor(of: find.text('Fixed'), matching: find.byType(SizedBox)).first;
+    final fixedCard = find
+        .ancestor(
+          of: find.text('Fixed'),
+          matching: find.byWidgetPredicate((w) => w is ConstrainedBox && w.constraints.minHeight == 86),
+        )
+        .first;
     expect(tester.getSize(fixedCard).height, 86);
   });
 
