@@ -111,6 +111,7 @@ GP-8 (742e7d3 + c44ac61) di-merge ke `grup-playoff-3-10` (1db9a20). Run penuh: 2
 - **19f, 19g, 19h (2,7% beda)**: kode GP-8 benar mengikuti 19e (sheet Playoff bersubjudul babak awal "Semifinal",
   keputusan 136), tapi di 19f/19g/19h sheet Playoff di bawah sheet babak tanpa subjudul → frame saling bertentangan,
   ditanyakan ke host (usul: tambah `<p>Semifinal</p>` di 19f/19g/19h, golden lalu lolos tanpa ubah kode).
+  **Dijawab host 2026-11-24 (keputusan 161):** frame diselaraskan (d6aba34, hi-fi v113), golden 19f–19h lolos.
 - Berikutnya gelombang 4: **GP-5 sendirian** (engineer opus, review tech-lead fresh), di sesi baru. Catatan GP-5 di
   gelombang 2 tetap berlaku (`createBracket` 3 grup, `withPicks`, test flow 16A "Juara 1"/"Juara 2").
 
