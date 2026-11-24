@@ -118,6 +118,34 @@ void main() {
     expect(reopened.read(lastFinishedProvider), isNotNull);
   });
 
+  test('resume Mixed lalu Kelola court: startIfNeeded(config lama) tidak meregenerate jadwal', () {
+    final resumed = ProviderContainer(
+      overrides: [tournamentStoreProvider.overrideWithValue(store), clockProvider.overrideWithValue(() => now)],
+    );
+    addTearDown(resumed.dispose);
+    final resumedController = resumed.read(tournamentProvider.notifier);
+    final before = resumed.read(tournamentProvider)!;
+    final oldConfig = before.config;
+    final court = before.config.courts.last;
+    resumedController.updateCourt(
+      Court(
+        id: court.id,
+        name: 'Court Baru',
+        colorIndex: court.colorIndex,
+        bookingDurationMinutes: court.bookingDurationMinutes,
+      ),
+    );
+    final edited = resumed.read(tournamentProvider)!;
+    expect(edited.config, isNot(same(oldConfig)));
+
+    resumedController.startIfNeeded(oldConfig);
+
+    final after = resumed.read(tournamentProvider)!;
+    expect(after, same(edited));
+    expect(after.tournament.id, before.tournament.id);
+    expect(after.matches, edited.matches);
+  });
+
   test('mode Fixed tidak bisa dilanjutkan', () {
     final fixed = ActiveTournament(
       tournament: Tournament(

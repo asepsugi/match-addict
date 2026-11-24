@@ -163,6 +163,23 @@ class GroupKnockoutRanking {
     );
   }
 
+  /// [seedingPlan] dari pilihan host per grup [picks] (`QualifierPlan.withPicks`; 3 grup = 3 id per grup). Null kalau
+  /// pilihan grup belum lengkap atau tidak sah. Dipakai sheet Buat bagan (23e) lewat provider dan [bracketSeeding].
+  static SeedingPlan? seedingPlanFor(ActiveTournament active, Map<int, List<String>> picks) {
+    final perGroup = qualifierPlan(active).withPicks(picks);
+    return perGroup == null ? null : seedingPlan(active, perGroup);
+  }
+
+  /// Seeding Buat bagan dari pilihan host: [picks] per grup, lalu [wildcardPick] kalau ada `WildcardPick` (3 grup).
+  /// Null = pilihan belum lengkap atau tidak sah, termasuk [wildcardPick] yang nyasar (tanpa `WildcardPick` tapi
+  /// terisi); tombol Buat bagan mati. Satu-satunya jalan [Seeding] untuk `createBracket`.
+  static Seeding? bracketSeeding(ActiveTournament active, Map<int, List<String>> picks, List<String> wildcardPick) {
+    final plan = seedingPlanFor(active, picks);
+    if (plan == null) return null;
+    if (plan.pick == null) return wildcardPick.isEmpty ? plan.seeding : null;
+    return plan.withWildcardPick(wildcardPick);
+  }
+
   /// Baris tabel dikelompokkan per nomor (null = belum main, tingkat terakhir).
   static List<List<String>> _tiers(GroupTable table) {
     final tiers = <List<String>>[];

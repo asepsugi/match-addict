@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show immutable, listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,6 +12,7 @@ import '../../services/schedule/endless_round_generator.dart';
 import '../../services/schedule/group_stage.dart';
 import '../../services/schedule/knockout_bracket.dart';
 import '../../services/schedule/player_swap.dart';
+import '../../services/schedule/playoff_format.dart';
 import '../../services/schedule/round_robin_generator.dart';
 import '../../services/schedule/sparing_fixed_generator.dart';
 import '../../services/scoring/score_reset.dart';
@@ -32,18 +34,26 @@ class TournamentController extends Notifier<ActiveTournament?> {
   /// Config yang dipakai memulai turnamen di sesi ini (lihat [startIfNeeded]).
   TournamentConfig? _startedFrom;
 
+  /// Id turnamen pemilik tiap config yang pernah dipasang di state (termasuk hasil resume). Layar yang masih memegang
+  /// config lama turnamen yang sama (ubah format/juara 3, Buat bagan 3 grup mengganti `state.config`) tidak boleh
+  /// meregenerate jadwal, juga setelah resume saat [_startedFrom] null (logic.md 21.12 #6).
+  final _configOwner = Expando<String>('configOwner');
+
   @override
   ActiveTournament? build() {
     // Auto-save lewat satu listener: semua mutasi di controller ini berakhir di
     // `state =`, jadi tidak ada call site yang bisa lupa menyimpan.
     listenSelf((_, next) {
       if (next == null) return;
+      _configOwner[next.config] = next.tournament.id;
       // Di rilis store melewati bentuk yang tak terbaca; di test bug mutatornya harus langsung gagal di sini.
       assert(TournamentCodec.canEncode(next), 'Mutator menghasilkan turnamen yang tidak bisa disimpan (docs/data.md).');
       unawaited(_store.saveActive(next));
     });
     // Resume: kalau app sebelumnya di-kill, turnamennya kembali dari sini.
-    return _store.loadActive();
+    final loaded = _store.loadActive();
+    if (loaded != null) _configOwner[loaded.config] = loaded.tournament.id;
+    return loaded;
   }
 
   /// Mulai turnamen baru dari [config]. Tidak melakukan apa-apa kalau turnamen
@@ -51,7 +61,10 @@ class TournamentController extends Notifier<ActiveTournament?> {
   void startIfNeeded(TournamentConfig config) {
     // Dua-duanya perlu: config di state berganti kalau host menambah pemain,
     // sementara layar Konfigurasi di belakangnya masih memegang config awal.
-    if (state != null && (identical(state!.config, config) || identical(_startedFrom, config))) {
+    if (state != null &&
+        (identical(state!.config, config) ||
+            identical(_startedFrom, config) ||
+            _configOwner[config] == state!.tournament.id)) {
       return;
     }
     _startedFrom = config;
@@ -398,21 +411,39 @@ class TournamentController extends Notifier<ActiveTournament?> {
     );
   }
 
-  /// Grup + Gugur: "Buat bagan" (20g/20k). [picks] = pilihan host per grup untuk slot yang seri (sheet 20i–20l),
-  /// kosong kalau tidak ada. Semua match gugur ditambahkan dalam satu `state =`; false = tidak berubah (belum boleh,
-  /// atau pilihan tidak lengkap/tidak sah, AC-G7).
-  bool createBracket([Map<int, List<String>> picks = const {}]) {
+  /// Grup + Gugur: "Buat bagan" (20g/20k, 23c–23g). [picks] = pilihan host per grup untuk slot yang seri (sheet
+  /// 20i–20l), kosong kalau tidak ada; [wildcardPick] = pilihan host di `WildcardPick` 3 grup (16G-iii, 23f), kosong
+  /// kalau tidak ada. Controller sendiri yang menurunkan [Seeding] (`GroupKnockoutRanking.bracketSeeding` → `build`), jadi layar
+  /// tidak bisa mengoper seeding yang tidak sah. Semua match gugur (+ `wildcards` 3 grup) dalam satu `state =`; false =
+  /// tidak berubah (belum boleh, atau pilihan tidak lengkap/tidak sah, AC-G7, AC-G25).
+  bool createBracket([Map<int, List<String>> picks = const {}, List<String> wildcardPick = const []]) {
     final current = state;
     if (current == null || !current.canCreateBracket) return false;
-    final qualifiers = GroupKnockoutRanking.qualifierPlan(current).withPicks(picks);
-    if (qualifiers == null) return false;
-    // 3 grup butuh juara + wildcard dari `seedingPlan` (GP-3), disambung di GP-5; sampai itu tidak berubah, bukan
-    // ArgumentError dari build. Config hasil build dipasang di `state =` yang sama (security W3).
-    if (current.config.groupKnockout?.groupCount == 3) return false;
-    final built = KnockoutBracket.build(current, Seeding(groupSlots: qualifiers));
+    final seeding = GroupKnockoutRanking.bracketSeeding(current, picks, wildcardPick);
+    if (seeding == null) return false;
+    final built = KnockoutBracket.build(current, seeding);
+    // Config hasil build (3 grup: `wildcards`) dipasang di `state =` yang sama (security W3).
     state = current.copyWith(
       tournament: current.tournament.copyWith(config: built.config, matches: [...current.matches, ...built.matches]),
     );
+    return true;
+  }
+
+  /// Format babak [round] (G16, 23o–23q). false = ditolak ([PlayoffFormat.formatLock], format bisa seri, atau babak
+  /// tidak ada). Tanpa dialog; satu `state =`.
+  bool setPlayoffFormat(KnockoutRound round, ScoreFormat format) =>
+      _setIfValid(state == null ? null : PlayoffFormat.withFormat(state!, round, format));
+
+  /// Perebutan juara 3 Ada / Tidak ada (G16, 23r). false = ditolak ([PlayoffFormat.thirdPlaceLock]). Sesudah bagan
+  /// match gugur disusun ulang dan pemenang maju dihitung (`resolve`) di `state =` yang sama.
+  bool setThirdPlace(bool thirdPlace) =>
+      _setIfValid(state == null ? null : PlayoffFormat.withThirdPlace(state!, thirdPlace));
+
+  bool _setIfValid(ActiveTournament? next) {
+    if (next == null) return false;
+    // Tanpa perubahan (mutator mengembalikan objek yang sama): tidak ada `state =`, jadi tidak ada simpan/live.
+    if (identical(next, state)) return true;
+    state = next;
     return true;
   }
 
@@ -600,4 +631,54 @@ final groupTablesProvider = Provider<List<GroupTable>>((ref) {
   final active = ref.watch(tournamentProvider);
   if (active == null || !active.config.isGroupKnockout) return const [];
   return GroupKnockoutRanking.groupTables(active);
+});
+
+/// Group - Playoff: siapa lolos per grup + pilihan host yang dibutuhkan (sheet Buat bagan 20i–20l, 23c, 23e). null
+/// kalau Buat bagan belum/tidak tersedia (`canCreateBracket`).
+final qualifierPlanProvider = Provider<QualifierPlan?>((ref) {
+  final active = ref.watch(tournamentProvider);
+  if (active == null || !active.canCreateBracket) return null;
+  return GroupKnockoutRanking.qualifierPlan(active);
+});
+
+/// Pilihan host per grup di sheet Buat bagan (kunci [seedingPlanProvider]); kesamaan per isi, bukan per objek, supaya
+/// provider tidak dihitung ulang tiap build.
+@immutable
+class BracketPicks {
+  final Map<int, List<String>> picks;
+  const BracketPicks([this.picks = const {}]);
+
+  @override
+  bool operator ==(Object other) =>
+      other is BracketPicks &&
+      other.picks.length == picks.length &&
+      picks.entries.every((e) => listEquals(other.picks[e.key], e.value));
+
+  @override
+  int get hashCode =>
+      Object.hashAllUnordered([for (final e in picks.entries) Object.hash(e.key, Object.hashAll(e.value))]);
+}
+
+/// Group - Playoff: juara J1–J3 + kandidat wildcard + `WildcardPick` setelah pilihan grup [BracketPicks] (23c, 23e,
+/// 23f). 2/4 grup: `champions`/`candidates` kosong dan `seeding` langsung. null = Buat bagan tidak tersedia atau pilihan
+/// grup belum lengkap (bagian wildcard baru muncul setelah lengkap, asumsi 21.12 #2).
+final seedingPlanProvider = Provider.autoDispose.family<SeedingPlan?, BracketPicks>((ref, picks) {
+  final active = ref.watch(tournamentProvider);
+  if (active == null || !active.canCreateBracket) return null;
+  return GroupKnockoutRanking.seedingPlanFor(active, picks.picks);
+});
+
+/// Group - Playoff: pratinjau bagan sebelum Buat bagan (slot kode 23s–23u, keputusan 153–154). Kosong setelah bagan
+/// dibuat (bagan memakai match tersimpan) dan di turnamen lain.
+final bracketPreviewProvider = Provider<List<KnockoutPreviewSlot>>((ref) {
+  final active = ref.watch(tournamentProvider);
+  if (active == null || !active.config.isGroupKnockout || active.hasBracket) return const [];
+  return KnockoutBracket.preview(active);
+});
+
+/// Group - Playoff: kunci sheet Playoff / format babak / Perebutan juara 3 (23n–23r). null di turnamen lain.
+final playoffLocksProvider = Provider<PlayoffLocks?>((ref) {
+  final active = ref.watch(tournamentProvider);
+  if (active == null || !active.config.isGroupKnockout) return null;
+  return PlayoffFormat.locks(active);
 });
