@@ -68,7 +68,7 @@ void main() {
     // Urutan pemain p0–p9 = pasangan A–E fixedFinal; nomor dan angka sama dengan 09c.
     const names = [
       'Antonia Bandaras', 'Christiano Ronaldo', 'Citra Lestari', 'Dewi', 'Eko M', //
-      'Fajar K', 'Iga', 'Sagittalia Pramudita', 'Indra W', 'Joko S',
+      'Fajar K', 'Iga', 'Sagittalia Pramudita', 'Wicaksono Adi', 'Setiawati Putri',
     ];
     await expectMatchesHifi(tester, screen(fixedFinal(names: names)), '09m');
   });
