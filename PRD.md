@@ -1155,6 +1155,9 @@ Pertanyaan terbuka:
      lain disamakan dengan render ("Anto… · Chris…", "Iga · Sagittalia …", "Citra Le… · Dewi"). Aturan tetap.
 160. **Redaksi tabel 16.4** (2026-11-24, host: "setuju"): 32 pemain 3 grup 1 court = B selesai R29, C R30, A sendiri
      R31–R35 (GU4, kode sudah benar); sisa "PF" di tabel → "QF" (keputusan 152). Perilaku tidak berubah.
+161. **Subjudul sheet Playoff di 19f–19h** (2026-11-24, host: "setuju"): sheet Playoff yang tertumpuk di bawah sheet
+     babak tetap bersubjudul babak awal ("Semifinal" untuk 2 grup), sama dengan 19e (keputusan 136). Frame diselaraskan;
+     kode GP-8 sudah benar.
 ---
 
 ## 11. Jawaban User (Dasar Keputusan)
