@@ -115,7 +115,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   RankingMethod.pointPercent => '${e.standing.pointPercent}',
                   RankingMethod.winPercent => '${e.standing.winPercent.round()}',
                 },
-                tag: slotPairIds == null ? null : KnockoutBracket.seedOf(active, slotPairIds[i]),
+                tag: slotPairIds == null ? null : KnockoutBracket.seedCode(active, slotPairIds[i]),
                 stage: stage ? e.stage : null,
                 // Fixed: anggota pertama mewakili pasangannya (statistiknya sama).
                 onTap: () => context.push('/detail-player', extra: e.players.first.id),

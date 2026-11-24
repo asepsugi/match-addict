@@ -77,7 +77,7 @@ ActiveTournament gkTournament({
       groups: groups,
       formats: {
         for (final e in formats.entries)
-          if (e.key != KnockoutRound.quarterfinal || groups.length == 4) e.key: e.value,
+          if (e.key != KnockoutRound.quarterfinal || groups.length >= 3) e.key: e.value,
       },
       thirdPlace: thirdPlace,
     ),
@@ -118,9 +118,9 @@ extension GkFixture on ActiveTournament {
   ActiveTournament koWo(String code, String loser) =>
       _replace((m) => m.phase?.code == code, (m) => m.asWalkover(loserPairId: loser));
 
-  /// Bagan dibuat dari [qualifiers] (per grup [slot 1, slot 2]).
+  /// Bagan 2/4 grup dibuat dari [qualifiers] (per grup [slot 1, slot 2]); config 2/4 grup tidak berubah.
   ActiveTournament bracket(List<List<String>> qualifiers) =>
-      withMatches([...matches, ...KnockoutBracket.build(this, qualifiers)]);
+      withMatches([...matches, ...KnockoutBracket.build(this, Seeding(groupSlots: qualifiers)).matches]);
 
   /// Akhiri: match pending → cancelled.
   ActiveTournament finish() => ActiveTournament(

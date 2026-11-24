@@ -406,10 +406,12 @@ class TournamentController extends Notifier<ActiveTournament?> {
     if (current == null || !current.canCreateBracket) return false;
     final qualifiers = GroupKnockoutRanking.qualifierPlan(current).withPicks(picks);
     if (qualifiers == null) return false;
+    // 3 grup butuh juara + wildcard dari `seedingPlan` (GP-3), disambung di GP-5; sampai itu tidak berubah, bukan
+    // ArgumentError dari build. Config hasil build dipasang di `state =` yang sama (security W3).
+    if (current.config.groupKnockout?.groupCount == 3) return false;
+    final built = KnockoutBracket.build(current, Seeding(groupSlots: qualifiers));
     state = current.copyWith(
-      tournament: current.tournament.copyWith(
-        matches: [...current.matches, ...KnockoutBracket.build(current, qualifiers)],
-      ),
+      tournament: current.tournament.copyWith(config: built.config, matches: [...current.matches, ...built.matches]),
     );
     return true;
   }
