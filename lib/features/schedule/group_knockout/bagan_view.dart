@@ -390,7 +390,7 @@ class _BaganCard extends StatelessWidget {
     final head = [if (code != null) code, 'Round ${match.roundNumber}', 'Court $court'].join(', ');
     String side(Pair pair, SideSource source, int games) {
       if (pair.isTbd) return '${KnockoutBracket.sourceLabel(source)}, belum ada';
-      final seed = KnockoutBracket.seedOf(active, pair.id);
+      final seed = KnockoutBracket.seedCode(active, pair.id);
       final names = [for (final id in pair.playerIds) active.playerName(id)].join(' dan ');
       final wo = match.status == MatchStatus.wo && match.woLoserPairId == pair.id;
       final text = '${seed == null ? '' : '$seed '}$names'
@@ -477,7 +477,7 @@ class _BaganCard extends StatelessWidget {
                   SizedBox(
                     width: 20,
                     child: Text(
-                      KnockoutBracket.seedOf(active, pair.id) ?? '',
+                      KnockoutBracket.seedCode(active, pair.id) ?? '',
                       maxLines: 1,
                       softWrap: false,
                       style: MabarType.numM.copyWith(fontSize: 13, height: 1.4, color: MabarColors.ink3),

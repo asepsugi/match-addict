@@ -70,7 +70,7 @@ class ScheduleMatchRow extends StatelessWidget {
         for (final (i, id) in pair.playerIds.indexed)
           if (id == swapInId) i,
       };
-      final seed = phase is KnockoutPhase ? (KnockoutBracket.seedOf(active, pair.id) ?? '') : null;
+      final seed = phase is KnockoutPhase ? (KnockoutBracket.seedCode(active, pair.id) ?? '') : null;
       return switch (match.status) {
         MatchStatus.done => MatchScoreSide(
           names: names,

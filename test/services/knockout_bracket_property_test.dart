@@ -7,9 +7,37 @@ import 'package:match_addict/services/schedule/knockout_bracket.dart';
 
 import 'group_knockout_fixture.dart';
 
-/// Invariant I7–I12 bagan (logic.md §18.8): 2/4 grup × C 1–4 × juara 3 × beberapa seed. Skor grup acak, pilihan host
-/// acak, lalu langkah gugur acak (skor atau WO, termasuk ubah skor yang membalik pemenang); langkah yang ditolak
-/// [KnockoutBracket.flipCheck] tidak diterapkan.
+/// Invariant I7–I12 bagan (logic.md §18.8, §21.6): 2/3/4 grup × C 1–4 × juara 3 × beberapa seed. Skor grup acak,
+/// pilihan host acak, lalu langkah gugur acak (skor atau WO, termasuk ubah skor yang membalik pemenang); langkah yang
+/// ditolak [KnockoutBracket.flipCheck] tidak diterapkan. 3 grup: `Seeding` acak (juara, slot, wildcard) sebagai input,
+/// bukan dari `seedingPlan` (GP-3) — bagan tidak bergantung pada cara seeding dihitung. Plus AC-G26 36 kombinasi.
+
+/// Buat bagan seperti controller: match baru + config (wildcards) sekaligus.
+ActiveTournament _seeded(ActiveTournament a, Seeding seeding) {
+  final built = KnockoutBracket.build(a, seeding);
+  return ActiveTournament(
+    tournament: a.tournament.copyWith(config: built.config, matches: [...a.matches, ...built.matches]),
+  );
+}
+
+/// AC-G26: tidak ada QF segrup; slot 1 dan 2 tiap grup di paruh berbeda (QF1–QF2 vs QF3–QF4); J1 tidak bertemu juara
+/// lain sebelum Final.
+void _checkAcG26(List<(String, String)> qf, List<List<String>> groups, Seeding s, String at) {
+  int groupOf(String id) => groups.indexWhere((g) => g.contains(id));
+  for (final (i, (a, b)) in qf.indexed) {
+    expect(groupOf(a), isNot(groupOf(b)), reason: '$at QF${i + 1} segrup');
+  }
+  int half(String id) => qf.indexWhere((m) => m.$1 == id || m.$2 == id) ~/ 2;
+  for (final slots in s.groupSlots) {
+    expect(half(slots[0]), isNot(half(slots[1])), reason: '$at ${slots.join('/')} paruh sama');
+  }
+  final champions = [for (final g in s.champions) s.groupSlots[g][0]];
+  expect(half(champions[0]), 0, reason: at);
+  expect(half(champions[1]), 1, reason: at);
+  expect(half(champions[2]), 1, reason: at);
+  // Paruh bawah: J2 dan J3 di QF berbeda (baru bisa bertemu di SF2).
+  expect(qf.indexWhere((m) => m.$1 == champions[1]), isNot(qf.indexWhere((m) => m.$1 == champions[2])));
+}
 
 const _names = ['Andi', 'Citra', 'Eko', 'Gita', 'Indra', 'Kiki', 'Maya', 'Oki', 'Rudi', 'Tono', 'Qori', 'Vina'];
 
@@ -54,7 +82,52 @@ void _checkStep(ActiveTournament a, String at) {
 }
 
 void main() {
-  for (final groupCount in [2, 4]) {
+  group('AC-G26 3 grup: 36 kombinasi (urutan juara 3! × grup WC1/WC2 3 × 2)', () {
+    const groups = [
+      ['Andi', 'Citra', 'Eko', 'Gita'],
+      ['Indra', 'Kiki', 'Maya', 'Oki'],
+      ['Qori', 'Sari', 'Umar', 'Wawan'],
+    ];
+    const perms = [
+      [0, 1, 2],
+      [0, 2, 1],
+      [1, 0, 2],
+      [1, 2, 0],
+      [2, 0, 1],
+      [2, 1, 0],
+    ];
+    var combos = 0;
+    for (final champions in perms) {
+      for (var w1 = 0; w1 < 3; w1++) {
+        for (var w2 = 0; w2 < 3; w2++) {
+          if (w1 == w2) continue;
+          combos++;
+          test('AC-G26 juara $champions · WC1 ${GroupKnockout.letter(w1)}3 · WC2 ${GroupKnockout.letter(w2)}3', () {
+            final seeding = Seeding(
+              groupSlots: [for (final g in groups) g.sublist(0, 2)],
+              champions: champions,
+              wildcards: [groups[w1][2], groups[w2][2]],
+            );
+            final at = 'juara $champions WC $w1/$w2';
+            final qf = KnockoutBracket.threeGroupQuarterfinals(seeding, groups)!;
+            _checkAcG26(qf, groups, seeding, at);
+            // build memakai fungsi yang sama (W2) dan menulis wildcards urutan WC1, WC2.
+            final a = _seeded(gkTournament(groups: groups), seeding);
+            expect([
+              for (final m in a.matches)
+                if (m.phase case KnockoutPhase(round: KnockoutRound.quarterfinal)) (m.pair1.id, m.pair2.id),
+            ], qf);
+            expect(a.config.groupKnockout!.wildcards, seeding.wildcards);
+            expect(KnockoutBracket.seedCode(a, groups[w1][2]), 'WC1');
+            expect(KnockoutBracket.seedCode(a, groups[w2][2]), 'WC2');
+          });
+        }
+      }
+    }
+    test('jumlah kombinasi = 36', () => expect(combos, 36));
+  });
+
+  for (final groupCount in [2, 3, 4]) {
     for (var courts = 1; courts <= 4; courts++) {
       for (final thirdPlace in [true, false]) {
         for (var seed = 0; seed < 3; seed++) {
@@ -62,23 +135,41 @@ void main() {
             final rng = Random(groupCount * 1000 + courts * 100 + (thirdPlace ? 10 : 0) + seed);
             final names = [..._names]..shuffle(rng);
             final total = groupCount == 4 ? 12 : 6 + rng.nextInt(5);
-            final groups = groupCount == 4
-                ? [for (var g = 0; g < 4; g++) names.sublist(g * 3, g * 3 + 3)]
-                : [names.sublist(0, (total + 1) ~/ 2), names.sublist((total + 1) ~/ 2, total)];
+            final groups = switch (groupCount) {
+              4 => [for (var g = 0; g < 4; g++) names.sublist(g * 3, g * 3 + 3)],
+              3 => [for (var g = 0; g < 3; g++) names.sublist(g * 4, g * 4 + 4)],
+              _ => [names.sublist(0, (total + 1) ~/ 2), names.sublist((total + 1) ~/ 2, total)],
+            };
             var a = _playGroups(gkTournament(groups: groups, courts: courts, thirdPlace: thirdPlace), rng);
             expect(a.canCreateBracket, isTrue);
 
-            final plan = GroupKnockoutRanking.qualifierPlan(a);
-            final picks = <int, List<String>>{
-              for (final p in plan.picks) p.group: ([...p.candidates]..shuffle(rng)).sublist(0, p.taps),
-            };
-            final qualifiers = plan.withPicks(picks)!;
+            final Seeding seeding;
+            if (groupCount == 3) {
+              final order = [
+                for (final g in groups) [...g]..shuffle(rng),
+              ];
+              final wcGroups = [0, 1, 2]..shuffle(rng);
+              seeding = Seeding(
+                groupSlots: [for (final o in order) o.sublist(0, 2)],
+                champions: [0, 1, 2]..shuffle(rng),
+                wildcards: [order[wcGroups[0]][2], order[wcGroups[1]][2]],
+              );
+              _checkAcG26(KnockoutBracket.threeGroupQuarterfinals(seeding, groups)!, groups, seeding, 'acak');
+            } else {
+              final plan = GroupKnockoutRanking.qualifierPlan(a);
+              final picks = <int, List<String>>{
+                for (final p in plan.picks) p.group: ([...p.candidates]..shuffle(rng)).sublist(0, p.taps),
+              };
+              seeding = Seeding(groupSlots: plan.withPicks(picks)!);
+            }
+            final qualifiers = [...seeding.groupSlots, seeding.wildcards];
             final groupBefore = [
               for (final m in a.matches)
                 '${m.id} ${m.pair1.id} ${m.pair2.id} ${m.status} ${m.sets.map((s) => s.side1)}',
             ];
             final lastGroupRound = a.roundCount;
-            a = a.bracket(qualifiers);
+            a = _seeded(a, seeding);
+            expect(a.config.groupKnockout!.wildcards, seeding.wildcards, reason: 'W3');
             _checkStep(a, 'build');
 
             final ko = [
@@ -91,7 +182,7 @@ void main() {
                 ko.where((m) => (m.phase! as KnockoutPhase).round == r).map((m) => m.roundNumber).reduce(max);
             int firstOf(KnockoutRound r) =>
                 ko.where((m) => (m.phase! as KnockoutPhase).round == r).map((m) => m.roundNumber).reduce(min);
-            if (groupCount == 4) {
+            if (groupCount >= 3) {
               expect(firstOf(KnockoutRound.semifinal), greaterThan(lastOf(KnockoutRound.quarterfinal)));
             }
             expect(firstOf(KnockoutRound.finalRound), greaterThan(lastOf(KnockoutRound.semifinal)));
@@ -100,7 +191,7 @@ void main() {
               expect(firstOf(KnockoutRound.thirdPlace), greaterThan(lastOf(KnockoutRound.semifinal)));
             }
             // I12 tiap pasangan lolos tepat sekali di babak pertama; yang tidak lolos tidak pernah di gugur.
-            final firstRound = groupCount == 4 ? KnockoutRound.quarterfinal : KnockoutRound.semifinal;
+            final firstRound = groupCount >= 3 ? KnockoutRound.quarterfinal : KnockoutRound.semifinal;
             final firstSides = [
               for (final m in ko)
                 if ((m.phase! as KnockoutPhase).round == firstRound) ...[m.pair1.id, m.pair2.id],
