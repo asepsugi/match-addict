@@ -783,6 +783,48 @@ void main() {
     });
   });
 
+  group('21.5 seedingPlanFor / bracketSeeding (pilihan host → Seeding)', () {
+    test('16G tanpa WildcardPick: seeding langsung; wildcardPick nyasar → null', () {
+      final a = _groups16G();
+      expect(
+        _seeding(GroupKnockoutRanking.bracketSeeding(a, {}, [])!),
+        '[[Andi, Citra], [Indra, Maya], [Qori, Sari]] J[0, 2, 1] WC[Eko, Kiki]',
+      );
+      expect(GroupKnockoutRanking.bracketSeeding(a, {}, ['Eko']), isNull);
+      expect(GroupKnockoutRanking.seedingPlanFor(a, {})!.pick, isNull);
+    });
+
+    test('16G-iii: WildcardPick wajib; [Umar] → WC [Eko, Umar]; kosong, bukan kandidat, atau kebanyakan → null', () {
+      final a = _groups16G(qoriUmar: 3);
+      expect(GroupKnockoutRanking.seedingPlanFor(a, {})!.pick!.candidates, ['Kiki', 'Umar']);
+      expect(
+        _seeding(GroupKnockoutRanking.bracketSeeding(a, {}, ['Umar'])!),
+        '[[Andi, Citra], [Indra, Maya], [Qori, Sari]] J[0, 2, 1] WC[Eko, Umar]',
+      );
+      expect(GroupKnockoutRanking.bracketSeeding(a, {}, []), isNull);
+      expect(GroupKnockoutRanking.bracketSeeding(a, {}, ['Eko']), isNull);
+      expect(GroupKnockoutRanking.bracketSeeding(a, {}, ['Kiki', 'Umar']), isNull);
+    });
+
+    test('pilihan grup tidak lengkap atau tidak sah → null (plan dan seeding)', () {
+      final a = _groupB(_d3());
+      expect(GroupKnockoutRanking.seedingPlanFor(a, {}), isNull);
+      expect(GroupKnockoutRanking.bracketSeeding(a, {}, []), isNull);
+      expect(
+        GroupKnockoutRanking.bracketSeeding(a, {
+          0: ['Andi'],
+        }, []),
+        isNull,
+      );
+      expect(
+        GroupKnockoutRanking.bracketSeeding(a, {
+          0: ['Eko'],
+        }, [])!.groupSlots.first,
+        ['Andi', 'Eko'],
+      );
+    });
+  });
+
   group('21.8 peringkat akhir 3 grup', () {
     test('AC-G27 16G-akhir / 23k–23l: Juara 1–3, wildcard "Perempat final", Umar "Grup C · 3", Gita "Grup A · 4"', () {
       final a = _groups16G();

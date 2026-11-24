@@ -413,13 +413,13 @@ class TournamentController extends Notifier<ActiveTournament?> {
 
   /// Grup + Gugur: "Buat bagan" (20g/20k, 23c–23g). [picks] = pilihan host per grup untuk slot yang seri (sheet
   /// 20i–20l), kosong kalau tidak ada; [wildcardPick] = pilihan host di `WildcardPick` 3 grup (16G-iii, 23f), kosong
-  /// kalau tidak ada. Controller sendiri yang menurunkan [Seeding] (`withPicks` → `seedingPlan` → `build`), jadi layar
+  /// kalau tidak ada. Controller sendiri yang menurunkan [Seeding] (`GroupKnockoutRanking.bracketSeeding` → `build`), jadi layar
   /// tidak bisa mengoper seeding yang tidak sah. Semua match gugur (+ `wildcards` 3 grup) dalam satu `state =`; false =
   /// tidak berubah (belum boleh, atau pilihan tidak lengkap/tidak sah, AC-G7, AC-G25).
   bool createBracket([Map<int, List<String>> picks = const {}, List<String> wildcardPick = const []]) {
     final current = state;
     if (current == null || !current.canCreateBracket) return false;
-    final seeding = bracketSeeding(current, picks, wildcardPick);
+    final seeding = GroupKnockoutRanking.bracketSeeding(current, picks, wildcardPick);
     if (seeding == null) return false;
     final built = KnockoutBracket.build(current, seeding);
     // Config hasil build (3 grup: `wildcards`) dipasang di `state =` yang sama (security W3).
@@ -441,6 +441,8 @@ class TournamentController extends Notifier<ActiveTournament?> {
 
   bool _setIfValid(ActiveTournament? next) {
     if (next == null) return false;
+    // Tanpa perubahan (mutator mengembalikan objek yang sama): tidak ada `state =`, jadi tidak ada simpan/live.
+    if (identical(next, state)) return true;
     state = next;
     return true;
   }
@@ -631,18 +633,6 @@ final groupTablesProvider = Provider<List<GroupTable>>((ref) {
   return GroupKnockoutRanking.groupTables(active);
 });
 
-/// Seeding Buat bagan dari pilihan host: [picks] per grup (`QualifierPlan.withPicks`, 3 grup = 3 id per grup), lalu
-/// juara + wildcard ([GroupKnockoutRanking.seedingPlan]), lalu [wildcardPick] kalau ada `WildcardPick`. null = pilihan
-/// belum lengkap atau tidak sah (tombol Buat bagan mati). Dipakai [TournamentController.createBracket] dan sheet 23e
-/// lewat [seedingPlanProvider] supaya keduanya menurunkan hal yang sama.
-Seeding? bracketSeeding(ActiveTournament active, Map<int, List<String>> picks, List<String> wildcardPick) {
-  final perGroup = GroupKnockoutRanking.qualifierPlan(active).withPicks(picks);
-  if (perGroup == null) return null;
-  final plan = GroupKnockoutRanking.seedingPlan(active, perGroup);
-  if (plan.pick == null) return wildcardPick.isEmpty ? plan.seeding : null;
-  return plan.withWildcardPick(wildcardPick);
-}
-
 /// Group - Playoff: siapa lolos per grup + pilihan host yang dibutuhkan (sheet Buat bagan 20i–20l, 23c, 23e). null
 /// kalau Buat bagan belum/tidak tersedia (`canCreateBracket`).
 final qualifierPlanProvider = Provider<QualifierPlan?>((ref) {
@@ -672,12 +662,10 @@ class BracketPicks {
 /// Group - Playoff: juara J1–J3 + kandidat wildcard + `WildcardPick` setelah pilihan grup [BracketPicks] (23c, 23e,
 /// 23f). 2/4 grup: `champions`/`candidates` kosong dan `seeding` langsung. null = Buat bagan tidak tersedia atau pilihan
 /// grup belum lengkap (bagian wildcard baru muncul setelah lengkap, asumsi 21.12 #2).
-final seedingPlanProvider = Provider.family<SeedingPlan?, BracketPicks>((ref, picks) {
+final seedingPlanProvider = Provider.autoDispose.family<SeedingPlan?, BracketPicks>((ref, picks) {
   final active = ref.watch(tournamentProvider);
-  final qualifiers = ref.watch(qualifierPlanProvider);
-  if (active == null || qualifiers == null) return null;
-  final perGroup = qualifiers.withPicks(picks.picks);
-  return perGroup == null ? null : GroupKnockoutRanking.seedingPlan(active, perGroup);
+  if (active == null || !active.canCreateBracket) return null;
+  return GroupKnockoutRanking.seedingPlanFor(active, picks.picks);
 });
 
 /// Group - Playoff: pratinjau bagan sebelum Buat bagan (slot kode 23s–23u, keputusan 153–154). Kosong setelah bagan

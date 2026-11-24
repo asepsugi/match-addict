@@ -310,22 +310,8 @@ class KnockoutBracket {
     }
 
     final matches = [
-      for (final slot in layout(
-        groupCount: gk.groupCount,
-        thirdPlace: gk.thirdPlace,
-        courts: config.courts.length,
-        firstRound: _lastGroupRound(active) + 1,
-      ))
-        if (sides(slot.phase) case (final pair1, final pair2))
-          MatchGame(
-            id: 'm-r${slot.round}-${slot.matchNumber}',
-            roundNumber: slot.round,
-            matchNumberInRound: slot.matchNumber,
-            courtId: config.courts[slot.court].id,
-            pair1: pair1,
-            pair2: pair2,
-            phase: slot.phase,
-          ),
+      for (final slot in slots(active))
+        if (sides(slot.phase) case (final pair1, final pair2)) matchAt(config, slot, pair1: pair1, pair2: pair2),
     ];
     // 2/4 grup: config apa adanya (`startIfNeeded` membandingkan dengan `identical`).
     final next = threeGroups
@@ -334,8 +320,52 @@ class KnockoutBracket {
     return (config: next, matches: matches);
   }
 
-  static int _lastGroupRound(ActiveTournament active) =>
+  /// Round terakhir fase grup; bagan mulai satu round sesudahnya.
+  static int lastGroupRound(ActiveTournament active) =>
       active.matches.where((m) => m.phase is GroupPhase).fold(0, (r, m) => m.roundNumber > r ? m.roundNumber : r);
+
+  /// Susunan [layout] bagan turnamen [active] sesudah [lastGroupRound]; [thirdPlace] menimpa `GroupKnockout.thirdPlace`
+  /// (relayout Juara 3 sebelum config diganti). Satu-satunya tempat parameter layout dirakit: [build], [preview], dan
+  /// `PlayoffFormat.relayout` memakainya supaya round/court tidak bisa menyimpang.
+  static List<KnockoutSlot> slots(ActiveTournament active, {bool? thirdPlace}) {
+    final gk = active.config.groupKnockout;
+    if (gk == null) return const [];
+    return layout(
+      groupCount: gk.groupCount,
+      thirdPlace: thirdPlace ?? gk.thirdPlace,
+      courts: active.config.courts.length,
+      firstRound: lastGroupRound(active) + 1,
+    );
+  }
+
+  /// Match di [slot]: id `m-r{round}-{n}`, round, court, dan `phase` dari slot. [from] = match lama di slot yang sama
+  /// (relayout): sisi, skor, status, dan WO-nya dibawa lewat `copyWith`. Tanpa [from], sisi = [pair1]/[pair2].
+  static MatchGame matchAt(
+    TournamentConfig config,
+    KnockoutSlot slot, {
+    Pair pair1 = Pair.tbd,
+    Pair pair2 = Pair.tbd,
+    MatchGame? from,
+  }) {
+    final fresh = MatchGame(
+      id: 'm-r${slot.round}-${slot.matchNumber}',
+      roundNumber: slot.round,
+      matchNumberInRound: slot.matchNumber,
+      courtId: config.courts[slot.court].id,
+      pair1: pair1,
+      pair2: pair2,
+      phase: slot.phase,
+    );
+    if (from == null) return fresh;
+    return fresh.copyWith(
+      pair1: from.pair1,
+      pair2: from.pair2,
+      sets: from.sets,
+      status: from.status,
+      woLoserPairId: from.woLoserPairId,
+      woReason: from.woReason,
+    );
+  }
 
   /// Pratinjau bagan (keputusan 153–154): susunan [layout] sesudah round grup terakhir + asal kedua sisi, untuk tab Bagan
   /// sebelum Buat bagan. Bukan match: tidak disimpan (jebakan 21.12 #9); Juara 3 nyala/mati hanya mengubah daftar ini.
@@ -343,12 +373,7 @@ class KnockoutBracket {
     final gk = active.config.groupKnockout;
     if (gk == null) return const [];
     return [
-      for (final s in layout(
-        groupCount: gk.groupCount,
-        thirdPlace: gk.thirdPlace,
-        courts: active.config.courts.length,
-        firstRound: _lastGroupRound(active) + 1,
-      ))
+      for (final s in slots(active))
         if (sources(s.phase, groupCount: gk.groupCount) case (final side1, final side2))
           (phase: s.phase, round: s.round, matchNumber: s.matchNumber, court: s.court, side1: side1, side2: side2),
     ];

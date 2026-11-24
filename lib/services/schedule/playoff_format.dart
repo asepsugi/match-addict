@@ -51,6 +51,7 @@ class PlayoffFormat {
     if (gk == null || formatLock(active, round) != null || !format.isValidKnockout) return null;
     // Juara 3 yang dimatikan tetap punya format (19g), jadi boleh diubah; Perempat final hanya di 3/4 grup.
     if (round == KnockoutRound.quarterfinal && gk.groupCount < 3) return null;
+    if (gk.formats[round] == format) return active;
     final config = active.config.copyWith(
       groupKnockout: gk.copyWith(formats: Map.unmodifiable({...gk.formats, round: format})),
     );
@@ -84,27 +85,9 @@ class PlayoffFormat {
       for (final m in active.matches)
         if (m.phase case final KnockoutPhase p) p: m,
     };
-    final lastGroupRound = groupMatches.fold(0, (r, m) => m.roundNumber > r ? m.roundNumber : r);
     final knockout = [
-      for (final s in KnockoutBracket.layout(
-        groupCount: gk.groupCount,
-        thirdPlace: thirdPlace,
-        courts: config.courts.length,
-        firstRound: lastGroupRound + 1,
-      ))
-        MatchGame(
-          id: 'm-r${s.round}-${s.matchNumber}',
-          roundNumber: s.round,
-          matchNumberInRound: s.matchNumber,
-          courtId: config.courts[s.court].id,
-          pair1: old[s.phase]?.pair1 ?? Pair.tbd,
-          pair2: old[s.phase]?.pair2 ?? Pair.tbd,
-          sets: old[s.phase]?.sets ?? const [],
-          status: old[s.phase]?.status ?? MatchStatus.pending,
-          woLoserPairId: old[s.phase]?.woLoserPairId,
-          woReason: old[s.phase]?.woReason,
-          phase: s.phase,
-        ),
+      for (final s in KnockoutBracket.slots(active, thirdPlace: thirdPlace))
+        KnockoutBracket.matchAt(config, s, from: old[s.phase]),
     ];
     return KnockoutBracket.resolve(config.copyWith(groupKnockout: gk.copyWith(thirdPlace: thirdPlace)), [
       ...groupMatches,
