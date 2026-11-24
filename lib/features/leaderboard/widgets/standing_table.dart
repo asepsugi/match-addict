@@ -25,7 +25,7 @@ class StandingTableRow {
   /// Fase grup Grup + Gugur: slot lolos ("A1") di kanan nama (22b). Null = tanpa tanda.
   final String? tag;
 
-  /// Peringkat akhir Grup + Gugur: babak yang dicapai ("Juara", "Grup A · 3"), mengganti kolom Main sampai nilai
+  /// Peringkat akhir Grup + Gugur: babak yang dicapai ("Juara 1", "Grup A · 3"), mengganti kolom Main sampai nilai
   /// (GU16). Non-null hanya kalau tabelnya memakai [StandingTable.stageLabel].
   final String? stage;
 
@@ -318,7 +318,12 @@ class StandingTable extends StatelessWidget {
       final two = painter.computeLineMetrics().length > 1;
       painter.dispose();
       final text = Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: style);
-      return two ? SizedBox(height: 61, child: Align(alignment: Alignment.centerLeft, child: text)) : text;
+      return two
+          ? SizedBox(
+              height: 61,
+              child: Align(alignment: Alignment.centerLeft, child: text),
+            )
+          : text;
     },
   );
 
@@ -328,10 +333,10 @@ class StandingTable extends StatelessWidget {
     child: PairName(first: names.first, second: names.last, style: style),
   );
 
-  /// Kolom Babak (22a): "Juara" tinta tebal, babak gugur tinta kedua, posisi grup ("Grup A · 3") abu.
+  /// Kolom Babak (22a): "Juara 1" tinta tebal, babak gugur tinta kedua, posisi grup ("Grup A · 3") abu.
   Widget _stage(String stage) {
     final (color, weight) = switch (stage) {
-      'Juara' => (MabarColors.ink, FontWeight.w800),
+      'Juara 1' => (MabarColors.ink, FontWeight.w800),
       final s when s.startsWith('Grup ') => (MabarColors.ink3, FontWeight.w500),
       _ => (MabarColors.ink2, FontWeight.w700),
     };

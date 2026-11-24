@@ -8,11 +8,11 @@ import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/ranking/group_knockout_ranking.dart';
 
 import '../hifi_golden.dart';
-import 'grup_gugur_fixture.dart';
+import 'group_playoff_fixture.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
 
-/// Golden Klasemen Grup + Gugur (20d, 20f, 20h, 20n, 20s, 22a–22i) dan Detail (22j, 22k), docs/tasks.md GG-8.
+/// Golden Klasemen Grup + Gugur (20d, 20f, 20h, 20n, 20s, 22a–22i, 23j–23l) dan Detail (22j, 22k), docs/tasks.md GG-8.
 void main() {
   Widget screen(ActiveTournament active, DateTime now) => hifiScreen(
     const LeaderboardScreen(),
@@ -113,7 +113,7 @@ void main() {
     expect(find.text('Main'), findsNothing);
   });
 
-  testWidgets('22b Fase grup: slot A1/A2/B1/B2 dari seedOf, tabel grup', (tester) async {
+  testWidgets('22b Fase grup: slot A1/A2/B1/B2 dari seedCode, tabel grup', (tester) async {
     await expectMatchesHifi(tester, screen(gg21i(), at21f), '22b', act: fasePhase);
     for (final slot in ['A1', 'A2', 'B1', 'B2']) {
       expect(find.text(slot), findsOneWidget);
@@ -160,7 +160,7 @@ void main() {
 
   testWidgets('22j Detail pasangan juara: angka fase grup, riwayat semua match berlabel babak', (tester) async {
     await expectMatchesHifi(tester, detail(gg21i(), 'Citra'), '22j');
-    expect(find.text('Peringkat 1 · Juara · Padel · Group - Playoff'), findsOneWidget);
+    expect(find.text('Peringkat 1 · Juara 1 · Padel · Group - Playoff'), findsOneWidget);
     expect(find.text('Grup A · Race to 6'), findsOneWidget);
     expect(find.text('Final · Race to 9'), findsOneWidget);
     expect(find.text('Semifinal · Race to 6'), findsOneWidget);
@@ -174,5 +174,51 @@ void main() {
     expect(find.text('Peringkat 5 · Grup A · 3 · Padel · Group - Playoff'), findsOneWidget);
     expect(find.text('Point %'), findsOneWidget);
     expect(find.text('46%', findRichText: true), findsOneWidget); // 12/26
+  });
+
+  // 3.10.0 (GP-11): 16G-akhir (gp23w), 3 grup 5 + 4 + 4 pasangan; jam sesudah Final.
+  final at23w = ggAt(240);
+
+  testWidgets('23j Fase grup 3 grup: slot A1/A2/WC1 dan B1/B2/WC2 dari seedCode, Umar · Vina tanpa slot', (
+    tester,
+  ) async {
+    await expectMatchesHifi(tester, screen(gp23w(), at23w), '23j', act: fasePhase);
+    for (final slot in ['A1', 'A2', 'WC1', 'B1', 'B2', 'WC2', 'C1', 'C2']) {
+      expect(find.text(slot), findsOneWidget);
+    }
+    expect(find.text('Peringkat'), findsOneWidget); // tab fase/peringkat saja, tanpa tab metode (AC-G30)
+  });
+
+  testWidgets('23k Peringkat 3 grup: Juara 1/2/3, Semifinal, Perempat final berempat urut nama', (tester) async {
+    await expectMatchesHifi(tester, screen(gp23w(), at23w), '23k');
+    expect(rows(tester), [
+      (1, 'Andi · Budi'),
+      (2, 'Qori · Rina'),
+      (3, 'Maya · Nanda'),
+      (4, 'Citra · Dewi'),
+      (5, 'Eko · Fajar'),
+      (5, 'Indra · Joko'),
+      (5, 'Kiki · Lina'),
+      (5, 'Sari · Tono'),
+      (6, 'Umar · Vina'),
+      (7, 'Gita · Hadi'),
+      (7, 'Oki · Putri'),
+      (7, 'Wawan · Yuni'),
+    ]);
+    for (final stage in ['Juara 1', 'Juara 2', 'Juara 3', 'Semifinal']) {
+      expect(find.text(stage), findsOneWidget);
+    }
+    final bold = tester.widget<Text>(find.text('Juara 1')).style!.fontWeight;
+    expect(bold, FontWeight.w800); // hanya Juara 1 tinta tebal
+    expect(tester.widget<Text>(find.text('Juara 2')).style!.fontWeight, FontWeight.w700);
+  });
+
+  testWidgets('23l Peringkat digulir: wildcard dihitung lolos, posisi grup tidak lolos GP7', (tester) async {
+    await expectMatchesHifi(tester, screen(gp23w(), at23w), '23l', act: scrollDown);
+    expect(find.text('Grup C · 3'), findsOneWidget);
+    for (final g in ['Grup A · 4', 'Grup B · 4', 'Grup C · 4']) {
+      expect(find.text(g), findsOneWidget);
+    }
+    expect(find.text('Grup A · 3'), findsNothing);
   });
 }

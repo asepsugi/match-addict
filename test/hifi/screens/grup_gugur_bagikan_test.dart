@@ -127,8 +127,8 @@ void main() {
     expect(find.text('Padel · Group - Playoff · Final'), findsOneWidget);
     expect(find.text('Garuda Open 2026'), findsOneWidget);
     expect(find.text('Klasemen akhir · 17 Nov 2026'), findsOneWidget);
-    expect(find.text('Juara'), findsOneWidget);
-    expect(find.text('Final'), findsOneWidget);
+    expect(find.text('Juara 1'), findsOneWidget);
+    expect(find.text('Juara 2'), findsOneWidget);
     expect(find.text('Juara 3'), findsOneWidget);
     expect(find.text('Padel · 8 pasangan · 8 round · 16 match'), findsOneWidget);
     expect(find.textContaining('game'), findsNothing);
@@ -141,8 +141,8 @@ void main() {
       '17 November 2026\n'
       '\n'
       'Klasemen Akhir\n'
-      '1. Citra + Dewi — Juara\n'
-      '2. Andi + Budi — Final\n'
+      '1. Citra + Dewi — Juara 1\n'
+      '2. Andi + Budi — Juara 2\n'
       '3. Maya + Nanda — Juara 3\n'
       '4. Indra + Joko — Semifinal\n'
       '5. Eko + Fajar — Grup A · 3\n'
@@ -219,7 +219,7 @@ void main() {
       '17 November 2026',
       '',
       'Klasemen Akhir',
-      '1. Citra + Dewi — Juara',
+      '1. Citra + Dewi — Juara 1',
     ]);
     // Label babak per baris Hasil per Round dan K106: test/services/result_text_builder_test.dart.
     expect(lines, contains('Hasil per Round'));
@@ -229,16 +229,16 @@ void main() {
   test('AC-G18 podium 16F Citra · Andi · Maya; tanpa Juara 3 empat anak tangga #3 kembar', () {
     final full = podiumOf(gg21i(), at21f);
     expect(podiumRows(full), [
-      ('1', 'Citra + Dewi', 'Juara'),
-      ('2', 'Andi + Budi', 'Final'),
+      ('1', 'Citra + Dewi', 'Juara 1'),
+      ('2', 'Andi + Budi', 'Juara 2'),
       ('3', 'Maya + Nanda', 'Juara 3'),
     ]);
     expect(full.blocks.map((b) => b.level), [2, 1, 3]);
 
     final noThird = podiumOf(gg21q(), at21f);
     expect(podiumRows(noThird), [
-      ('1', 'Citra + Dewi', 'Juara'),
-      ('2', 'Andi + Budi', 'Final'),
+      ('1', 'Citra + Dewi', 'Juara 1'),
+      ('2', 'Andi + Budi', 'Juara 2'),
       ('3', 'Indra + Joko', 'Semifinal'),
       ('3', 'Maya + Nanda', 'Semifinal'),
     ]);
