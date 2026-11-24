@@ -11,7 +11,7 @@ import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/schedule/knockout_bracket.dart';
 
 import '../hifi_golden.dart';
-import 'grup_gugur_fixture.dart';
+import 'group_playoff_fixture.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
 
@@ -288,6 +288,20 @@ void main() {
         knockoutBlockedMessage(check, const KnockoutPhase(KnockoutRound.semifinal, 1), 'Andi & Budi'),
         'Final dan Juara 3 sudah ada skor · pemenang SF1 tetap Andi & Budi',
       );
+    });
+  });
+
+  group('teks gugur Perempat final (kode UI "QF", 3.10.0)', () {
+    test('subjudul, WO, dan pesan tolak memakai QF, bukan kode simpanan PF', () {
+      final a = gp23h();
+      final qf1 = a.byCode('PF1');
+      expect(knockoutScoreSubtitle(a, qf1), 'R13 · QF1 · Race to 4');
+      expect(knockoutWalkoverSubtitle(a, qf1), 'R13 · QF1 · Court 1');
+      expect(
+        knockoutWalkoverNote(qf1.phase! as KnockoutPhase, 'Andi · Budi'),
+        'Andi · Budi menang WO dan masuk Semifinal.',
+      );
+      expect(knockoutFlipTitle(qf1.phase! as KnockoutPhase), 'Ganti pemenang QF1?');
     });
   });
 }

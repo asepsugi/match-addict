@@ -10,39 +10,50 @@ import '../../../services/ranking/group_knockout_ranking.dart';
 import '../widgets/schedule_match_row.dart';
 import '../tournament_controller.dart';
 import 'gk_labels.dart';
+import 'seeding_sheet.dart';
 
-/// "Buat bagan" (20e → 20g / 20i–20l): sheet pilih slot kalau ada seri yang harus dipilih host, lalu dialog kunci.
-/// Pilihan hanya hidup di sini sampai dialog dikonfirmasi; batal atau app ditutup = tanpa perubahan (AC-G7). Mengembalikan
-/// true kalau bagan dibuat.
+/// "Buat bagan" (20e → 20g / 20i–20l, 3 grup: 23c → 23d): sheet pilih slot kalau ada seri yang harus dipilih host (3
+/// grup: selalu, sheet juara + wildcard), lalu dialog kunci. Pilihan hanya hidup di sini sampai dialog dikonfirmasi;
+/// batal atau app ditutup = tanpa perubahan (AC-G7). Seeding diturunkan service (`bracketSeeding`), bukan di widget.
+/// Mengembalikan true kalau bagan dibuat.
 Future<bool> startCreateBracket(BuildContext context, WidgetRef ref) async {
-  final plan = GroupKnockoutRanking.qualifierPlan(ref.read(tournamentProvider)!);
+  final plan = ref.read(qualifierPlanProvider);
+  if (plan == null) return false;
+  final threeGroups = ref.read(tournamentProvider)!.config.groupKnockout?.groupCount == 3;
   var picks = <int, List<String>>{};
+  var wildcards = <String>[];
   while (true) {
-    if (plan.picks.isNotEmpty) {
+    final hasSheet = threeGroups || plan.picks.isNotEmpty;
+    if (threeGroups) {
+      final chosen = await showSeedingSheet(
+        context,
+        ref.read(tournamentProvider)!,
+        plan,
+        initial: (picks: picks, wildcards: wildcards),
+      );
+      if (chosen == null || !context.mounted) return false;
+      (picks, wildcards) = (chosen.picks, chosen.wildcards);
+    } else if (plan.picks.isNotEmpty) {
       final chosen = await showQualifierPickSheet(context, ref.read(tournamentProvider)!, plan, initial: picks);
       if (chosen == null || !context.mounted) return false;
       picks = chosen;
     }
     // Batal di dialog kembali ke sheet dengan pilihan tetap (20j); tanpa sheet berarti selesai.
     final active = ref.read(tournamentProvider)!;
-    final qualifiers = plan.withPicks(picks);
-    if (qualifiers == null) return false;
-    final ok = await showBuildBracketDialog(context, active, qualifiers);
+    final seeding = GroupKnockoutRanking.bracketSeeding(active, picks, wildcards);
+    if (seeding == null) return false;
+    final ok = await showBuildBracketDialog(context, active, seeding);
     if (!context.mounted) return false;
-    if (ok) return ref.read(tournamentProvider.notifier).createBracket(picks);
-    if (plan.picks.isEmpty) return false;
+    if (ok) return ref.read(tournamentProvider.notifier).createBracket(picks, wildcards);
+    if (!hasSheet) return false;
   }
 }
 
 String _pairName(ActiveTournament a, Pair p) => pairNames(a, p).join(' · ');
 
-/// Dialog 20g/20k/20o: match babak pertama bagan dan akibatnya.
-Future<bool> showBuildBracketDialog(
-  BuildContext context,
-  ActiveTournament active,
-  List<List<String>> qualifiers,
-) async {
-  final rows = gkBracketPreview(active, qualifiers, nameOf: (p) => _pairName(active, p));
+/// Dialog 20g/20k/20o/23d/23g: match babak pertama bagan dan akibatnya.
+Future<bool> showBuildBracketDialog(BuildContext context, ActiveTournament active, Seeding seeding) async {
+  final rows = gkBracketPreview(active, seeding, nameOf: (p) => _pairName(active, p));
   final result = await showDialog<bool>(
     context: context,
     useSafeArea: false,
@@ -67,9 +78,14 @@ class BuildBracketDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final slot = MabarType.numM.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: MabarColors.ink3);
     final name = MabarType.body.copyWith(fontSize: 15, color: MabarColors.ink);
+    // `.bracket.wc`: kolom slot 58 hanya di bagan dengan wildcard ("WC2 · B3"), selain itu 24.
+    final slotWidth = rows.any((r) => r.slot1.contains('·') || r.slot2.contains('·')) ? 58.0 : 24.0;
     Widget line(String s, String n) => Row(
       children: [
-        SizedBox(width: 24, child: Text(s, style: slot)),
+        SizedBox(
+          width: slotWidth,
+          child: Text(s, style: slot),
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(n, maxLines: 1, overflow: TextOverflow.ellipsis, style: name),
@@ -199,25 +215,41 @@ class _QualifierPickSheetState extends State<QualifierPickSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final (n, pick) in picks.indexed) ...[
-            if (n > 0) const SizedBox(height: 16),
-            if (!single) ...[MabarGroupLabel('Grup ${GroupKnockout.letter(pick.group)}'), const SizedBox(height: 8)],
-            for (final (i, id) in pick.candidates.indexed) ...[if (i > 0) const SizedBox(height: 16), _option(pick, id)],
-          ],
+          ...qualifierPickSections(widget.active, picks, _taps, (pick, id) {
+            setState(() => _taps[pick.group] = gkTap(pick, _taps[pick.group] ?? const [], id));
+          }),
         ],
       ),
     );
   }
+}
 
-  Widget _option(OpenPick pick, String id) {
-    final taps = _taps[pick.group] ?? const <String>[];
-    final at = taps.indexOf(id);
-    final pair = widget.active.pairById(id);
+/// Bagian pilihan seri per grup (20i, 20l; 3 grup 23e): label "Grup A" kalau lebih dari satu grup, lalu satu
+/// `MabarOption` per kandidat. [taps] = ketukan per grup; [onTap] mengubahnya.
+List<Widget> qualifierPickSections(
+  ActiveTournament active,
+  List<OpenPick> picks,
+  Map<int, List<String>> taps,
+  void Function(OpenPick pick, String id) onTap,
+) {
+  final single = picks.length == 1;
+  Widget option(OpenPick pick, String id) {
+    final mine = taps[pick.group] ?? const <String>[];
+    final at = mine.indexOf(id);
+    final pair = active.pairById(id);
     return MabarOption(
-      label: pair == null ? '' : _pairName(widget.active, pair),
+      label: pair == null ? '' : _pairName(active, pair),
       selected: at >= 0,
       slot: at >= 0 ? '${GroupKnockout.letter(pick.group)}${pick.slots[at]}' : null,
-      onTap: () => setState(() => _taps[pick.group] = gkTap(pick, taps, id)),
+      onTap: () => onTap(pick, id),
     );
   }
+
+  return [
+    for (final (n, pick) in picks.indexed) ...[
+      if (n > 0) const SizedBox(height: 16),
+      if (!single) ...[MabarGroupLabel('Grup ${GroupKnockout.letter(pick.group)}'), const SizedBox(height: 8)],
+      for (final (i, id) in pick.candidates.indexed) ...[if (i > 0) const SizedBox(height: 16), option(pick, id)],
+    ],
+  ];
 }

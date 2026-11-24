@@ -11,7 +11,16 @@ class MabarSegmented<T> extends StatelessWidget {
   final T selected;
   final ValueChanged<T> onChanged;
 
-  const MabarSegmented({super.key, required this.options, required this.selected, required this.onChanged});
+  /// `.seg.off` (23p, 23r): tidak bisa diketuk, opsi yang tidak terpilih memakai ink-3.
+  final bool enabled;
+
+  const MabarSegmented({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+    this.enabled = true,
+  });
 
   /// `0 1px 2px rgba(15,30,44,.16)`; blur CSS dikonversi seperti [MabarShadows].
   static const _onShadow = [BoxShadow(color: Color(0x290F1E2C), offset: Offset(0, 1), blurRadius: (2 / 2 - 0.5) / 0.57735)];
@@ -45,7 +54,7 @@ class MabarSegmented<T> extends StatelessWidget {
       selected: on,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onChanged(value),
+        onTap: enabled ? () => onChanged(value) : null,
         child: Container(
           height: 38,
           alignment: Alignment.center,
@@ -59,7 +68,7 @@ class MabarSegmented<T> extends StatelessWidget {
             style: MabarType.body.copyWith(
               fontSize: 15,
               fontWeight: on ? FontWeight.w700 : FontWeight.w600,
-              color: on ? MabarColors.ink : MabarColors.ink2,
+              color: on ? MabarColors.ink : (enabled ? MabarColors.ink2 : MabarColors.ink3),
             ),
           ),
         ),

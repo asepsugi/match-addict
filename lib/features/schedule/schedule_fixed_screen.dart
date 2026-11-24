@@ -16,6 +16,7 @@ import 'fixed/add_rounds_sheet.dart';
 import 'group_knockout/bagan_view.dart';
 import 'group_knockout/create_bracket_flow.dart';
 import 'group_knockout/gk_labels.dart';
+import 'group_knockout/playoff_format_sheet.dart';
 import 'sparing_providers.dart';
 import 'schedule_widgets.dart';
 import 'tournament_controller.dart';
@@ -23,7 +24,7 @@ import 'widgets/resting_list.dart';
 import 'widgets/round_tabs.dart';
 import 'widgets/schedule_match_row.dart';
 
-enum _MenuAction { live, finish }
+enum _MenuAction { live, playoff, finish }
 
 /// Screen 05 · Jadwal Fixed — round-robin penuh sudah dibuat. Semua round bisa dibuka lewat tab, tapi
 /// round di depan round berjalan terkunci sampai semua skor round itu terisi. Setelah semua terisi, Tambah round
@@ -72,6 +73,9 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
       anchor,
       items: [
         liveScoreMenuItem(ref, _MenuAction.live),
+        // 23m: ada di fase grup dan fase playoff selama belum diakhiri, bersama Akhiri turnamen.
+        if (!finished && ref.read(tournamentProvider)?.config.isGroupKnockout == true)
+          const MabarMenuItem(icon: MabarIcons.trophy, label: 'Format playoff', value: _MenuAction.playoff),
         if (!finished)
           const MabarMenuItem(
             icon: MabarIcons.flag,
@@ -86,6 +90,8 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     switch (picked) {
       case _MenuAction.live:
         await openLiveScore(context, ref);
+      case _MenuAction.playoff:
+        await showPlayoffSheet(context);
       case _MenuAction.finish:
         final active = ref.read(tournamentProvider);
         if (active == null || !await confirmFinishTournament(context, active)) return;
@@ -123,8 +129,9 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
     final live = !finished && !active.isRoundComplete(current);
     // Grup + Gugur: tab Bagan = nomor tab setelah round terakhir; isinya bukan daftar match round.
     final gk = active.config.isGroupKnockout;
-    // Penonton live tanpa tab Bagan (AC-G17): hanya Jadwal per round + Klasemen.
-    final showBagan = gk && active.hasBracket && !watching;
+    // Tab Bagan ada sejak jadwal dibuat, paling kanan (keputusan 153); penonton live tanpa tab Bagan (AC-G17): hanya
+    // Jadwal per round + Klasemen.
+    final showBagan = gk && !watching;
     final onBagan = showBagan && _selectedRound == _bagan;
     final picked = _selectedRound == _bagan ? null : _selectedRound;
     final selected = onBagan ? active.roundCount + 1 : (picked ?? current).clamp(1, active.roundCount);
