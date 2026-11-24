@@ -97,6 +97,32 @@ void main() {
     await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
   });
 
+  // 12s (keputusan 157): relay menjawab 413 saat Mulai; status live tidak berubah, tanpa coba ulang.
+  testWidgets('12s gagal mulai data terlalu besar: toast', (tester) async {
+    var posts = 0;
+    await expectMatchesHifi(
+      tester,
+      hostScreen(
+        relay: MockClient((_) async {
+          posts++;
+          return http.Response('', 413);
+        }),
+      ),
+      '12s',
+      act: (tester) async {
+        await openLive(tester);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Mulai'));
+        await tester.pumpAndSettle();
+      },
+    );
+    expect(find.text('Data terlalu besar · live belum dimulai'), findsOneWidget);
+    expect(find.text('Tidak ada internet · live belum dimulai'), findsNothing);
+    expect(find.text('Live score'), findsNothing); // sheet tidak terbuka
+    expect(posts, 1); // tanpa coba ulang
+    await tester.pump(const Duration(seconds: 3)); // toast hilang sendiri
+  });
+
   // 12q (B-9): sheet tetap terbuka di bawah toast, live tetap menyala. Sesi live sungguhan (bukan ShownLive), supaya
   // "Hentikan" benar-benar memanggil relay yang gagal.
   testWidgets('12q gagal hentikan tanpa internet: toast di atas sheet', (tester) async {

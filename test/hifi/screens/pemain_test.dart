@@ -15,6 +15,8 @@ void main() {
     'Lina M', 'Maya P', 'Nanda R', 'Oki S', 'Putri A', 'Rizky H', 'Sari D', 'Tono B', 'Umar F', 'Vina K', //
     'Wulan S', 'Yoga P', 'Zaki M', 'Bayu S', 'Dimas A', 'Galih P', 'Rina K', 'Tari W', 'Hendra G', 'Iwan K',
   ];
+  // 02d: 33 nama, satu di atas batas 32.
+  const names33 = [...names, 'Agus T', 'Lukman H'];
   String numbered(List<String> list) => [for (var i = 0; i < list.length; i++) '${i + 1}. ${list[i]}'].join('\n');
 
   Widget screen(SportType sport) => hifiScreen(SetupPesertaScreen(sport: sport));
@@ -51,13 +53,13 @@ void main() {
     );
   });
 
-  testWidgets('02d lebih dari 30, halaman digulir sampai bawah', (tester) async {
+  testWidgets('02d lebih dari 32, halaman digulir sampai bawah', (tester) async {
     await expectMatchesHifi(
       tester,
       screen(SportType.tennis),
       '02d',
       act: (tester) async {
-        await fill(tester, numbered(names));
+        await fill(tester, numbered(names33));
         final page = tester.state<ScrollableState>(find.descendant(of: find.byType(SingleChildScrollView), matching: find.byType(Scrollable)).first);
         page.position.jumpTo(page.position.maxScrollExtent);
       },
@@ -154,7 +156,19 @@ void main() {
     expect(tester.widget<TextField>(find.descendant(of: boxes.at(0), matching: find.byType(TextField))).controller!.text, 'Andi\nBudi');
   });
 
-  testWidgets('Lanjut aktif hanya untuk 4–20 pemain', (tester) async {
+  testWidgets('AC-B1 Lanjut aktif untuk 32 nama, mati untuk 33', (tester) async {
+    await tester.pumpWidget(screen(SportType.tennis));
+    bool enabled() => tester.widget<MabarButton>(find.widgetWithText(MabarButton, 'Lanjut')).onPressed != null;
+    await tester.enterText(find.byType(TextField), names33.take(32).join('\n'));
+    await tester.pump();
+    expect(enabled(), isTrue);
+    await tester.enterText(find.byType(TextField), names33.join('\n'));
+    await tester.pump();
+    expect(enabled(), isFalse);
+    expect(find.text('Maksimal 32 pemain'), findsOneWidget);
+  });
+
+  testWidgets('Lanjut aktif hanya untuk 4–32 pemain', (tester) async {
     await tester.pumpWidget(screen(SportType.tennis));
     bool enabled() => tester.widget<MabarButton>(find.widgetWithText(MabarButton, 'Lanjut')).onPressed != null;
     await tester.enterText(find.byType(TextField), 'A\nB\nC');

@@ -50,8 +50,8 @@ void main() {
     expect(appBarScrolled(tester), isFalse); // belum digulir: tanpa garis bawah app bar
   });
 
-  testWidgets('13o Final digulir: papan dan tab tetap, 7 – 5, 56 – 49, "1 match WO" di bawah (AC-S14)', (tester) async {
-    await expectMatchesHifi(tester, screen(sparingFull()), '13o', act: scrollDown);
+  testWidgets('13o Final muat satu layar: papan dan tab, 7 – 5, 56 – 49, "1 match WO" di bawah (AC-S14)', (tester) async {
+    await expectMatchesHifi(tester, screen(sparingFull()), '13o');
     expectBoard(first: '7', second: '5', balls: 1);
     expect(find.text('56 game · +13'), findsOneWidget);
     expect(find.text('49 game · −13'), findsOneWidget);
@@ -60,18 +60,7 @@ void main() {
       expect(find.text(t), findsWidgets); // tiga tab (RP-3b)
     }
     expect(find.text('Padel · Fixed · Final · 6 round · 12 match'), findsOneWidget);
-    expect(appBarScrolled(tester), isTrue); // digulir: garis bawah app bar muncul
-  });
-
-  testWidgets('13o papan dan tab metode tidak bergeser saat digulir', (tester) async {
-    await tester.pumpWidget(screen(sparingFull()));
-    await tester.pumpAndSettle();
-    final board = tester.getTopLeft(find.byType(ClubScore));
-    final tab = tester.getTopLeft(find.text('Total Point').first);
-    await scrollDown(tester);
-    await tester.pumpAndSettle();
-    expect(tester.getTopLeft(find.byType(ClubScore)), board);
-    expect(tester.getTopLeft(find.text('Total Point').first), tab);
+    expect(appBarScrolled(tester), isFalse); // isi muat satu layar: tanpa garis bawah app bar (keputusan 158)
   });
 
   testWidgets('13o nomor tiap klub mulai #1: Garuda #1–#4, Matcha #1–#3 (AC-S17)', (tester) async {
