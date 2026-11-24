@@ -146,7 +146,11 @@ GP-11 (8a0d3ab, diperiksa main session) di-merge; `onOpenRound` → `showRoundFo
 Catatan: GP-10 menambah `enabled` di `MabarSegmented` (core, aditif); `gkBracketPreview(active, Seeding, nameOf)` menyusun
 lewat `KnockoutBracket.build`; `gkBaganSubtitle` 3 grup = 8 pasangan lolos. Saran review GP-9 (opsional): komentar
 konstanta `firstStep` 116/172; `_scroll ??=` tidak dihitung ulang saat pratinjau → bagan. Berikutnya gelombang 6 (A15-3 +
-GP-12) di sesi baru, setelah host menjawab 4 frame di atas.
+GP-12) di sesi baru.
+**Dijawab host 2026-11-24 (keputusan 162):** 22i/23l tanpa gulir, kolom Babak app 16 px/600 (sesuai CSS hi-fi; laporan
+"22a 18/700" keliru — itu kode), 22r Story frame yang salah (§17.5: subjudul 12, baris 28,33). 3ba2dc3 + 57e53fa, hi-fi
+v114. Run penuh: 2446 lolos, 0 gagal. Sisa kecil: id gradien dobel (hx9 …) sudah ada di hifi.html; `hifi_court_floor.py`
+menomori ulang id di ±36 frame (render sia-sia) — rapikan terpisah; `hifi_extract.py` crash `_frame.html` saat 0 frame dirender.
 
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
