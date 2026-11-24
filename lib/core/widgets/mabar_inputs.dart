@@ -339,9 +339,11 @@ class MabarField extends StatelessWidget {
   }) : inline = true,
        error = false;
 
+  /// Kotak tetap 48/40 pada skala teks berapa pun (`.ts13`: "kotak nama 48 tetap"); padding yang menyesuaikan.
   /// Tinggi baris teks 16/1,4 = 22,4, tapi mesin teks Flutter membulatkannya ke pt bulat (22); padding
   /// vertikal dihitung dari nilai bulat itu supaya kotak tepat 48/40.
-  static final _lineHeight = (16 * 1.4).roundToDouble();
+  static double _lineHeight(BuildContext context) =>
+      (MediaQuery.textScalerOf(context).scale(16) * 1.4).roundToDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -373,7 +375,7 @@ class MabarField extends StatelessWidget {
         isDense: true,
         filled: true,
         fillColor: fillColor,
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: (height - _lineHeight) / 2),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: (height - _lineHeight(context)) / 2),
         border: rest,
         enabledBorder: rest,
         focusedBorder: focus,

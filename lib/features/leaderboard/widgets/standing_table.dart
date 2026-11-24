@@ -123,15 +123,15 @@ class StandingTable extends StatelessWidget {
         minHeight: 34,
         afterLine: false,
         cells: [
-          Text('#', style: _head, textAlign: TextAlign.left),
-          Text(subjectLabel, style: _head),
+          _headCell('#', left: true),
+          _headCell(subjectLabel, left: true),
           if (stageLabel case final label?)
-            Text(label, style: _head, textAlign: TextAlign.right)
+            _headCell(label)
           else ...[
-            Text('Main', style: _head, textAlign: TextAlign.right),
-            Text(recordLabel, style: _head, textAlign: TextAlign.right),
-            Text('+/−', style: _head, textAlign: TextAlign.right),
-            Text(valueLabel, style: _head, textAlign: TextAlign.right),
+            _headCell('Main'),
+            _headCell(recordLabel),
+            _headCell('+/−'),
+            _headCell(valueLabel),
           ],
         ],
       ),
@@ -142,7 +142,7 @@ class StandingTable extends StatelessWidget {
           color: _subBackground,
           cells: [
             const SizedBox(),
-            Text('Belum main', style: _head),
+            _headCell('Belum main', left: true),
             for (var i = 0; i < _columns - 2; i++) const SizedBox(),
           ],
         ),
@@ -174,6 +174,13 @@ class StandingTable extends StatelessWidget {
   }
 
   static final _head = MabarType.label.copyWith(fontSize: 12);
+
+  /// Judul kolom: satu baris di kolom tetap, mengecil secukupnya kalau skala teks membuatnya tidak muat (`.ts13`).
+  static Widget _headCell(String text, {bool left = false}) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: left ? Alignment.centerLeft : Alignment.centerRight,
+    child: Text(text, style: _head, maxLines: 1, softWrap: false),
+  );
   static final _nameStyle = MabarType.body.copyWith(fontWeight: FontWeight.w600, color: MabarColors.ink);
   static final _tagStyle = MabarType.label.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: MabarColors.ink3);
 

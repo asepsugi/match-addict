@@ -167,9 +167,8 @@ class _ScoreInputScreenState extends ConsumerState<ScoreInputScreen> {
         children: [
           MabarAppBar(
             title: court.name,
-            subtitle:
-                '${knockoutScoreSubtitle(active, match) ?? 'Round ${match.roundNumber} · ${format.label}'}'
-                '${left != null && !short ? ' · $left' : ''}',
+            subtitle: knockoutScoreSubtitle(active, match) ?? 'Round ${match.roundNumber} · ${format.label}',
+            subtitleTail: left != null && !short ? left : null,
             subtitleAlert: short ? left : null,
             onBack: () => context.pop(),
             actions: [

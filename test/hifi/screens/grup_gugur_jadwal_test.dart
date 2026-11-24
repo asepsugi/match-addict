@@ -22,8 +22,9 @@ import 'screen_harness.dart';
 /// Golden Jadwal Grup + Gugur (GG-7): fase grup 20a–20q, round gugur 21b–21v. Tab Bagan 21a/21d/… = GG-9. Fixture
 /// bersama `grup_gugur_fixture.dart`; jam frame lewat konstanta `at…` di sana.
 void main() {
-  Widget screen(ActiveTournament active, DateTime now) => hifiScreen(
+  Widget screen(ActiveTournament active, DateTime now, {double textScale = 1.0}) => hifiScreen(
     ScheduleFixedScreen(config: active.config),
+    textScale: textScale,
     overrides: [
       tournamentProvider.overrideWith(() => LoadedTournament(active)),
       clockProvider.overrideWithValue(() => now),
@@ -60,6 +61,11 @@ void main() {
 
     testWidgets('20b sebagian terisi', (tester) async {
       await expectMatchesHifi(tester, screen(gg20b(), at20b), '20b');
+    });
+
+    testWidgets('20b pada skala teks 1,3: tanpa overflow, "Buat bagan" dua baris', (tester) async {
+      await expectNoOverflowAtMaxTextScale(tester, screen(gg20b(), at20b, textScale: 1.3));
+      expect(find.text('tunggu 7 match'), findsOneWidget);
     });
 
     testWidgets('20c round terkunci dibuka', (tester) async {

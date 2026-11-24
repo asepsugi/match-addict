@@ -68,8 +68,11 @@ class MabarApp extends ConsumerWidget {
       // Default untuk semua layar. Beranda memasang region putih sendiri; tanpa
       // default ini gaya putihnya terbawa ke layar berikutnya (Flutter hanya
       // mengganti gaya status bar kalau menemukan region lain).
-      builder: (context, child) =>
-          AnnotatedRegion<SystemUiOverlayStyle>(value: MabarTheme.statusBarDark, child: child!),
+      // Fondasi → Skala teks HP: teks mengikuti ukuran font HP sampai 1,3, di atas itu tetap 1,3 (keputusan 120).
+      builder: (context, child) => MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.3,
+        child: AnnotatedRegion<SystemUiOverlayStyle>(value: MabarTheme.statusBarDark, child: child!),
+      ),
     );
   }
 }

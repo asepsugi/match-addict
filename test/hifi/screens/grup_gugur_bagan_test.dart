@@ -69,6 +69,24 @@ void main() {
     });
   }
 
+  // 21a pada 1,3 belum digambar (hi-fi → Skala teks HP); kartu satu baris harus tetap muat tanpa overflow.
+  for (final (frame, active, now) in [('21a', gg21a(), at21b), ('21d', gg21c(), at21b)]) {
+    testWidgets('$frame Bagan pada skala teks 1,3: tanpa overflow', (tester) async {
+      await expectNoOverflowAtMaxTextScale(
+        tester,
+        hifiScreen(
+          ScheduleFixedScreen(config: active.config),
+          textScale: 1.3,
+          overrides: [
+            tournamentProvider.overrideWith(() => LoadedTournament(active)),
+            clockProvider.overrideWithValue(() => now),
+          ],
+        ),
+        act: openBagan,
+      );
+    });
+  }
+
   testWidgets('21p Bagan · SF2 WO', (tester) async {
     await expectMatchesHifi(
       tester,
