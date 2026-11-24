@@ -136,6 +136,18 @@ API untuk gelombang 5 (`tournament_controller.dart` + services):
   `createBracket(picks)` + `PlayoffFormat.relayout`. PRD 16G-akhir #5 sudah urut nama (36e7727).
 - Berikutnya gelombang 5: GP-9 ‖ GP-10 ‖ GP-11 (maks 3 paralel, worktree), di sesi baru.
 
+**Gelombang 5 (2026-11-24):** GP-9 (338cf73, tech-lead fresh Approve), GP-10 (55a3716, diperiksa main session) dan
+GP-11 (8a0d3ab, diperiksa main session) di-merge; `onOpenRound` → `showRoundFormatSheet` disambung di merge. Run penuh:
+2443 lolos, 3 gagal — semuanya frame yang ditanyakan ke host (bukan kode):
+- 22i (4,5%): frame `margin-top:-216px`, tapi 12 baris muat tepat sejak nama satu baris (keputusan 148) → tak bisa digulir.
+- 23l (4,5%): bayangan "scrolled" tapi kartu 4 px lebih turun dari 23k — tidak mungkin dari scroll nyata.
+- 22r Story (4,4%): panel Story frame 4 px lebih rendah + subjudul "15 Nov 2…" terpotong; geometri `podium_poster.dart`.
+- `.gg-bk` 23k/23l 16 px/600 (Juara 1 800) vs 22a/22i 18 px/700 (kode) — perlu satu gaya.
+Catatan: GP-10 menambah `enabled` di `MabarSegmented` (core, aditif); `gkBracketPreview(active, Seeding, nameOf)` menyusun
+lewat `KnockoutBracket.build`; `gkBaganSubtitle` 3 grup = 8 pasangan lolos. Saran review GP-9 (opsional): komentar
+konstanta `firstStep` 116/172; `_scroll ??=` tidak dihitung ulang saat pratinjau → bagan. Berikutnya gelombang 6 (A15-3 +
+GP-12) di sesi baru, setelah host menjawab 4 frame di atas.
+
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
 **GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari

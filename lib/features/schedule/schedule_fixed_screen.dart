@@ -191,7 +191,11 @@ class _ScheduleFixedScreenState extends ConsumerState<ScheduleFixedScreen> {
             // Titik sambung GG-9: tab Bagan mengisi seluruh badan; daftar round di bawah tidak dipakai di tab ini.
             if (onBagan)
               Expanded(
-                child: BaganView(active: active, onOpenMatch: watching ? null : openScore),
+                child: BaganView(
+                  active: active,
+                  onOpenMatch: watching ? null : openScore,
+                  onOpenRound: watching ? null : (r) => showRoundFormatSheet(context, r),
+                ),
               )
             else
             Expanded(
