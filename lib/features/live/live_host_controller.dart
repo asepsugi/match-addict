@@ -148,6 +148,10 @@ class LiveHostController extends Notifier<LiveHost?> {
       // jadi menu kembali menawarkan "Mulai" dengan link baru.
       if ((e.status == 404 || e.status == 403) && _session?.code == s.code) {
         _setSession(null);
+      } else if (e.status == 413) {
+        // Payload melewati batas relay: koneksinya sehat, jadi bukan "Menunggu internet" dan tidak ada retry
+        // berkala (tiap coba mengunggah ±256 KB lagi). Penonton tetap melihat kiriman sah terakhir; perubahan
+        // berikutnya mencoba lagi (keputusan 156, security #5).
       } else {
         _scheduleRetry();
       }

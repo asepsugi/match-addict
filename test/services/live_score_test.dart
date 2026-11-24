@@ -22,12 +22,16 @@ class FakeRelay {
   final lives = <String, ({String token, int rev, String payload})>{};
   final log = <String>[];
   bool offline = false;
+
+  /// Relay menolak payload > MAX_BYTES (W7): 413 untuk POST dan PUT.
+  bool tooLarge = false;
   var _created = 0;
 
   late final client = MockClient((req) async {
     if (offline) throw http.ClientException('tidak ada internet');
     final segments = req.url.pathSegments;
     log.add([req.method, ...segments.skip(1)].join(' '));
+    if (tooLarge && (req.method == 'POST' || req.method == 'PUT')) return http.Response('', 413);
     if (segments.length == 1) {
       final code = 'K7Q2M${'XYZ'[_created++]}';
       lives[code] = (token: 'rahasia-$code', rev: 1, payload: req.body);
@@ -180,6 +184,33 @@ void main() {
       await settle();
       expect(live()!.waiting, isFalse);
       expect(fake.latest('K7Q2MX')!.matches.where((m) => m.status == MatchStatus.done), hasLength(2));
+    });
+
+    test(
+      'keputusan 156 / security #5: 413 tanpa menunggu dan tanpa timer, kirim lagi di perubahan berikutnya',
+      () async {
+        await container.read(liveHostProvider.notifier).start();
+        final sent = now;
+        fake.tooLarge = true;
+        fake.log.clear();
+        score();
+        await settle();
+        expect(live()!.waiting, isFalse);
+        expect(live()!.sentAt, sent);
+        expect(fake.log, ['PUT K7Q2MX']);
+
+        fake.tooLarge = false;
+        score();
+        await settle();
+        expect(fake.latest('K7Q2MX')!.matches.where((m) => m.status == MatchStatus.done), hasLength(2));
+      },
+    );
+
+    test('keputusan 156 / security #5: mulai kena 413 gagal, live tidak menyala', () async {
+      fake.tooLarge = true;
+      expect(await container.read(liveHostProvider.notifier).start(), isFalse);
+      expect(live(), isNull);
+      expect(store.loadLive(), isNull);
     });
 
     test('mulai gagal tanpa internet: live tidak menyala', () async {
