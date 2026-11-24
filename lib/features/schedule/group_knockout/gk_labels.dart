@@ -33,7 +33,7 @@ String gkBaganMeta(ActiveTournament a) {
 /// Satu baris ringkasan di dialog Buat bagan (`.bracket .bm`): kode match, slot, dan nama tiap sisi.
 typedef BracketPreviewRow = ({String code, String slot1, String name1, String slot2, String name2});
 
-/// Match babak pertama bagan dari [qualifiers] (per grup [slot 1, slot 2]): SF1 = A1 vs B2 (20g), PF1–PF4 (20o).
+/// Match babak pertama bagan dari [qualifiers] (per grup [slot 1, slot 2]): SF1 = A1 vs B2 (20g), QF1–QF4 (20o); kode UI, bukan kode simpanan "PF".
 List<BracketPreviewRow> gkBracketPreview(
   ActiveTournament a,
   List<List<String>> qualifiers, {
@@ -51,7 +51,7 @@ List<BracketPreviewRow> gkBracketPreview(
       return pair == null ? '' : nameOf(pair);
     }
 
-    rows.add((code: phase.code, slot1: s1.code, name1: name(s1), slot2: s2.code, name2: name(s2)));
+    rows.add((code: KnockoutBracket.code(phase), slot1: s1.code, name1: name(s1), slot2: s2.code, name2: name(s2)));
   }
   return rows;
 }
