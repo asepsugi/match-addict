@@ -2598,7 +2598,6 @@ candidates; WildcardPick? pick; Seeding withWildcardPick(List<String> chosen) }`
   - S memotong batas 2 | 3 → `WildcardPick(need: k, candidates: S urut huruf)`, k = slot lolos yang tersisa untuk S
     (1 untuk seri dua di batas WC2, 16G-iii; 2 untuk seri tiga di posisi 1–3). Pilihan host hanya menentukan **siapa**
     lolos; urutan yang terpilih = huruf grup (GP3). Tanpa pilihan → `seeding` null, tombol mati (AC-G25).
-  - Seri di posisi 3 saja (dua di bawah batas) → huruf grup, tanpa pilihan.
 - `Seeding(groupSlots: [[slot1, slot2]…], champions: [gJ1, gJ2, gJ3], wildcards: [WC1, WC2])`. `perGroup` hasil
   `withPicks` sudah memuat slot 3, jadi pilihan grup (`OpenPick`) diselesaikan **sebelum** `seedingPlan` dipanggil;
   sheet satu-layar 23e memanggil `seedingPlan` ulang setiap pilihan grup berubah (bagian wildcard baru muncul setelah
@@ -2730,7 +2729,7 @@ Bentuk §18.11 / `docs/data.md` GR1–GR17 tetap. Yang berubah atau baru (semua 
   - `setPlayoffFormat(round, format)`: tolak kalau `formatLock` ≠ null atau `!format.isValidKnockout`; ganti
     `config.groupKnockout.formats[round]` lewat `copyWith`. Match tidak berubah; `formatFor(m)` langsung memakai yang baru.
   - `setThirdPlace(bool)`: tolak kalau `thirdPlaceLock` ≠ null. Sebelum bagan: config saja (pratinjau ikut). Sesudah
-    bagan: `KnockoutBracket.relayout(active, thirdPlace)` → posisi semua match gugur dihitung ulang dari `layout`
+    bagan: `PlayoffFormat.relayout(active, thirdPlace)` → posisi semua match gugur dihitung ulang dari `layout`
     (match ber-hasil tidak pernah berpindah, karena kunci menjamin hanya Final/J3 yang bisa bergeser); J3 baru = pending,
     sisi dari `resolve`; J3 dihapus kalau mati; id `m-r{round}-{n}` mengikuti posisi baru; lalu `resolve`.
 - Data 16H (AC-G28, setelah Buat bagan 16G, R13–R16 Belum): QF Race to 4 → 5 boleh; QF1 5–2 → `formatLock(QF)` = "QF1 ada

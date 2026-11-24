@@ -162,10 +162,11 @@ kedua.
 
 Format ketiga untuk Fixed: fase grup round-robin per grup, lalu bagan gugur (PRD §16, keputusan 93–109; aturan, data test,
 invariant, dan jebakan `design/spec/logic.md` §18; simpanan `docs/data.md` → Grup + Gugur). Hanya Fixed turnamen biasa
-(bukan Sparing); semua cabang dimulai dari `config.isGroupKnockout`, jalur lain byte-sama (AC-G16). Ubah format babak /
-juara 3 **setelah** jadwal dibuat (GU9) ditunda ke 3.8.x: tidak ada kodenya.
-- **Model** (`models.dart`): `GroupKnockout` (`groupCount` 2/4, `groups` = id pasangan per grup berurutan, `formats` per
-  `KnockoutRound`, `thirdPlace`) di `TournamentConfig.groupKnockout`; `MatchGame.phase` (`GroupPhase` / `KnockoutPhase`,
+(bukan Sparing); semua cabang dimulai dari `config.isGroupKnockout`, jalur lain byte-sama (AC-G16). 3.10.0 (PRD §16
+G2–G16, keputusan 135–162, `logic.md` §21): 2/3/4 grup, 3 grup = QF + 2 wildcard dari slot 3, babak awal otomatis, ubah
+format babak / juara 3 setelah jadwal dibuat (GU9, `PlayoffFormat`), batas 32 pemain.
+- **Model** (`models.dart`): `GroupKnockout` (`groupCount` 2/3/4, `groups` = id pasangan per grup berurutan, `formats` per
+  `KnockoutRound`, `thirdPlace`, `wildcards` 3 grup), `Seeding` (slot per grup + juara + wildcard; dipakai `build`) di `TournamentConfig.groupKnockout`; `MatchGame.phase` (`GroupPhase` / `KnockoutPhase`,
   `code` "A"/"SF2"/"F"/"J3"); `Pair.tbd` untuk sisi gugur yang belum diketahui; `StandingEntry.stage`;
   `TournamentConfig.formatFor(m)` = **satu-satunya** jalan ke format sebuah match. `ActiveTournament`: `hasBracket`,
   `isGroupKnockoutLocked`, `canCreateBracket`, `canOpenScore`, `isFinal` bercabang, `canAddRounds` false.
@@ -173,12 +174,17 @@ juara 3 **setelah** jadwal dibuat (GU9) ditunda ke 3.8.x: tidak ada kodenya.
 - **Service** (Dart murni, tes `test/services/group_knockout_*`): `schedule/group_stage.dart` (`GroupStage.sizes`,
   `groupCountsFor`, `courtsOfGroups`, `schedule`, `estimate`); `pairing/group_draft.dart` (draf layar Grup, pola
   `PairDraft`); `ranking/group_knockout_ranking.dart` (`groupTables`, `qualifierPlan` → `QualifierPlan.withPicks`,
-  `finalEntries`); `schedule/knockout_bracket.dart` (`layout`, `build`, `resolve`, `flipCheck`, `sources`, `sourceLabel`,
-  `seedOf`, `roundTab`/`roundTitle`/`matchLabel`, `advancesTo`).
+  `finalEntries`, `seedingPlanFor`/`bracketSeeding`); `ranking/playoff_seeding.dart` (`playoffMethod` satu metode Playoff,
+  `comparePlayoffSeed`, `seedingPlan` + `WildcardPick` 3 grup); `schedule/knockout_bracket.dart` (`layout`, `build`,
+  `preview`, `resolve`, `flipCheck`, `sources`, `sourceLabel`, `seedCode`/`seedLabel`, `roundTab`/`roundTitle`/`matchLabel`,
+  `advancesTo`, `flowIndex`, `threeGroupQuarterfinals` = satu-satunya topologi QF 3 grup, dipakai `build` dan validator
+  codec GR19); `schedule/playoff_format.dart` (`formatLock`, `thirdPlaceLock`, `locks`, `withFormat`, `withThirdPlace`,
+  `relayout`).
 - **Alur:** Konfigurasi (segmented Round-robin / Grup + Gugur, sheet Fase grup & Gugur) → Pasangan (Acak/Manual) → layar
   Grup (`/groups`, bagi pasangan ke grup) → `startIfNeeded` membuat jadwal fase grup (`GroupStage.schedule`) → Jadwal
   per round, kunci round seperti Fixed → semua match grup terisi → "Buat bagan": `qualifierPlan` (head-to-head hanya untuk
-  siapa lolos; seri yang tersisa = sheet pilih slot) → dialog → `createBracket(picks)` menambah semua match gugur dalam satu
+  siapa lolos; seri yang tersisa = sheet pilih slot; 3 grup + `WildcardPick`) → dialog → `createBracket(picks,
+  wildcardPick)` (Seeding diturunkan di services lewat `bracketSeeding`, bukan di widget) menambah semua match gugur dalam satu
   `state =` → tab Bagan; skor gugur memajukan pemenang lewat `resolve` → Final → Klasemen = peringkat akhir.
 - **Invariant:** (1) skor grup terkunci begitu bagan ada (`isGroupKnockoutLocked`, `_groupKnockoutUpdate` menolak); (2)
   match bersisi tbd tidak bisa diisi dan hanya boleh pending/cancelled, jadi ranking/`PlayerProfile` (hanya done/WO) aman;
