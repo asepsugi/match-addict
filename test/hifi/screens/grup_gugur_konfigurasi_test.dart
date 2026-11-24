@@ -471,18 +471,13 @@ void main() {
         expect(row('Playoff · Perempat final'), findsOneWidget);
       });
 
-      // `LastSettings.read` masih menolak 3 grup (last_settings.dart:123, 127): dikerjakan GP-4.
-      testWidgets(
-        '3 grup terakhir dipulihkan di 24 pemain (menunggu GP-4)',
-        skip: true, // menunggu GP-4
-        (tester) async {
-          await pumpScreen(tester, SportType.padel, 24, overrides: withStore(last(3)));
-          expect(row('3 grup · Race to 6 · 15 menit'), findsOneWidget);
-          expect(row('Playoff · Perempat final · 2 wildcard'), findsOneWidget);
-        },
-      );
+      testWidgets('3 grup terakhir dipulihkan di 24 pemain', (tester) async {
+        await pumpScreen(tester, SportType.padel, 24, overrides: withStore(last(3)));
+        expect(row('3 grup · Race to 6 · 15 menit'), findsOneWidget);
+        expect(row('Playoff · Perempat final · 2 wildcard'), findsOneWidget);
+      });
 
-      testWidgets('3 grup terakhir lalu 20 pemain → 2 grup (19d, menunggu GP-4)', skip: true, (tester) async {
+      testWidgets('3 grup terakhir lalu 20 pemain → 2 grup (19d)', (tester) async {
         await pumpScreen(tester, SportType.padel, 20, overrides: withStore(last(3)));
         expect(row('2 grup · Race to 6 · 15 menit'), findsOneWidget);
       });
