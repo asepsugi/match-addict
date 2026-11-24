@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/ranking/group_knockout_ranking.dart';
 import 'package:match_addict/services/schedule/knockout_bracket.dart';
+import 'package:match_addict/services/storage/tournament_codec.dart';
 
 import 'group_knockout_fixture.dart';
 
@@ -79,6 +80,10 @@ void _checkStep(ActiveTournament a, String at) {
     [for (final m in a.matches) '${m.pair1.id}|${m.pair2.id}'],
   );
   expect(KnockoutBracket.isResolved(a.config, a.matches), isTrue, reason: '$at I8');
+  // W2 (docs/security.md): validator GR19 dan build satu sumber, jadi tiap keadaan bagan tetap tersimpan dan terbaca.
+  expect(TournamentCodec.canEncode(a), isTrue, reason: '$at canEncode');
+  final raw = TournamentCodec.encode(a);
+  expect(TournamentCodec.encode(TournamentCodec.decode(raw)!), raw, reason: '$at round trip');
 }
 
 void main() {
@@ -120,6 +125,7 @@ void main() {
             expect(a.config.groupKnockout!.wildcards, seeding.wildcards);
             expect(KnockoutBracket.seedCode(a, groups[w1][2]), 'WC1');
             expect(KnockoutBracket.seedCode(a, groups[w2][2]), 'WC2');
+            _checkStep(a, at);
           });
         }
       }

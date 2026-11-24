@@ -28,7 +28,7 @@ void main() {
     'formats':
         formats ??
         {
-          if (groups == 4) 'PF': {'scoring': 'raceTo', 'target': 5},
+          if (groups >= 3) 'PF': {'scoring': 'raceTo', 'target': 5},
           'SF': raceTo6,
           'J3': {'scoring': 'raceTo', 'target': 4},
           'F': {'scoring': 'raceTo', 'target': 9},
@@ -43,7 +43,7 @@ void main() {
     groupCount: groups,
     thirdPlace: third,
     formats: {
-      if (groups == 4) KnockoutRound.quarterfinal: const ScoreFormat(ScoringMethod.raceTo, 5),
+      if (groups >= 3) KnockoutRound.quarterfinal: const ScoreFormat(ScoringMethod.raceTo, 5),
       KnockoutRound.semifinal: const ScoreFormat(ScoringMethod.raceTo, 6),
       KnockoutRound.thirdPlace: const ScoreFormat(ScoringMethod.raceTo, 4),
       KnockoutRound.finalRound: const ScoreFormat(ScoringMethod.raceTo, 9),
@@ -62,8 +62,14 @@ void main() {
     ),
   );
 
-  test('round trip 2 grup, 4 grup, juara 3 mati; anggota grup tidak ikut', () {
-    for (final g in [model(), model(groups: 4), model(third: false)]) {
+  test('round trip 2, 3, 4 grup, juara 3 mati; anggota grup tidak ikut', () {
+    for (final g in [
+      model(),
+      model(groups: 3),
+      model(groups: 4),
+      model(third: false),
+      model(groups: 3, third: false),
+    ]) {
       final withMembers = GroupKnockout(
         groupCount: g.groupCount,
         groups: const [
@@ -78,6 +84,26 @@ void main() {
       expect(again.formats, g.formats);
       expect(again.groups, isEmpty);
     }
+  });
+
+  test('3 grup: PF ditulis (kode tetap PF, bukan QF) dan terbaca; entri 2/4 grup byte-sama 3.9.x', () {
+    final three = jsonDecode(saved(model(groups: 3)).toJson()) as Map<String, dynamic>;
+    final gk = three['groupKnockout'] as Map<String, dynamic>;
+    expect(gk['groupCount'], 3);
+    expect((gk['formats'] as Map).keys.toList(), ['PF', 'SF', 'J3', 'F']);
+    expect(three['v'], 1);
+    expect(read(three)!.groupKnockout!.groupCount, 3);
+    // Literal 3.9.x (urutan kunci groupCount, thirdPlace, formats): ter-encode ulang sama persis.
+    for (final groups in [2, 4]) {
+      final literal = jsonEncode({...base(), 'groupKnockout': knockout(groups: groups)});
+      expect(LastSettings.read(literal)!.toJson(), literal);
+    }
+  });
+
+  // Turunan pengaturan terakhir ke jumlah grup yang tersedia ada di group_stage_test (fallbackGroupCount) dan dipakai
+  // Konfigurasi; codec tidak mengubah entri tersimpan.
+  test('entri 3 grup tersimpan apa adanya', () {
+    expect(read(withKnockout(knockout(groups: 3)))!.groupKnockout!.groupCount, 3);
   });
 
   test('round-robin ter-encode tanpa kunci groupKnockout (byte-sama 3.7.x); entri tanpa kunci terbaca', () {
@@ -100,7 +126,12 @@ void main() {
       'mode bukan fixed': {...withKnockout(knockout()), 'mode': 'mixed'},
       'groupKnockout null': withKnockout(null),
       'groupKnockout bukan map': withKnockout('x'),
-      'groupCount 3': withKnockout(knockout(groups: 3)),
+      'groupCount 5': withKnockout(knockout(groups: 5)),
+      'groupCount 1': withKnockout(knockout(groups: 1)),
+      'PF di 2 grup (groupCount 2 dengan PF)': withKnockout(
+        knockout(formats: {'PF': raceTo6, 'SF': raceTo6, 'J3': raceTo6, 'F': raceTo6}),
+      ),
+      'PF hilang di 3 grup': withKnockout(knockout(groups: 3, formats: {'SF': raceTo6, 'J3': raceTo6, 'F': raceTo6})),
       'groupCount string': withKnockout({...knockout(), 'groupCount': '2'}),
       'PF di 2 grup': withKnockout(knockout(formats: {'PF': raceTo6, 'SF': raceTo6, 'J3': raceTo6, 'F': raceTo6})),
       'PF hilang di 4 grup': withKnockout(knockout(groups: 4, formats: {'SF': raceTo6, 'J3': raceTo6, 'F': raceTo6})),
