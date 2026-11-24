@@ -74,14 +74,16 @@ GP-13 (1bd24a5) di-merge ke `grup-playoff-3-10` (7db7937). Catatan untuk task be
 - GP-2: komentar "PF2"/"PF1–2" di `knockout_bracket.dart:102,336` → "QF"; `roundTab` babak penuh masih "Semifinal" sampai
   `tabLabel` dipakai.
 - GP-7: `sparing_kelola_pemain_test` 15z3 masih batas 30 (gagal sampai GP-7).
-- PRD 16.4 (PATCH teks, PM): "B dan C habis di R30" → "B habis R29, C habis R30" (GU4; total 35 round tetap); baris
-  30/3 dan 32/3 "PF" → "QF" (keputusan 152). Kode sudah benar.
+- PRD 16.4 redaksi diperbaiki (keputusan 160, 2026-11-24). Kode sudah benar.
 - Run penuh setelah merge gelombang 1 (5280ced, GP-6 di-merge): 2109 test, 24 gagal vs base 51; gagal baru hanya 4 dan
   semuanya milik task berikut: 15z3 batas 30 (GP-7); golden 19i 4 grup 24 pemain, AC-G1 segmented 6+ pasangan, GG-0
   pengaturan terakhir 4 grup di 24 pemain (GP-8, akibat `groupCountsFor` baru — ganti sesuai AC-G21, jangan dilonggarkan).
 - GP-6: 13o bertentangan dengan catatannya (isi muat, frame masih rata bawah + app bar `scrolled`) dan contoh 09m
-  "Indra W · Joko S" ternyata utuh di 14 pt — menunggu host. `PairNameFit` ada di `lib/services/layout/`.
-- GP-13: toast `start()` kena 413 masih "Tidak ada internet · live belum dimulai" — menunggu teks dari host.
+  "Indra W · Joko S" ternyata utuh di 14 pt — dijawab host (keputusan 158–159, D-2). `PairNameFit` ada di `lib/services/layout/`.
+- GP-13b (keputusan 157, engineer · sonnet/low, setelah frame D-2): `start()` kena 413 → toast "Data terlalu besar · live
+  belum dimulai"; bedakan hasil `start()` (413 vs tanpa internet) di `live_score.dart:41`; golden frame baru.
+- D-2 (ui-ux-designer, 2026-11-24): 13o tabel di atas tanpa `scrolled` (keputusan 158), contoh nama 09m (159), frame toast
+  413 di samping 12g (157); render + publish artifact.
 
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 

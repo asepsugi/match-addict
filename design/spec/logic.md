@@ -2547,7 +2547,7 @@ dan 16.4 dicek tech-lead 2026-11-23 dengan hitung tangan terhadap aturan di bawa
 | AC-G21a 23a 32 pemain 4 grup 2 court 3 jam | A [C1], B [C2], C [C1], D [C2] | 12 | 16 | 32 | "· 16 round · lewat booking 01:00" |
 | AC-G21a 32/4 grup 1 court | semua C1 | 24 | 32 | 32 | |
 | AC-G21a 32/4 grup 4 court | satu grup satu court | 6 | 9 | 32 | |
-| 16.4 32/3 grup 1 court [6, 5, 5] | semua C1 | 35 (B, C habis R30) | 43 | 43 | |
+| 16.4 32/3 grup 1 court [6, 5, 5] | semua C1 | 35 (B habis R29, C R30) | 43 | 43 | |
 | AC-G21a 32/2 grup 1 court [8, 8] | semua C1 | 56 | 60 | 60 | |
 | 16.4 30/3 grup 1 court [5, 5, 5] | semua C1 | 30 | 38 | 38 | |
 

@@ -16,7 +16,7 @@ dan kata "mabar" sebagai istilah (main bareng) di teks maupun contoh nama turnam
   (keputusan 93–103, 2026-11-17), hi-fi 19a–22r; §17 Kosongkan skor / Hapus WO + perilaku kecil (keputusan 113–121,
   2026-11-18; keputusan 127–128 2026-11-20; task KS-n di `docs/tasks.md`); §18 Point % (keputusan 122–126, 129,
   2026-11-20; hi-fi belum, task RP-n); keputusan 133–134 (2026-11-23, PATCH 3.9.1); 3.10.0 Group - Playoff fleksibel + batas 32 (keputusan
-  135–156, 2026-11-23), hi-fi 23a–23w + bagan 21* baru.
+  135–160, 2026-11-23…24), hi-fi 23a–23w + bagan 21* baru.
 - `design/hifi.html` — **hi-fi v2 final** (disetujui host 2026-10-21): Fondasi, Komponen, ±400 frame layar 390×844 dan
   lembar gambar (per 2026-11-23) + catatan perilaku, Cakupan. Acuan visual dan perilaku untuk semua pekerjaan UI. File ±2,9 MB (per
   2026-11-23; lantai poster dihasilkan `tool/hifi_court_floor.py`): **jangan dibaca utuh**; baca frame dengan `tool/hifi_frame.py <id>…` (markup + catatan + CSS yang mengenainya).

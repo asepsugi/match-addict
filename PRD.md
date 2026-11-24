@@ -1145,6 +1145,15 @@ Pertanyaan terbuka:
      lagi diperlakukan sebagai "Menunggu internet": tanpa coba ulang berkala, kirim lagi hanya saat turnamen berubah,
      tanpa teks UI baru (teks khusus hanya lewat hi-fi kalau host minta). Batas relay (`MAX_BYTES` 256 KB) tidak
      dinaikkan di 3.10.0.
+157. **Toast live gagal mulai karena data terlalu besar** (2026-11-24, host: "setuju", mengubah bagian teks keputusan
+     156): `start()` yang dijawab 413 menampilkan "Data terlalu besar · live belum dimulai" (pola toast 12g, tanpa
+     tombol aksi), bukan "Tidak ada internet · live belum dimulai". Frame hi-fi baru di samping 12g; task GP-13b.
+158. **Frame 13o: tabel di atas, tanpa keadaan digulir** (2026-11-24, host: "setuju"): dengan nama pasangan satu baris
+     (keputusan 148) isi 13o muat satu layar dan tidak bisa digulir, jadi frame digambar dari atas dengan app bar biasa.
+159. **Contoh 09m diganti nama yang benar-benar terpotong** (2026-11-24, host: "setuju"): "Indra W · Joko S" utuh di 14 pt
+     (103,7 dari 108 px); contoh di catatan 09m dan logic.md §21.11 memakai nama yang lebih panjang. Aturan tetap.
+160. **Redaksi tabel 16.4** (2026-11-24, host: "setuju"): 32 pemain 3 grup 1 court = B selesai R29, C R30, A sendiri
+     R31–R35 (GU4, kode sudah benar); sisa "PF" di tabel → "QF" (keputusan 152). Perilaku tidak berubah.
 ---
 
 ## 11. Jawaban User (Dasar Keputusan)
@@ -2414,11 +2423,11 @@ Sejak 3.10.0 (G2: minimal 4 pasangan per grup, 2–4 grup, batas 32 pemain, kepu
 | 24 pemain, 3 grup | 4 + 4 + 4, 2 wildcard → Perempat final (16G) |
 | 26 pemain, 3 grup | 5 + 4 + 4; kandidat wildcard A3 main 4 match, B3/C3 3 match → dibandingkan nilai metode Playoff lalu selisih per match (G14) |
 | 30 pemain, 2 grup, 1 court | A 28 + B 21 match bergantian → B habis di R42, A lanjut R43–R49; R50–R51 SF, R52 Perebutan juara 3, R53 Final |
-| 30 pemain, 3 grup, 1 court | 5 + 5 + 5 → 10 + 10 + 10 = 30 round grup (A, B, C bergantian); R31–R34 PF, R35–R36 SF, R37 Perebutan juara 3, R38 Final → 38 round |
+| 30 pemain, 3 grup, 1 court | 5 + 5 + 5 → 10 + 10 + 10 = 30 round grup (A, B, C bergantian); R31–R34 Perempat final (QF1–QF4), R35–R36 SF, R37 Perebutan juara 3, R38 Final → 38 round |
 | 30 pemain, 4 grup | Tidak tersedia (15 pasangan; 4 grup hanya tepat 16, keputusan 142) |
 | 32 pemain, 2 grup, 1 court | 8 + 8 → 28 + 28 = 56 round grup (A, B bergantian); R57–R58 SF, R59 Perebutan juara 3, R60 Final → **60 round** (terpanjang, §8) |
-| 32 pemain, 3 grup, 1 court | 6 + 5 + 5 → 15 + 10 + 10 = 35 round grup (A, B, C bergantian; B dan C habis di R30, A lanjut R31–R35); R36–R39 PF, R40–R41 SF, R42 Perebutan juara 3, R43 Final → 43 round. Kandidat wildcard A3 main 5 match, B3/C3 4 match → selisih per match (G14) |
-| 32 pemain, 4 grup, 1 court | 4 × 4 → 6 + 6 + 6 + 6 = 24 round grup; R25–R28 PF, R29–R30 SF, R31 Perebutan juara 3, R32 Final → 32 round |
+| 32 pemain, 3 grup, 1 court | 6 + 5 + 5 → 15 + 10 + 10 = 35 round grup (A, B, C bergantian; B selesai di R29, C di R30, A main sendiri R31–R35); R36–R39 Perempat final (QF1–QF4), R40–R41 SF, R42 Perebutan juara 3, R43 Final → 43 round. Kandidat wildcard A3 main 5 match, B3/C3 4 match → selisih per match (G14) |
+| 32 pemain, 4 grup, 1 court | 4 × 4 → 6 + 6 + 6 + 6 = 24 round grup; R25–R28 Perempat final (QF1–QF4), R29–R30 SF, R31 Perebutan juara 3, R32 Final → 32 round |
 | 32 pemain, 4 grup, 2 court (Padel 15 menit, 2 court × 3 jam) | A → Court 1, B → Court 2, C → Court 1 (6 vs 6, seri → court terkecil), D → Court 2; Court 1 A/C dan Court 2 B/D bergantian R1–R12; R13 QF1 (A1–B2) + QF2 (C1–D2), R14 QF3 (B1–A2) + QF4 (D1–C2), R15 SF1 + SF2, R16 Final (Court 1) + Perebutan juara 3 (Court 2) → 16 round = 240 menit, "lewat booking 01:00". Bagan G9, tanpa wildcard |
 | 32 pemain, 4 grup, 4 court | Satu grup satu court, R1–R6; R7 QF1–QF4 (Court 1–4), R8 SF1 + SF2, R9 Final + Perebutan juara 3 → 9 round |
 | Host menempatkan 5 + 3 (8 pasangan, 2 grup) | Buat jadwal mati: grup < 4 pasangan dan selisih > 1 |
