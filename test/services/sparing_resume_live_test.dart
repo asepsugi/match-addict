@@ -57,7 +57,7 @@ void main() {
       var c = open();
       final r3 = sparingR3();
       c.read(tournamentProvider.notifier).state = r3;
-      expect(await c.read(liveHostProvider.notifier).start(), isTrue);
+      expect(await c.read(liveHostProvider.notifier).start(), LiveStartResult.started);
       await settle();
       final before = c.read(tournamentProvider)!;
       final scoreBefore = c.read(clubScoreProvider)!;

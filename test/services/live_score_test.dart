@@ -151,7 +151,7 @@ void main() {
 
     test('mulai: turnamen terkirim, kode tersimpan di device', () async {
       expect(live(), isNull);
-      expect(await container.read(liveHostProvider.notifier).start(), isTrue);
+      expect(await container.read(liveHostProvider.notifier).start(), equals(LiveStartResult.started));
       expect(live()!.code, 'K7Q2MX');
       expect(live()!.link, 'https://asepsugi.github.io/match-addict/#/live/K7Q2MX');
       expect(live()!.sentAt, now);
@@ -208,14 +208,14 @@ void main() {
 
     test('keputusan 156 / security #5: mulai kena 413 gagal, live tidak menyala', () async {
       fake.tooLarge = true;
-      expect(await container.read(liveHostProvider.notifier).start(), isFalse);
+      expect(await container.read(liveHostProvider.notifier).start(), equals(LiveStartResult.tooLarge));
       expect(live(), isNull);
       expect(store.loadLive(), isNull);
     });
 
     test('mulai gagal tanpa internet: live tidak menyala', () async {
       fake.offline = true;
-      expect(await container.read(liveHostProvider.notifier).start(), isFalse);
+      expect(await container.read(liveHostProvider.notifier).start(), equals(LiveStartResult.failed));
       expect(live(), isNull);
       expect(store.loadLive(), isNull);
     });

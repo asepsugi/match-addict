@@ -23,6 +23,10 @@ class LiveHost {
   String get link => LiveRelay.link(code);
 }
 
+/// Hasil [LiveHostController.start]: gagal karena data melewati batas relay (toast 12s) dibedakan dari gagal lain
+/// (tidak ada internet, toast 12g).
+enum LiveStartResult { started, tooLarge, failed }
+
 /// Mengirim turnamen aktif ke relay setiap kali berubah, selama live-nya menyala. Null = turnamen aktif
 /// tidak sedang live. Harus hidup sepanjang app (didengar `MabarApp`), bukan hanya selama layar Jadwal
 /// terbuka: skor juga diisi dari Input Skor, dan resume dari Beranda harus langsung mengirim lagi.
@@ -86,10 +90,11 @@ class LiveHostController extends Notifier<LiveHost?> {
     unawaited(ref.read(tournamentStoreProvider).saveLive(session));
   }
 
-  /// Mulai live untuk turnamen aktif (dialog 12b). False = gagal (tidak ada internet, relay menolak).
-  Future<bool> start() async {
+  /// Mulai live untuk turnamen aktif (dialog 12b). [LiveStartResult.tooLarge] = relay menjawab 413 (keputusan 157,
+  /// tanpa coba ulang); [LiveStartResult.failed] = tidak ada internet atau relay menolak karena hal lain.
+  Future<LiveStartResult> start() async {
     final active = ref.read(tournamentProvider);
-    if (active == null) return false;
+    if (active == null) return LiveStartResult.failed;
     try {
       final created = await _relay.create(TournamentCodec.encode(active));
       _setSession(
@@ -100,14 +105,16 @@ class LiveHostController extends Notifier<LiveHost?> {
           sentAt: ref.read(clockProvider)(),
         ),
       );
+    } on LiveRelayException catch (e) {
+      return e.status == 413 ? LiveStartResult.tooLarge : LiveStartResult.failed;
     } catch (_) {
-      return false;
+      return LiveStartResult.failed;
     }
-    if (_disposed) return true;
+    if (_disposed) return LiveStartResult.started;
     state = _view();
     // Skor yang masuk selama permintaan berjalan.
     if (!identical(active, ref.read(tournamentProvider))) unawaited(_send());
-    return true;
+    return LiveStartResult.started;
   }
 
   /// Hentikan live (dialog 12e): data di relay dihapus saat itu juga. False = tidak ada internet; live tetap

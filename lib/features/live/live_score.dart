@@ -26,7 +26,7 @@ MabarMenuItem<T> liveScoreMenuItem<T>(WidgetRef ref, T value) => MabarMenuItem(
   live: ref.read(liveHostProvider) != null,
 );
 
-/// Dari menu ⋯: belum live → dialog mulai (12b), gagal → toast (12g); sudah live → langsung sheet (12c).
+/// Dari menu ⋯: belum live → dialog mulai (12b), gagal → toast (12g, 12s); sudah live → langsung sheet (12c).
 Future<void> openLiveScore(BuildContext context, WidgetRef ref) async {
   if (ref.read(liveHostProvider) == null) {
     final ok = await showMabarConfirm(
@@ -36,9 +36,15 @@ Future<void> openLiveScore(BuildContext context, WidgetRef ref) async {
       confirmLabel: 'Mulai',
     );
     if (!ok || !context.mounted) return;
-    if (!await ref.read(liveHostProvider.notifier).start()) {
+    final result = await ref.read(liveHostProvider.notifier).start();
+    if (result != LiveStartResult.started) {
       if (context.mounted) {
-        showMabarToast(context, 'Tidak ada internet · live belum dimulai', icon: MabarIcons.wifiSlash);
+        // 12s: relay menolak karena data terlalu besar, bukan karena internet.
+        if (result == LiveStartResult.tooLarge) {
+          showMabarToast(context, 'Data terlalu besar · live belum dimulai', icon: MabarIcons.info);
+        } else {
+          showMabarToast(context, 'Tidak ada internet · live belum dimulai', icon: MabarIcons.wifiSlash);
+        }
       }
       return;
     }
