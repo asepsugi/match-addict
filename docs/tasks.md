@@ -86,6 +86,25 @@ GP-13 (1bd24a5) di-merge ke `grup-playoff-3-10` (7db7937). Catatan untuk task be
   digulir" dibuang) dan 09m (data 'Indra W'/'Joko S' → 'Wicaksono Adi'/'Setiawati Putri', peringkat_test.dart:71,153)
   diperbarui di GP-13b atau task gelombang 2 pertama yang menyentuh test/hifi.
 
+**Gelombang 2 (2026-11-24):** GP-2 (9deab53, review tech-lead Approve), GP-3 (23a5f50, Approve), GP-7 + GP-13b + golden
+13o/09m (diperiksa main session) di-merge ke `grup-playoff-3-10` (c5d136b). Run penuh: 2205 lolos, 26 gagal, semuanya
+milik task berikut: 21a/d/j/p/r/t/u/w/x/y (GP-9); 22i, 22j, 22l ×2, 22p, 22r, AC-G18 (GP-11; label "Juara 1/2" dari GP-3);
+19c, 19d, 19e, 19i, 19j, 19x, AC-G1, GG-0 (GP-8); flow 16A label "Juara 1" (GP-5). Catatan untuk task berikutnya:
+- GP-4: GR19 wajib memanggil `KnockoutBracket.threeGroupQuarterfinals` (W2, jangan salin aturan tukar); decoder masih
+  menolak QF untuk `groupCount != 4` (`tournament_codec.dart:237`); `groupOf` lokal di `threeGroupQuarterfinals` boleh
+  dijadikan helper bersama bila GP-4 butuh.
+- GP-5: `createBracket` 3 grup sementara mengembalikan false (GP-2) — sambungkan `seedingPlan` → `Seeding` → `build`;
+  `withPicks` 3 grup kini 3 id per grup. Test flow 16A ganti ke "Juara 1"/"Juara 2".
+- GP-9: `firstOpenColumn` bisa `thirdPlace` (juga saat Final belum ada hasil) → petakan ke kolom Final (21t); `flowIndex`
+  `side` 1|2 (assert).
+- GP-10: `gk_labels.gkBracketPreview` masih menganggap QF hanya di 4 grup.
+- GP-11: `standing_table.dart:334` menebalkan teks persis 'Juara' → "Juara 1" tidak tebal lagi (23k); nama test
+  `grup_gugur_klasemen_test.dart:116` masih menyebut `seedOf`.
+- Kandidat PATCH di luar 3.10.0: `start()` live yang kena `UnreadableTournamentError` jatuh ke toast "Tidak ada internet".
+- Tech-lead: `logic.md` §21.5 baris "Seri di posisi 3 saja → huruf grup" tidak mungkin terjadi; `docs/architecture.md`
+  catat `playoff_seeding.dart` (GP-12).
+- Berikutnya gelombang 3: GP-4 ‖ GP-8 ‖ A15-2.
+
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
 **GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari
