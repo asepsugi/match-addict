@@ -368,7 +368,8 @@ class KnockoutBracket {
   }
 
   /// Kolom geser awal bagan (21j, 23v, 23w): babak pertama (urut main) yang punya match tanpa hasil (belum ada bagan =
-  /// tanpa hasil); semua terisi → babak terakhir.
+  /// tanpa hasil); semua terisi → babak terakhir. Bisa [KnockoutRound.thirdPlace] (urut main sebelum Final, juga saat
+  /// Final belum ada hasil): bagan tidak punya kolom Juara 3, pemanggil memetakannya ke kolom Final (21t).
   static KnockoutRound firstOpenColumn(ActiveTournament active) {
     final gk = active.config.groupKnockout;
     if (gk == null) return KnockoutRound.finalRound;
@@ -387,6 +388,7 @@ class KnockoutBracket {
   /// [phase], atau null (abu). Match babak pertama → indeksnya sendiri; sisi dari match babak pertama → indeks match itu
   /// (juga sebelum ada pemenang, 23s); sisi dari match lanjutan → indeks asal pemenangnya kalau sudah ada; Juara 3 null.
   static int? flowIndex(ActiveTournament active, KnockoutPhase phase, int side) {
+    assert(side == 1 || side == 2);
     final gk = active.config.groupKnockout;
     if (gk == null || phase.round == KnockoutRound.thirdPlace) return null;
     final first = _firstRound(gk.groupCount);
