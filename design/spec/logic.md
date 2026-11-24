@@ -2767,7 +2767,7 @@ Satu helper murni + satu widget, dipakai poster **dan** Klasemen (jangan dua sal
   terlebar jadi kolom nilai (sudah `stageRows`; "Juara 1" mengganti "Juara").
 - Data (golden + unit `split`): 11s Story ×0,82 (nama 12,3), kolom nama 176, jatah 84 → #1 "Antonia Ban… · Christiano
   R…", #5 "Iga · Sagittalia Permatasari" utuh; 11s Feed semua utuh di ×1 (kolom 238). 09m: ukuran 14, "Iga · Sagittal…",
-  "Citra … · Dewi", "Ant… · Chri…", "Indr… · Jok…". Unit `split`: (40, 120, 10, 100) → (40, 50); (80, 90, 10, 100) →
+  "Citra … · Dewi", "Ant… · Chri…", "Wica… · Setia…" (09m #5, keputusan 159). Unit `split`: (40, 120, 10, 100) → (40, 50); (80, 90, 10, 100) →
   (45, 45); (30, 40, 10, 100) → (30, 40).
 
 ### 21.12 Jebakan untuk engineer dan reviewer
