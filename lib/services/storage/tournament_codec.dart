@@ -180,8 +180,8 @@ class TournamentCodec {
     final pairs = config.fixedPairs;
     if (pairs == null || pairs.isEmpty) return false;
     final groupCount = gk.groups.length;
-    // decodableGroupCounts, bukan groupCountsFor (data lama 2 × 3 / 4 × 3). 3 grup baru sah setelah GP-4 (GR18–GR19).
-    if (gk.groupCount != groupCount || groupCount == 3) return false;
+    // decodableGroupCounts, bukan groupCountsFor (data lama 2 × 3 / 4 × 3); P > 16 → [] (security W4).
+    if (gk.groupCount != groupCount) return false;
     if (!GroupStage.decodableGroupCounts(pairs.length).contains(groupCount)) return false;
     // GR9
     final playerIds = {for (final p in config.players) p.id};
@@ -204,7 +204,7 @@ class TournamentCodec {
       KnockoutRound.semifinal,
       KnockoutRound.thirdPlace,
       KnockoutRound.finalRound,
-      if (groupCount == 4) KnockoutRound.quarterfinal,
+      if (groupCount >= 3) KnockoutRound.quarterfinal,
     };
     if (gk.formats.length != wanted.length || !wanted.every(gk.formats.containsKey)) return false;
     if (gk.formats.values.any((f) => !f.isValidKnockout)) return false;
@@ -229,7 +229,7 @@ class TournamentCodec {
           if (!(met[group] ??= {}).add(key)) return false;
           if (m.roundNumber > lastGroupRound) lastGroupRound = m.roundNumber;
         case final KnockoutPhase p:
-          if (p.round == KnockoutRound.quarterfinal && groupCount != 4) return false;
+          if (p.round == KnockoutRound.quarterfinal && groupCount < 3) return false;
           // GR12: kode ganda
           if (knockout.containsKey(p)) return false;
           knockout[p] = m;
@@ -240,6 +240,10 @@ class TournamentCodec {
     if (knockout.isNotEmpty && (knockout.length != expected.length || !expected.every(knockout.containsKey))) {
       return false;
     }
+    // GR18, GR19: sebelum `sources`/`isResolved`/`resolve` (security W1).
+    final hasThreeGroupBracket = groupCount == 3 && knockout.isNotEmpty;
+    if (hasThreeGroupBracket ? gk.wildcards.length != 2 : gk.wildcards.isNotEmpty) return false;
+    if (hasThreeGroupBracket && !_isValidThreeGroupBracket(gk, knockout)) return false;
     for (final MapEntry(key: phase, value: m) in knockout.entries) {
       // GR13
       if (m.roundNumber <= lastGroupRound) return false;
@@ -262,6 +266,31 @@ class TournamentCodec {
       if (slot1 != null && slot1 == slot2) return false;
     }
     return KnockoutBracket.isResolved(config, matches);
+  }
+
+  /// GR19: J1–J3 dan runner-up dibaca dari QF1–QF4 (`pair1` QF1/QF3/QF4, `QF4.pair2`, `QF2`), WC dari `gk.wildcards`,
+  /// lalu QF1–QF4 dibandingkan persis dengan [KnockoutBracket.threeGroupQuarterfinals] yang juga dipakai `build`
+  /// (satu sumber aturan tukar, security W2). Segrup/id ganda/WC salah ditolak fungsi itu (null).
+  static bool _isValidThreeGroupBracket(GroupKnockout gk, Map<KnockoutPhase, MatchGame> knockout) {
+    final qf = [for (var s = 1; s <= 4; s++) knockout[KnockoutPhase(KnockoutRound.quarterfinal, s)]];
+    if (qf.any((m) => m == null || m.pair1.isTbd || m.pair2.isTbd)) return false;
+    final champions = [qf[0]!.pair1.id, qf[2]!.pair1.id, qf[3]!.pair1.id];
+    final runnersUp = [qf[3]!.pair2.id, qf[1]!.pair1.id, qf[1]!.pair2.id];
+    final groupOfChampion = [for (final id in champions) gk.groupOfPair(id)];
+    if (groupOfChampion.contains(null) || {...groupOfChampion}.length != 3) return false;
+    final slots = <List<String>>[for (var g = 0; g < 3; g++) const []];
+    for (final (i, g) in groupOfChampion.indexed) {
+      slots[g!] = [champions[i], runnersUp[i]];
+    }
+    final expected = KnockoutBracket.threeGroupQuarterfinals(
+      Seeding(groupSlots: slots, champions: [for (final g in groupOfChampion) g!], wildcards: gk.wildcards),
+      gk.groups,
+    );
+    if (expected == null) return false;
+    for (var i = 0; i < 4; i++) {
+      if (qf[i]!.pair1.id != expected[i].$1 || qf[i]!.pair2.id != expected[i].$2) return false;
+    }
+    return true;
   }
 
   /// Id pasangan di slot lolos [slot] grup [group] dari match babak pertama; null kalau belum ada.
@@ -331,6 +360,8 @@ class TournamentCodec {
         if (gk.formats[r] case final f?) _formatKeys[r]!: {'scoring': f.method.name, 'target': f.target},
     },
     'thirdPlace': gk.thirdPlace,
+    // 3 grup setelah Buat bagan saja (GR18): urutan WC1/WC2 tidak bisa dipulihkan dari match.
+    if (gk.wildcards.isNotEmpty) 'wildcards': gk.wildcards,
   };
 
   static Map<String, dynamic> _pair(Pair p) => {'id': p.id, 'player1Id': p.player1Id, 'player2Id': p.player2Id};
@@ -412,7 +443,15 @@ class TournamentCodec {
       groups: groups,
       formats: formats,
       thirdPlace: j['thirdPlace'] as bool,
+      wildcards: j.containsKey('wildcards') ? _readWildcards(j['wildcards']) : const [],
     );
+  }
+
+  /// GR4: tepat dua String; `[]`, satu/tiga id, atau bukan list melempar (decode null).
+  static List<String> _readWildcards(Object? raw) {
+    final ids = [for (final id in raw as List) id as String];
+    if (ids.length != 2) throw const FormatException('wildcards');
+    return ids;
   }
 
   /// Hanya kode yang ditulis [MatchPhase.code]; selain itu melempar (payload rusak).
