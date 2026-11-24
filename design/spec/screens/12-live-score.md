@@ -75,6 +75,15 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Satu-satunya saat live butuh internet di HP host. Setelah menyala, sinyal putus hanya menunda kiriman (12d).
 - Toast 19 pt di atas action bar, sama dengan toast Bagikan (11c, 11n).
 
+## 12s · Toast · gagal mulai · data terlalu besar
+
+![12s](../../frames/12s.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`, `MabarToast`
+
+- Muncul saat Mulai live dijawab relay 413 (keputusan 157). Status live tidak berubah.
+- Pola toast 12g, tanpa tombol aksi; layar di belakang = 12g.
+
 ## 12h · Live · Jadwal Mixed · bernama
 
 ![12h](../../frames/12h.png)
