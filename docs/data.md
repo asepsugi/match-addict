@@ -549,23 +549,24 @@ sampai ke pembaca 3.9.x (hanya ada di 3 grup, sudah ditolak lebih dulu).
 
 ### Ukuran payload live (AC-B9)
 
-Terukur 2026-11-23 (test sementara, dihapus): id UUID, semua match berskor, `utf8.encode(encode(active)).length`; ±540 B per
-match, ±1 KB per round untuk daftar istirahat Mixed.
+Terukur 2026-11-24 (`test/services/live_payload_size_test.dart`, GP-4; angka dari review tech-lead): id UUID, semua match
+berskor, `utf8.encode(encode(active)).length`; ±610 B per match, Mixed 8 court ±4,9 KB per round.
 
 | Kasus (32 pemain) | Match | Ukuran |
 |---|---|---|
-| Group - Playoff 2 grup × 8 + bagan | 60 | 37 KB |
-| Group - Playoff 3 grup [6, 5, 5] + bagan / 4 × 4 + bagan | 43 / 32 | < 30 KB (di bawah 2 × 8; ditaksir dari per-match, `wildcards` +±100 B) |
-| Fixed 16 pasangan round-robin, 2 court | 120 | 69 KB |
-| Mixed 32/8 court, 16 round | 128 | 71 KB |
-| Mixed 32/1 court, 30 round + istirahat 28 id/round | 30 | 52 KB |
-| Fixed 16 pasangan + 1 / 2 putaran tambahan | 240 / 360 | 133 / 197 KB |
-| Mixed 32/8 court, 50 round | 400 | 216 KB |
+| Group - Playoff 2 grup × 8 + bagan | 60 | 60 KB |
+| Group - Playoff 3 grup [6, 5, 5] + bagan / 4 × 4 + bagan | 43 / 32 | 47 / 38 KB |
+| Fixed 16 pasangan round-robin, 2 court | 120 | 81 KB |
+| Mixed 32/8 court, 16 round | 128 | 82 KB |
+| Mixed 32/1 court, 30 round + istirahat 28 id/round | 30 | 57 KB |
+| Fixed 16 pasangan + 1 / 2 putaran tambahan | 240 / 360 | 155 / 230 KB |
+| Mixed 32/8 court, 50 round | 400 | 248 KB |
 
-Batas relay `MAX_BYTES` = 256 KB (`relay/src/index.js:14`; relay tidak berubah) ≈ 470 match. Kasus dasar semua di bawah 128 KB
-(separuh batas, margin untuk id/nama lebih panjang). Di atas 128 KB: Fixed 16 pasangan dengan ≥ 1 putaran tambahan (Tambah round
-tidak berbatas) dan Mixed 32 pemain > ±55 round; di atas 256 KB (≈ 3 putaran tambahan, 480 match) `push` dijawab 413, ditangkap
-`LiveHostController._send` (`LiveRelayException` → `_scheduleRetry`, gagal terus: penonton berhenti melihat pembaruan, turnamen lokal tidak terganggu). Risiko yang sudah ada untuk ≤ 30 pemain dengan skala
+Batas relay `MAX_BYTES` = 256 KB (`relay/src/index.js:14`; relay tidak berubah). Kasus dasar semua di bawah 128 KB (separuh batas,
+margin untuk id/nama lebih panjang). Di atas 128 KB: Fixed 16 pasangan dengan ≥ 1 putaran tambahan (Tambah round tidak berbatas) dan
+Mixed 32/8 court > ±26 round; di atas 256 KB (Fixed ≥ 3 putaran tambahan ±305 KB, Mixed 32/8 court > ±52 round) `push` dijawab 413,
+ditangkap `LiveHostController._send` tanpa coba ulang (GP-13, keputusan 156; `start()` → toast 12s "Data terlalu besar · live belum
+dimulai", GP-13b): penonton berhenti melihat pembaruan, turnamen lokal tidak terganggu. Risiko yang sudah ada untuk ≤ 30 pemain dengan skala
 lebih kecil; tidak diperbaiki di 3.10.0 (lihat laporan: usulan menaikkan `MAX_BYTES` setelah memeriksa batas penyimpanan Durable
 Object, belum diverifikasi di sini). Komentar "30 pemain" di `relay/src/index.js:14` boleh diperbarui tanpa deploy.
 
@@ -581,14 +582,17 @@ Object, belum diverifikasi di sini). Komentar "30 pemain" di `relay/src/index.js
   keduanya, 3 grup dengan juara 3 mati, di tengah gugur dan setelah diakhiri; `encode(decode(x)) == x`. Ditolak: di 2 grup, di 4
   grup, `[]`, 3 grup dengan bagan tanpa kunci, 3 grup tanpa bagan dengan kunci, satu id, tiga id, id sama, id bukan anggota grup,
   dua WC satu grup, bertipe salah.
-- **GR19** satu test ditolak per kalimat aturan (J dari grup sama, R(J) tak segrup, id ganda di QF1–QF4, urutan WC tak cocok aturan
-  tukar dalam kedua arah, QF segrup, sisi `null`).
+- **GR19** satu test ditolak per kalimat aturan (J dari grup sama, R(J) tak segrup, id ganda di QF1–QF4, QF1/QF3.pair2 tertukar,
+  QF segrup, sisi `null`). `wildcards` terbalik dengan QF yang sama diterima: bagan hanya ditentukan himpunan WC, urutan hanya
+  mengubah label WC1/WC2 (keadaan, bukan bentuk; review GP-4 2026-11-24).
 - Ubah format babak/juara 3 3 grup (G16) mempertahankan `wildcards` (21.12 #1); AC-G28 lewat decode ulang.
 - **AC-B8 lintas versi**: salinan aturan decoder 3.9.1 di test (`groupCountsFor` lama = `< 6 → [], < 12 → [2], [2, 4]`, `_readPhase`
   lama) membaca payload 3.10.0: 3 grup → null; 2 × 8 dan 4 × 4 (16 pasangan) → terbaca; Mixed/round-robin 32 pemain → terbaca;
   `last_settings` `groupCount: 3` → null di aturan lama (`count != 2 && count != 4`). Sekali sebelum merge, jalankan juga decoder asli:
   `git archive 5d2c06e` ke folder sementara di dalam proyek, `flutter test` memanggil `TournamentCodec.decode` dengan fixture 3.10.0
-  (pola "Penanda GU15"), lalu hapus folder.
+  (pola "Penanda GU15"), lalu hapus folder. **Dijalankan 2026-11-24 (review GP-4):** 3 grup → null tanpa melempar; 2 × 8, 4 × 4,
+  2 grup 15 pasangan, Mixed/round-robin 32 → terbaca dan ter-encode byte-sama; `last_settings` 3 grup → dibuang. Arah sebaliknya:
+  simpanan encoder 3.9.1 asli (2 × 3, 4 × 3 sebelum bagan dan di tengah gugur) terbaca 3.10.0, byte-sama selain `appVersion`.
 - `last_settings`: `groupCount: 3` round trip; `PF` wajib iff ≥ 3; `groupCount: 5` / `PF` di 2 grup → null; entri 3.9.x byte-sama;
   `fallbackGroupCount` dipakai (3 grup 24 → 20 pemain = 2, 4 grup 32 → 22 = 2, daftar kosong → round-robin).
 - **AC-B9 ukuran**: encode tiap baris tabel ukuran kasus dasar `< 128 * 1024`; Fixed 16 pasangan + 2 putaran tambahan dan Mixed 32/8 court 50

@@ -51,7 +51,7 @@ tetap berlaku. Verdict: aman dirilis dengan syarat W2. Yang wajib dijaga di kode
 | W4 | Jumlah pasangan dari payload | `decodableGroupCounts(P)` = [] untuk P > 16 (tidak ada penulis yang pernah melewatinya), test P = 17 ditolak; jumlah match gugur tetap ≤ 8 (GR12) |
 | W5 | Penonton/host app ≤ 3.9.x | 3 grup ditolak lewat GR5 (null, "Live tidak bisa dibuka"); 2×8 dan 4×4 (16 pasangan) tampil benar dengan label lama: diterima. Kode simpanan tetap `PF*`, `bye.gg` tetap "1" |
 | W6 | `LastSettings` `groupCount: 3` | 3.10.0: `PF` iff ≥ 3, ≤ 16 KB; 3.9.x membuang entri utuh (default), tanpa crash |
-| W7 | Payload live > `MAX_BYTES` (256 KB, `relay/src/index.js:14`) | Kasus dasar 32 pemain < 128 KB (AC-B9). Di atasnya (Fixed 16 pasangan ≥ 3 putaran tambahan, Mixed 32/8 court > ±59 round) relay menjawab 413: live berhenti diperbarui, turnamen lokal aman. Lihat #5 |
+| W7 | Payload live > `MAX_BYTES` (256 KB, `relay/src/index.js:14`) | Kasus dasar 32 pemain < 128 KB (AC-B9). Di atasnya (Fixed 16 pasangan ≥ 3 putaran tambahan, Mixed 32/8 court > ±52 round; 50 round = 248 KB terukur) relay menjawab 413: live berhenti diperbarui, turnamen lokal aman. Lihat #5 |
 
 Catatan untuk review GP-4: cabang G = 3 wajib mewajibkan sisi QF tidak null sendiri (sekarang hanya kalau
 `s1 is SeedSource`, `tournament_codec.dart:249`); `groupCount != 4` (`:230`) → `< 3`; cek `_seedPair` slot1 == slot2
