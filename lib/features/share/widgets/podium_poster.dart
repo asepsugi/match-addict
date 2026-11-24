@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/mabar_theme.dart';
 import '../../../core/widgets/mabar_ball.dart';
+import '../../../core/widgets/pair_name.dart';
 import '../../../models/models.dart';
 import '../../../services/share/court_floor.dart';
 import '../podium_theme.dart';
@@ -40,8 +41,8 @@ class PodiumBlockData {
 }
 
 /// Satu baris panel. [badge] = nomor/skor ("1", "6½"); [hash] = tulis "#" di depannya (tidak untuk Sparing);
-/// [names] satu atau dua nama (dua = `.who2` bertumpuk); [value] nilai metode ("80"); [detail] keterangan kecil
-/// sesudahnya, sudah lengkap ("poin · +34", "· +19", "game · −4").
+/// [names] satu atau dua nama (dua = `.pname` satu baris "A · B"); [value] nilai metode ("80"); [detail] keterangan
+/// kecil sesudahnya, sudah lengkap ("poin · +34", "· +19", "game · −4").
 class PodiumRowData {
   final String badge;
   final bool hash;
@@ -1009,20 +1010,17 @@ class _Panel extends StatelessWidget {
     );
     final valW = valCol + (restCol > 0 ? 4 + restCol : 0);
 
-    // Nama mengecil bersama (langkah 0,5) sampai semua muat di kolomnya; batas bawah 11,5, lalu elipsis per nama.
-    // Ukuran awal = ukuran baris kecil kepala (keputusan 91).
-    final duo = data.pairSize;
+    // Nama mengecil bersama (langkah 0,5) sampai semua baris muat di kolomnya (pasangan: seluruh "A · B", keputusan
+    // 148); batas bawah 11,5, lalu elipsis per nama. Ukuran awal = ukuran baris kecil kepala (keputusan 91).
     final baseName = posterNameMax(story ? PodiumPosterTarget.story : PodiumPosterTarget.feed);
-    TextStyle nameStyle(double fs, bool gold) => posterStyle(
-      size: fs,
-      weight: gold ? FontWeight.w800 : FontWeight.w600,
-      height: duo ? 1.18 : 1.2,
-      color: theme.panelText,
+    TextStyle nameStyle(double fs, bool gold) =>
+        posterStyle(size: fs, weight: gold ? FontWeight.w800 : FontWeight.w600, height: 1.2, color: theme.panelText);
+    final col = inner - posCol - 2 * gap - valW;
+    bool fits(double fs) => data.rows.every(
+      (r) => r.names.length > 1
+          ? PairName.fits(r.names.first, r.names.last, nameStyle(fs, r.gold), col)
+          : posterWidth(r.names.first, nameStyle(fs, r.gold)) <= col,
     );
-    bool fits(double fs) => data.rows.every((r) {
-      final col = inner - posCol - 2 * gap - valW;
-      return r.names.every((n) => posterWidth(n, nameStyle(fs, r.gold)) <= col);
-    });
     var nameSize = baseName;
     while (nameSize > 11.5 && !fits(nameSize)) {
       nameSize = max(11.5, nameSize - 0.5);
@@ -1057,19 +1055,15 @@ class _Panel extends StatelessWidget {
                     ),
                     SizedBox(width: gap),
                     Expanded(
-                      child: duo
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (final n in r.names)
-                                  Text(
-                                    n,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: nameStyle(nameSize, r.gold),
-                                  ),
-                              ],
+                      // `.who.pname`: pasangan satu baris "A · B" (keputusan 148), tinggi baris tetap 36/54 (150).
+                      child: r.names.length > 1
+                          ? Align(
+                              alignment: Alignment.centerLeft,
+                              child: PairName(
+                                first: r.names.first,
+                                second: r.names.last,
+                                style: nameStyle(nameSize, r.gold),
+                              ),
                             )
                           : Text(
                               r.names.first,

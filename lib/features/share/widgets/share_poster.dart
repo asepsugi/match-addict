@@ -2,12 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/pair_name.dart';
 import '../../../models/models.dart';
 import '../../../services/share/lengkap.dart';
 import '../podium_theme.dart';
 import 'podium_poster.dart';
 
-/// Satu baris poster Lengkap. [names] satu nama, atau dua nama pasangan Fixed (digabung "A + B", ditumpuk di Story).
+/// Satu baris poster Lengkap. [names] satu nama, atau dua nama pasangan Fixed (satu baris "A · B", `.pname`).
 /// [value] = nilai metode ("42", "75%"); sesudahnya teks kecil "[detail] · [diff]" ("game · +12") hanya di susunan
 /// bersatuan (feed1), selain itu "· [diff]". Selisih selalu ada: dialah yang menjelaskan nomor berbeda untuk nilai yang
 /// sama (logic.md §4, keputusan 77).
@@ -145,12 +146,7 @@ class SharePoster extends StatelessWidget {
       pairSize: data.pairBalls,
     );
 
-    final grid = lengkapGrid(
-      story: story,
-      endless: data.endless,
-      rowCounts: data.rowCounts,
-      pairs: data.allRows.any((r) => r.names.length > 1),
-    );
+    final grid = lengkapGrid(story: story, endless: data.endless, rowCounts: data.rowCounts);
 
     // Panel (§17.4, 17.7): angka satu sumber di podium_poster.dart.
     final box = lengkapPanel(target, head);
@@ -265,7 +261,6 @@ class _LengkapPanel extends StatelessWidget {
       LengkapRowCell(:final club, :final row, :final units) => _Row(
         row: data.rowAt(club, row),
         height: units * rowH,
-        stacked: units == 2,
         sizes: sz,
         s: s,
         name: nameBase * kn,
@@ -327,8 +322,9 @@ class _LengkapPanel extends StatelessWidget {
     );
   }
 
-  /// kn (§17.7): satu pengali nama untuk seluruh poster target ini, dari 1 turun 0,02 sampai setiap nama muat di sel
-  /// namanya (diukur dengan bobot barisnya; #1 800), paling kecil 0,82; sesudah itu elipsis per nama.
+  /// kn (§17.7): satu pengali nama untuk seluruh poster target ini, dari 1 turun 0,02 sampai setiap baris muat di sel
+  /// namanya (pasangan: seluruh "A · B", keputusan 148; diukur dengan bobot barisnya, #1 800), paling kecil 0,82;
+  /// sesudah itu elipsis per nama ([PairName]).
   double _nameScale(_Sizes sz, double s, double colW, double nameBase, double valW) {
     final cells = [
       for (final col in grid.columns)
@@ -342,12 +338,15 @@ class _LengkapPanel extends StatelessWidget {
       for (final c in cells)
         () {
           final r = data.rowAt(c.club, c.row);
-          final names = c.units == 2 && r.names.length > 1 ? r.names : [r.names.join(' + ')];
-          return (avail: colW - fixed - valW, names: names, gold: r.position == 1);
+          return (avail: colW - fixed - valW, names: r.names, gold: r.position == 1);
         }(),
     ];
-    bool fits(double kn) =>
-        checks.every((c) => c.names.every((n) => posterWidth(n, _nameStyle(nameBase * kn, c.gold, theme)) <= c.avail));
+    bool fits(double kn) => checks.every((c) {
+      final style = _nameStyle(nameBase * kn, c.gold, theme);
+      return c.names.length > 1
+          ? PairName.fits(c.names.first, c.names.last, style, c.avail)
+          : posterWidth(c.names.join(), style) <= c.avail;
+    });
     var percent = 100;
     while (percent > _knMinPercent && !fits(percent / 100)) {
       percent -= _knStep;
@@ -356,12 +355,10 @@ class _LengkapPanel extends StatelessWidget {
   }
 }
 
-/// `.prow` — [kolom nomor] [nama] [nilai]; garis bawah 1 di dalam tinggi baris. [stacked] = `.duo` (Story Fixed):
-/// dua satuan; dua nama ditumpuk, satu nama tetap satu baris di tengah (keputusan 90).
+/// `.prow` — [kolom nomor] [nama] [nilai]; garis bawah 1 di dalam tinggi baris. Pasangan = `.pname` satu baris.
 class _Row extends StatelessWidget {
   final SharePosterRow row;
   final double height;
-  final bool stacked;
   final _Sizes sizes;
   final double s;
 
@@ -376,7 +373,6 @@ class _Row extends StatelessWidget {
   const _Row({
     required this.row,
     required this.height,
-    required this.stacked,
     required this.sizes,
     required this.s,
     required this.name,
@@ -390,22 +386,12 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     final gold = row.position == 1;
     final name = _nameStyle(this.name, gold, theme);
-    final Widget names = stacked && row.names.length > 1
-        ? Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final n in row.names)
-                Text(
-                  n,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  style: name.copyWith(height: 1.16),
-                ),
-            ],
+    final Widget names = row.names.length > 1
+        ? Align(
+            alignment: Alignment.centerLeft,
+            child: PairName(first: row.names.first, second: row.names.last, style: name),
           )
-        : Text(row.names.join(' + '), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: name);
+        : Text(row.names.join(), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: name);
     return Container(
       height: height,
       decoration: BoxDecoration(

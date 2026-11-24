@@ -8,14 +8,12 @@ void _expectDensity(LengkapGrid g, double space, double row, double s) {
   expect(d.scale, closeTo(s, 0.002));
 }
 
-LengkapGrid _mixed(int n, {bool story = false}) =>
-    lengkapGrid(story: story, endless: true, rowCounts: [n], pairs: false);
-LengkapGrid _fixed(int n, {bool story = false, bool pairs = true}) =>
-    lengkapGrid(story: story, endless: false, rowCounts: [n], pairs: pairs);
+LengkapGrid _mixed(int n, {bool story = false}) => lengkapGrid(story: story, endless: true, rowCounts: [n]);
+LengkapGrid _fixed(int n, {bool story = false}) => lengkapGrid(story: story, endless: false, rowCounts: [n]);
 LengkapGrid _sparingFixed(int a, int b, {bool story = false}) =>
-    lengkapGrid(story: story, endless: false, rowCounts: [a, b], pairs: true);
+    lengkapGrid(story: story, endless: false, rowCounts: [a, b]);
 LengkapGrid _sparingMixed(int a, int b, {bool story = false}) =>
-    lengkapGrid(story: story, endless: true, rowCounts: [a, b], pairs: false);
+    lengkapGrid(story: story, endless: true, rowCounts: [a, b]);
 
 void main() {
   group('tabel 17.10', () {
@@ -48,9 +46,10 @@ void main() {
       final feed = _fixed(10);
       expect((feed.sizing, feed.units), (LengkapSizing.feed1, 10));
       _expectDensity(feed, 226, 22.6, 1.027);
+      // Story satu satuan per pasangan (keputusan 148): 336 ÷ 10 = 33,6 → batas skala 1,33.
       final story = _fixed(10, story: true);
-      expect((story.sizing, story.columns.length, story.units), (LengkapSizing.story1, 1, 20));
-      _expectDensity(story, 336, 16.8, 0.988);
+      expect((story.sizing, story.columns.length, story.units), (LengkapSizing.story1, 1, 10));
+      _expectDensity(story, 336, 33.6, 1.33);
     });
 
     test('11h K80 Mixed 12 kartu: baris mengisi panel 238 ÷ 6 (batas 40, keputusan 92)', () {
@@ -88,8 +87,8 @@ void main() {
       expect((feed.sizing, feed.columns.length, feed.units), (LengkapSizing.feed1, 1, 15));
       _expectDensity(feed, 226, 15.07, 0.685);
       final story = _fixed(15, story: true);
-      expect((story.sizing, story.columns.length, story.units), (LengkapSizing.story1, 1, 30));
-      _expectDensity(story, 336, 11.2, 0.659);
+      expect((story.sizing, story.columns.length, story.units), (LengkapSizing.story1, 1, 15));
+      _expectDensity(story, 336, 22.4, 1.318);
       _expectDensity(_fixed(15), 238, 15.87, 0.721);
     });
 
@@ -131,8 +130,8 @@ void main() {
       expect(feed.units, 11);
       _expectDensity(feed, 226, 20.55, 0.934);
       final story = _sparingFixed(4, 3, story: true);
-      expect((story.sizing, story.columns.length, story.units), (LengkapSizing.story1, 1, 18));
-      _expectDensity(story, 336, 18.67, 1.098);
+      expect((story.sizing, story.columns.length, story.units), (LengkapSizing.story1, 1, 11));
+      _expectDensity(story, 336, 30.55, 1.33);
     });
 
     test('13u K86 Sparing Mixed 8 + 6 kartu: dua kolom per klub', () {
@@ -194,19 +193,17 @@ void main() {
       expect(_mixed(10).columns.length, 1);
     });
 
-    test('K90 Story Fixed campuran: semua baris 2 satuan; Feed tetap 1 satuan', () {
+    test('K148 Story Fixed: satu satuan per pasangan (tidak lagi ditumpuk, mengubah K90)', () {
       final story = _fixed(5, story: true);
-      expect(story.columns.single.every((c) => c.units == 2), isTrue);
-      expect(story.units, 10);
+      expect(story.columns.single.every((c) => c.units == 1), isTrue);
+      expect(story.units, 5);
       expect(_fixed(5).units, 5);
-      // Semua tunggal (tanpa baris dua nama) tidak ditumpuk.
-      expect(_fixed(5, story: true, pairs: false).units, 5);
     });
 
     test('K89 Sparing 0 – 0 ikut Kosong: tanpa kepala klub', () {
       for (final story in [false, true]) {
         for (final endless in [false, true]) {
-          final g = lengkapGrid(story: story, endless: endless, rowCounts: [0, 0], pairs: false);
+          final g = lengkapGrid(story: story, endless: endless, rowCounts: [0, 0]);
           expect(g.units, 0);
           expect(g.columns.expand((c) => c), isEmpty);
         }
@@ -216,22 +213,21 @@ void main() {
 
   group('invariant L1–L4', () {
     // Semua kombinasi target × mode × Sparing, n 0–30 (Sparing: n dengan beberapa ukuran klub kedua).
-    final combos = <(bool, bool, List<int>, bool)>[];
+    final combos = <(bool, bool, List<int>)>[];
     for (final story in [false, true]) {
       for (final endless in [false, true]) {
         for (var n = 0; n <= 30; n++) {
-          combos.add((story, endless, [n], !endless));
-          combos.add((story, endless, [n], false));
+          combos.add((story, endless, [n]));
           for (final m in [0, 1, 3, 7, 14, 30]) {
-            combos.add((story, endless, [n, m], !endless));
+            combos.add((story, endless, [n, m]));
           }
         }
       }
     }
 
     test('L1 setiap baris tepat sekali, urut Klasemen / klub', () {
-      for (final (story, endless, counts, pairs) in combos) {
-        final g = lengkapGrid(story: story, endless: endless, rowCounts: counts, pairs: pairs);
+      for (final (story, endless, counts) in combos) {
+        final g = lengkapGrid(story: story, endless: endless, rowCounts: counts);
         final reason = '$story $endless $counts';
         final got = [for (final c in g.columns.expand((c) => c).whereType<LengkapRowCell>()) (c.club, c.row)];
         final expected = [
@@ -246,8 +242,8 @@ void main() {
     });
 
     test('L2 Fixed satu kolom; dua kolom per klub: satu klub per kolom, diawali kepalanya', () {
-      for (final (story, endless, counts, pairs) in combos) {
-        final g = lengkapGrid(story: story, endless: endless, rowCounts: counts, pairs: pairs);
+      for (final (story, endless, counts) in combos) {
+        final g = lengkapGrid(story: story, endless: endless, rowCounts: counts);
         if (!endless) expect(g.columns.length, 1, reason: '$story $counts');
         if (counts.length == 2 && g.columns.length == 2) {
           for (var c = 0; c < 2; c++) {
@@ -287,8 +283,8 @@ void main() {
     });
 
     test('susunan ikut target dan jumlah kolom', () {
-      for (final (story, endless, counts, pairs) in combos) {
-        final g = lengkapGrid(story: story, endless: endless, rowCounts: counts, pairs: pairs);
+      for (final (story, endless, counts) in combos) {
+        final g = lengkapGrid(story: story, endless: endless, rowCounts: counts);
         final two = g.columns.length == 2;
         final want = story
             ? (two ? LengkapSizing.story2 : LengkapSizing.story1)

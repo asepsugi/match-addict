@@ -186,7 +186,7 @@ void main() {
       expect(data.rows, isEmpty);
       expect(data.clubs, isNull);
       expect(data.facts, 'Padel · 12 pemain · R1 · 0 dari 3 match');
-      expect(lengkapGrid(story: true, endless: true, rowCounts: data.rowCounts, pairs: false).units, 0);
+      expect(lengkapGrid(story: true, endless: true, rowCounts: data.rowCounts).units, 0);
     });
 
     test('Fixed: ukuran pasangan, dua nama per baris, fakta menghitung pasangan', () {
