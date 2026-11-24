@@ -114,8 +114,8 @@ class LastSettings {
     },
   };
 
-  /// Aturan baca docs/data.md → Grup + Gugur: mode fixed, 2, 3, atau 4 grup, `formats` persis {SF, J3, F} (+ PF iff ≥ 3 grup)
-  /// dan tiap format sah untuk gugur. Pelanggaran = null, dan `read` membuang seluruh entri.
+  /// Aturan baca docs/data.md → Group - Playoff fleksibel: mode fixed, 2–4 grup, `formats` persis {SF, J3, F}
+  /// (+ PF iff ≥ 3 grup) dan tiap format sah untuk gugur. Pelanggaran = null, dan `read` membuang seluruh entri.
   static GroupKnockout? _readKnockout(Object? raw, PartnerMode mode) {
     if (raw is! Map || mode != PartnerMode.fixed) throw const FormatException('groupKnockout');
     final count = raw['groupCount'], third = raw['thirdPlace'], formats = raw['formats'];

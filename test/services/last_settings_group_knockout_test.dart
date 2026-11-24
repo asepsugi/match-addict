@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/models/models.dart';
-import 'package:match_addict/services/schedule/group_stage.dart';
 import 'package:match_addict/services/storage/last_settings.dart';
 
 /// Pengaturan terakhir Grup + Gugur (docs/data.md → Pengaturan terakhir): kunci opsional `groupKnockout`, `v` tetap 1.
@@ -101,19 +100,11 @@ void main() {
     }
   });
 
-  test(
-    'turunan baca lewat fallbackGroupCount: 3 grup 24 → 20 pemain = 2, 4 grup 32 → 30 = 3, → 22 = 2, kosong = null',
-    () {
-      expect(GroupStage.fallbackGroupCount(12, 3), 3);
-      expect(GroupStage.fallbackGroupCount(10, 3), 2);
-      expect(GroupStage.fallbackGroupCount(16, 4), 4);
-      expect(GroupStage.fallbackGroupCount(15, 4), 3);
-      expect(GroupStage.fallbackGroupCount(11, 4), 2);
-      expect(GroupStage.fallbackGroupCount(7, 3), isNull);
-      // Entri tersimpan tidak diubah oleh turunan itu.
-      expect(read(withKnockout(knockout(groups: 3)))!.groupKnockout!.groupCount, 3);
-    },
-  );
+  // Turunan pengaturan terakhir ke jumlah grup yang tersedia ada di group_stage_test (fallbackGroupCount) dan dipakai
+  // Konfigurasi; codec tidak mengubah entri tersimpan.
+  test('entri 3 grup tersimpan apa adanya', () {
+    expect(read(withKnockout(knockout(groups: 3)))!.groupKnockout!.groupCount, 3);
+  });
 
   test('round-robin ter-encode tanpa kunci groupKnockout (byte-sama 3.7.x); entri tanpa kunci terbaca', () {
     expect(jsonDecode(saved(null).toJson()), isNot(contains('groupKnockout')));

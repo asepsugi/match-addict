@@ -38,8 +38,6 @@ void _measure(String name, ActiveTournament Function() build, {required int limi
     expect(a.matches.length, matches);
     final raw = TournamentCodec.encode(a);
     final bytes = utf8.encode(raw).length;
-    // ignore: avoid_print
-    print('AC-B9 $name: ${a.matches.length} match, $bytes B');
     expect(bytes, lessThan(limit));
     expect(TournamentCodec.decode(raw), isNotNull);
   });

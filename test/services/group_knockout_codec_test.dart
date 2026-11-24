@@ -698,6 +698,10 @@ void threeGroupTests() {
         final back = TournamentCodec.decode(jsonEncode(j));
         expect(back, isNotNull);
         expect(back!.config.groupKnockout!.wildcards, ['Qori', 'Maya']);
+        // QF tetap sama; yang berubah hanya label WC1/WC2.
+        expect([for (final m in back.matches) '${m.pair1.id}|${m.pair2.id}'],
+            [for (final m in bracket.matches) '${m.pair1.id}|${m.pair2.id}']);
+        expect(KnockoutBracket.seedCode(back, 'Qori'), 'WC1');
       },
     );
   });
