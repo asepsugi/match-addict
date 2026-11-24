@@ -8,12 +8,13 @@ import 'package:match_addict/features/schedule/widgets/round_tabs.dart';
 import 'package:match_addict/models/models.dart';
 
 import '../hifi_golden.dart';
-import 'grup_gugur_fixture.dart';
+import 'group_playoff_fixture.dart';
 import 'schedule_fixture.dart';
 import 'screen_harness.dart';
 
-/// Golden tab Bagan Jadwal Grup + Gugur (GG-9): 2 grup 21a–21t, 4 grup 21u–21y. Fixture bersama
-/// `grup_gugur_fixture.dart`; Bagan tidak menampilkan jam, jadi jam frame terdekat saja.
+/// Golden tab Bagan Jadwal Group - Playoff (GG-9, GP-9): 2 grup 21a–21t, 4 grup 21u–21y, 3 grup 23h/23v/23w, 4 × 4 23i,
+/// pratinjau slot kode sebelum Buat bagan 23s–23u. Fixture bersama `grup_gugur_fixture.dart` dan
+/// `group_playoff_fixture.dart`; Bagan tidak menampilkan jam, jadi jam frame terdekat saja.
 void main() {
   Widget screen(ActiveTournament active, DateTime now) => hifiScreen(
     ScheduleFixedScreen(config: active.config),
@@ -32,6 +33,16 @@ void main() {
     await t.tap(tab('Bagan'));
   }
 
+  /// Bagan digeser kembali ke kolom pertama (21p: host menggeser dari Final ke Semifinal).
+  Future<void> backToFirstColumn(WidgetTester t) async {
+    await t.pumpAndSettle();
+    await t.drag(
+      find.descendant(of: find.byType(BaganView), matching: find.byType(Scrollable)).last,
+      const Offset(400, 0),
+    );
+    await t.pumpAndSettle();
+  }
+
   /// 21p: SF1 6–4, SF2 WO Indra · Joko (Cedera) → Final Andi–Citra, Juara 3 Maya–Indra.
   ActiveTournament wo21p() => gg21c().koWo('SF2', 'Indra');
 
@@ -45,6 +56,13 @@ void main() {
     ('21w', gg21w(), at21v),
     ('21x', gg21x(), at21v),
     ('21y', gg21y(), at21v),
+    ('23h', gp23h(), ggAt(185)),
+    ('23i', gp23i(), ggAt(185)),
+    ('23s', gg20b(), at20b),
+    ('23t', gp23b(), ggAt(180)),
+    ('23u', gp23u(), ggStart),
+    ('23v', gp23v(), ggAt(215)),
+    ('23w', gp23w(), ggAt(240)),
   ]) {
     testWidgets('$frame Bagan', (tester) async {
       await expectMatchesHifi(tester, screen(active, now), frame, act: openBagan);
@@ -52,7 +70,15 @@ void main() {
   }
 
   testWidgets('21p Bagan · SF2 WO', (tester) async {
-    await expectMatchesHifi(tester, screen(wo21p(), at21b), '21p', act: openBagan);
+    await expectMatchesHifi(
+      tester,
+      screen(wo21p(), at21b),
+      '21p',
+      act: (t) async {
+        await openBagan(t);
+        await backToFirstColumn(t);
+      },
+    );
   });
 
   group('perilaku', () {
@@ -93,6 +119,8 @@ void main() {
     }
 
     Finder card(String text) => find.descendant(of: find.byType(BaganView), matching: find.text(text));
+    Finder label(String babak) =>
+        find.descendant(of: find.byType(BaganView), matching: find.textContaining('$babak ·'));
 
     testWidgets('21a: ketuk SF1 → Input Skor; kartu Final bersisi tbd tidak bisa diketuk', (tester) async {
       final opened = await pumpRouted(tester, gg21a());
@@ -122,6 +150,8 @@ void main() {
 
     testWidgets('21t: setelah diakhiri, SF1 yang sudah berskor tetap bisa diketuk', (tester) async {
       final opened = await pumpRouted(tester, gg21t());
+      // Diakhiri → geseran awal di kolom Final; SF1 di kolom pertama.
+      await backToFirstColumn(tester);
       await tester.tap(card('Andi').first);
       await tester.pumpAndSettle();
       expect(opened, [gg21t().byCode('SF1').id]);
@@ -133,6 +163,50 @@ void main() {
       await tester.tap(card('Tidak dimainkan').first);
       await tester.pumpAndSettle();
       expect(opened, isEmpty);
+    });
+
+    /// BaganView langsung (sheet format babak milik pemanggil): label kolom → callback babak, kartu pratinjau mati.
+    Future<(List<KnockoutRound>, List<MatchGame>)> pumpView(WidgetTester tester, ActiveTournament active) async {
+      tester.view.physicalSize = const Size(390, 844) * hifiPixelRatio;
+      tester.view.devicePixelRatio = hifiPixelRatio;
+      addTearDown(tester.view.reset);
+      final rounds = <KnockoutRound>[], opened = <MatchGame>[];
+      await tester.pumpWidget(
+        hifiScreen(
+          Scaffold(
+            body: BaganView(active: active, onOpenMatch: opened.add, onOpenRound: rounds.add),
+          ),
+          overrides: [tournamentProvider.overrideWith(() => LoadedTournament(active))],
+        ),
+      );
+      await tester.pumpAndSettle();
+      return (rounds, opened);
+    }
+
+    testWidgets('23h: ketuk label kolom → callback babak; Juara 3 = thirdPlace', (tester) async {
+      final (rounds, _) = await pumpView(tester, gp23h());
+      await tester.tap(label('Perempat final'));
+      await tester.tap(label('Semifinal'));
+      await tester.pumpAndSettle();
+      expect(rounds, [KnockoutRound.quarterfinal, KnockoutRound.semifinal]);
+    });
+
+    testWidgets('23s: pratinjau sebelum Buat bagan — slot kode, kartu tidak bisa diketuk, label bisa', (tester) async {
+      final (rounds, opened) = await pumpView(tester, gg20b());
+      expect(card('A1'), findsOneWidget);
+      expect(card('Pemenang SF1'), findsOneWidget);
+      await tester.tap(card('A1'));
+      await tester.tap(label('Semifinal'));
+      await tester.pumpAndSettle();
+      expect(opened, isEmpty);
+      expect(rounds, [KnockoutRound.semifinal]);
+    });
+
+    testWidgets('21j: semua terisi → Juara 3 di kolom Final, labelnya membuka babak Juara 3', (tester) async {
+      final (rounds, _) = await pumpView(tester, gg21i());
+      await tester.tap(label('Juara 3'));
+      await tester.pumpAndSettle();
+      expect(rounds, [KnockoutRound.thirdPlace]);
     });
   });
 }
