@@ -152,6 +152,6 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarSegmented`, `StandingTable`
 
 - Angka, urutan, dan WO = 09c; hanya nama yang diganti untuk contoh pemotongan.
-- Nama pasangan satu baris (keputusan 151), pola sama dengan poster `.pname` (keputusan 148): jatah tiap nama = (lebar kolom nama − " · ") ÷ 2. Nama yang lebih pendek dari jatahnya utuh dan sisanya dipakai nama lain (Iga · Sagittal…, Citra … · Dewi); yang lebih lebar dari jatahnya dipotong "…" sendiri (Ant… · Chri…, Wica… · Setia…). Pemisah tidak terpotong.
+- Nama pasangan satu baris (keputusan 151), pola sama dengan poster `.pname` (keputusan 148): jatah tiap nama = (lebar kolom nama − " · ") ÷ 2. Nama yang lebih pendek dari jatahnya utuh dan sisanya dipakai nama lain (Iga · Sagittalia …, Citra Le… · Dewi); yang lebih lebar dari jatahnya dipotong "…" sendiri (Anto… · Chris…, Wica… · Setia…). Pemisah tidak terpotong.
 - Huruf nama pasangan: semua baris di layar dikecilkan bersama per 0,5 dari 16 ke ukuran terbesar yang membuat semua nama muat, paling kecil 14 (host 2026-11-23, seperti poster keputusan 150); di 14 masih tidak muat → elipsis per nama. Frame ini 14. Berat 600 tetap. Tinggi baris 44 seperti baris pemain; area ketuk 48 (3.8.1).
 - Nama lengkap di Detail pasangan (10b).

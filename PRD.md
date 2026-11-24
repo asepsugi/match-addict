@@ -1151,7 +1151,8 @@ Pertanyaan terbuka:
 158. **Frame 13o: tabel di atas, tanpa keadaan digulir** (2026-11-24, host: "setuju"): dengan nama pasangan satu baris
      (keputusan 148) isi 13o muat satu layar dan tidak bisa digulir, jadi frame digambar dari atas dengan app bar biasa.
 159. **Contoh 09m diganti nama yang benar-benar terpotong** (2026-11-24, host: "setuju"): "Indra W · Joko S" utuh di 14 pt
-     (103,7 dari 108 px); contoh di catatan 09m dan logic.md §21.11 memakai nama yang lebih panjang. Aturan tetap.
+     (103,7 dari 108 px); contoh di catatan 09m dan logic.md §21.11 memakai nama yang lebih panjang, dan potongan contoh
+     lain disamakan dengan render ("Anto… · Chris…", "Iga · Sagittalia …", "Citra Le… · Dewi"). Aturan tetap.
 160. **Redaksi tabel 16.4** (2026-11-24, host: "setuju"): 32 pemain 3 grup 1 court = B selesai R29, C R30, A sendiri
      R31–R35 (GU4, kode sudah benar); sisa "PF" di tabel → "QF" (keputusan 152). Perilaku tidak berubah.
 ---
