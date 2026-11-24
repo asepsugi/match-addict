@@ -112,14 +112,18 @@ class RankingCalculator {
   /// yang tampil, jadi head-to-head (dan Total Point sebagai pemisah Win %) tidak dipakai lagi — di Mixed
   /// head-to-head antar tiga pemain juga bisa berputar (A > B > C > A) sehingga urutannya tidak tentu.
   static int compare(PlayerStanding a, PlayerStanding b, RankingMethod method) {
-    final byMethod = switch (method) {
-      RankingMethod.totalGames => b.totalPoint.compareTo(a.totalPoint),
-      // Angka bulat yang tampil (U-RP2); Win % tetap nilai persis.
-      RankingMethod.pointPercent => b.pointPercent.compareTo(a.pointPercent),
-      RankingMethod.winPercent => b.winPercent.compareTo(a.winPercent),
-    };
+    final byMethod = compareValue(a, b, method);
     return byMethod != 0 ? byMethod : b.gameDiff.compareTo(a.gameDiff);
   }
+
+  /// Langkah pertama [compare] saja (nilai metode). Pembanding lintas grup Playoff memakainya lalu membandingkan
+  /// selisih per match, bukan selisih mentah (logic.md §21.3).
+  static int compareValue(PlayerStanding a, PlayerStanding b, RankingMethod method) => switch (method) {
+    RankingMethod.totalGames => b.totalPoint.compareTo(a.totalPoint),
+    // Angka bulat yang tampil (U-RP2); Win % tetap nilai persis.
+    RankingMethod.pointPercent => b.pointPercent.compareTo(a.pointPercent),
+    RankingMethod.winPercent => b.winPercent.compareTo(a.winPercent),
+  };
 
   /// Nilai WO satu pasangan pemenang dari nilai WO kedua pemainnya, ,5 ke atas (K11, keputusan 125). Dipakai
   /// [rank] (poin kalah pasangan WO) dan skor klub sparing: satu aturan, satu tempat.
