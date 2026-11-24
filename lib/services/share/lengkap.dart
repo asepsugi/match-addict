@@ -35,14 +35,15 @@ sealed class LengkapCell {
   int get units;
 }
 
-/// Baris pemain/pasangan. `row` = indeks di klubnya (bukan Sparing: indeks Klasemen).
+/// Baris pemain/pasangan, selalu 1 satuan. `row` = indeks di klubnya (bukan Sparing: indeks Klasemen).
 final class LengkapRowCell extends LengkapCell {
   final int club;
   final int row;
-  @override
-  final int units;
 
-  const LengkapRowCell({required this.club, required this.row, required this.units});
+  const LengkapRowCell({required this.club, required this.row});
+
+  @override
+  int get units => 1;
 }
 
 /// Kepala klub Sparing: nama + baris kedua, selalu 2 satuan.
@@ -68,13 +69,9 @@ class LengkapGrid {
 }
 
 /// Aturan kolom (81, 86, 88). [rowCounts]: bukan Sparing `[n]`; Sparing `[n1, n2]`. [endless] = `config.mode.isEndless`
-/// (Mixed, Mexicano; gerbang dua kolom, bukan "tidak ada baris pasangan"). [pairs] = ada baris dua nama (Fixed).
-LengkapGrid lengkapGrid({
-  required bool story,
-  required bool endless,
-  required List<int> rowCounts,
-  required bool pairs,
-}) {
+/// (Mixed, Mexicano; gerbang dua kolom, bukan "tidak ada baris pasangan"). Setiap baris 1 satuan, juga pasangan Fixed
+/// di Story (nama satu baris "A · B", keputusan 148; logic.md §21.11 mengubah §17.3).
+LengkapGrid lengkapGrid({required bool story, required bool endless, required List<int> rowCounts}) {
   assert(rowCounts.length == 1 || rowCounts.length == 2);
   assert(rowCounts.every((n) => n >= 0));
   final sparing = rowCounts.length == 2;
@@ -86,17 +83,12 @@ LengkapGrid lengkapGrid({
     return LengkapGrid(sizing: story ? LengkapSizing.story1 : LengkapSizing.feed1, columns: const [[]], units: 0);
   }
 
-  // Fixed Story: semua baris setinggi baris pasangan kalau ada baris dua nama (keputusan 90).
-  final rowUnits = !endless && story && pairs ? 2 : 1;
-
   List<LengkapCell> clubColumn(int club) => [
     LengkapClubCell(club: club),
-    for (var i = 0; i < rowCounts[club]; i++) LengkapRowCell(club: club, row: i, units: rowUnits),
+    for (var i = 0; i < rowCounts[club]; i++) LengkapRowCell(club: club, row: i),
   ];
 
-  List<LengkapRowCell> flat(int from, int to) => [
-    for (var i = from; i < to; i++) LengkapRowCell(club: 0, row: i, units: rowUnits),
-  ];
+  List<LengkapRowCell> flat(int from, int to) => [for (var i = from; i < to; i++) LengkapRowCell(club: 0, row: i)];
 
   final List<List<LengkapCell>> columns;
   final bool two;

@@ -118,6 +118,15 @@ void main() {
     endless: false,
     sport: SportType.tennis,
   );
+  // 11s: batas 32 pemain, nama pasangan satu baris (keputusan 147, 148).
+  SharePosterData fixed16(int index) => dataOf(
+    posterRows[('11s', index)]!,
+    title: 'Klasemen akhir',
+    subtitle: 'Tennis · Fixed · 8 Nov 2026',
+    facts: '16 pasangan · 10 round · 40 match',
+    endless: false,
+    sport: SportType.tennis,
+  );
   SharePosterData mixed30(int index) => dataOf(
     posterRows[('11l', index)]!,
     title: 'Liga Akhir Tahun Padel Kemang',
@@ -180,6 +189,9 @@ void main() {
     });
     testWidgets('11g K79 Fixed 10 pasangan ${target.name}', (tester) async {
       await check(tester, frame: '11g', at: at, data: fixed10(), t: peach, target: target, label: target.name);
+    });
+    testWidgets('11s K148 Fixed 16 pasangan, nama satu baris ${target.name}', (tester) async {
+      await check(tester, frame: '11s', at: at, data: fixed16(index), t: tennis, target: target, label: target.name);
     });
     testWidgets('11m K85 ${index == 0 ? 'lebih dari empat di #1' : 'K87 belum ada match'} ${target.name}', (
       tester,
@@ -294,7 +306,7 @@ void main() {
 
   for (final (frame, data, target, name, size) in [
     // feed1 s 1,04 (batas), kn 1: 13,5 × 1,04 = 14,04 dibatasi baris kecil kepala 12,5 (keputusan 92).
-    ('11b', fixed10, PodiumPosterTarget.card, 'Gina Rosalia + Hana Taslim', 12.5),
+    ('11b', fixed10, PodiumPosterTarget.card, 'Gina Rosalia', 12.5),
     // feed2 s 1, kn 0,94 (§17.7).
     ('11e', () => mixed20(-1), PodiumPosterTarget.card, 'Citra Lestari', 12 * 0.94),
     ('11f', () => mixed20(0), PodiumPosterTarget.feed, 'Citra Lestari', 12 * 0.94),
@@ -313,6 +325,28 @@ void main() {
       expect(nameSize(tester, name), closeTo(size, 0.01));
     });
   }
+
+  testWidgets('11s Story kn 0,82 (nama 12,3), lalu elipsis per nama: #1 dua-duanya terpotong, #5 utuh', (tester) async {
+    await tester.pumpWidget(
+      hifiStage(theme: theme, at: storyAt, height: 640, child: poster(fixed16(1), tennis, PodiumPosterTarget.story)),
+    );
+    expect(nameSize(tester, 'Andi Pratama'), closeTo(15 * 0.82, 0.01));
+    // Lebar gambar < lebar utuh = dipotong "…" di jatahnya; sama = utuh.
+    bool cut(String name) {
+      final text = tester.widget<Text>(find.text(name));
+      final painter = TextPainter(
+        text: TextSpan(text: name, style: text.style),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final full = painter.width;
+      painter.dispose();
+      return tester.getSize(find.text(name)).width < full - 0.01;
+    }
+
+    expect([cut('Antonia Banderas'), cut('Christiano Ronaldo')], [true, true]);
+    expect([cut('Iga'), cut('Sagittalia Permatasari')], [false, false]);
+    expect(find.text(' · '), findsNWidgets(16));
+  });
 
   testWidgets('11j kn: 11, 13, 15, 17 pemain 0,94, 19 pemain 0,86, lainnya 1', (tester) async {
     for (var i = 0; i < facts11j.length; i++) {

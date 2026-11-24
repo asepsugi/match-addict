@@ -47,7 +47,7 @@ void main() {
     );
   });
 
-  testWidgets('StandingTable: pasangan Fixed dua baris, W–L (09c)', (tester) async {
+  testWidgets('StandingTable: pasangan Fixed satu baris, W–L (09c)', (tester) async {
     final at = hifiRect('09c', 'rank');
     const rows = [
       (1, ['Andi P', 'Budi S'], '4–0', '+11', '24'),

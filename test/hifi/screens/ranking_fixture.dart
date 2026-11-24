@@ -32,9 +32,10 @@ ActiveTournament set2({bool finished = false}) => mixedTournament(
 
 /// Fixed Tennis Race to 6, semua 10 match selesai. A Andi·Budi, B Citra·Dewant, C Eko·Fajar, D Gina·Hana,
 /// E Indra·Joko. Jadwal sah (tiap pasangan istirahat sekali) dan cocok dengan riwayat Gina · Hana di 10b:
-/// R1 D–E 6–3, R2 D menang WO atas B, R3 D–C 6–1, R4 istirahat, R5 D–A 5–6.
-ActiveTournament fixedFinal() {
-  final players = [for (var i = 0; i < 10; i++) Player(id: 'p$i', name: fixtureNames[i])];
+/// R1 D–E 6–3, R2 D menang WO atas B, R3 D–C 6–1, R4 istirahat, R5 D–A 5–6. [names] = 10 nama pengganti
+/// (09m: angka sama, nama panjang).
+ActiveTournament fixedFinal({List<String>? names}) {
+  final players = [for (var i = 0; i < 10; i++) Player(id: 'p$i', name: (names ?? fixtureNames)[i])];
   final pairs = [for (var i = 0; i < 5; i++) Pair(id: 'pair$i', player1Id: 'p${2 * i}', player2Id: 'p${2 * i + 1}')];
   // (round, pair1, pair2, skor1, skor2); skor null = WO, pair2 kalah.
   const results = [

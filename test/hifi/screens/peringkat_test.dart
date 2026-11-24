@@ -64,6 +64,15 @@ void main() {
     await expectMatchesHifi(tester, screen(fixedFinal()), '09c');
   });
 
+  testWidgets('09m Fixed, nama pasangan panjang: 14 lalu elipsis per nama', (tester) async {
+    // Urutan pemain p0–p9 = pasangan A–E fixedFinal; nomor dan angka sama dengan 09c.
+    const names = [
+      'Antonia Bandaras', 'Christiano Ronaldo', 'Citra Lestari', 'Dewi', 'Eko M', //
+      'Fajar K', 'Iga', 'Sagittalia Pramudita', 'Indra W', 'Joko S',
+    ];
+    await expectMatchesHifi(tester, screen(fixedFinal(names: names)), '09m');
+  });
+
   testWidgets('09d Total Point, satu WO', (tester) async {
     await expectMatchesHifi(tester, screen(set2()), '09d');
   });
