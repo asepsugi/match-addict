@@ -61,6 +61,14 @@ ActiveTournament _staged(
   );
 }
 
+/// [_staged] untuk fixture lain (`group_playoff_fixture.dart`): id, jam mulai, olahraga, durasi, dan booking frame.
+ActiveTournament ggStaged(
+  ActiveTournament a, {
+  SportType sport = SportType.padel,
+  int matchMinutes = 15,
+  int bookingMinutes = 120,
+}) => _staged(a, sport: sport, matchMinutes: matchMinutes, bookingMinutes: bookingMinutes);
+
 ActiveTournament _tennis(ActiveTournament a) =>
     _staged(a, sport: SportType.tennis, matchMinutes: 20, bookingMinutes: 180);
 
