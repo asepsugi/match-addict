@@ -5,6 +5,7 @@ import 'package:match_addict/core/widgets/mabar_controls.dart';
 import 'package:match_addict/core/widgets/mabar_inputs.dart';
 import 'package:match_addict/features/schedule/schedule_mixed_screen.dart';
 import 'package:match_addict/features/schedule/tournament_controller.dart';
+import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/storage/tournament_codec.dart';
 
 import '../hifi_golden.dart';
@@ -35,6 +36,26 @@ void main() {
   Future<void> openPlayers(WidgetTester tester) async {
     await tester.tap(find.byWidgetPredicate((w) => w is MabarIconButton && w.semanticLabel == 'Pemain'));
     await tester.pumpAndSettle();
+  }
+
+  /// 15d + Dimas dan Laras masuk Matcha Club (belum main): 16 + 16 = 32 aktif.
+  MixedSparingState _full32() {
+    final base = mixedSparing15d();
+    final config = base.active.config;
+    return (
+      active: base.active.copyWith(
+        tournament: base.active.tournament.copyWith(
+          config: config.copyWith(
+            players: [
+              ...config.players,
+              Player(id: 'm15', name: 'Dimas', clubId: matcha.id),
+              Player(id: 'm16', name: 'Laras', clubId: matcha.id),
+            ],
+          ),
+        ),
+      ),
+      now: base.now,
+    );
   }
 
   MabarButton addButton(WidgetTester tester) => tester.widget(find.widgetWithText(MabarButton, 'Tambah'));
@@ -87,13 +108,13 @@ void main() {
     expect(find.text('Andi sudah ada di PB Garuda'), findsOneWidget);
   });
 
-  // 15z3: batas 30 pemain aktif berlaku untuk kedua klub bersama.
-  testWidgets('15z3 30 pemain aktif: Tambah ditolak', variant: TargetPlatformVariant.only(TargetPlatform.iOS), (
+  // 15z3: batas 32 pemain aktif berlaku untuk kedua klub bersama. Latar 15d + Dimas dan Laras di Matcha Club (16 + 16).
+  testWidgets('15z3 32 pemain aktif: Tambah ditolak', variant: TargetPlatformVariant.only(TargetPlatform.iOS), (
     tester,
   ) async {
     await expectMatchesHifi(
       tester,
-      screen(mixedSparing15d()),
+      screen(_full32()),
       '15z3',
       act: (tester) async {
         await openPlayers(tester);
@@ -103,7 +124,7 @@ void main() {
         await tester.tap(find.widgetWithText(MabarButton, 'Tambah'));
       },
     );
-    expect(find.text('Maksimal 30 pemain aktif'), findsOneWidget);
+    expect(find.text('Maksimal 32 pemain aktif'), findsOneWidget);
   });
 
   // Frame 15m menampilkan PB Garuda 4 baris saja ("daftar digulir", catatan frame), padahal 8 aktif: layar menggambar

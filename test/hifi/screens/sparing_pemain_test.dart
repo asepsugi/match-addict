@@ -170,6 +170,27 @@ void main() {
     expect(enabled(tester), isFalse);
   });
 
+  testWidgets('AC-B1 Sparing: 16 + 16 aktif, 16 + 17 mati + "Maksimal 32 pemain"; 30 + 2 aktif, 31 + 2 mati', (
+    tester,
+  ) async {
+    await tester.pumpWidget(screen());
+    await pickSparing(tester);
+    List<String> club(String tag, int n) => [for (var i = 0; i < n; i++) 'Pemain $tag$i'];
+    Future<void> check(int n1, int n2, {required bool ok}) async {
+      await type(tester, 0, 'PB Garuda');
+      await type(tester, 1, club('G', n1).join('\n'));
+      await type(tester, 2, 'Matcha Club');
+      await type(tester, 3, club('M', n2).join('\n'));
+      expect(enabled(tester), ok, reason: '$n1 + $n2');
+    }
+
+    await check(16, 16, ok: true);
+    await check(16, 17, ok: false);
+    expect(find.text('Maksimal 32 pemain'), findsOneWidget);
+    await check(30, 2, ok: true);
+    await check(31, 2, ok: false);
+  });
+
   testWidgets('pesan "Andi, Budi, Citra +2 ada di dua klub"', (tester) async {
     await tester.pumpWidget(screen());
     await fillBoth(tester, club2: ['Indra', 'Andi', 'Budi', 'Citra', 'Dewi', 'Eko']);
