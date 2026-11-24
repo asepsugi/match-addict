@@ -182,6 +182,14 @@ void main() {
       final a = gg21i();
       await expectMatchesHifi(tester, inputScreen(a, a.byCode('SF1').id, at21f), '07x', act: emptyBoth);
     });
+
+    testWidgets('07y gugur: sheet WO dari match WO, Hapus WO mati (Final dan Juara 3 sudah ada skor)', (tester) async {
+      // Data 21o (SF2 WO Cedera, Indra · Joko tidak main), lalu Final 7–9 dan Juara 3 4–2 tersimpan (21i).
+      final a = gg21c().koWo('SF2', 'Indra').ko('F', 7, 9).ko('J3', 4, 2);
+      await expectMatchesHifi(tester, inputScreen(a, a.byCode('SF2').id, at21f), '07y', act: openWoSheet);
+      expect(find.text('Final dan Juara 3 sudah ada skor · pemenang SF2 tetap Citra & Dewi'), findsOneWidget);
+      expect(tester.widget<MabarTextButton>(find.widgetWithText(MabarTextButton, 'Hapus WO')).onPressed, isNull);
+    });
   });
 
   group('golden Jadwal', () {

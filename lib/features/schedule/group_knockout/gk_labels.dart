@@ -14,46 +14,59 @@ String gkRoundSubtitle(ActiveTournament a, int round) {
   return inKnockout ? '$sport · R$round${_ended(a)}' : '$sport · Fase grup · ${a.config.format.label}${_ended(a)}';
 }
 
-/// Subjudul tab Bagan: "Padel · 4 pasangan lolos" (21a).
+/// Subjudul tab Bagan: sebelum Buat bagan "Padel · Fase grup" (23s), sesudahnya "Padel · 4 pasangan lolos" (21a).
 String gkBaganSubtitle(ActiveTournament a) {
+  final sport = a.config.sport.label;
+  if (!a.hasBracket) return '$sport · Fase grup${_ended(a)}';
   final groups = a.config.groupKnockout?.groupCount ?? 0;
-  return '${a.config.sport.label} · ${groups * 2} pasangan lolos${_ended(a)}';
+  // 3 grup: 3 juara + 2 wildcard = 8 pasangan, sama dengan 2 × 4 grup.
+  return '$sport · ${(groups == 3 ? 4 : groups) * 2} pasangan lolos${_ended(a)}';
 }
 
-/// Label kanan tab Bagan: match gugur terisi / semua match gugur ("0/4 match", 21a).
+/// Label kanan tab Bagan: match gugur terisi / semua match gugur ("0/4 match", 21a, 23s); sebelum bagan jumlah semua
+/// dari susunan bagan (`KnockoutBracket.progress`).
 String gkBaganMeta(ActiveTournament a) {
-  final knockout = [
-    for (final m in a.matches)
-      if (m.phase is KnockoutPhase) m,
-  ];
-  final done = knockout.where((m) => m.status == MatchStatus.done || m.status == MatchStatus.wo).length;
-  return '$done/${knockout.length} match';
+  final p = KnockoutBracket.progress(a);
+  return '${p.done}/${p.total} match';
 }
 
 /// Satu baris ringkasan di dialog Buat bagan (`.bracket .bm`): kode match, slot, dan nama tiap sisi.
 typedef BracketPreviewRow = ({String code, String slot1, String name1, String slot2, String name2});
 
-/// Match babak pertama bagan dari [qualifiers] (per grup [slot 1, slot 2]): SF1 = A1 vs B2 (20g), QF1–QF4 (20o); kode UI, bukan kode simpanan "PF".
-List<BracketPreviewRow> gkBracketPreview(
-  ActiveTournament a,
-  List<List<String>> qualifiers, {
-  required String Function(Pair) nameOf,
-}) {
-  final groups = qualifiers.length;
-  final first = groups == 4 ? KnockoutRound.quarterfinal : KnockoutRound.semifinal;
-  final rows = <BracketPreviewRow>[];
-  for (final phase in KnockoutBracket.phases(groupCount: groups, thirdPlace: false)) {
-    if (phase.round != first) continue;
-    final (s1, s2) = KnockoutBracket.sources(phase, groupCount: groups);
-    if (s1 is! SeedSource || s2 is! SeedSource) continue;
-    String name(SeedSource s) {
-      final pair = a.pairById(qualifiers[s.group][s.slot - 1]);
-      return pair == null ? '' : nameOf(pair);
-    }
+/// Match babak pertama bagan dari [seeding] (Perempat final 3/4 grup, Semifinal 2 grup; 20g, 20o, 23d, 23g): bagan
+/// disusun oleh `KnockoutBracket.build` (tukar wildcard ikut), slot dari `seedLabel` ("A1", "WC2 · B3"), kode UI
+/// ("QF1"), bukan kode simpanan "PF".
+List<BracketPreviewRow> gkBracketPreview(ActiveTournament a, Seeding seeding, {required String Function(Pair) nameOf}) {
+  final built = KnockoutBracket.build(a, seeding);
+  final withBracket = a.copyWith(
+    tournament: a.tournament.copyWith(config: built.config, matches: [...a.matches, ...built.matches]),
+  );
+  final first = built.matches.map((m) => m.phase).whereType<KnockoutPhase>().first.round;
+  return [
+    for (final m in built.matches)
+      if (m.phase case final KnockoutPhase p when p.round == first)
+        (
+          code: KnockoutBracket.code(p),
+          slot1: KnockoutBracket.seedLabel(withBracket, m.pair1.id) ?? '',
+          name1: nameOf(m.pair1),
+          slot2: KnockoutBracket.seedLabel(withBracket, m.pair2.id) ?? '',
+          name2: nameOf(m.pair2),
+        ),
+  ];
+}
 
-    rows.add((code: KnockoutBracket.code(phase), slot1: s1.code, name1: name(s1), slot2: s2.code, name2: name(s2)));
-  }
-  return rows;
+/// Judul bagian wildcard sheet Buat bagan: "Wildcard", atau "Wildcard · pilih WC2" selama seri belum dipilih (23e).
+/// [sure] = wildcard yang sudah pasti, [chosen] = ketukan host sejauh ini.
+String gkWildcardLabel(WildcardPick? pick, int sure, int chosen) {
+  if (pick == null) return 'Wildcard';
+  final left = gkWildcardMissing(pick, sure, chosen);
+  return left == null ? 'Wildcard' : 'Wildcard · $left';
+}
+
+/// "pilih WC2" / "pilih WC1 dan WC2" untuk slot wildcard yang belum dipilih; null = semua terpilih (23e, 23f).
+String? gkWildcardMissing(WildcardPick pick, int sure, int chosen) {
+  final slots = [for (var i = sure + chosen + 1; i <= sure + pick.need; i++) 'WC$i'];
+  return slots.isEmpty ? null : 'pilih ${_slotList(slots)}';
 }
 
 /// Slot yang butuh ketukan host di [picks] ("A2", "C2"), urut grup lalu slot.
