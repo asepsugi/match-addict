@@ -39,7 +39,7 @@ void main() {
   }
 
   /// 15d + Dimas dan Laras masuk Matcha Club (belum main): 16 + 16 = 32 aktif.
-  MixedSparingState _full32() {
+  MixedSparingState full32() {
     final base = mixedSparing15d();
     final config = base.active.config;
     return (
@@ -114,7 +114,7 @@ void main() {
   ) async {
     await expectMatchesHifi(
       tester,
-      screen(_full32()),
+      screen(full32()),
       '15z3',
       act: (tester) async {
         await openPlayers(tester);
