@@ -80,10 +80,11 @@ GP-13 (1bd24a5) di-merge ke `grup-playoff-3-10` (7db7937). Catatan untuk task be
   pengaturan terakhir 4 grup di 24 pemain (GP-8, akibat `groupCountsFor` baru — ganti sesuai AC-G21, jangan dilonggarkan).
 - GP-6: 13o bertentangan dengan catatannya (isi muat, frame masih rata bawah + app bar `scrolled`) dan contoh 09m
   "Indra W · Joko S" ternyata utuh di 14 pt — dijawab host (keputusan 158–159, D-2). `PairNameFit` ada di `lib/services/layout/`.
-- GP-13b (keputusan 157, engineer · sonnet/low, setelah frame D-2): `start()` kena 413 → toast "Data terlalu besar · live
+- GP-13b (keputusan 157, engineer · sonnet/low; frame 12s disetujui host 2026-11-24, hi-fi v112 — siap, ikut gelombang 2): `start()` kena 413 → toast "Data terlalu besar · live
   belum dimulai"; bedakan hasil `start()` (413 vs tanpa internet) di `live_score.dart:41`; golden frame baru.
-- D-2 (ui-ux-designer, 2026-11-24): 13o tabel di atas tanpa `scrolled` (keputusan 158), contoh nama 09m (159), frame toast
-  413 di samping 12g (157); render + publish artifact.
+- D-2 selesai (7c2c75e + afbf32e, hi-fi v112): 12s baru, 13o, 09m. Golden 13o (`act: scrollDown` + test "tidak bergeser saat
+  digulir" dibuang) dan 09m (data 'Indra W'/'Joko S' → 'Wicaksono Adi'/'Setiawati Putri', peringkat_test.dart:71,153)
+  diperbarui di GP-13b atau task gelombang 2 pertama yang menyentuh test/hifi.
 
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
