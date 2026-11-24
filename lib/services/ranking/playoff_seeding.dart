@@ -14,7 +14,8 @@ class SeedRow {
   /// Selisih per match ("+3,67", "−1,67").
   final String perMatch;
 
-  /// Pasti lolos tanpa pilihan host. Juara selalu true; kandidat yang menunggu [WildcardPick] false.
+  /// Pasti lolos tanpa pilihan host. Juara selalu true; false = menunggu [WildcardPick] atau tidak lolos (UI membedakan
+  /// lewat `pick?.candidates`).
   final bool qualified;
 
   const SeedRow({

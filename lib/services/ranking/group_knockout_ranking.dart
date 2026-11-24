@@ -41,7 +41,7 @@ class QualifierPlan {
   const QualifierPlan({required this.slots, required this.picks});
 
   /// Slot lengkap setelah pilihan host. [chosen] per grup = pasangan yang diketuk berurutan (slot pertama yang
-  /// diperebutkan dulu), tepat jumlah [OpenPick.taps] semua pilihan grup itu (grup 3 grup bisa punya dua [OpenPick],
+  /// diperebutkan dulu), tepat jumlah [OpenPick.taps] semua pilihan grup itu (di 3 grup bisa ada dua [OpenPick],
   /// ketukan pilihan pertama dulu). Null kalau ada yang bukan kandidat, ganda, kurang/lebih, atau ada pilihan untuk grup
   /// tanpa [OpenPick] — pilihan hanya hidup di UI sampai dialog dikonfirmasi (AC-G7).
   List<List<String>>? withPicks(Map<int, List<String>> chosen) {
