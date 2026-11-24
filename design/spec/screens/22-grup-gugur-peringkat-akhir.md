@@ -89,7 +89,7 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Halaman digulir; app bar, tab, dan action bar tetap. Bawah daftar: 22i.
 - Simpanan 3.8.x–3.9.x (4 grup × 3, contoh 16B): tetap dimuat dan diselesaikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142): 23a, 23i.
 
-## 22i · Klasemen · Peringkat · 4 grup · digulir ke bawah
+## 22i · Klasemen · Peringkat · 4 grup · Final
 
 ![22i](../../frames/22i.png)
 

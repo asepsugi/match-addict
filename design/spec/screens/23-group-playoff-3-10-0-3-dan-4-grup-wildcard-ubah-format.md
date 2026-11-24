@@ -107,9 +107,9 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 
 - Data 16G-akhir (AC-G27): Final Andi · Budi 6–4 Qori · Rina, Perebutan juara 3 Maya · Nanda 5–2 Citra · Dewi. 18 match grup + 8 playoff = 26 match, R1–R16.
 - Label babak (keputusan 149, ralat host 2026-11-23): "Juara 1", "Juara 2" dari Final, "Juara 3" pemenang Perebutan juara 3; yang kalah di sana "Semifinal"; kalah Perempat final (termasuk wildcard) "Perempat final".
-- #5 berempat urut nama. Frame di posisi gulir paling atas; sisanya 23l.
+- #5 berempat urut nama. Dua belas baris muat tanpa digulir (nama satu baris, keputusan 148); catatan posisi grup GP7 di 23l.
 
-## 23l · Klasemen · Peringkat · 3 grup · digulir ke bawah
+## 23l · Klasemen · Peringkat · 3 grup · posisi grup (GP7)
 
 ![23l](../../frames/23l.png)
 

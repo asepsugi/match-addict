@@ -338,14 +338,14 @@ class StandingTable extends StatelessWidget {
     final (color, weight) = switch (stage) {
       'Juara 1' => (MabarColors.ink, FontWeight.w800),
       final s when s.startsWith('Grup ') => (MabarColors.ink3, FontWeight.w500),
-      _ => (MabarColors.ink2, FontWeight.w700),
+      _ => (MabarColors.ink2, FontWeight.w600),
     };
     return Text(
       stage,
       textAlign: TextAlign.right,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: MabarType.body.copyWith(fontSize: 18, fontWeight: weight, color: color),
+      style: MabarType.body.copyWith(fontSize: 16, fontWeight: weight, color: color),
     );
   }
 

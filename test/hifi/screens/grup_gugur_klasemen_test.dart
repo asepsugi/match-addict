@@ -31,7 +31,6 @@ void main() {
   );
 
   Future<void> fasePhase(WidgetTester tester) => tester.tap(find.text('Fase grup'));
-  Future<void> scrollDown(WidgetTester tester) => tester.drag(find.byType(ListView), const Offset(0, -2000));
 
   /// Nomor dan nama baris tabel pertama: nomor dari `position`, bukan indeks.
   List<(int, String)> rows(WidgetTester tester) {
@@ -154,8 +153,8 @@ void main() {
     await expectMatchesHifi(tester, screen(gg21y(), at21f), '22h');
   });
 
-  testWidgets('22i 4 grup digulir: posisi grup 3 berbagi #6', (tester) async {
-    await expectMatchesHifi(tester, screen(gg21y(), at21f), '22i', act: scrollDown);
+  testWidgets('22i 4 grup Final: posisi grup 3 berbagi #6, 12 baris muat tanpa gulir', (tester) async {
+    await expectMatchesHifi(tester, screen(gg21y(), at21f), '22i');
   });
 
   testWidgets('22j Detail pasangan juara: angka fase grup, riwayat semua match berlabel babak', (tester) async {
@@ -210,11 +209,11 @@ void main() {
     }
     final bold = tester.widget<Text>(find.text('Juara 1')).style!.fontWeight;
     expect(bold, FontWeight.w800); // hanya Juara 1 tinta tebal
-    expect(tester.widget<Text>(find.text('Juara 2')).style!.fontWeight, FontWeight.w700);
+    expect(tester.widget<Text>(find.text('Juara 2')).style!.fontWeight, FontWeight.w600);
   });
 
-  testWidgets('23l Peringkat digulir: wildcard dihitung lolos, posisi grup tidak lolos GP7', (tester) async {
-    await expectMatchesHifi(tester, screen(gp23w(), at23w), '23l', act: scrollDown);
+  testWidgets('23l Peringkat 3 grup: wildcard dihitung lolos, posisi grup tidak lolos GP7', (tester) async {
+    await expectMatchesHifi(tester, screen(gp23w(), at23w), '23l');
     expect(find.text('Grup C · 3'), findsOneWidget);
     for (final g in ['Grup A · 4', 'Grup B · 4', 'Grup C · 4']) {
       expect(find.text(g), findsOneWidget);

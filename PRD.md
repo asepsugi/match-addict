@@ -1158,6 +1158,10 @@ Pertanyaan terbuka:
 161. **Subjudul sheet Playoff di 19f–19h** (2026-11-24, host: "setuju"): sheet Playoff yang tertumpuk di bawah sheet
      babak tetap bersubjudul babak awal ("Semifinal" untuk 2 grup), sama dengan 19e (keputusan 136). Frame diselaraskan;
      kode GP-8 sudah benar.
+162. **Klasemen Group - Playoff tanpa gulir + gaya kolom Babak** (2026-11-24, host: "setuju semua usulan nya"): 22i
+     dan 23l tidak lagi "digulir" — 12 baris muat di satu layar sejak nama satu baris (keputusan 148), jadi frame
+     memperlihatkan daftar utuh tanpa gulir. Kolom Babak satu gaya di semua frame dan app: 16 px tebal 600, Juara 1 800,
+     posisi grup 500 abu (CSS `.gg-bk` hi-fi; app sebelumnya 18 px/700). Perilaku tidak berubah.
 ---
 
 ## 11. Jawaban User (Dasar Keputusan)
