@@ -115,6 +115,27 @@ GP-8 (742e7d3 + c44ac61) di-merge ke `grup-playoff-3-10` (1db9a20). Run penuh: 2
 - Berikutnya gelombang 4: **GP-5 sendirian** (engineer opus, review tech-lead fresh), di sesi baru. Catatan GP-5 di
   gelombang 2 tetap berlaku (`createBracket` 3 grup, `withPicks`, test flow 16A "Juara 1"/"Juara 2").
 
+**Gelombang 4 (2026-11-24):** GP-5 (9b157fb + perbaikan review 10f29a7; tech-lead fresh: Request changes →
+`bracketSeeding` pindah ke services, diperiksa main session) di-merge (e24130d). Run penuh: 2392 lolos, 17 gagal = persis
+milik GP-9 (21a/d/j/p/r/t/u/w/x/y) dan GP-11 (22i, 22j, 22l ×2, 22p, 22r, AC-G18); flow 16A dan 19f–19h kini lolos.
+API untuk gelombang 5 (`tournament_controller.dart` + services):
+- Mutator: `createBracket([picks, wildcardPick])` (menurunkan `Seeding` sendiri lewat
+  `GroupKnockoutRanking.bracketSeeding`), `setPlayoffFormat(KnockoutRound, ScoreFormat)` → bool, `setThirdPlace(bool)`
+  → bool (format sama = tanpa `state =`).
+- Provider: `qualifierPlanProvider`, `seedingPlanProvider(BracketPicks)` (autoDispose; sheet 23e/23f),
+  `bracketPreviewProvider` (slot kode 23s–23u), `playoffLocksProvider` (alasan kunci per babak + Juara 3, 23n–23r).
+- Services: `PlayoffFormat.formatLock/thirdPlaceLock/locks/withFormat/withThirdPlace/relayout`;
+  `KnockoutBracket.lastGroupRound/slots/matchAt`; `GroupKnockoutRanking.seedingPlanFor/bracketSeeding`.
+- Fixture: `test/services/group_knockout_fixture.dart` (g16G, t16G, seeding16G/16GIII, bracket16G, semis16G 23v,
+  final16G 23q, akhir16G 23w, g32/t32, legacy2x3/legacy4x3, `withBracket`), `test/hifi/screens/group_playoff_fixture.dart`
+  (gp23b/e/h/p/v/q/w/u/i), `ggStaged` publik. Hanya dibaca di gelombang 5.
+- GP-10: `gk_labels.gkBracketPreview` → pakai `bracketPreviewProvider`; tombol 23e/23f pakai `seedingPlanProvider`, jangan
+  menurunkan seeding di widget.
+- `startIfNeeded` kini menolak config lama milik turnamen yang sama (Expando id pemilik, §21.12 #6).
+- GP-12: spec §21.10/§21.6 + baris GP-5 masih menulis `createBracket(Seeding)` dan `KnockoutBracket.relayout` → ubah ke
+  `createBracket(picks)` + `PlayoffFormat.relayout`. PRD 16G-akhir #5 sudah urut nama (36e7727).
+- Berikutnya gelombang 5: GP-9 ‖ GP-10 ‖ GP-11 (maks 3 paralel, worktree), di sesi baru.
+
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
 **GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari

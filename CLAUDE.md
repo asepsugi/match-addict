@@ -141,7 +141,7 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - 3.10.0 (MINOR) Group - Playoff fleksibel (2/3/4 grup, wildcard, babak awal otomatis, GU9) + batas 32 pemain + nama
   pasangan satu baris (poster, Klasemen) + bagan baru + tab QF/SF: PRD + hi-fi v109 disetujui (keputusan 135–154),
   branch `grup-playoff-3-10`; spec + task GP-n + gelombang 0 selesai (8f06416, keputusan 155–156, hi-fi v110).
-  Berikutnya: gelombang 1 (GP-1 ‖ GP-6 ‖ GP-13) — `docs/tasks.md` atas.
+  Gelombang 0–4 selesai (e24130d). Berikutnya: gelombang 5 (GP-9 ‖ GP-10 ‖ GP-11) — `docs/tasks.md` atas.
 
 ## Area docs
 
