@@ -185,7 +185,7 @@ Komponen: `SharePoster`
 
 Komponen: `SharePoster`
 
-- Data 22h. Pasangan selalu satu kolom (keputusan 81). Kepadatan: Feed 226 ÷ 12 = 18,83 → skala 0,856; Story satu baris per pasangan (keputusan 148) 336 ÷ 12 = 28 → batas skala 1,33; pratinjau 238 ÷ 12 = 19,83 → 0,901.
+- Data 22h. Pasangan selalu satu kolom (keputusan 81). Kepadatan: Feed 226 ÷ 12 = 18,83 → skala 0,856; Story satu baris per pasangan (keputusan 148) subjudul turun ke 12 (12,5 tidak muat di 212), ruang 340 ÷ 12 = 28,33 → batas skala 1,33 (keputusan 162); pratinjau 238 ÷ 12 = 19,83 → 0,901.
 - Babak terlebar "Perempat final" menentukan lebar kolom kanan; nama pasangan tetap utuh. Tema lapangan tennis (lantai court).
 - Simpanan 3.8.x–3.9.x (4 grup × 3, 12 pasangan): tetap dimuat dan dibagikan dengan aturan lamanya (AC-G29). Turnamen baru 4 grup = tepat 32 pemain, 4 × 4 (keputusan 142); poster Fixed 16 pasangan = 11s.
 

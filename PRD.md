@@ -1161,7 +1161,8 @@ Pertanyaan terbuka:
 162. **Klasemen Group - Playoff tanpa gulir + gaya kolom Babak** (2026-11-24, host: "setuju semua usulan nya"): 22i
      dan 23l tidak lagi "digulir" — 12 baris muat di satu layar sejak nama satu baris (keputusan 148), jadi frame
      memperlihatkan daftar utuh tanpa gulir. Kolom Babak satu gaya di semua frame dan app: 16 px tebal 600, Juara 1 800,
-     posisi grup 500 abu (CSS `.gg-bk` hi-fi; app sebelumnya 18 px/700). Perilaku tidak berubah.
+     posisi grup 500 abu (CSS `.gg-bk` hi-fi; app sebelumnya 18 px/700). 22r Story diselaraskan dengan aturan §17.5: subjudul turun ke 12 (12,5
+     tidak muat), baris 340 ÷ 12 = 28,33; app sudah benar. Perilaku tidak berubah.
 ---
 
 ## 11. Jawaban User (Dasar Keputusan)
