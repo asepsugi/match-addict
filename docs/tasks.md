@@ -152,6 +152,14 @@ GP-12) di sesi baru.
 v114. Run penuh: 2446 lolos, 0 gagal. Sisa kecil: id gradien dobel (hx9 …) sudah ada di hifi.html; `hifi_court_floor.py`
 menomori ulang id di ±36 frame (render sia-sia) — rapikan terpisah; `hifi_extract.py` crash `_frame.html` saat 0 frame dirender.
 
+**Gelombang 6 (2026-11-24):** A15-2 (edc4f9f) ternyata belum pernah di-merge di gelombang 3 (hanya di branch worktree) →
+di-merge 5b20869, hi-fi v115 (v113/v114 terbit tanpa A15-2). A15-3 (eaad62d, diperiksa main session): batas 1,3 di akar
+app, `MabarButton` tinggi minimum + dua baris `.btn.two` saat meta tidak muat, kartu mode/header Klasemen FittedBox,
+subjudul sheet WO `subtitleTail`, golden 06fts/03ats + uji tanpa overflow 1,3 untuk 20b, 07j, 21a, 21d. Belum diuji
+1,3: 06h, 06u, 14f; golden 1,3 untuk 09a/07j/21a belum digambar. GP-12: 3.10.0+28 + `appVersion`, architecture.md,
+logic.md §21.5/§21.10 (5941406). `flutter analyze` 6 info lama; run penuh 2452 lolos, 0 gagal. Sisa rilis: build web +
+PWA (tech-infra), merge ke `main` + push (deploy) setelah host bilang go.
+
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
 **GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari

@@ -96,7 +96,7 @@ Klasemen ikut format skor (Race to/Best of → Win %, Americano → Total Point)
 Konfigurasi diringkas (pengaturan terakhir per olahraga); 3.5.0 (MINOR) = tukar pemain Mixed (ikon di baris match); 3.6.0 (MINOR) = poster podium Bagikan Ringkas; 3.6.1 (PATCH) = kontras tema hijau/jingga/teal (keputusan 75) + decode
 sparing menolak id pemain duplikat; 3.7.0 (MINOR) = poster Lengkap arah B "Podium mini"; 3.7.1 (PATCH) = lantai poster
 lapangan utuh (keputusan 91) + ukuran/perataan poster (keputusan 92); 3.8.0 (MINOR) = Grup + Gugur (Fixed); 3.8.1 (PATCH) = review UX hi-fi (kontras, area ketuk 48 + Semantics, teks); 3.9.0 (MINOR) = Kosongkan skor / Hapus
-WO + Point % + "Group - Playoff". 3.9.1 (PATCH) = label "Gugur" → "Playoff" + caption Bagikan > 1024 dipendekkan (keputusan 133–134).
+WO + Point % + "Group - Playoff". 3.9.1 (PATCH) = label "Gugur" → "Playoff" + caption Bagikan > 1024 dipendekkan (keputusan 133–134). 3.10.0 (MINOR) = Group - Playoff fleksibel (2/3/4 grup, wildcard, GU9) + batas 32 + nama satu baris + skala teks ≤ 1,3.
 
 ## Status
 
@@ -141,7 +141,8 @@ Logika, provider, persistensi, dan platform di `docs/` berlaku; tampilan mengiku
 - 3.10.0 (MINOR) Group - Playoff fleksibel (2/3/4 grup, wildcard, babak awal otomatis, GU9) + batas 32 pemain + nama
   pasangan satu baris (poster, Klasemen) + bagan baru + tab QF/SF: PRD + hi-fi v109 disetujui (keputusan 135–154),
   branch `grup-playoff-3-10`; spec + task GP-n + gelombang 0 selesai (8f06416, keputusan 155–156, hi-fi v110).
-  Gelombang 0–4 selesai (e24130d). Berikutnya: gelombang 5 (GP-9 ‖ GP-10 ‖ GP-11) — `docs/tasks.md` atas.
+  Gelombang 0–6 selesai (A15-3 skala teks ≤ 1,3 eaad62d, hi-fi v115); versi 3.10.0+28 di branch, belum di `main`/live —
+  `docs/tasks.md` atas.
 
 ## Area docs
 
