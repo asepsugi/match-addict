@@ -1,5 +1,6 @@
 import '../../core/time_text.dart';
 import '../../models/models.dart';
+import 'group_stage.dart';
 
 /// Teks baris Skor dan Court di Konfigurasi (03a, 03h, 03p). Dirangkai di sini supaya widget tidak menulis aturannya.
 class ConfigSummary {
@@ -58,4 +59,18 @@ class ConfigSummary {
         ? '· $rounds round · lewat booking ${countdownText(overMinutes)}'
         : '· $rounds round · $matches match';
   }
+
+  /// Babak awal Playoff sebagai fakta (keputusan 136): 2 grup → "Semifinal", 3 grup → "Perempat final · 2 wildcard",
+  /// 4 grup → "Perempat final". Dipakai label `Playoff · …`, subjudul sheet Playoff, dan pilihan sheet Fase grup.
+  static String playoffOpening(int groupCount) => switch (groupCount) {
+    2 => KnockoutRound.semifinal.label,
+    3 => '${KnockoutRound.quarterfinal.label} · 2 wildcard',
+    _ => KnockoutRound.quarterfinal.label,
+  };
+
+  /// Keterangan satu pilihan di sheet Fase grup (19c, 19d, 23a): "4 + 4 + 4 · Perempat final · 2 wildcard"; pilihan yang
+  /// tidak sah → alasannya ("Mulai 24 pemain", "Tepat 32 pemain").
+  static String groupOption(int pairs, int groupCount) =>
+      GroupStage.unavailableReason(groupCount, pairs) ??
+      '${GroupStage.sizes(pairs, groupCount).join(' + ')} · ${playoffOpening(groupCount)}';
 }

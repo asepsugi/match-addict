@@ -219,7 +219,7 @@ void main() {
       expect(button(tester).meta, '· Grup A lebih 1 pasangan');
     });
 
-    // 15 pasangan / 13 pasangan: nama dari daftar contoh layar Pemain (pasangan_test).
+    // 16 pasangan (19w, 19x): nama dari daftar contoh layar Pemain (pasangan_test).
     const names30 = [
       'Andi P',
       'Budi S',
@@ -233,14 +233,24 @@ void main() {
       'Joko S',
       'Kiki A', //
       'Lina M', 'Maya P', 'Nanda R', 'Oki S', 'Putri A', 'Rizky H', 'Sari D', 'Tono B', 'Umar F', 'Vina K', //
-      'Wulan S', 'Yoga P', 'Zaki M', 'Bayu S', 'Dimas A', 'Galih P', 'Rina K', 'Tari W', 'Hendra G',
+      'Wulan S',
+      'Yoga P',
+      'Zaki M',
+      'Bayu S',
+      'Dimas A',
+      'Galih P',
+      'Rina K',
+      'Tari W',
+      'Hendra G',
+      'Lukas J',
+      'Mira D',
     ];
     List<(String, String)> pairs30(int n) => [for (var i = 0; i < n; i++) (names30[i * 2], names30[i * 2 + 1])];
     // Id pasangan = nama pemain pertama; `draft` memakai id itu.
     List<String> ids(List<String> firsts) => firsts;
 
-    testWidgets('19w 4 grup · 15 pasangan · sebagian (terpadat)', (tester) async {
-      final c = pairedConfig(pairs30(15), groups: 4);
+    testWidgets('19w 4 grup · 16 pasangan · sebagian (terpadat)', (tester) async {
+      final c = pairedConfig(pairs30(16), groups: 4);
       final d = draft(c, [
         ids(['Andi P', 'Oki S']),
         ids(['Citra L', 'Rizky H']),
@@ -248,17 +258,16 @@ void main() {
         ids(['Gina R']),
       ]);
       await expectMatchesHifi(tester, grup(c, initial: d), '19w');
-      expect(d.targets, [4, 4, 4, 3]);
-      expect(button(tester).meta, '· 9 pasangan tanpa grup');
+      expect(d.targets, [4, 4, 4, 4]);
+      expect(button(tester).meta, '· 10 pasangan tanpa grup');
     });
 
-    testWidgets('19x 4 grup · 13 pasangan · lengkap · digulir ke bawah', (tester) async {
-      final c = pairedConfig(pairs30(13), groups: 4);
+    testWidgets('19x 3 grup · 16 pasangan · 6 + 5 + 5 · lengkap · digulir ke bawah', (tester) async {
+      final c = pairedConfig(pairs30(16), groups: 3);
       final d = draft(c, [
-        ids(['Andi P', 'Indra W', 'Rizky H', 'Bayu S']),
-        ids(['Citra L', 'Kiki A', 'Tono B']),
-        ids(['Eko M', 'Maya P', 'Vina K']),
-        ids(['Gina R', 'Oki S', 'Yoga P']),
+        ids(['Andi P', 'Indra W', 'Rizky H', 'Bayu S', 'Kiki A', 'Lukas J']),
+        ids(['Citra L', 'Maya P', 'Galih P', 'Oki S', 'Yoga P']),
+        ids(['Eko M', 'Gina R', 'Tono B', 'Vina K', 'Tari W']),
       ]);
       await expectMatchesHifi(
         tester,
@@ -269,6 +278,7 @@ void main() {
           await tester.pumpAndSettle();
         },
       );
+      expect(d.targets, [6, 5, 5]);
       expect(d.blockReason, isNull);
       expect(button(tester).icon, isNotNull);
     });
