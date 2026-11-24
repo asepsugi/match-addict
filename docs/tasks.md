@@ -63,6 +63,21 @@ Usulan qa untuk A15-2/A15-3: tinggi tetap hanya untuk kontrol non-teks (kartu ba
 baris saat sempit, alasan tidak dipotong; header Klasemen `maxLines: 1` + `FittedBox(scaleDown)`; subjudul sheet WO
 mendahulukan "sisa mm:ss"; tab aktif digulir ke tampak. Frame uji A15-2: 06f, 03a + usul 21a, 09a.
 
+**Gelombang 1 (2026-11-24):** GP-1 (6f760f6 + perbaikan review d939b34, review tech-lead Approve setelah perbaikan) dan
+GP-13 (1bd24a5) di-merge ke `grup-playoff-3-10` (7db7937). Catatan untuk task berikutnya:
+- **3 grup belum boleh diuji tangan / di-merge ke `main`** sampai GP-2, GP-4, GP-8 selesai: Konfigurasi sudah menawarkan
+  3 grup, tapi codec masih menolaknya (assert `canEncode` gagal di debug; di rilis simpanan + live dilewati).
+- GP-4: hapus penjaga sementara `groupCount == 3` di `tournament_codec.dart:184` saat GR18/GR19 masuk; test codec 2×3 dan
+  4×3 (fixture GP-5). GR5 sudah memakai `decodableGroupCounts` (diubah GP-1 supaya simpanan 2×3 tetap terbaca).
+- GP-8: `konfigurasi_screen.dart:79-83` (komentar usang, pakai `fallbackGroupCount`) dan `:168` (QF hanya untuk 4 grup →
+  juga 3 grup). Pengaturan terakhir "4 grup" di 24–30 pemain sementara turun ke 2.
+- GP-2: komentar "PF2"/"PF1–2" di `knockout_bracket.dart:102,336` → "QF"; `roundTab` babak penuh masih "Semifinal" sampai
+  `tabLabel` dipakai.
+- GP-7: `sparing_kelola_pemain_test` 15z3 masih batas 30 (gagal sampai GP-7).
+- PRD 16.4 (PATCH teks, PM): "B dan C habis di R30" → "B habis R29, C habis R30" (GU4; total 35 round tetap); baris
+  30/3 dan 32/3 "PF" → "QF" (keputusan 152). Kode sudah benar.
+- GP-13: toast `start()` kena 413 masih "Tidak ada internet · live belum dimulai" — menunggu teks dari host.
+
 **Pertanyaan terbuka (logic.md §21.13):** dijawab host 2026-11-23, asumsi 1–3 disetujui (keputusan 155).
 
 **GP-13 (keputusan 156, security #5, engineer · sonnet, gelombang 1 paralel; berkas tidak bersinggungan):** 413 dari
