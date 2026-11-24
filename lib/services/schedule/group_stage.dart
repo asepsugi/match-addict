@@ -11,11 +11,43 @@ class GroupStage {
     for (var g = 0; g < groups; g++) pairs ~/ groups + (g < pairs % groups ? 1 : 0),
   ];
 
-  /// Jumlah grup yang ditawarkan untuk P pasangan: tiap grup minimal 3 pasangan (G1, G2).
+  /// Jumlah grup yang ditawarkan untuk turnamen **baru** dengan P pasangan: tiap grup minimal 4 pasangan (G2, keputusan
+  /// 135, 142–143). P > 16 tidak mungkin (batas 32 pemain). Decoder memakai [decodableGroupCounts], bukan ini.
   static List<int> groupCountsFor(int pairs) => switch (pairs) {
+    < 8 => const [],
+    < 12 => const [2],
+    < 16 => const [2, 3],
+    16 => const [2, 3, 4],
+    _ => const [],
+  };
+
+  /// Alasan pilihan [groups] mati di sheet Fase grup (19c, GP9); null = bisa dipilih. Teks dari frame 19c/19d.
+  static String? unavailableReason(int groups, int pairs) {
+    if (groupCountsFor(pairs).contains(groups)) return null;
+    return switch (groups) {
+      3 => 'Mulai 24 pemain',
+      4 => 'Tepat 32 pemain',
+      _ => null,
+    };
+  }
+
+  /// Pilihan lama [previous] yang tidak sah lagi untuk P (GP9, 19d) → G terbesar yang ditawarkan dan ≤ [previous];
+  /// null = tidak ada (format kembali Round-robin, 19a). Satu fungsi untuk Konfigurasi dan pengaturan terakhir.
+  static int? fallbackGroupCount(int pairs, int previous) {
+    int? best;
+    for (final g in groupCountsFor(pairs)) {
+      if (g <= previous) best = g;
+    }
+    return best;
+  }
+
+  /// Hanya untuk decoder simpanan/payload (logic.md §21.9): [groupCountsFor] ∪ aturan 3.8.x–3.9.x (P 6–11 → [2],
+  /// P ≥ 12 → [2, 4]) supaya data lama 2 × 3 / 4 × 3 pasangan tetap terbaca. P > 16 tidak pernah ditulis → [] (W4).
+  static List<int> decodableGroupCounts(int pairs) => switch (pairs) {
     < 6 => const [],
     < 12 => const [2],
-    _ => const [2, 4],
+    <= 16 => const [2, 3, 4],
+    _ => const [],
   };
 
   /// Round satu grup g pasangan dengan k court: putaran circle r dipotong per k court, dua putaran tidak digabung.
@@ -130,12 +162,12 @@ class GroupStage {
     return matches;
   }
 
-  /// Round gugur (GU10): Perempat final (4 grup) dan Semifinal dipotong per court; Final + Perebutan juara 3 satu
+  /// Round gugur (GU10): Perempat final (3 dan 4 grup) dan Semifinal dipotong per court; Final + Perebutan juara 3 satu
   /// round kecuali hanya 1 court. Dari semua court, walau ada yang kosong di fase grup (§18.12 #11).
   static int _knockoutRounds({required int groups, required int courtCount, required bool thirdPlace}) {
     if (courtCount <= 0) return 0;
     int perCourt(int matches) => (matches + courtCount - 1) ~/ courtCount;
-    return (groups == 4 ? perCourt(4) : 0) + perCourt(2) + (thirdPlace && courtCount == 1 ? 2 : 1);
+    return (groups >= 3 ? perCourt(4) : 0) + perCourt(2) + (thirdPlace && courtCount == 1 ? 2 : 1);
   }
 
   /// Estimasi tombol Lanjut di Konfigurasi (logic.md §18.5), pasti seperti Fixed sparing. P = ⌊[players] ÷ 2⌋ (sisa
@@ -156,7 +188,7 @@ class GroupStage {
     final s = sizes(pairs, groups);
     final c = bookingMinutes.length;
     final rounds = groupPhaseRounds(s, c) + _knockoutRounds(groups: groups, courtCount: c, thirdPlace: thirdPlace);
-    final matches = s.map(_matches).fold(0, (a, b) => a + b) + (groups == 4 ? 4 : 0) + 2 + 1 + (thirdPlace ? 1 : 0);
+    final matches = s.map(_matches).fold(0, (a, b) => a + b) + (groups >= 3 ? 4 : 0) + 2 + 1 + (thirdPlace ? 1 : 0);
     // Sama dengan `TournamentConfig.maxRounds`: booking terpendek ÷ durasi.
     final fit = bookingMinutes.reduce(min) ~/ matchDurationMinutes;
     return (rounds: rounds, matches: matches, overMinutes: max(0, rounds - fit) * matchDurationMinutes);

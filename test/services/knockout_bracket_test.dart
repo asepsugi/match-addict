@@ -38,8 +38,8 @@ void main() {
         [for (var s = 1; s <= 4; s++) _sourcesOf(KnockoutPhase(KnockoutRound.quarterfinal, s), 4)],
         ['A1 vs B2', 'C1 vs D2', 'B1 vs A2', 'D1 vs C2'],
       );
-      expect(_sourcesOf(const KnockoutPhase(KnockoutRound.semifinal, 1), 4), 'Pemenang PF1 vs Pemenang PF2');
-      expect(_sourcesOf(const KnockoutPhase(KnockoutRound.semifinal, 2), 4), 'Pemenang PF3 vs Pemenang PF4');
+      expect(_sourcesOf(const KnockoutPhase(KnockoutRound.semifinal, 1), 4), 'Pemenang QF1 vs Pemenang QF2');
+      expect(_sourcesOf(const KnockoutPhase(KnockoutRound.semifinal, 2), 4), 'Pemenang QF3 vs Pemenang QF4');
     });
 
     test('AC-G8 paruh: slot 1 dan 2 tiap grup di paruh berbeda', () {
@@ -80,10 +80,10 @@ void main() {
       expect(KnockoutBracket.dependents(gk, const KnockoutPhase(KnockoutRound.finalRound, 1)), isEmpty);
     });
 
-    test('code: SF1, PF4, Juara 3, Final', () {
+    test('code (UI, kode simpanan tetap PF): SF1, QF4, Juara 3, Final', () {
       expect(
         [for (final p in KnockoutBracket.phases(groupCount: 4, thirdPlace: true)) KnockoutBracket.code(p)],
-        ['PF1', 'PF2', 'PF3', 'PF4', 'SF1', 'SF2', 'Juara 3', 'Final'],
+        ['QF1', 'QF2', 'QF3', 'QF4', 'SF1', 'SF2', 'Juara 3', 'Final'],
       );
     });
   });
@@ -273,16 +273,16 @@ void main() {
       );
     });
 
-    test('21v 4 grup 2 court: "PF1–2", "PF3–4", judul "Perempat final"', () {
+    test('21v 4 grup 2 court: "QF1–2", "QF3–4", judul "Perempat final"', () {
       final a = groups20o().bracket(q20o);
-      expect([for (var r = 7; r <= 10; r++) KnockoutBracket.roundTab(a, r)], ['PF1–2', 'PF3–4', 'Semifinal', 'Final']);
+      expect([for (var r = 7; r <= 10; r++) KnockoutBracket.roundTab(a, r)], ['QF1–2', 'QF3–4', 'Semifinal', 'Final']);
       expect(KnockoutBracket.roundTitle(a, 7), 'Perempat final');
     });
 
-    test('4 grup 3 court: "PF1–3", "PF4"', () {
+    test('4 grup 3 court: "QF1–3", "QF4"', () {
       final a = groups20o(courts: 3).bracket(q20o);
       final first = a.matches.where((m) => m.phase is KnockoutPhase).first.roundNumber;
-      expect([KnockoutBracket.roundTab(a, first), KnockoutBracket.roundTab(a, first + 1)], ['PF1–3', 'PF4']);
+      expect([KnockoutBracket.roundTab(a, first), KnockoutBracket.roundTab(a, first + 1)], ['QF1–3', 'QF4']);
     });
   });
 

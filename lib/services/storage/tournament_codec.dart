@@ -180,7 +180,9 @@ class TournamentCodec {
     final pairs = config.fixedPairs;
     if (pairs == null || pairs.isEmpty) return false;
     final groupCount = gk.groups.length;
-    if (gk.groupCount != groupCount || !GroupStage.groupCountsFor(pairs.length).contains(groupCount)) return false;
+    // decodableGroupCounts, bukan groupCountsFor (data lama 2 × 3 / 4 × 3). 3 grup baru sah setelah GP-4 (GR18–GR19).
+    if (gk.groupCount != groupCount || groupCount == 3) return false;
+    if (!GroupStage.decodableGroupCounts(pairs.length).contains(groupCount)) return false;
     // GR9
     final playerIds = {for (final p in config.players) p.id};
     if (playerIds.length != config.players.length) return false;

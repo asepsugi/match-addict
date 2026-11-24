@@ -4,15 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:match_addict/models/models.dart';
 import 'package:match_addict/services/schedule/group_stage.dart';
 
-/// Invariant I1–I6 fase grup (logic.md §18.4): semua P 6–15 × G ∈ groupCountsFor(P) × C 1–10, isi grup = urutan acak
-/// berseed (urutan masuk layar Grup).
+/// Invariant I1–I6 fase grup (logic.md §18.4, §21.2): P 8–16 × G ∈ groupCountsFor(P) (turnamen baru) ditambah P 6–15 ×
+/// aturan 3.8.x–3.9.x (data lama tetap dijadwalkan sama, AC-G29) = P 6–16 × G ∈ decodableGroupCounts(P), × C 1–10; isi
+/// grup = urutan acak berseed (urutan masuk layar Grup).
 
 /// Rumus PRD 16.3 dihitung ulang di sini, terpisah dari implementasi: g pasangan, k court → r × ⌈m ÷ k⌉.
 int _rounds(int g, int k) => (g.isEven ? g - 1 : g) * ((g ~/ 2 + k - 1) ~/ k);
 
 void main() {
-  for (var p = 6; p <= 15; p++) {
-    for (final g in GroupStage.groupCountsFor(p)) {
+  for (var p = 6; p <= 16; p++) {
+    for (final g in GroupStage.decodableGroupCounts(p)) {
       for (var c = 1; c <= 10; c++) {
         test('P $p · G $g · C $c', () {
           final rng = Random(p * 100 + g * 10 + c);
