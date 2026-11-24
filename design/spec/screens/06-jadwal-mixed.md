@@ -16,6 +16,18 @@ Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `Ma
 - Action bar: Klasemen (ikon), Pemain (ikon + jumlah aktif → sheet 08a), Buat R4. Tombol akhiri pindah ke menu ⋯.
 - Ikon tukar di kolom bola Court 2 (17a): match Belum di round terakhir, Indra W dan Joko S istirahat. Court 1 sudah ada skor, jadi tanpa ikon.
 
+## 06fts · Round berjalan · skala teks 1,3
+
+![06fts](../../frames/06fts.png)
+
+Komponen: `MabarAppBar`, `MabarButton`, `MabarIconButton`, `MabarActionBar`, `MabarGroup / MabarRow`, `MabarGroupHeader`, `RoundTabs`, `MatchScoreRow`, `RestingList`
+
+- Keadaan dan data sama dengan 06f, skala teks HP 1,3 (batas atas, Fondasi → Skala teks HP). Hanya teks yang ×1,3; ikon, tombol ikon 52, lebar strip court 42, dan area ketuk tetap. Angka jumlah pemain di tombol ikon digeser ke sudut (atas 2, kanan 3) supaya tidak menimpa ikon.
+- Tombol tunggu: "Buat R4 · tunggu 1 match" tidak muat satu baris di sisa lebar action bar → dua baris, "Buat R4" di baris 1, "tunggu 1 match" di baris 2 tanpa "·". Tombol tumbuh dari 52 ke 70, tombol ikon tetap 52 dan rata tengah. Alasan tidak pernah dielipsis; sama untuk 06h, 06u, dan "Buat bagan · tunggu 5 match" (20b). Satu baris kalau muat.
+- Baris match: tinggi minimum 84, tumbuh mengikuti teks (di sini 90). Skor, "Isi skor", nomor court, dan hitung mundur tidak dipotong; yang memendek duluan nama pasangan (elipsis).
+- Tab: strip tab digulir; tab aktif digulir ke tampak dan tidak pernah terpotong (tab ujung di tepi boleh terpotong, 06a, 21a). Di sini R1–R3 dan "1/2 match" muat.
+- Subjudul dan judul Istirahat satu baris; kalau tidak muat, elipsis di ujung (meta, setelah nama).
+
 ## 06g · Round lengkap · siap buat berikutnya
 
 ![06g](../../frames/06g.png)

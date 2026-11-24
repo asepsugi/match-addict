@@ -801,6 +801,31 @@ table.map { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .rank.gg-wc .rrow.on .radio { box-shadow: inset 0 0 0 7px var(--ink); }
 .dialog .bracket.wc .bm { grid-template-columns: 36px 58px minmax(0, 1fr); }
 .bagan.wc .t .sd { width: 56px; }
+
+/* A15-2 skala teks 1,3 (keputusan 120): frame uji 06fts, 03ats. Teks x1,3; tinggi tetap hanya untuk kontrol tanpa
+   teks (tombol ikon, ikon, lebar strip court). .ts13 dipasang di anak langsung .app (appbar, tabs, body, actionbar)
+   supaya aturan ini hanya mengenai frame uji. Tombol berteks dua baris = .two (aksi baris 1, alasan baris 2). */
+.appbar.ts13 h1 { font-size: 28.6px; }
+.appbar.ts13 .t p { font-size: 16.9px; }
+.tabs.ts13 b { font-size: 19.5px; }
+.tabs.ts13 .meta { font-size: 16.9px; }
+.body.ts13 .glabel { font-size: 16.9px; }
+.body.ts13 .ghead { height: auto; min-height: 18px; }
+.body.ts13 .team { font-size: 20.8px; }
+.body.ts13 .team .s { width: 26px; font-size: 28.6px; }
+.body.ts13 .bug .court { font-size: 24.7px; }
+.body.ts13 .bug .court.timed { grid-template-rows: minmax(0, 1fr) auto; }
+.body.ts13 .bug .court.timed .cd { font-size: 16.9px; min-height: 26px; }
+.body.ts13 .btn-sm { font-size: 18.2px; height: auto; }
+.body.ts13 .rest .names span { font-size: 16.9px; line-height: 28.6px; }
+.body.ts13 .inline-field { font-size: 20.8px; }
+.body.ts13 .mode b { font-size: 22.1px; white-space: nowrap; }
+.body.ts13 .mode b.fit { font-size: 21px; }
+.body.ts13 .row { font-size: 20.8px; }
+.actionbar.ts13 { align-items: center; }
+.actionbar.ts13 .icbtn .count { font-size: 14.3px; top: 2px; right: 3px; }
+.actionbar.ts13 .btn { font-size: 20.8px; }
+.actionbar.ts13 .btn.two { height: auto; flex-direction: column; gap: 4px; padding: 8px 16px; line-height: 1.15; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -922,6 +947,15 @@ table.map { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
         <li><b>Bayangan:</b> tidak ada di kartu. Hanya panel bawah Beranda (menimpa lapangan) dan menu ⋯ (melayang tanpa scrim). Sheet dan dialog dipisahkan dari layar oleh scrim, tanpa bayangan.</li>
         <li><b>Kartu:</b> baris match dan grup pengaturan saja. Status tidak pernah dibungkus kotak berwarna.</li>
         <li><b>Action bar:</b> menempel di bawah, garis tipis di atasnya, safe area 34.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Skala teks HP: sampai 1,3</h3>
+      <ul class="ruleslist">
+        <li><b>Batas:</b> teks mengikuti ukuran font HP sampai 1,3; di atas itu tetap 1,3. Frame uji 06fts dan 03ats (keputusan 120, A15-2).</li>
+        <li><b>Yang membesar:</b> teks saja. Kontrol berteks (tombol, baris, tab, baris match, kartu bagan) memakai tinggi minimum dan tumbuh; tinggi tetap hanya untuk kontrol tanpa teks (tombol ikon, stepper). Lebar strip court tetap 42; angka di dalamnya muat sampai 1,3. Area ketuk tetap ≥ 48.</li>
+        <li><b>Saat tidak muat, berurutan:</b> 1 · nama pemain/pasangan elipsis. 2 · meta (subjudul, keterangan tab) elipsis; bagian yang berubah tetap utuh (sheet WO: "sisa 01:20" utuh, "Round 3 · Americano 21" yang dipotong). 3 · teks setelah "·" di tombol (alasan tunggu, estimasi) tidak dipotong: tombol jadi dua baris, aksi di baris 1, teks itu di baris 2 tanpa "·". 4 · label pendek di kolom tetap (kartu mode, header Klasemen) satu baris, mengecil secukupnya. 5 · strip tab digulir, tab aktif selalu tampak utuh.</li>
+        <li><b>Belum digambar:</b> Bagan 21a dan Klasemen 09a pada 1,3; diukur ulang setelah kartu bagan satu baris (GP-9) dan header Klasemen (GP-6).</li>
       </ul>
     </div>
     <div class="panel wide">
@@ -1467,6 +1501,18 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
       <div class="cap"><b>03a</b><span>Turnamen pertama di HP · Fixed · Race to 6</span></div>
       <div class="app"><div class="appbar"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Atur turnamen</h1><p>Tennis · 8 pemain</p></div></div><div class="body" style="gap:12px"><span class="inline-field" style="flex:none;height:48px;box-shadow:inset 0 0 0 1.5px var(--edge);background:var(--card)"><span class="ph">Nama turnamen</span></span><span class="glabel">Pasangan</span><div class="modes m3"><div class="mode on"><span class="modeart"><svg class="p"><use href="#i-user"/></svg><svg class="c"><use href="#i-equals"/></svg><svg class="p"><use href="#i-user"/></svg></span><b>Fixed</b></div><div class="mode"><span class="modeart"><svg class="p"><use href="#i-user"/></svg><svg class="c"><use href="#i-shuffle"/></svg><svg class="p"><use href="#i-user"/></svg></span><b>Mixed</b></div><div class="mode"><span class="modeart"><svg class="p"><use href="#i-user"/></svg><svg class="c"><use href="#i-podium"/></svg><svg class="p"><use href="#i-user"/></svg></span><b>Mexicano</b></div></div><span class="glabel">Skor</span><div class="group"><div class="row"><span class="grow one">Race to 6 · 20 menit</span><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div><span class="glabel">Court</span><div class="group"><div class="row"><span class="grow one">2 court · 2 jam</span><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div></div><div class="actionbar"><span class="btn btn-primary">Lanjut <span class="meta">· ±6 round · 12 match</span></span></div></div>
       <ul><li>Satu layar yang selalu muat, berapa pun jumlah court (keputusan host 33): nama turnamen, Pasangan, lalu Skor dan Court masing-masing satu baris berisi nilainya. Ketuk baris → sheet berisi grup yang sama dengan Konfigurasi lama (Skor 03d, Court 03g). Tidak ada field yang hilang. Enam sasaran ketuk, tidak pernah digulir.</li><li>Frame ini = turnamen pertama di HP itu: default Fixed, Race to 6, durasi 20 menit (Padel 15 menit), 2 court × 2 jam. Turnamen berikutnya dibuka dengan pengaturan turnamen terakhir (03q).</li><li>Kotak "Nama turnamen" paling atas, boleh kosong. Tanpa label grup: isinya sudah menjelaskan diri, seperti nama court. Maks 40 karakter (cukup untuk gabungan klub: "Mabar Jumat PB Garuda x Matcha Club 2026"); ketikan ke-41 tidak masuk, tanpa penghitung karakter. Spasi di awal/akhir dibuang; kosong = tanpa nama, semua tampilan sama dengan turnamen tanpa nama. Hanya diisi di sini; setelah turnamen dibuat tidak bisa diubah (keputusan host 2026-10-23). Tidak ikut diingat dari turnamen terakhir.</li><li>Kartu mode tiga kolom (<code>.modes.m3</code>) tanpa teks deskripsi, hanya gambar dan nama (keputusan host 35). Ilustrasi dari ikon Phosphor: <code>user</code> + penghubung + <code>user</code>; penghubung <code>equals</code> (Fixed), <code>shuffle</code> (Mixed), <code>ranking</code> (Mexicano, ikon yang sama dengan Klasemen). Orang 30 pt, penghubung 16 pt, warna ikut teks; kartu terpilih bertepi tinta 2 pt. Tinggi kartu 86 pt, isi rata tengah.</li><li>Baris Skor = <code>format N · durasi menit</code>; "menit" ditulis penuh, tidak disingkat (keputusan host 37). Stepper di dalam sheet tetap "mnt". Baris Court = <code>n court · j jam</code>; booking berbeda → rentang terpendek–terpanjang ("6 court · 1–2 jam", 03h). Chevron = baris bisa dibuka. Teks terlalu panjang → elipsis (tidak terjadi dengan batas sekarang: "Americano 99 · 180 menit" 24 karakter).</li><li>Estimasi di tombol: <code>±round = booking terpendek ÷ durasi</code> = 120 ÷ 20 = 6, <code>match = round × court</code> = 12. Lanjut → Pasangan (04).</li></ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>03ats</b><span>Turnamen pertama di HP · skala teks 1,3</span></div>
+      <div class="app"><div class="appbar ts13"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Atur turnamen</h1><p>Tennis · 8 pemain</p></div></div><div class="body ts13" style="gap:12px"><span class="inline-field" style="flex:none;height:48px;box-shadow:inset 0 0 0 1.5px var(--edge);background:var(--card)"><span class="ph">Nama turnamen</span></span><span class="glabel">Pasangan</span><div class="modes m3"><div class="mode on"><span class="modeart"><svg class="p"><use href="#i-user"/></svg><svg class="c"><use href="#i-equals"/></svg><svg class="p"><use href="#i-user"/></svg></span><b>Fixed</b></div><div class="mode"><span class="modeart"><svg class="p"><use href="#i-user"/></svg><svg class="c"><use href="#i-shuffle"/></svg><svg class="p"><use href="#i-user"/></svg></span><b>Mixed</b></div><div class="mode"><span class="modeart"><svg class="p"><use href="#i-user"/></svg><svg class="c"><use href="#i-podium"/></svg><svg class="p"><use href="#i-user"/></svg></span><b class="fit">Mexicano</b></div></div><span class="glabel">Skor</span><div class="group"><div class="row"><span class="grow one">Race to 6 · 20 menit</span><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div><span class="glabel">Court</span><div class="group"><div class="row"><span class="grow one">2 court · 2 jam</span><svg class="ic ic-s chev"><use href="#i-chev"/></svg></div></div></div><div class="actionbar ts13"><span class="btn btn-primary">Lanjut <span class="meta">· ±6 round · 12 match</span></span></div></div>
+      <ul>
+        <li>Keadaan dan data sama dengan 03a, skala teks HP 1,3 (batas atas, Fondasi → Skala teks HP). Hanya teks yang ×1,3; ikon, gambar kartu mode, dan kotak nama 48 tetap.</li>
+        <li>Layar tetap muat tanpa gulir (keputusan 33): baris Court berakhir di 492, action bar mulai di 745.</li>
+        <li>Kartu mode: nama satu baris, tidak dielipsis; "Mexicano" mengecil sampai muat di lebar kartu (21 dari 22,1), "Fixed" dan "Mixed" tetap 22,1. Tinggi kartu 86 → 93.</li>
+        <li>Baris Skor dan Court tetap satu baris, elipsis kalau tidak muat (aturan 03a).</li>
+        <li>Tombol Lanjut: estimasi muat satu baris. Kalau tidak muat (mis. "Lanjut · 14 round · lewat booking 01:30", 14f), estimasi pindah ke baris 2 tanpa "·", seperti tombol tunggu 06fts; tidak dielipsis.</li>
+      </ul>
     </div>
 
     <div class="scr">
@@ -2131,6 +2177,29 @@ Citra L<span class="caret"></span></div><div class="tools"><span class="txtbtn">
         <li>Tab default = round terakhir; kembali ke round terakhir setelah Buat/Batalkan. Titik bola di round terakhir selama belum lengkap. Placeholder "R4 ?" dihapus.</li>
         <li>Badge LIVE dihapus. Istirahat: label lalu nama lengkap dalam dua kolom rata (banyak nama: 06o); judulnya "Istirahat · Prioritas main di R4" (bagian prioritas bertinta gelap, bukan biru court supaya tidak terbaca sebagai tautan), hanya saat melihat round terakhir. Nama seukuran judul (13). Kalau tidak semua kebagian slot R4, daftar dibagi dua (06o).</li><li>Round terakhir: daftar dihitung dari pemain aktif sekarang (yang keluar tidak tampil, yang baru ditambahkan langsung masuk). Round yang sudah lewat: catatan saat round itu dibuat (06n).</li>
         <li>Action bar: Klasemen (ikon), Pemain (ikon + jumlah aktif → sheet 08a), Buat R4. Tombol akhiri pindah ke menu ⋯.</li><li>Ikon tukar di kolom bola Court 2 (17a): match Belum di round terakhir, Indra W dan Joko S istirahat. Court 1 sudah ada skor, jadi tanpa ikon.</li>
+      </ul>
+    </div>
+
+    <div class="scr">
+      <div class="cap"><b>06fts</b><span>Round berjalan · skala teks 1,3</span></div>
+      <div class="app">
+        <div class="appbar ts13"><span class="icbtn"><svg class="ic"><use href="#i-back"/></svg></span><div class="t"><h1>Round 3</h1><p>Padel · Americano 21</p></div><span class="icbtn"><svg class="ic"><use href="#i-more"/></svg></span></div>
+        <div class="tabs ts13"><b>R1</b><b>R2</b><b class="on">R3<i class="live"></i></b><span class="meta">1/2 match</span></div>
+        <div class="body ts13" style="padding-top:12px">
+          <div class="list">
+            <div class="bug wide"><div class="court n timed" style="--c:#2F8F5B"><span>1</span><span class="cd">01:20</span></div><div class="teams"><div class="team win"><i class="w"></i><span class="nm">Andi P · Dewant R</span><span class="sets"><b class="s n">13</b></span></div><div class="team"><i class="w"></i><span class="nm">Citra L · Fajar K</span><span class="sets"><b class="s n l">8</b></span></div></div><span></span></div>
+            <div class="bug wide"><div class="court n timed" style="--c:#C4532D"><span>2</span><span class="cd">01:20</span></div><div class="teams"><div class="team"><i class="w swap"><svg class="ic"><use href="#i-swap"/></svg></i><span class="nm">Eko M · Budi S</span></div><div class="team"><i class="w swap"><svg class="ic"><use href="#i-swap"/></svg></i><span class="nm">Hana T · Gina R</span></div></div><span class="btn btn-primary btn-sm cta">Isi skor</span></div>
+          </div>
+          <div class="rest"><div class="ghead"><span class="glabel">Istirahat · <span class="prio">Prioritas main di R4</span></span></div><div class="names"><span>Indra W</span><span>Joko S</span></div></div>
+        </div>
+        <div class="actionbar ts13"><span class="icbtn solid"><svg class="ic"><use href="#i-podium"/></svg></span><span class="icbtn solid"><svg class="ic"><use href="#i-people"/></svg><span class="count">10</span></span><span class="btn btn-wait two">Buat R4 <span class="meta">tunggu 1 match</span></span></div>
+      </div>
+      <ul>
+        <li>Keadaan dan data sama dengan 06f, skala teks HP 1,3 (batas atas, Fondasi → Skala teks HP). Hanya teks yang ×1,3; ikon, tombol ikon 52, lebar strip court 42, dan area ketuk tetap. Angka jumlah pemain di tombol ikon digeser ke sudut (atas 2, kanan 3) supaya tidak menimpa ikon.</li>
+        <li>Tombol tunggu: "Buat R4 · tunggu 1 match" tidak muat satu baris di sisa lebar action bar → dua baris, "Buat R4" di baris 1, "tunggu 1 match" di baris 2 tanpa "·". Tombol tumbuh dari 52 ke 70, tombol ikon tetap 52 dan rata tengah. Alasan tidak pernah dielipsis; sama untuk 06h, 06u, dan "Buat bagan · tunggu 5 match" (20b). Satu baris kalau muat.</li>
+        <li>Baris match: tinggi minimum 84, tumbuh mengikuti teks (di sini 90). Skor, "Isi skor", nomor court, dan hitung mundur tidak dipotong; yang memendek duluan nama pasangan (elipsis).</li>
+        <li>Tab: strip tab digulir; tab aktif digulir ke tampak dan tidak pernah terpotong (tab ujung di tepi boleh terpotong, 06a, 21a). Di sini R1–R3 dan "1/2 match" muat.</li>
+        <li>Subjudul dan judul Istirahat satu baris; kalau tidak muat, elipsis di ujung (meta, setelah nama).</li>
       </ul>
     </div>
 
@@ -5755,11 +5824,11 @@ Andi<span class="caret"></span></div><span class="thumb" style="top:80px"></span
       <tbody>
         <tr><td>01 Beranda</td><td>Hero, kartu Lanjutkan turnamen, kartu Turnamen terakhir · tambah jam (Mixed), kartu Pasang Match Addict di HP (prompt / manual / none), pilihan Tennis/Padel, dialog mulai baru, sheet pasang di iPhone, versi app</td><td>01a–01j, 08c</td></tr>
         <tr><td>02 Peserta</td><td>Pilihan Mabar / Sparing, textarea + parser, Tempel, Contoh, Hapus semua, pratinjau, duplikat, minimal 4 / maksimal 30</td><td>02a–02d, 13a</td></tr>
-        <tr><td>03 Konfigurasi</td><td>Satu layar dengan baris nilai Skor dan Court (keputusan 33): turnamen pertama (default) · pengaturan terakhir · Fixed / Mixed / Mexicano · sheet Skor (format, poin 2–99, durasi; Mexicano tanpa segmented; Best of genap bisa seri) · sheet Court 2 / 6 (booking berbeda, nama custom) / 10 court · sheet warna di atas sheet Court · durasi tidak muat di layar, sheet Skor, sheet Court · durasi kosong + keyboard angka · nama aktif + keyboard · estimasi · Sparing dua kartu</td><td>03a–03q, 13h–13j, 14f, 14g</td></tr>
+        <tr><td>03 Konfigurasi</td><td>Satu layar dengan baris nilai Skor dan Court (keputusan 33): turnamen pertama (default) · pengaturan terakhir · Fixed / Mixed / Mexicano · sheet Skor (format, poin 2–99, durasi; Mexicano tanpa segmented; Best of genap bisa seri) · sheet Court 2 / 6 (booking berbeda, nama custom) / 10 court · sheet warna di atas sheet Court · durasi tidak muat di layar, sheet Skor, sheet Court · durasi kosong + keyboard angka · nama aktif + keyboard · estimasi · Sparing dua kartu · skala teks 1,3</td><td>03a–03q, 03ats, 13h–13j, 14f, 14g</td></tr>
         <tr><td>04 Pasangan</td><td>Acak, Acak ulang, Manual (pilih, lepas pilihan, Urungkan), pemain ganjil, kunci pasangan, 30 pemain</td><td>04a–04e</td></tr>
         <tr><td>05 Cara Kerja Mixed</td><td>Penjelasan round, Aturan Fairness, Estimasi 4 angka, Mulai Round 1</td><td>03b (tombol), 06k (sheet)</td></tr>
         <tr><td>06a Jadwal Fixed</td><td>Sisa booking per court (kotak jam di strip), tab (selesai / berjalan / belum terbuka), round terkunci, match kosong / selesai / seri / WO / tidak dimainkan, istirahat (pasangan ganjil), Klasemen, Akhiri, kondisi selesai</td><td>06a–06e</td></tr>
-        <tr><td>06b Jadwal Mixed</td><td>Tab, Buat Rn (tunggu / aktif / court berkurang), Batalkan Rn + dialog, istirahat + prioritas, Peserta (n), Akhiri, waktu habis, diakhiri, Lanjutkan turnamen, banyak round (tab digeser), banyak yang istirahat, nama panjang / nama depan sama</td><td>06f–06o, 06u</td></tr>
+        <tr><td>06b Jadwal Mixed</td><td>Tab, Buat Rn (tunggu / aktif / court berkurang), Batalkan Rn + dialog, istirahat + prioritas, Peserta (n), Akhiri, waktu habis, diakhiri, Lanjutkan turnamen, banyak round (tab digeser), banyak yang istirahat, nama panjang / nama depan sama, skala teks 1,3</td><td>06f–06o, 06u, 06fts</td></tr>
         <tr><td>Sheet Kelola Peserta</td><td>Tambah, Keluarkan, Kembalikan, pemain keluar, empat pesan error, minimal 4</td><td>08a–08b</td></tr>
         <tr><td>Baru: Kelola court</td><td>Hitung mundur per court di strip (Mixed &amp; Fixed), menu Kelola court, langsung main di round berjalan, mulai round berikutnya, pemain tidak cukup, ubah/hapus court, court hampir habis, court habis, round lewat, detail court + Simpan, jam tambahan court habis, sisa di Input Skor</td><td>06i, 06p–06t, 07l, 08e–08k</td></tr>
         <tr><td>Sheet Lanjutkan Turnamen</td><td>Jam per court 0–6, sisa waktu, estimasi match, court berkurang, match tidak dimainkan, tombol mati</td><td>08c–08d</td></tr>
@@ -5851,6 +5920,7 @@ Andi<span class="caret"></span></div><span class="thumb" style="top:80px"></span
         <li><b>3.10.0 subjudul sheet Playoff 19f–19h</b> (keputusan host 161, 2026-11-24): sheet Playoff yang tertumpuk di bawah sheet babak tetap bersubjudul babak awal "Semifinal", sama dengan 19e (keputusan 136).</li>
         <li><b>3.10.0 Klasemen tanpa gulir + gaya kolom Babak</b> (keputusan host 162, 2026-11-24): 22i dan 23l memperlihatkan 12 baris utuh tanpa gulir (nama satu baris, keputusan 148); kolom Babak 16 px tebal 600, Juara 1 800, posisi grup 500 abu — app mengikuti; 22r Story: subjudul 12 (12,5 tidak muat), baris 28,33 sesuai aturan poster Lengkap.</li>
         <li><b>MINOR 3.10.0 toast 413, 13o, contoh 09m</b> (keputusan host 157–159, 2026-11-24; D-2): Mulai live dijawab 413 → toast "Data terlalu besar · live belum dimulai", pola 12g, ikon info, tanpa tombol aksi (12s, baru; 157). 13o digambar dari atas dengan app bar biasa, bukan keadaan digulir (158). Contoh 09m #5 "Wicaksono Adi · Setiawati Putri" → "Wica… · Setia…" di 14 pt, menggantikan "Indra W · Joko S" yang utuh (159).</li>
+        <li><b>MINOR 3.10.0 skala teks sampai 1,3</b> (keputusan host 120, 2026-11-18; A-15; A15-2 2026-11-24 dari hasil ukur A15-1): aturan Fondasi → Skala teks HP (batas 1,3, hanya teks yang membesar, urutan memendek: nama → meta → tombol dua baris → label mengecil → tab digulir); frame uji 06fts (tombol tunggu dua baris "Buat R4" / "tunggu 1 match", tinggi 70) dan 03ats (layar tetap muat, "Mexicano" mengecil). 21a dan 09a pada 1,3 menyusul GP-9 dan GP-6.</li>
         <li><b>3.9.0 Kosongkan skor / Hapus WO</b> (keputusan host 113–114, 121, 2026-11-18, PRD §17; KS-1, frame 06aa–06ac, 07p–07x, 20b): skor dikosongkan dengan ⌫ sampai kedua kotak kosong → "Kosongkan skor" (sekunder clay) + dialog per mode; Mixed/Mexicano hanya round terakhir, Fixed dan Sparing Fixed round mana pun, grup dilarang setelah bagan dibuat, gugur boleh selama babak sesudahnya belum terisi (pesan 21l); match WO lewat "Hapus WO" di sheet WO; boleh juga setelah turnamen diakhiri (match jadi Tidak dimainkan).</li>
         <li><b>3.9.0 perilaku kecil P5 + C-17 + P6</b> (keputusan host 115–120, 2026-11-18; KS-2, KS-3): Hapus semua + Urungkan (02e); dialog buang pasangan manual dan perubahan Atur pasangan (04i, 04j); Bagikan gagal → dua PNG diunduh + hasil disalin, toast "Gambar diunduh · hasil disalin" (11n); lawan WO dihitung di Beda lawan; tombol mati "Buat bagan · tunggu N match"; bagan mengintip 24 pt, label 13 px, nama masuk tebal di pratinjau Tukar. Nama di 11c/11n = data 09a (B-16).</li>
         <li><b>3.9.0 frame P4</b> (keputusan host 128, 2026-11-20; KS-4, frame 09h, 10e, 12p, 12q, 15z1–15z4, 17s, 17t, 22s–22u): nama Mixed panjang dua baris; penonton tanpa internet "Tidak ada internet" + "Coba lagi"; toast Hentikan offline di atas sheet; Win % Detail bulat; Batal/Tukar menempel di footer sheet Tukar; Beranda/dialog menulis nama format + nama babak; "Pilih klub" Sparing. Ditunda: Kelola court Sparing "mulai R…", Tukar 12 kandidat Sparing. Sheet WO gugur dengan "Hapus WO" mati + pesan 21l: 07y (2026-11-22). Beranda/dialog Group - Playoff 22s–22u digambar ulang: baris kecil nama format, judul = nama babak ("Semifinal"), dialog "Padel · Group - Playoff, Semifinal". Aturan pemisah di Komponen → <code>#pemisah</code> (B-22). 09h, 12p, 17s, 17t digambar ulang ke keputusan 128 (2026-11-22; sebelumnya masih perilaku lama): 09h nama yang tidak muat dua baris tinggi 62 (<code>.rrow.two</code>); 12p "Tidak ada internet" + "Coba lagi", frame baru 12r saat mencoba lagi, cek otomatis 10 detik tetap jalan; 17s/17t pratinjau + Diganti tetap, hanya kandidat digulir, Batal/Tukar di footer menempel (<code>.sfix</code>/<code>.sscroll</code>/<code>.sfoot</code>). 12r dan 17d apa adanya disetujui host (keputusan 132, 2026-11-22).</li>
