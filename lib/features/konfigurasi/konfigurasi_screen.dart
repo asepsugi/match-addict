@@ -75,9 +75,10 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
       _duration = last.matchDurationMinutes;
       final gk = last.groupKnockout;
       if (gk != null && _knockoutOffered) {
-        // Turunan saat dibaca (docs/data.md): 4 grup di bawah 12 pasangan → 2 grup, format Perempat final dibuang.
+        // Turunan saat dibaca (docs/data.md, GP9): jumlah grup yang tidak sah lagi untuk jumlah pemain sekarang → grup
+        // sah terbesar yang tidak melebihinya; format Perempat final dibuang kalau jadi 2 grup.
         _knockout = true;
-        _groupCount = GroupStage.groupCountsFor(_pairs).contains(gk.groupCount) ? gk.groupCount : 2;
+        _groupCount = GroupStage.fallbackGroupCount(_pairs, gk.groupCount)!;
         _thirdPlace = gk.thirdPlace;
         for (final MapEntry(key: round, value: format) in gk.formats.entries) {
           if (round == KnockoutRound.quarterfinal && _groupCount == 2) continue;
@@ -165,7 +166,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
 
   /// Babak urut main (urutan baris sheet Gugur 19e); juara 3 selalu ada di sini, matinya lewat [_thirdPlace].
   List<KnockoutRound> get _knockoutRounds => [
-    if (_groupCount == 4) KnockoutRound.quarterfinal,
+    if (_groupCount >= 3) KnockoutRound.quarterfinal,
     KnockoutRound.semifinal,
     KnockoutRound.thirdPlace,
     KnockoutRound.finalRound,
@@ -253,28 +254,17 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
         error: true,
       );
     }
-    if (withDraw && _format.method == ScoringMethod.bestOf && _format.canDraw) return const MabarGroupNote('Bisa berakhir seri');
+    if (withDraw && _format.method == ScoringMethod.bestOf && _format.canDraw)
+      return const MabarGroupNote('Bisa berakhir seri');
     return null;
   }
 
   /// Isi sheet Skor (03d): segmented, angka format, durasi. Grup berlatar paper di dalam sheet.
   Widget _scoreGroup(BuildContext sheetContext) {
     final method = _format.method;
-    final counts = GroupStage.groupCountsFor(_pairs);
-    return MabarGroup(
+    final group = MabarGroup(
       color: MabarColors.paper,
       children: [
-        // Sheet Fase grup (19d): 2 atau 4 grup; hanya 2 grup → tanpa pilihan, jumlahnya jadi subjudul sheet (19c).
-        if (_knockoutOn && counts.length > 1)
-          MabarRow.stack(
-            children: [
-              MabarSegmented<int>(
-                options: [for (final n in counts) (n, '$n grup')],
-                selected: _groupCount,
-                onChanged: (n) => _change(() => _groupCount = n),
-              ),
-            ],
-          ),
         // Mexicano hanya Americano: tanpa segmented, formatnya tertulis sebagai subjudul (03e).
         if (_mode != PartnerMode.mexicano)
           MabarRow.stack(
@@ -313,6 +303,28 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
             onChanged: (n) => _change(() => _duration = n),
           ),
         ),
+      ],
+    );
+    if (!_knockoutOn) return group;
+    // .optlist (19c, 19d, 23a): 2 / 3 / 4 grup; pilihan yang tidak sah mati dengan alasannya (GP9).
+    final offered = GroupStage.groupCountsFor(_pairs);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final n in const [2, 3, 4]) ...[
+          MabarOption(
+            key: ValueKey('grup$n'),
+            label: '$n grup',
+            sublabel: ConfigSummary.groupOption(_pairs, n),
+            selected: _groupCount == n,
+            enabled: offered.contains(n),
+            onTap: () => _change(() => _groupCount = n),
+          ),
+          const SizedBox(height: 8),
+        ],
+        const SizedBox(height: 8),
+        group,
       ],
     );
   }
@@ -447,15 +459,18 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
       subtitle: subtitle,
       builder: (sheetContext) => ValueListenableBuilder<int>(
         valueListenable: _tick,
-        builder: (context, _, _) =>
-            MabarSection(note: showNote ? _scoreNote(withDraw: withDraw) : null, child: group(sheetContext)),
+        builder: (context, _, _) => MabarSection(
+          note: showNote ? _scoreNote(withDraw: withDraw) : null,
+          child: group(sheetContext),
+        ),
       ),
     );
   }
 
   /// Baris ringkasan yang membuka sheet: nilai di judul, chevron di kanan.
-  Widget _summaryRow(Widget text, VoidCallback onTap) =>
-      MabarGroup(children: [MabarRow(titleWidget: text, chevron: true, onTap: onTap)]);
+  Widget _summaryRow(Widget text, VoidCallback onTap) => MabarGroup(
+    children: [MabarRow(titleWidget: text, chevron: true, onTap: onTap)],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -545,7 +560,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                           _knockoutOn ? 'Fase grup' : 'Skor',
                           _scoreGroup,
                           subtitle: _knockoutOn
-                              ? (GroupStage.groupCountsFor(_pairs).length > 1 ? null : '$_groupCount grup')
+                              ? '$_pairs pasangan'
                               : _mode == PartnerMode.mexicano
                               ? _format.method.label
                               : null,
@@ -556,7 +571,7 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                       const SizedBox(height: 12),
                       MabarSection(
                         bodyGap: 12,
-                        header: const MabarGroupLabel('Playoff'),
+                        header: MabarGroupLabel('Playoff · ${ConfigSummary.playoffOpening(_groupCount)}'),
                         child: _summaryRow(
                           Text(
                             ConfigSummary.knockout({
@@ -566,7 +581,12 @@ class _KonfigurasiScreenState extends ConsumerState<KonfigurasiScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          () => _openSheet('Playoff', _knockoutGroup, showNote: false),
+                          () => _openSheet(
+                            'Playoff',
+                            _knockoutGroup,
+                            showNote: false,
+                            subtitle: ConfigSummary.playoffOpening(_groupCount),
+                          ),
                         ),
                       ),
                     ],
